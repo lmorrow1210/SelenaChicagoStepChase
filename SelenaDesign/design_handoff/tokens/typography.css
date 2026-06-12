@@ -1,0 +1,116 @@
+/* ============================================================
+   Selena's Chase — Typography Tokens
+   Display/headers: Barlow Condensed 700 (bold, energetic)
+   Body: DM Sans 400/500
+   Numbers/data: DM Mono
+   Fonts loaded via Google Fonts @import in styles.css.
+   ============================================================ */
+
+:root {
+  /* ---- Families ---- */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* ---- Weights ---- */
+  --fw-regular:  400; /* @kind font */
+  --fw-medium:   500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold:     700; /* @kind font */
+
+  /* ---- Type scale (role → size) ---- */
+  --fs-display:    64px; /* city names, win moments */
+  --fs-h1:         40px;
+  --fs-h2:         30px;
+  --fs-h3:         22px;
+  --fs-body:       16px;
+  --fs-body-sm:    14px;
+  --fs-label:      12px; /* eyebrow / stat label, uppercase tracked */
+  --fs-caption:    11px;
+  --fs-data:       28px; /* big mono step counts / scores */
+  --fs-data-sm:    16px; /* inline mono stats */
+
+  /* ---- Line heights ---- */
+  --lh-display: 0.95; /* @kind font */
+  --lh-tight:   1.05; /* @kind font */
+  --lh-heading: 1.15; /* @kind font */
+  --lh-body:    1.55; /* @kind font */
+  --lh-data:    1.1; /* @kind font */
+
+  /* ---- Letter spacing ---- */
+  --ls-display: -0.01em; /* @kind font */
+  --ls-heading: 0em; /* @kind font */
+  --ls-body:    0em; /* @kind font */
+  --ls-label:   0.14em; /* @kind font */
+  --ls-data:    0.01em; /* @kind font */
+}
+
+/* ---- Role utility classes (optional helpers) ---- */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.t-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-heading);
+  color: var(--cream);
+}
+.t-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  color: var(--cream);
+}
+.t-h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-heading);
+  color: var(--cream);
+}
+.t-body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--cream);
+}
+.t-body-sm {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body);
+  color: var(--cream);
+}
+.t-label {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.t-data {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-data);
+  line-height: var(--lh-data);
+  letter-spacing: var(--ls-data);
+  color: var(--cream);
+}
+.t-caption {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+  color: var(--muted);
+}

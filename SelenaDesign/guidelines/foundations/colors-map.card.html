@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x160" name="Map palette" subtitle="Illustrated travel-board colors — colorful, not dark" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--navy); }
+  .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .sw { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--hairline); }
+  .chip { height: 56px; }
+  .meta { padding: 7px 9px; background: var(--card); }
+  .nm { font-family: var(--font-body); font-weight: 600; font-size: 12px; color: var(--cream); }
+  .hex { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--map-ocean)"></div><div class="meta"><div class="nm">ocean</div><div class="hex">#15406B</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-land-green)"></div><div class="meta"><div class="nm">green</div><div class="hex">#3E7C54</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-land-teal)"></div><div class="meta"><div class="nm">teal</div><div class="hex">#2E8B83</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-land-sage)"></div><div class="meta"><div class="nm">sage</div><div class="hex">#6E9E63</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-land-tan)"></div><div class="meta"><div class="nm">tan</div><div class="hex">#C9A86A</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-land-warm)"></div><div class="meta"><div class="nm">warm</div><div class="hex">#C97B4A</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--map-route)"></div><div class="meta"><div class="nm">route</div><div class="hex">#D4A820</div></div></div>
+  </div>
+</body>
+</html>

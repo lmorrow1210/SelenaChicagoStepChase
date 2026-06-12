@@ -1,0 +1,22 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Badge quality" subtitle="Bronze / silver / gold collectible tiers" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--navy); display:flex; gap:16px; align-items:center; }
+  .q { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .ring { width: 70px; height: 70px; border-radius: 50%; background: var(--card-elevated); border-width: 4px; border-style: solid; }
+  .nm { font-family: var(--font-display); font-weight: 700; font-size: 15px; text-transform: uppercase; color: var(--cream); }
+  .hex { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .lab { font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-left: 8px; max-width: 300px; }
+</style>
+</head>
+<body>
+  <div class="q"><div class="ring" style="border-color:var(--bronze)"></div><div class="nm">Bronze</div><div class="hex">#CD7F32</div></div>
+  <div class="q"><div class="ring" style="border-color:var(--silver)"></div><div class="nm">Silver</div><div class="hex">#A8A9AD</div></div>
+  <div class="q"><div class="ring" style="border-color:var(--gold); box-shadow: var(--glow-gold)"></div><div class="nm">Gold</div><div class="hex">#D4A820</div></div>
+  <div class="lab">Border quality rises with group performance. Gold earns an accent glow — the only place a glow appears at rest.</div>
+</body>
+</html>

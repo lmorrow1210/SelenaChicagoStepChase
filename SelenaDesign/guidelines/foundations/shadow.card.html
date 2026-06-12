@@ -1,0 +1,22 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Shadow & glow" subtitle="Navy-tinted elevation + achievement glows" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin:0; padding:26px; background:var(--navy); display:flex; gap:26px; align-items:center; flex-wrap:wrap; }
+  .e { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .box { width:96px; height:64px; border-radius:var(--r-card); background:var(--card); border:1px solid var(--hairline); }
+  .nm { font-family:var(--font-body); font-weight:600; font-size:12px; color:var(--cream); }
+  .v { font-family:var(--font-mono); font-size:10px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="e"><div class="box" style="box-shadow:var(--shadow-card)"></div><div class="nm">Card</div><div class="v">--shadow-card</div></div>
+  <div class="e"><div class="box" style="box-shadow:var(--shadow-elevated)"></div><div class="nm">Elevated</div><div class="v">--shadow-elevated</div></div>
+  <div class="e"><div class="box" style="box-shadow:var(--shadow-modal)"></div><div class="nm">Modal</div><div class="v">--shadow-modal</div></div>
+  <div class="e"><div class="box" style="background:var(--blue);box-shadow:var(--glow-blue)"></div><div class="nm">Glow · blue</div><div class="v">--glow-blue</div></div>
+  <div class="e"><div class="box" style="background:var(--gold);box-shadow:var(--glow-gold)"></div><div class="nm">Glow · gold</div><div class="v">--glow-gold</div></div>
+</body>
+</html>

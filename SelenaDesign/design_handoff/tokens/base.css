@@ -1,0 +1,49 @@
+/* ============================================================
+   Selena's Chase — Base resets & primitives
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--blue-40); color: var(--cream); }
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+a { color: var(--blue); text-decoration: none; }
+
+/* Shared keyframes used across components */
+@keyframes sc-pulse-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(65,182,230,0.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(65,182,230,0); }
+}
+@keyframes sc-bounce-in {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes sc-skeleton {
+  0%   { opacity: 0.55; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.55; }
+}
+@keyframes sc-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes sc-hop {
+  0%   { transform: translate(-50%, 0); }
+  40%  { transform: translate(calc(-50% + var(--hop-dx, 0px) * 0.5), -14px); }
+  100% { transform: translate(calc(-50% + var(--hop-dx, 0px)), 0); }
+}

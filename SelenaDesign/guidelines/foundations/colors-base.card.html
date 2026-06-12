@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Base palette" subtitle="The seven locked brand tokens" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--navy); }
+  .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .sw { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--hairline); }
+  .chip { height: 64px; }
+  .meta { padding: 8px 10px; background: var(--card); }
+  .nm { font-family: var(--font-display); font-weight: 700; font-size: 15px; text-transform: uppercase; color: var(--cream); letter-spacing: .02em; }
+  .hex { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--navy)"></div><div class="meta"><div class="nm">Navy</div><div class="hex">#0A1628</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--card)"></div><div class="meta"><div class="nm">Card</div><div class="hex">#0F2240</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--blue)"></div><div class="meta"><div class="nm">Blue</div><div class="hex">#7CCDEF</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--red)"></div><div class="meta"><div class="nm">Red</div><div class="hex">#CC0000</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--gold)"></div><div class="meta"><div class="nm">Gold</div><div class="hex">#D4A820</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--cream)"></div><div class="meta"><div class="nm">Cream</div><div class="hex">#F0E8DC</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--muted)"></div><div class="meta"><div class="nm">Muted</div><div class="hex">#4A6080</div></div></div>
+  </div>
+</body>
+</html>

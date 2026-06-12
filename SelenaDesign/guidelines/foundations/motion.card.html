@@ -1,0 +1,31 @@
+<!-- @dsCard group="Motion" viewport="700x220" name="Easing & timing" subtitle="Bouncy, celebratory — spring for rewards, ease-out for transitions" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin:0; padding:22px; background:var(--navy); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .demo { background:var(--card); border:1px solid var(--hairline); border-radius:var(--r-card); padding:14px; }
+  .nm { font-family:var(--font-body); font-weight:700; font-size:13px; color:var(--cream); }
+  .v { font-family:var(--font-mono); font-size:10px; color:var(--muted); margin-top:2px; }
+  .track { height:40px; display:flex; align-items:center; margin-top:10px; }
+  .dot { width:26px; height:26px; border-radius:50%; background:var(--blue); }
+  .d1 { animation: m1 1.8s var(--ease-spring) infinite; }
+  .d2 { animation: m2 1.8s var(--ease-out) infinite; background:var(--gold); }
+  .d3 { animation: m3 1.8s var(--ease-spring-big) infinite; background:var(--red); }
+  @keyframes m1 { 0%,15%{transform:translateX(0)} 60%,100%{transform:translateX(180px)} }
+  @keyframes m2 { 0%,15%{transform:translateX(0)} 60%,100%{transform:translateX(180px)} }
+  @keyframes m3 { 0%,15%{transform:scale(.4)} 55%{transform:scale(1.25)} 70%,100%{transform:scale(1)} }
+  @media (prefers-reduced-motion: reduce) { .d1,.d2,.d3{animation:none} }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="demo"><div class="nm">Spring (overshoot)</div><div class="v">cubic-bezier(.34,1.56,.64,1) · 500–800ms</div><div class="track"><div class="dot d1"></div></div></div>
+    <div class="demo"><div class="nm">Ease-out (transitions)</div><div class="v">cubic-bezier(.22,1,.36,1) · 150–250ms</div><div class="track"><div class="dot d2"></div></div></div>
+    <div class="demo"><div class="nm">Big bounce (rewards)</div><div class="v">cubic-bezier(.18,1.9,.5,1) · 600ms</div><div class="track" style="justify-content:center"><div class="dot d3"></div></div></div>
+  </div>
+</body>
+</html>

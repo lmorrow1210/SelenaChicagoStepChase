@@ -1,0 +1,76 @@
+/* ============================================================
+   Selena's Chase — Color Tokens
+   Dark mode only. No pure black (#000), no pure white (#FFF).
+   Navy is darkest; cream is lightest.
+   ============================================================ */
+
+:root {
+  /* ---- Base palette (exact, locked) ---- */
+  --navy:  #0A1628; /* base background — deep midnight navy */
+  --card:  #0F2240; /* cards, panels, elevated surfaces */
+  --blue:  #7CCDEF; /* primary UI — Chicago flag blue (Pantone 297C, exact flag match) */
+  --red:   #CC0000; /* competition, rivalry, action — Chicago red (boots) */
+  --gold:  #D4A820; /* unlocks, badges, achievements */
+  --cream: #F0E8DC; /* primary text on dark backgrounds */
+  --muted: #4A6080; /* secondary text, disabled, placeholders */
+
+  /* ---- Derived surface shades (no pure black/white) ---- */
+  --navy-deep:    #06101D; /* map ocean depth, deepest recess */
+  --card-elevated:#16315A; /* modals, overlays, elevated cards */
+  --card-hover:   #14294C; /* card hover surface */
+  --hairline:     #1C355C; /* borders / dividers on dark surfaces */
+  --skeleton:     #16294A; /* loading skeleton shimmer base */
+
+  /* ---- Interaction state shifts ---- */
+  --blue-hover:   #60BCDE; /* primary button hover */
+  --blue-press:   #44A8CE; /* primary button active */
+  --red-hover:    #B30000; /* danger hover */
+  --red-press:    #990000; /* danger active */
+  --gold-hover:   #BD9418; /* gold hover */
+
+  /* ---- Accent glows (the ONLY gradients allowed — achievement moments) ---- */
+  --glow-blue:  0 0 24px rgba(124, 205, 239, 0.55);
+  --glow-gold:  0 0 24px rgba(212, 168, 32, 0.55);
+  --glow-red:   0 0 20px rgba(204, 0, 0, 0.45);
+
+  /* ---- Translucent fills (component tints) ---- */
+  --blue-08:  rgba(124, 205, 239, 0.08);
+  --blue-12:  rgba(124, 205, 239, 0.12);
+  --blue-20:  rgba(124, 205, 239, 0.20);
+  --blue-40:  rgba(124, 205, 239, 0.40);
+  --gold-12:  rgba(212, 168, 32, 0.12);
+  --gold-20:  rgba(212, 168, 32, 0.20);
+  --red-12:   rgba(204, 0, 0, 0.12);
+  --cream-08: rgba(240, 232, 220, 0.08);
+  --cream-12: rgba(240, 232, 220, 0.12);
+
+  /* ---- Badge quality ---- */
+  --bronze: #CD7F32;
+  --silver: #A8A9AD;
+  /* gold quality reuses --gold */
+
+  /* ---- Map illustrated palette (colorful travel-board look) ---- */
+  --map-ocean:     #15406B; /* mid-blue ocean, lighter than navy */
+  --map-ocean-2:   #1B4E80;
+  --map-land-green:#3E7C54;
+  --map-land-teal: #2E8B83;
+  --map-land-tan:  #C9A86A;
+  --map-land-warm: #C97B4A;
+  --map-land-sage: #6E9E63;
+  --map-route:     #D4A820; /* journey-traveled dashed line */
+
+  /* ---- Semantic aliases ---- */
+  --bg:            var(--navy);
+  --bg-elevated:   var(--card);
+  --surface-card:  var(--card);
+  --surface-modal: var(--card-elevated);
+  --text-primary:  var(--cream);
+  --text-secondary:var(--muted);
+  --text-on-blue:  var(--navy);
+  --text-on-red:   var(--cream);
+  --border:        var(--hairline);
+  --focus-ring:    var(--blue);
+  --accent:        var(--blue);
+  --danger:        var(--red);
+  --reward:        var(--gold);
+}

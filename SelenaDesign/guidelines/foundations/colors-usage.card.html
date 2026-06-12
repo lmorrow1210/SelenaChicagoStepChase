@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Usage rules" subtitle="When to reach for each accent" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--navy); display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+  .rule { display: flex; gap: 10px; align-items: flex-start; }
+  .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; margin-top: 2px; }
+  .txt { font-family: var(--font-body); font-size: 13px; color: var(--cream); line-height: 1.4; }
+  .txt b { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+  .txt span { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="rule"><div class="dot" style="background:var(--blue)"></div><div class="txt"><b>Blue</b> <span>— primary UI, current city, progress, active nav. Selena's coat.</span></div></div>
+  <div class="rule"><div class="dot" style="background:var(--red)"></div><div class="txt"><b>Red</b> <span>— rivalry, the nemesis, Selena's position, destructive actions. Her boots.</span></div></div>
+  <div class="rule"><div class="dot" style="background:var(--gold)"></div><div class="txt"><b>Gold</b> <span>— unlocks, badges, wins, achievement glows. Reward only.</span></div></div>
+  <div class="rule"><div class="dot" style="background:var(--cream)"></div><div class="txt"><b>Cream</b> <span>— all primary text. Never pure white.</span></div></div>
+  <div class="rule"><div class="dot" style="background:var(--muted)"></div><div class="txt"><b>Muted</b> <span>— secondary text, disabled, placeholders, locked items.</span></div></div>
+  <div class="rule"><div class="dot" style="background:var(--navy); border:1px solid var(--hairline)"></div><div class="txt"><b>Navy</b> <span>— base canvas, the darkest value. Never pure black.</span></div></div>
+</body>
+</html>

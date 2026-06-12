@@ -1,0 +1,21 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Border radius" subtitle="4 tight · 8 card · 16 pill · 50% avatar/badge" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin:0; padding:22px; background:var(--navy); display:flex; gap:26px; align-items:center; }
+  .r { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .box { width:72px; height:72px; background:var(--card-elevated); border:2px solid var(--blue); }
+  .nm { font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--cream); }
+  .v { font-family:var(--font-mono); font-size:10px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="r"><div class="box" style="border-radius:var(--r-tight)"></div><div class="nm">Tight</div><div class="v">4px</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--r-card)"></div><div class="nm">Card</div><div class="v">8px</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--r-pill)"></div><div class="nm">Pill</div><div class="v">16px</div></div>
+  <div class="r"><div class="box" style="border-radius:50%"></div><div class="nm">Avatar</div><div class="v">50%</div></div>
+</body>
+</html>

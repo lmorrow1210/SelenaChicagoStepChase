@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Surface shades" subtitle="Derived navy surfaces — no pure black" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--navy); }
+  .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .sw { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--hairline); }
+  .chip { height: 64px; }
+  .meta { padding: 8px 10px; background: var(--card); }
+  .nm { font-family: var(--font-body); font-weight: 600; font-size: 13px; color: var(--cream); }
+  .hex { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--navy-deep)"></div><div class="meta"><div class="nm">navy-deep</div><div class="hex">#06101D</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--navy)"></div><div class="meta"><div class="nm">navy</div><div class="hex">#0A1628</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--card)"></div><div class="meta"><div class="nm">card</div><div class="hex">#0F2240</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--card-elevated)"></div><div class="meta"><div class="nm">card-elevated</div><div class="hex">#16315A</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--hairline)"></div><div class="meta"><div class="nm">hairline</div><div class="hex">#1C355C</div></div></div>
+  </div>
+</body>
+</html>

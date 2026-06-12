@@ -1,0 +1,51 @@
+/* ============================================================
+   Selena's Chase — Effects: radius, shadow, z-index, motion
+   ============================================================ */
+
+:root {
+  /* ---- Border radius ---- */
+  --r-tight:  4px;  /* tight — small chips, inputs */
+  --r-card:   8px;  /* card */
+  --r-pill:   16px; /* pill / large rounded */
+  --r-full:   9999px;
+  --r-avatar: 50%;  /* avatar / circular badge */
+
+  /* ---- Shadows (soft, navy-tinted — never harsh black) ---- */
+  --shadow-card: 0 2px 8px rgba(6, 16, 29, 0.45);
+  --shadow-elevated: 0 8px 28px rgba(6, 16, 29, 0.6);
+  --shadow-modal: 0 16px 48px rgba(6, 16, 29, 0.7);
+  --shadow-pin: 0 4px 14px rgba(6, 16, 29, 0.5);
+  --shadow-inset: inset 0 1px 0 rgba(240, 232, 220, 0.04);
+
+  /* ---- Z-index scale ---- */
+  --z-base:     0; /* @kind other */
+  --z-raised:   10; /* @kind other */
+  --z-sticky:   100; /* @kind other */
+  --z-nav:      200; /* @kind other */
+  --z-overlay:  300; /* @kind other */
+  --z-modal:    400; /* @kind other */
+  --z-toast:    500; /* @kind other */
+  --z-tooltip:  600; /* @kind other */
+
+  /* ---- Motion: durations ---- */
+  --dur-fast:    150ms; /* @kind other */
+  --dur-base:    250ms; /* @kind other */
+  --dur-unlock:  500ms; /* @kind other */
+  --dur-bingo:   400ms; /* @kind other */
+  --dur-skyline: 600ms; /* @kind other */
+  --dur-hop:     800ms; /* @kind other */
+
+  /* ---- Motion: easing ---- */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* @kind other */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* @kind other */
+  --ease-spring-big: cubic-bezier(0.18, 1.9, 0.5, 1); /* @kind other */
+}
+
+/* ---- Reduced motion: neutralize bounces ---- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ease-spring: ease-out; /* @kind other */
+    --ease-spring-big: ease-out; /* @kind other */
+  }
+}

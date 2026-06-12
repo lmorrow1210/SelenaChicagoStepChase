@@ -1,0 +1,56 @@
+<!-- @dsCard group="Components" viewport="700x380" name="City Badge & Landmark Tile" subtitle="City-specific SVG icons · bronze/silver/gold · locked · landmark states" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { padding: 24px; }
+  .label { font-family: var(--font-body); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 128px); gap: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { CityBadge, LandmarkTile } = window.DesignSystem_19034b;
+  function Demo() {
+    return (
+      <div>
+        <div class="label">City badges — unique landmark icons</div>
+        <div class="row">
+          <CityBadge name="Chicago" quality="gold" />
+          <CityBadge name="Oslo"    quality="gold" />
+          <CityBadge name="Cairo"   quality="silver" />
+          <CityBadge name="Lima"    quality="bronze" />
+          <CityBadge name="Tokyo"   quality="silver" />
+          <CityBadge name="???"     locked />
+        </div>
+        <div class="label">Small size (48)</div>
+        <div class="row">
+          <CityBadge name="Chicago" quality="gold"   size={48} />
+          <CityBadge name="Oslo"    quality="silver" size={48} />
+          <CityBadge name="Cairo"   quality="bronze" size={48} />
+          <CityBadge name="Lima"    quality="gold"   size={48} />
+          <CityBadge name="Tokyo"   quality="silver" size={48} />
+          <CityBadge locked size={48} />
+        </div>
+        <div class="label">Landmark tiles</div>
+        <div class="grid">
+          <LandmarkTile name="Senso-ji" fact="Tokyo's oldest temple, founded 645 AD." state="unlocked" color="var(--map-land-warm)" />
+          <LandmarkTile name="Today's landmark" state="today" />
+          <LandmarkTile state="locked" />
+          <LandmarkTile name="Shibuya" fact="The world's busiest pedestrian crossing." state="unlocked" color="var(--map-land-teal)" />
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>
