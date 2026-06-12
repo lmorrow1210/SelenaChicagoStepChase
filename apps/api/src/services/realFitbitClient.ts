@@ -7,12 +7,20 @@ import type { DayMetrics, FitbitClient, Workout } from "./fitbitClient.js";
 // The real Google Health API client (plan §5). This file is the ONLY place
 // that talks to the live API. PII rule: never log step values, tokens, email.
 //
-// ⚠ VERIFY AT INTEGRATION TIME (plan §5 flag): the spec names
-// `health.googleapis.com/v4` as the base. Confirm the current endpoint base,
-// resource paths, and response shapes against Google's docs with the sandbox
-// account before first production sync. Paths below mirror the Fitbit Web API
-// resource layout under the spec's base and parse defensively — adjusting
-// them is a this-file-only change.
+// Verified against Google's docs (June 2026): the Health API launched at
+// I/O May 2026 at https://health.googleapis.com/v4 and replaces the Fitbit
+// Web API (legacy decommission September 2026). Everything lives under one
+// resource template, users/me/dataTypes/{dataType}/dataPoints —
+//   • daily aggregates: POST …/dataPoints:dailyRollUp with a CivilTimeInterval
+//     range (steps → value.steps.countSum, active-zone-minutes → per-zone sums)
+//   • sessions: GET …/dataPoints with a civil-time filter (exercise, sleep)
+// Refs: developers.google.com/health/reference/rest/v4/users.dataTypes.dataPoints
+// and …/dataPoints/dailyRollUp.
+//
+// ⚠ Still pending before first production sync: a live smoke test with the
+// sandbox account (union-field casing on rollup values is parsed defensively
+// below since the docs show proto field names). Until then run
+// HEALTH_API_MODE=mock in production.
 
 const API_BASE = process.env.HEALTH_API_BASE ?? "https://health.googleapis.com/v4";
 
@@ -47,6 +55,39 @@ interface CachedToken {
 function asNumber(v: unknown): number | null {
   const n = typeof v === "string" ? Number(v) : v;
   return typeof n === "number" && Number.isFinite(n) ? n : null;
+}
+
+function asRecord(v: unknown): Record<string, unknown> {
+  return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+}
+
+/** civil date object for CivilDateTime ({date:{year,month,day}}). */
+function civilDate(date: string): { year: number; month: number; day: number } {
+  const [year, month, day] = date.split("-").map(Number);
+  return { year, month, day };
+}
+
+function nextDate(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Pull a field off a rollup/data point tolerating both proto (snake_case)
+ * and REST-JSON (camelCase) names — the docs show proto names and the live
+ * casing is unconfirmed until the sandbox smoke test.
+ */
+function field(obj: Record<string, unknown>, camel: string): unknown {
+  if (camel in obj) return obj[camel];
+  const snake = camel.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+  return obj[snake];
+}
+
+function minutesBetween(startIso: unknown, endIso: unknown): number | null {
+  if (typeof startIso !== "string" || typeof endIso !== "string") return null;
+  const ms = new Date(endIso).getTime() - new Date(startIso).getTime();
+  return Number.isFinite(ms) && ms >= 0 ? Math.round(ms / 60_000) : null;
 }
 
 export class RealFitbitClient implements FitbitClient {
@@ -98,16 +139,22 @@ export class RealFitbitClient implements FitbitClient {
     }
   }
 
-  private async get(
+  private async request(
     userId: string,
     path: string,
+    body?: unknown,
     retried = false,
   ): Promise<Record<string, unknown>> {
     const token = await this.accessToken(userId);
     try {
       return await withBackoff(async () => {
         const res = await this.fetchImpl(`${API_BASE}${path}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          method: body === undefined ? "GET" : "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+          },
+          body: body === undefined ? undefined : JSON.stringify(body),
         });
         if (!res.ok) throw new HttpError(res.status, `Health API ${res.status} on ${path}`);
         return (await res.json()) as Record<string, unknown>;
@@ -117,11 +164,51 @@ export class RealFitbitClient implements FitbitClient {
         // expired access token: refresh and retry once; a second 401 means
         // access was revoked
         this.accessTokens.delete(userId);
-        if (!retried) return this.get(userId, path, true);
+        if (!retried) return this.request(userId, path, body, true);
         throw new InvalidGrantError(userId);
       }
       throw err;
     }
+  }
+
+  /** POST …/dataPoints:dailyRollUp for one civil day; returns the day's value union. */
+  private async dailyRollUp(
+    userId: string,
+    dataType: string,
+    date: string,
+  ): Promise<Record<string, unknown>> {
+    const res = await this.request(
+      userId,
+      `/users/me/dataTypes/${dataType}/dataPoints:dailyRollUp`,
+      {
+        range: { start: { date: civilDate(date) }, end: { date: civilDate(nextDate(date)) } },
+        windowSizeDays: 1,
+      },
+    );
+    const points = field(res, "rollupDataPoints");
+    const point = asRecord(Array.isArray(points) ? points[0] : undefined);
+    // value union: nested under `value` per the resource doc, but parse a
+    // flattened oneof too.
+    return { ...point, ...asRecord(point.value) };
+  }
+
+  /** GET …/dataPoints filtered to sessions whose civil time falls on `date`. */
+  private async listSessions(
+    userId: string,
+    dataType: string,
+    timeField: string,
+    date: string,
+  ): Promise<Record<string, unknown>[]> {
+    const filter = encodeURIComponent(
+      `${dataType}.interval.${timeField} >= "${date}T00:00:00" AND ` +
+        `${dataType}.interval.${timeField} < "${nextDate(date)}T00:00:00"`,
+    );
+    const res = await this.request(
+      userId,
+      `/users/me/dataTypes/${dataType}/dataPoints?pageSize=25&filter=${filter}`,
+    );
+    const points = field(res, "dataPoints");
+    return Array.isArray(points) ? points.map(asRecord) : [];
   }
 
   /**
@@ -131,63 +218,71 @@ export class RealFitbitClient implements FitbitClient {
    * sync).
    */
   async fetchDay(userId: string, date: string): Promise<DayMetrics> {
-    const activity = await this.get(userId, `/users/me/activities/date/${date}`);
-    const summary = (activity.summary ?? {}) as Record<string, unknown>;
-    const steps = asNumber(summary.steps) ?? asNumber(activity.steps) ?? 0;
-    const azm =
-      asNumber(summary.activeZoneMinutes) ??
-      asNumber((summary.activeZoneMinutes as Record<string, unknown> | undefined)?.totalMinutes) ??
-      null;
+    // Steps are required — a failure here throws so the run retries next tick.
+    const stepsRoll = await this.dailyRollUp(userId, "steps", date);
+    const steps = asNumber(field(asRecord(field(stepsRoll, "steps")), "countSum")) ?? 0;
 
-    const rawActivities = Array.isArray(activity.activities) ? activity.activities : [];
-    const workouts: Workout[] = rawActivities.flatMap((a) => {
-      const act = a as Record<string, unknown>;
-      const start = typeof act.startTime === "string" ? act.startTime : null;
-      const duration = asNumber(act.durationMinutes) ?? asNumber(act.duration);
-      if (!start || duration === null) return [];
-      return [
-        {
-          type: typeof act.activityName === "string" ? act.activityName : "workout",
-          start,
-          duration_min: duration,
-          zone_min: asNumber(act.activeZoneMinutes) ?? 0,
-        },
-      ];
-    });
+    // Active zone minutes double as the hr_zones source: the rollup reports
+    // per-zone sums (fat burn / cardio / peak), the same zones the bingo
+    // detectors key on.
+    let azm: number | null = null;
+    let hr_zones: Record<string, number> | null = null;
+    try {
+      const azmRoll = await this.dailyRollUp(userId, "active-zone-minutes", date);
+      const value = asRecord(field(azmRoll, "activeZoneMinutes"));
+      const fatBurn = asNumber(field(value, "sumInFatBurnHeartZone"));
+      const cardio = asNumber(field(value, "sumInCardioHeartZone"));
+      const peak = asNumber(field(value, "sumInPeakHeartZone"));
+      if (fatBurn !== null || cardio !== null || peak !== null) {
+        hr_zones = { fat_burn: fatBurn ?? 0, cardio: cardio ?? 0, peak: peak ?? 0 };
+        azm = (fatBurn ?? 0) + (cardio ?? 0) + (peak ?? 0);
+      }
+    } catch (err) {
+      if (err instanceof InvalidGrantError) throw err;
+      // partial sync: missing zone data is fine
+    }
+
+    let workouts: Workout[] = [];
+    try {
+      const sessions = await this.listSessions(userId, "exercise", "civil_start_time", date);
+      workouts = sessions.flatMap((point) => {
+        const exercise = asRecord(field(point, "exercise"));
+        const interval = asRecord(field(exercise, "interval"));
+        const start = field(interval, "startTime");
+        const duration = minutesBetween(start, field(interval, "endTime"));
+        if (typeof start !== "string" || duration === null) return [];
+        const exerciseType = field(exercise, "exerciseType");
+        const metrics = asRecord(field(exercise, "metricsSummary"));
+        return [
+          {
+            type:
+              typeof exerciseType === "string" ? exerciseType.toLowerCase() : "workout",
+            start,
+            duration_min: duration,
+            zone_min: asNumber(field(metrics, "activeZoneMinutes")) ?? 0,
+          },
+        ];
+      });
+    } catch (err) {
+      if (err instanceof InvalidGrantError) throw err;
+      // partial sync: missing exercise sessions are fine
+    }
 
     let sleep_minutes: number | null = null;
     let bedtime: string | null = null;
     try {
-      const sleep = await this.get(userId, `/users/me/sleep/date/${date}`);
-      const sleepSummary = (sleep.summary ?? {}) as Record<string, unknown>;
-      sleep_minutes = asNumber(sleepSummary.totalMinutesAsleep);
-      const sessions = Array.isArray(sleep.sleep) ? sleep.sleep : [];
-      const main = sessions[0] as Record<string, unknown> | undefined;
-      bedtime = typeof main?.startTime === "string" ? main.startTime : null;
+      // A night's sleep belongs to the day it ends on (wake-up morning).
+      const sessions = await this.listSessions(userId, "sleep", "civil_end_time", date);
+      const main = asRecord(field(asRecord(sessions[0]), "sleep"));
+      const summary = asRecord(field(main, "summary"));
+      sleep_minutes =
+        asNumber(field(summary, "minutesAsleep")) ??
+        asNumber(field(summary, "minutesInSleepPeriod"));
+      const start = field(asRecord(field(main, "interval")), "startTime");
+      bedtime = typeof start === "string" ? start : null;
     } catch (err) {
       if (err instanceof InvalidGrantError) throw err;
       // partial sync: missing sleep is fine
-    }
-
-    let hr_zones: Record<string, number> | null = null;
-    try {
-      const heart = await this.get(userId, `/users/me/heart/date/${date}`);
-      const zones = ((heart.summary as Record<string, unknown> | undefined)?.heartRateZones ??
-        heart.heartRateZones) as unknown;
-      if (Array.isArray(zones)) {
-        hr_zones = {};
-        for (const z of zones) {
-          const zone = z as Record<string, unknown>;
-          const name = typeof zone.name === "string" ? zone.name : null;
-          const minutes = asNumber(zone.minutes);
-          if (name && minutes !== null) {
-            hr_zones[name.toLowerCase().replace(/\s+/g, "_")] = minutes;
-          }
-        }
-      }
-    } catch (err) {
-      if (err instanceof InvalidGrantError) throw err;
-      // partial sync: missing heart data is fine
     }
 
     return { steps, workouts, sleep_minutes, bedtime, active_zone_minutes: azm, hr_zones };
