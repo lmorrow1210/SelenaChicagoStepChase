@@ -42,6 +42,10 @@ jobs:
       # constants, so only app code is gated. oxlint can't run the original
       # _adherence.oxlintrc.json — no no-restricted-syntax support — so this
       # enforces the load-bearing rule directly.)
+      - name: OpenAPI generated types in sync
+        run: |
+          npm run gen:api-types -w apps/web
+          git diff --exit-code apps/web/lib/api-types.d.ts
       - name: Design-token adherence (no raw hex in app code)
         run: |
           if grep -rEn '#[0-9a-fA-F]{3,8}\b' apps/web/app apps/web/lib --include='*.tsx' --include='*.ts'; then

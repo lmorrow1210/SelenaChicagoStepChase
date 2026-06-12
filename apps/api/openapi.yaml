@@ -1,0 +1,929 @@
+openapi: "3.0.3"
+info:
+  title: Selena's Chase API
+  description: >
+    Multiplayer step-tracking game API. Behavior is normative in
+    docs/implementation-plan.md §3; this document is normative for shapes.
+    All authenticated routes use the `sc_session` JWT cookie set by the
+    Google OAuth callback (or `/api/auth/dev-login` outside production).
+  version: "1.0.0"
+servers:
+  - url: http://localhost:4000
+    description: Local development
+security:
+  - sessionCookie: []
+
+paths:
+  # ---- Auth ----
+  /api/auth/google:
+    get:
+      summary: Begin Google OAuth
+      security: []
+      tags: [auth]
+      responses:
+        "302":
+          description: Redirect to Google's consent screen.
+
+  /api/auth/google/callback:
+    get:
+      summary: OAuth callback
+      description: >
+        Verifies the id_token, upserts the user by google_sub, encrypts and
+        stores the refresh token, sets the session cookie, then redirects new
+        users to /onboarding and returning users to /map.
+      security: []
+      tags: [auth]
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "302":
+          description: Redirect into the web app with the session cookie set.
+
+  /api/auth/dev-login:
+    post:
+      summary: Development-only login
+      description: Returns 404 in production.
+      security: []
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, display_name]
+              properties:
+                email: { type: string, format: email }
+                display_name: { type: string }
+      responses:
+        "200":
+          description: Session cookie set.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/auth/session:
+    get:
+      summary: Current session
+      tags: [auth]
+      responses:
+        "200":
+          description: The signed-in user with group and active week context.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+                  group:
+                    allOf: [{ $ref: "#/components/schemas/Group" }]
+                    nullable: true
+                  activeWeek:
+                    allOf: [{ $ref: "#/components/schemas/Week" }]
+                    nullable: true
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  /api/auth/logout:
+    post:
+      summary: Clear the session cookie
+      tags: [auth]
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+
+  /api/auth/fitbit:
+    delete:
+      summary: Disconnect the Health API
+      description: Revokes and clears the stored (encrypted) refresh token.
+      tags: [auth]
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  # ---- Users ----
+  /api/users/me:
+    get:
+      summary: My profile
+      tags: [users]
+      responses:
+        "200":
+          description: Profile fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+    patch:
+      summary: Update my profile
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: All fields optional (zod updateMeSchema).
+              properties:
+                display_name: { type: string, minLength: 1, maxLength: 40 }
+                weekly_step_target:
+                  type: integer
+                  minimum: 35000
+                  maximum: 140000
+                avatar_skin: { type: integer, minimum: 1, maximum: 6 }
+                avatar_hair: { type: integer, minimum: 1, maximum: 8 }
+                avatar_colorway: { type: integer, minimum: 1, maximum: 6 }
+      responses:
+        "200":
+          description: Updated profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  /api/users/me/stats:
+    get:
+      summary: Lifetime stats for the profile screen
+      tags: [users]
+      responses:
+        "200":
+          description: Aggregate stats.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_steps_alltime: { type: integer }
+                  total_steps_this_week: { type: integer }
+                  city_wins: { type: integer }
+                  bingo_lines_alltime: { type: integer }
+                  current_streak:
+                    type: integer
+                    description: Consecutive most-recent closed weeks with a city badge.
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  # ---- Groups ----
+  /api/groups:
+    post:
+      summary: Create a group
+      description: Creator becomes admin and member; the first week is created immediately.
+      tags: [groups]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 40 }
+      responses:
+        "201":
+          description: The new group (includes the invite code).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group: { $ref: "#/components/schemas/Group" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  /api/groups/join:
+    post:
+      summary: Join a group by invite code
+      tags: [groups]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [invite_code]
+              properties:
+                invite_code:
+                  type: string
+                  pattern: "^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$"
+      responses:
+        "200":
+          description: Joined.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group: { $ref: "#/components/schemas/Group" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: GROUP_FULL — the group already has 8 players.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/groups/me:
+    get:
+      summary: My group and members
+      tags: [groups]
+      responses:
+        "200":
+          description: Group with member list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group: { $ref: "#/components/schemas/Group" }
+                  members:
+                    type: array
+                    items: { $ref: "#/components/schemas/Member" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/groups/me/leave:
+    post:
+      summary: Leave my group
+      description: >
+        Dissolves the leaver's nemesis matchup (opponent re-pairs with the bye
+        or becomes the bye). If the admin leaves, the oldest remaining member
+        is promoted.
+      tags: [groups]
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/groups/me/members/{userId}:
+    delete:
+      summary: Remove a member (admin only)
+      description: Same nemesis re-pair semantics as leaving.
+      tags: [groups]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422":
+          description: Admin cannot remove themselves — use leave.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  # ---- Weeks ----
+  /api/weeks/current:
+    get:
+      summary: Composed Map screen payload
+      tags: [weeks]
+      responses:
+        "200":
+          description: >
+            Week, current/next city, route, progress strip, leaderboard with
+            delta vs last week, countdown, lastSyncedAt, and screen state.
+            All fields are null/empty with state "no_group" when the user has
+            no group.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  week:
+                    allOf: [{ $ref: "#/components/schemas/Week" }]
+                    nullable: true
+                  city:
+                    allOf: [{ $ref: "#/components/schemas/City" }]
+                    nullable: true
+                  nextCity:
+                    allOf: [{ $ref: "#/components/schemas/City" }]
+                    nullable: true
+                  selenaLeadSteps: { type: integer }
+                  route:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        city_id: { type: integer }
+                        name: { type: string }
+                        visited: { type: boolean }
+                  progressStrip:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: "#/components/schemas/Member" }
+                        - type: object
+                          properties:
+                            steps: { type: integer }
+                            target: { type: integer }
+                            pct: { type: integer }
+                  leaderboard:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: "#/components/schemas/Member" }
+                        - type: object
+                          properties:
+                            rank: { type: integer }
+                            steps: { type: integer }
+                            deltaVsLastWeek: { type: integer }
+                  countdown:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  lastSyncedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  state:
+                    type: string
+                    enum: [in_progress, closing_soon, arrival, no_group]
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  # ---- Cities ----
+  /api/cities/current:
+    get:
+      summary: Current city with landmark states and group workout status
+      tags: [cities]
+      responses:
+        "200":
+          description: City dossier for the active week.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  city: { $ref: "#/components/schemas/City" }
+                  landmarks:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: "#/components/schemas/Landmark" }
+                        - type: object
+                          properties:
+                            state:
+                              type: string
+                              enum: [locked, unlocked, today]
+                  groupWorkout:
+                    type: object
+                    properties:
+                      total_members: { type: integer }
+                      worked_out_today: { type: integer }
+                      members:
+                        type: array
+                        items:
+                          allOf:
+                            - { $ref: "#/components/schemas/Member" }
+                            - type: object
+                              properties:
+                                worked_out: { type: boolean }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/cities/{id}:
+    get:
+      summary: Past-city trophy view
+      description: >
+        Fully revealed, read-only view of the most recent closed week the
+        group spent in this city. FORBIDDEN until such a week exists (future
+        cities, and the current city until rollover closes it).
+      tags: [cities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Trophy view.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  city: { $ref: "#/components/schemas/City" }
+                  week:
+                    type: object
+                    properties:
+                      starts_on: { type: string, format: date }
+                      ends_on: { type: string, format: date }
+                      group_target_steps: { type: integer }
+                      group_total_steps: { type: integer, nullable: true }
+                      target_hit: { type: boolean, nullable: true }
+                  landmarks:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: "#/components/schemas/Landmark" }
+                        - type: object
+                          properties:
+                            earned: { type: boolean }
+                  unlocked_count: { type: integer }
+                  champion:
+                    nullable: true
+                    allOf:
+                      - { $ref: "#/components/schemas/Member" }
+                      - type: object
+                        properties:
+                          quality:
+                            type: string
+                            enum: [bronze, silver, gold]
+                            nullable: true
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ---- Predictions ----
+  /api/predictions/current:
+    get:
+      summary: This week's prediction state
+      tags: [predictions]
+      responses:
+        "200":
+          description: >
+            Others' predictions are the string "hidden" until everyone has
+            submitted or Monday noon (group tz), whichever comes first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  week:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      starts_on: { type: string, format: date }
+                      ends_on: { type: string, format: date }
+                      status: { type: string, enum: [active, closed] }
+                  city:
+                    type: object
+                    properties:
+                      name: { type: string }
+                  myPrediction:
+                    allOf: [{ $ref: "#/components/schemas/Prediction" }]
+                    nullable: true
+                  others:
+                    oneOf:
+                      - type: string
+                        enum: [hidden]
+                      - type: array
+                        items: { $ref: "#/components/schemas/Prediction" }
+                  allSubmitted: { type: boolean }
+                  liveGroupTotal: { type: integer }
+                  revealAt: { type: string, format: date-time }
+                  state:
+                    type: string
+                    enum: [pending, partial, revealed, final]
+                  submissionOpen: { type: boolean }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/predictions/history:
+    get:
+      summary: My results for closed weeks + lifetime wins
+      tags: [predictions]
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        week_id: { type: string, format: uuid }
+                        starts_on: { type: string, format: date }
+                        city_name: { type: string }
+                        predicted_steps: { type: integer }
+                        actual_steps: { type: integer, nullable: true }
+                        actual_delta: { type: integer, nullable: true }
+                        is_winner: { type: boolean, nullable: true }
+                  wins: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  /api/predictions:
+    post:
+      summary: Submit my prediction
+      description: Window is the week's first day only (group tz).
+      tags: [predictions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [predicted_steps]
+              properties:
+                predicted_steps: { type: integer, minimum: 1 }
+      responses:
+        "201":
+          description: Submitted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction: { $ref: "#/components/schemas/Prediction" }
+        "409":
+          description: PREDICTION_CLOSED or PREDICTION_EXISTS.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  # ---- Bingo ----
+  /api/bingo/current:
+    get:
+      summary: My bingo card for the active week
+      tags: [bingo]
+      responses:
+        "200":
+          description: Card plus friends' progress. Tiles are server-detected only.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  card:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      tiles:
+                        type: array
+                        minItems: 25
+                        maxItems: 25
+                        items: { $ref: "#/components/schemas/BingoTile" }
+                      bingo_lines: { type: integer }
+                      blackout: { type: boolean }
+                      frozen: { type: boolean }
+                  friends:
+                    type: array
+                    items: { $ref: "#/components/schemas/BingoFriend" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/bingo/friends:
+    get:
+      summary: Group members' bingo progress
+      tags: [bingo]
+      responses:
+        "200":
+          description: Progress list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friends:
+                    type: array
+                    items: { $ref: "#/components/schemas/BingoFriend" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ---- Nemesis ----
+  /api/nemesis/current:
+    get:
+      summary: My nemesis duel this week
+      description: Lazily creates the week's pairings on first request.
+      tags: [nemesis]
+      responses:
+        "200":
+          description: >
+            matchup/you/nemesis/outcome are null for bye and no_matchup
+            states. weekMax is the largest single-day step count in the group
+            this week (used to normalize the skyline).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matchup:
+                    allOf: [{ $ref: "#/components/schemas/NemesisMatchup" }]
+                    nullable: true
+                  you:
+                    allOf: [{ $ref: "#/components/schemas/Member" }]
+                    nullable: true
+                  nemesis:
+                    allOf: [{ $ref: "#/components/schemas/Member" }]
+                    nullable: true
+                  week:
+                    type: object
+                    properties:
+                      starts_on: { type: string, format: date }
+                      ends_on: { type: string, format: date }
+                  today: { type: string, format: date }
+                  weekMax: { type: integer }
+                  outcome:
+                    type: string
+                    nullable: true
+                  state:
+                    type: string
+                    enum: [active, tiebreak, complete, bye, no_matchup]
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/nemesis/reroll:
+    post:
+      summary: Swap opponents with the bye player
+      description: One reroll per matchup; your old opponent becomes the bye.
+      tags: [nemesis]
+      responses:
+        "200":
+          description: The fresh matchup.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matchup: { $ref: "#/components/schemas/NemesisMatchup" }
+        "409":
+          description: REROLL_USED or REROLL_UNAVAILABLE (nobody unpaired).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  # ---- Badges ----
+  /api/badges:
+    get:
+      summary: My earned badges
+      tags: [badges]
+      responses:
+        "200":
+          description: Newest first, joined with definitions and city names.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  badges:
+                    type: array
+                    items: { $ref: "#/components/schemas/Badge" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  # ---- Notifications ----
+  /api/notifications:
+    get:
+      summary: Latest 20 notifications, unread first
+      tags: [notifications]
+      responses:
+        "200":
+          description: Notification list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items: { $ref: "#/components/schemas/Notification" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+
+  /api/notifications/read:
+    post:
+      summary: Mark notifications read
+      tags: [notifications]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Omit ids (or send none) to mark all read.
+              properties:
+                ids:
+                  type: array
+                  maxItems: 100
+                  items: { type: integer }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+
+  # ---- Sync ----
+  /api/sync/run:
+    post:
+      summary: Sync my steps now
+      description: >
+        Pulls today from the Health API client, then runs landmark unlock,
+        bingo, and nemesis day-close detection. Rate-limited to one run per
+        10 minutes per user.
+      tags: [sync]
+      responses:
+        "200":
+          description: Synced.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  syncedAt: { type: string, format: date-time }
+        "429":
+          description: RATE_LIMITED — wait before syncing again.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: sc_session
+      description: JWT session cookie.
+
+  responses:
+    Ok:
+      description: Success.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: { type: boolean }
+    Unauthenticated:
+      description: Missing or invalid session.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Forbidden:
+      description: FORBIDDEN.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    NotFound:
+      description: NOT_FOUND.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        display_name: { type: string }
+        group_id: { type: string, format: uuid, nullable: true }
+        weekly_step_target: { type: integer }
+        avatar_skin: { type: integer }
+        avatar_hair: { type: integer }
+        avatar_colorway: { type: integer }
+        fitbit_connected: { type: boolean }
+        last_synced_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    Member:
+      type: object
+      description: Public member projection embedded in many payloads.
+      properties:
+        user_id: { type: string, format: uuid }
+        display_name: { type: string }
+        avatar_skin: { type: integer }
+        avatar_hair: { type: integer }
+        avatar_colorway: { type: integer }
+
+    Group:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        invite_code: { type: string }
+        admin_id: { type: string, format: uuid }
+        timezone: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Week:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        group_id: { type: string, format: uuid }
+        city_id: { type: integer }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        group_target_steps: { type: integer }
+        status: { type: string, enum: [active, closed] }
+        group_total_steps: { type: integer, nullable: true }
+        target_hit: { type: boolean, nullable: true }
+
+    City:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        country: { type: string }
+        route_order: { type: integer }
+        background_image: { type: string, nullable: true }
+        lat: { type: number }
+        lng: { type: number }
+
+    Landmark:
+      type: object
+      properties:
+        id: { type: integer }
+        day: { type: integer, minimum: 1, maximum: 7 }
+        name: { type: string }
+        fun_fact: { type: string }
+        image: { type: string, nullable: true }
+
+    Prediction:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        week_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        predicted_steps: { type: integer }
+        submitted_at: { type: string, format: date-time }
+        actual_delta: { type: integer, nullable: true }
+        is_winner: { type: boolean, nullable: true }
+        display_name: { type: string }
+        avatar_skin: { type: integer }
+        avatar_hair: { type: integer }
+        avatar_colorway: { type: integer }
+
+    BingoTile:
+      description: Denormalized JSONB tile (zod bingoTileSchema). Index 12 is the free space.
+      oneOf:
+        - type: object
+          required: [challenge_id, state]
+          properties:
+            challenge_id: { type: integer }
+            state:
+              type: string
+              enum: [incomplete, in_progress, complete]
+            completed_at: { type: string, format: date-time, nullable: true }
+            label: { type: string, description: Joined from challenge definitions. }
+            icon: { type: string }
+        - type: object
+          required: [free, state]
+          properties:
+            free: { type: boolean, enum: [true] }
+            state: { type: string, enum: [complete] }
+
+    BingoFriend:
+      allOf:
+        - { $ref: "#/components/schemas/Member" }
+        - type: object
+          properties:
+            bingo_lines: { type: integer }
+            blackout: { type: boolean }
+
+    NemesisMatchup:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        week_id: { type: string, format: uuid }
+        player_a: { type: string, format: uuid }
+        player_b: { type: string, format: uuid }
+        status: { type: string, enum: [active, tiebreak, complete] }
+        score_a: { type: integer }
+        score_b: { type: integer }
+        tiebreaker_date: { type: string, format: date, nullable: true }
+        reroll_used: { type: boolean }
+        daily_results:
+          type: array
+          description: Denormalized JSONB (zod nemesisDayResultSchema).
+          items:
+            type: object
+            properties:
+              date: { type: string, format: date }
+              a_steps: { type: integer }
+              b_steps: { type: integer }
+              winner: { type: string, enum: [a, b, tie] }
+
+    Badge:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        label: { type: string }
+        description: { type: string }
+        quality:
+          type: string
+          enum: [bronze, silver, gold]
+          nullable: true
+        city_id: { type: integer, nullable: true }
+        city_name: { type: string, nullable: true }
+        earned_at: { type: string, format: date-time }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: integer }
+        kind: { type: string, description: achievement / social / alert variants. }
+        message: { type: string }
+        read: { type: boolean }
+        created_at: { type: string, format: date-time }

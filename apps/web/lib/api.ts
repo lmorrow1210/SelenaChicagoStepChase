@@ -1,3 +1,6 @@
+// Generated from apps/api/openapi.yaml — regenerate with `npm run gen:api-types -w apps/web`.
+export type { paths as ApiPaths, components as ApiComponents } from "./api-types";
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const BASE = API_BASE;
 
