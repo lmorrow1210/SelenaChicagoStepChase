@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/auth.js";
 import { groupsRouter } from "./routes/groups.js";
 import { usersRouter } from "./routes/users.js";
+import { syncRouter } from "./routes/sync.js";
 import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
@@ -28,6 +29,7 @@ app.get("/healthz", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/groups", groupsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/sync", syncRouter);
 // TODO(M2+): routes/users, weeks, sync, predictions, nemesis, bingo, cities,
 // badges — see docs/implementation-plan.md §3.
 
