@@ -1,7 +1,6 @@
-import { readFile } from "node:fs/promises";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import pg from "pg";
+import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
 import { INVITE_CODE_CHARSET } from "@selenas-chase/shared";
 import type { app as expressApp } from "../src/index.js";
@@ -20,22 +19,6 @@ let pool: Pool;
 let signSession: SignSession;
 let server: Server;
 let baseUrl: string;
-
-async function resetDatabase(connectionString: string): Promise<void> {
-  const resetPool = new pg.Pool({ connectionString });
-  try {
-    await resetPool.query("DROP SCHEMA public CASCADE");
-    await resetPool.query("CREATE SCHEMA public");
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/001_init.sql", import.meta.url), "utf8"),
-    );
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/002_seed_cities.sql", import.meta.url), "utf8"),
-    );
-  } finally {
-    await resetPool.end();
-  }
-}
 
 function cookieFor(userId: string): string {
   return `sc_session=${signSession({ user_id: userId })}`;

@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import pg from "pg";
+import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
 import type { pool as appPool } from "../src/db/pool.js";
 import type { weekRollover as weekRolloverFn } from "../src/services/weekRollover.js";
@@ -15,22 +14,6 @@ let pool: Pool;
 let weekRollover: typeof weekRolloverFn;
 let pairAndPersist: typeof pairAndPersistFn;
 let createOrGetBingoCard: typeof createCardFn;
-
-async function resetDatabase(connectionString: string): Promise<void> {
-  const resetPool = new pg.Pool({ connectionString });
-  try {
-    await resetPool.query("DROP SCHEMA public CASCADE");
-    await resetPool.query("CREATE SCHEMA public");
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/001_init.sql", import.meta.url), "utf8"),
-    );
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/002_seed_cities.sql", import.meta.url), "utf8"),
-    );
-  } finally {
-    await resetPool.end();
-  }
-}
 
 async function createUser(label: string, groupId: string | null): Promise<string> {
   const r = await pool.query(

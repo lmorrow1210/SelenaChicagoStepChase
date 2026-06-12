@@ -1,7 +1,6 @@
-import { readFile } from "node:fs/promises";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import pg from "pg";
+import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
 import type { app as expressApp } from "../src/index.js";
 import type { pool as appPool } from "../src/db/pool.js";
@@ -22,22 +21,6 @@ let signSession: SignSession;
 let closeWeekPredictions: CloseWeekPredictions;
 let server: Server;
 let baseUrl: string;
-
-async function resetDatabase(connectionString: string): Promise<void> {
-  const resetPool = new pg.Pool({ connectionString });
-  try {
-    await resetPool.query("DROP SCHEMA public CASCADE");
-    await resetPool.query("CREATE SCHEMA public");
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/001_init.sql", import.meta.url), "utf8"),
-    );
-    await resetPool.query(
-      await readFile(new URL("../src/db/migrations/002_seed_cities.sql", import.meta.url), "utf8"),
-    );
-  } finally {
-    await resetPool.end();
-  }
-}
 
 function cookieFor(userId: string): string {
   return `sc_session=${signSession({ user_id: userId })}`;
@@ -78,6 +61,12 @@ async function createGroupWithWeek(): Promise<{ groupId: string; weekId: string;
   const body = await res.json();
   const groupId = body.group.id as string;
   const week = await pool.query("SELECT id FROM weeks WHERE group_id = $1", [groupId]);
+  // The submission window is the week's Monday only (spec). Tests run on any
+  // weekday, so move starts_on to "today" in the group tz to open the window.
+  await pool.query(
+    `UPDATE weeks SET starts_on = (now() AT TIME ZONE 'America/Chicago')::date WHERE id = $1`,
+    [week.rows[0].id],
+  );
   return { groupId, weekId: week.rows[0].id, adminId };
 }
 

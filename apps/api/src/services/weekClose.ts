@@ -51,11 +51,13 @@ export async function closeWeekPredictions(
     );
   }
 
+  // $2 appears in two type contexts (assignment + comparison) — the explicit
+  // casts keep Postgres from deducing inconsistent parameter types
   await db.query(
     `UPDATE weeks
      SET status = 'closed',
-         group_total_steps = $2,
-         target_hit = ($2 >= $3)
+         group_total_steps = $2::int,
+         target_hit = ($2::int >= $3::int)
      WHERE id = $1`,
     [weekId, actualTotal, group_target_steps],
   );
