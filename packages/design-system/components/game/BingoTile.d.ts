@@ -17,3 +17,4 @@ export interface BingoTileProps {
  * free (Selena/star center, always complete).
  */
 export function BingoTile(props: BingoTileProps): JSX.Element;
+export default BingoTile;

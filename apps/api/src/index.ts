@@ -8,6 +8,7 @@ import { syncRouter } from "./routes/sync.js";
 import { weeksRouter } from "./routes/weeks.js";
 import { citiesRouter } from "./routes/cities.js";
 import { predictionsRouter } from "./routes/predictions.js";
+import { bingoRouter } from "./routes/bingo.js";
 import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
@@ -36,8 +37,8 @@ app.use("/api/sync", syncRouter);
 app.use("/api/weeks", weeksRouter);
 app.use("/api/cities", citiesRouter);
 app.use("/api/predictions", predictionsRouter);
-// TODO(M5+): routes/nemesis, bingo, badges — see
-// docs/implementation-plan.md §3.
+app.use("/api/bingo", bingoRouter);
+// TODO(M6+): routes/nemesis, badges — see docs/implementation-plan.md §3.
 
 app.use(errorHandler);
 

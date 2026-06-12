@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    BingoTile — square tile for the 5×5 card.
@@ -12,7 +13,6 @@ export function BingoTile({
   highlight = false,     // part of an animated winning line
   style,
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   const free = state === 'free';
   const complete = state === 'complete' || free;
   const progress = state === 'progress';
@@ -57,3 +57,5 @@ export function BingoTile({
     </div>
   );
 }
+
+export default BingoTile;
