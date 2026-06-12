@@ -3,15 +3,15 @@ import rateLimit from "express-rate-limit";
 import { pool } from "../db/pool.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
-import { MockFitbitClient, type FitbitClient } from "../services/fitbitClient.js";
+import { getFitbitClient } from "../services/clientFactory.js";
 import { syncUserToday } from "../services/sync.js";
 import { detectUnlocks } from "../services/unlocks.js";
 import { createOrGetBingoCard, updateBingoCard } from "../services/bingoService.js";
 import { closeElapsedDays } from "../services/nemesisService.js";
 
-// M2 sync stub: manual "sync now" against the mock client. M8 swaps the
-// client for the real Health API implementation — this route is unchanged.
-const fitbit: FitbitClient = new MockFitbitClient();
+// Manual "sync now". Shares the process-wide client with the cron:
+// real Health API in production, mock elsewhere (HEALTH_API_MODE overrides).
+const fitbit = getFitbitClient(pool);
 
 export const syncRouter = Router();
 syncRouter.use(requireAuth);

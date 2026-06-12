@@ -12,6 +12,9 @@ import { bingoRouter } from "./routes/bingo.js";
 import { nemesisRouter } from "./routes/nemesis.js";
 import { badgesRouter } from "./routes/badges.js";
 import { errorHandler } from "./middleware/errors.js";
+import { pool } from "./db/pool.js";
+import { startCron } from "./services/cron.js";
+import { getFitbitClient } from "./services/clientFactory.js";
 
 const app = express();
 
@@ -48,6 +51,9 @@ app.use(errorHandler);
 const port = Number(process.env.PORT ?? 4000);
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => console.log(`api listening on :${port}`));
+  if (process.env.DISABLE_CRON !== "1") {
+    startCron(pool, getFitbitClient(pool));
+  }
 }
 
 export { app };
