@@ -14,3 +14,4 @@ export interface BadgeProps {
 
 /** Small status chip / tag for labels, qualities, and counts. */
 export function Badge(props: BadgeProps): JSX.Element;
+export default Badge;

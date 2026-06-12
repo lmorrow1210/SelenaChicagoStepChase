@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    StatCard — compact icon + label + value. Leaderboard / profile.
@@ -12,7 +13,6 @@ export function StatCard({
   accent = 'var(--blue)',
   style,
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 10,
@@ -43,3 +43,5 @@ export function StatCard({
     </div>
   );
 }
+
+export default StatCard;

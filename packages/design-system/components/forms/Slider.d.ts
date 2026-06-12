@@ -16,3 +16,4 @@ export interface SliderProps {
 
 /** Step-target range slider with a blue track fill and glowing thumb. */
 export function Slider(props: SliderProps): JSX.Element;
+export default Slider;

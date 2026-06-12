@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Slider — step-target range input. Blue track fill, blue thumb.
@@ -65,3 +65,5 @@ export function Slider({
     </div>
   );
 }
+
+export default Slider;

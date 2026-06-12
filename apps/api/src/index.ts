@@ -10,6 +10,7 @@ import { citiesRouter } from "./routes/cities.js";
 import { predictionsRouter } from "./routes/predictions.js";
 import { bingoRouter } from "./routes/bingo.js";
 import { nemesisRouter } from "./routes/nemesis.js";
+import { badgesRouter } from "./routes/badges.js";
 import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
@@ -40,7 +41,7 @@ app.use("/api/cities", citiesRouter);
 app.use("/api/predictions", predictionsRouter);
 app.use("/api/bingo", bingoRouter);
 app.use("/api/nemesis", nemesisRouter);
-// TODO(M7+): routes/badges — see docs/implementation-plan.md §3.
+app.use("/api/badges", badgesRouter);
 
 app.use(errorHandler);
 

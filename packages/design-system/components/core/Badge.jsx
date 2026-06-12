@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    Badge — small status chip / tag.
@@ -15,7 +16,6 @@ const TONES = {
 };
 
 export function Badge({ children, tone = 'blue', icon, solid = false, style }) {
-  const { Icon } = window.DesignSystem_19034b;
   const t = TONES[tone] || TONES.blue;
   return (
     <span style={{
@@ -33,3 +33,5 @@ export function Badge({ children, tone = 'blue', icon, solid = false, style }) {
     </span>
   );
 }
+
+export default Badge;

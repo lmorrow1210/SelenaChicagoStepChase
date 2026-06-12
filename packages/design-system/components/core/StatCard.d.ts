@@ -16,3 +16,4 @@ export interface StatCardProps {
 
 /** Compact icon + label + value stat tile for leaderboard and profile. */
 export function StatCard(props: StatCardProps): JSX.Element;
+export default StatCard;
