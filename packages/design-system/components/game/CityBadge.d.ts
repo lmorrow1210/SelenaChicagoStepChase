@@ -18,3 +18,4 @@ export interface CityBadgeProps {
  * and a locked greyscale state for future cities.
  */
 export function CityBadge(props: CityBadgeProps): JSX.Element;
+export default CityBadge;

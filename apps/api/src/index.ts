@@ -5,6 +5,9 @@ import { authRouter } from "./routes/auth.js";
 import { groupsRouter } from "./routes/groups.js";
 import { usersRouter } from "./routes/users.js";
 import { syncRouter } from "./routes/sync.js";
+import { weeksRouter } from "./routes/weeks.js";
+import { citiesRouter } from "./routes/cities.js";
+import { predictionsRouter } from "./routes/predictions.js";
 import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
@@ -30,8 +33,11 @@ app.use("/api/auth", authRouter);
 app.use("/api/groups", groupsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sync", syncRouter);
-// TODO(M2+): routes/users, weeks, sync, predictions, nemesis, bingo, cities,
-// badges — see docs/implementation-plan.md §3.
+app.use("/api/weeks", weeksRouter);
+app.use("/api/cities", citiesRouter);
+app.use("/api/predictions", predictionsRouter);
+// TODO(M5+): routes/nemesis, bingo, badges — see
+// docs/implementation-plan.md §3.
 
 app.use(errorHandler);
 

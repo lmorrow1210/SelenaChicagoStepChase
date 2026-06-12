@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    MapPin — world map marker.
@@ -13,7 +14,6 @@ export function MapPin({
   size = 'md',          // 'sm' | 'md'
   style,
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   const isCurrent = variant === 'current';
   const isNext = variant === 'next';
   const dim = size === 'sm' ? 16 : 24;
@@ -60,3 +60,5 @@ function isVisitedBorder(variant) {
   if (variant === 'next') return 'var(--cream)';
   return 'var(--hairline)';
 }
+
+export default MapPin;

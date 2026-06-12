@@ -24,3 +24,4 @@ export interface ButtonProps {
  * @startingPoint section="Core" subtitle="Primary, secondary, danger & ghost buttons" viewport="700x200"
  */
 export function Button(props: ButtonProps): JSX.Element;
+export default Button;

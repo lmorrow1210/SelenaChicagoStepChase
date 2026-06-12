@@ -20,3 +20,4 @@ export interface PredictionCardProps {
  * submit, with a bouncy confirmation state after submitting.
  */
 export function PredictionCard(props: PredictionCardProps): JSX.Element;
+export default PredictionCard;

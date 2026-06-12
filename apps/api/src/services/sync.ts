@@ -57,8 +57,9 @@ export async function syncUserToday(
   userId: string,
   timezone: string,
   now = new Date(),
-): Promise<void> {
+): Promise<string> {
   const { y, m, d } = localDateParts(now, timezone);
   const date = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   await syncUserDay(db, client, userId, date);
+  return date;
 }

@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Skeleton — pulsing loading placeholder.
@@ -56,3 +56,4 @@ export function Skeleton({ preset = 'leaderboard', rows = 4, style }) {
 }
 
 Skeleton.Block = Block;
+export default Skeleton;

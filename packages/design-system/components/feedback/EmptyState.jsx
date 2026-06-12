@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    EmptyState — illustration/icon + headline + body + CTA.
@@ -6,7 +7,6 @@ const React = window.React;
    ============================================================ */
 
 export function EmptyState({ icon = 'globe', title, body, action, accent = 'var(--blue)', style }) {
-  const { Icon } = window.DesignSystem_19034b;
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -27,3 +27,5 @@ export function EmptyState({ icon = 'globe', title, body, action, accent = 'var(
     </div>
   );
 }
+
+export default EmptyState;

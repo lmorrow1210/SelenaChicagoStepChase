@@ -16,3 +16,4 @@ export interface MapPinProps {
  * the next city / Selena's position is a dimmer red accent.
  */
 export function MapPin(props: MapPinProps): JSX.Element;
+export default MapPin;

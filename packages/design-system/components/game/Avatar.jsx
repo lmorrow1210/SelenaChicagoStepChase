@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Avatar — the mini trench-coat + fedora figure.
@@ -115,3 +115,5 @@ export function Avatar({
     </span>
   );
 }
+
+export default Avatar;

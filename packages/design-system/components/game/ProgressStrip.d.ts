@@ -29,3 +29,4 @@ export interface ProgressStripProps {
  * at their proportional position. Avatars hop on sync (spring easing).
  */
 export function ProgressStrip(props: ProgressStripProps): JSX.Element;
+export default ProgressStrip;

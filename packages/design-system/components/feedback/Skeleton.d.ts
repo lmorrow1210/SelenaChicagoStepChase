@@ -13,3 +13,4 @@ export interface SkeletonProps {
  * and bingo card. Animates --skeleton against the card surface.
  */
 export function Skeleton(props: SkeletonProps): JSX.Element;
+export default Skeleton;

@@ -4,6 +4,9 @@
   "exports": {
     "./styles.css": "./styles.css",
     "./tokens/*": "./tokens/*",
-    "./components/*": "./components/*"
+    "./components/*": {
+      "types": "./components/*.d.ts",
+      "default": "./components/*.jsx"
+    }
   }
 }

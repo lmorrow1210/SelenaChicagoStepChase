@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    Button — primary, secondary, danger, ghost.
@@ -51,7 +52,6 @@ export function Button({
   style,
   ...rest
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   const [hover, setHover] = React.useState(false);
   const [press, setPress] = React.useState(false);
   const v = VARIANTS[variant] || VARIANTS.primary;
@@ -122,3 +122,5 @@ export function Button({
     </button>
   );
 }
+
+export default Button;

@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Icon — Selena's Chase icon set.
@@ -150,3 +150,4 @@ export function Icon({ name, size = 24, strokeWidth = 2, color, style, ...rest }
 }
 
 export const ICON_NAMES = Object.keys(P);
+export default Icon;

@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Input — text, numeric (large mono), with label + focus ring.
@@ -89,3 +89,5 @@ export function Input({
     </label>
   );
 }
+
+export default Input;

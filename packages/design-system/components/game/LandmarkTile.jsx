@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    LandmarkTile — City screen tile.
@@ -14,7 +15,6 @@ export function LandmarkTile({
   icon = 'city',
   style,
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   const isUnlocked = state === 'unlocked';
   const isToday = state === 'today';
 
@@ -59,3 +59,5 @@ export function LandmarkTile({
     </div>
   );
 }
+
+export default LandmarkTile;

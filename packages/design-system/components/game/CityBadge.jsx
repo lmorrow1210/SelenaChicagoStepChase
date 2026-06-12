@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    CityBadge — circular collectible badge.
@@ -139,7 +140,6 @@ export function CityBadge({
   size = 80,
   style,
 }) {
-  const { Icon } = window.DesignSystem_19034b;
   const ring = locked ? 'var(--muted)' : QUALITY[quality];
   const featured = size >= 72;
   const iconColor = locked ? 'var(--muted)' : 'var(--cream)';
@@ -188,3 +188,5 @@ export function CityBadge({
     </div>
   );
 }
+
+export default CityBadge;

@@ -15,3 +15,4 @@ export interface TabBarProps {
  * top indicator), and safe-area inset handling. Touch targets ≥44px.
  */
 export function TabBar(props: TabBarProps): JSX.Element;
+export default TabBar;

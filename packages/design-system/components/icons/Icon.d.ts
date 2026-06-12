@@ -25,3 +25,4 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
 export function Icon(props: IconProps): JSX.Element;
 
 export const ICON_NAMES: IconName[];
+export default Icon;

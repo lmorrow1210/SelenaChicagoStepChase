@@ -1,4 +1,7 @@
-const React = window.React;
+import * as React from 'react';
+import Button from '../core/Button.jsx';
+import Input from '../forms/Input.jsx';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    PredictionCard — central card on the Prediction screen.
@@ -16,7 +19,6 @@ export function PredictionCard({
   prediction,
   style,
 }) {
-  const { Input, Button, Icon } = window.DesignSystem_19034b;
   return (
     <div style={{
       position: 'relative', overflow: 'hidden',
@@ -73,3 +75,5 @@ export function PredictionCard({
     </div>
   );
 }
+
+export default PredictionCard;

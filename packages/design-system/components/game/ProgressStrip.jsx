@@ -1,4 +1,6 @@
-const React = window.React;
+import * as React from 'react';
+import Avatar from './Avatar.jsx';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    ProgressStrip — straight-line leaderboard.
@@ -8,7 +10,6 @@ const React = window.React;
    ============================================================ */
 
 function CityNode({ name, side, reached }) {
-  const { Icon } = window.DesignSystem_19034b;
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 'none',
@@ -39,7 +40,6 @@ export function ProgressStrip({
   compact = false,
   style,
 }) {
-  const { Avatar, Icon } = window.DesignSystem_19034b;
   const avSize = compact ? 28 : 40;
 
   if (state === 'empty') {
@@ -102,3 +102,5 @@ export function ProgressStrip({
     </div>
   );
 }
+
+export default ProgressStrip;

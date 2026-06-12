@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    TabBar — mobile bottom nav. 5 icons + labels. Safe-area aware.
@@ -13,7 +14,6 @@ const NAV = [
 ];
 
 export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
-  const { Icon } = window.DesignSystem_19034b;
   return (
     <nav style={{
       display: 'flex', alignItems: 'stretch', justifyContent: 'space-around',
@@ -53,3 +53,5 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
     </nav>
   );
 }
+
+export default TabBar;

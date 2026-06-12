@@ -1,88 +1,60 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Avatar from "@selenas-chase/design-system/components/game/Avatar";
+import Sidebar from "@selenas-chase/design-system/components/navigation/Sidebar";
+import TabBar from "@selenas-chase/design-system/components/navigation/TabBar";
+import { usePathname, useRouter } from "next/navigation";
 
-// Placeholder AppShell. TODO(M0): replace nav markup with the design-system
-// Sidebar/TabBar components once they're ported from SelenaDesign/_ds_bundle.js
-// to ESM (plan §7). The ≥1024px sidebar ⇄ <1024px tab-bar swap is CSS-driven
-// via the .sc-sidebar / .sc-tabbar media queries below tokens.
-
-const NAV = [
-  { href: "/map", label: "Map" },
-  { href: "/prediction", label: "Prediction" },
-  { href: "/city", label: "City" },
-  { href: "/bingo", label: "Bingo" },
-  { href: "/nemesis", label: "Nemesis" },
-  { href: "/profile", label: "Profile" },
-] as const;
+const GAME_SECTIONS = ["map", "prediction", "city", "bingo", "nemesis", "profile"] as const;
 
 export default function GameLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const nav = (
-    <>
-      {NAV.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          aria-current={pathname.startsWith(item.href) ? "page" : undefined}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </>
-  );
+  const router = useRouter();
+  const active = GAME_SECTIONS.find((section) => pathname.startsWith(`/${section}`)) ?? "map";
+  const onNavigate = (id: string) => router.push(`/${id}`);
+
   return (
     <div className="sc-shell">
-      <nav className="sc-sidebar" aria-label="Primary">
-        {nav}
-      </nav>
+      <div className="sc-sidebarHost">
+        <Sidebar active={active} onNavigate={onNavigate} avatar={<Avatar size={40} ring />} />
+      </div>
       <main className="sc-main">{children}</main>
-      <nav className="sc-tabbar" aria-label="Primary">
-        {nav}
-      </nav>
+      <div className="sc-tabbarHost">
+        <TabBar active={active} onNavigate={onNavigate} />
+      </div>
       <style jsx>{`
         .sc-shell {
           min-height: 100dvh;
           display: flex;
+          background: var(--navy);
         }
-        .sc-sidebar {
+        .sc-sidebarHost {
           display: none;
+          min-height: 100dvh;
+          position: sticky;
+          top: var(--sp-0);
         }
         .sc-main {
           flex: 1;
-          padding-bottom: 72px;
+          min-width: var(--sp-0);
+          padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
         }
-        .sc-tabbar {
+        .sc-tabbarHost {
           position: fixed;
           bottom: 0;
           left: 0;
           right: 0;
-          display: flex;
-          justify-content: space-around;
-          padding: var(--space-2, 8px) 0 env(safe-area-inset-bottom);
-          border-top: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
-          background: var(--color-surface, #fff);
-        }
-        .sc-tabbar :global(a) {
-          min-height: 44px;
-          display: inline-flex;
-          align-items: center;
+          z-index: var(--z-nav);
         }
         @media (min-width: 1024px) {
-          .sc-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-3, 12px);
-            width: 220px;
-            padding: var(--space-4, 16px);
-            border-right: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+          .sc-sidebarHost {
+            display: block;
           }
-          .sc-tabbar {
+          .sc-tabbarHost {
             display: none;
           }
           .sc-main {
-            padding-bottom: 0;
+            padding-bottom: var(--sp-0);
           }
         }
       `}</style>

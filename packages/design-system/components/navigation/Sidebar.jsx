@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
    Sidebar — desktop nav. 60px collapsed (icons) / 200px on hover.
@@ -14,7 +15,6 @@ const NAV = [
 ];
 
 export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, forceExpanded = false }) {
-  const { Icon } = window.DesignSystem_19034b;
   const [hover, setHover] = React.useState(false);
   const expanded = forceExpanded || hover;
 
@@ -94,3 +94,5 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
     </nav>
   );
 }
+
+export default Sidebar;

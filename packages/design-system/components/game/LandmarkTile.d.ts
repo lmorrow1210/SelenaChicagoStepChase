@@ -19,3 +19,4 @@ export interface LandmarkTileProps {
  * glowing blue border pulse.
  */
 export function LandmarkTile(props: LandmarkTileProps): JSX.Element;
+export default LandmarkTile;

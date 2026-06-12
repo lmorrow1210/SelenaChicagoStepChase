@@ -5,6 +5,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 import { MockFitbitClient, type FitbitClient } from "../services/fitbitClient.js";
 import { syncUserToday } from "../services/sync.js";
+import { detectUnlocks } from "../services/unlocks.js";
 
 // M2 sync stub: manual "sync now" against the mock client. M8 swaps the
 // client for the real Health API implementation — this route is unchanged.
@@ -26,13 +27,16 @@ const syncLimit = rateLimit({
 syncRouter.post("/run", syncLimit, async (req, res, next) => {
   try {
     const r = await pool.query(
-      `SELECT u.id, COALESCE(g.timezone, 'America/Chicago') AS timezone
+      `SELECT u.id, u.group_id, COALESCE(g.timezone, 'America/Chicago') AS timezone
        FROM users u LEFT JOIN groups g ON g.id = u.group_id
        WHERE u.id = $1`,
       [req.userId],
     );
     if (!r.rowCount) throw errors.unauthenticated();
-    await syncUserToday(pool, fitbit, r.rows[0].id, r.rows[0].timezone);
+    const date = await syncUserToday(pool, fitbit, r.rows[0].id, r.rows[0].timezone);
+    if (r.rows[0].group_id) {
+      await detectUnlocks(pool, r.rows[0].group_id, date, r.rows[0].id);
+    }
     res.json({ ok: true, syncedAt: new Date().toISOString() });
   } catch (e) {
     next(e);

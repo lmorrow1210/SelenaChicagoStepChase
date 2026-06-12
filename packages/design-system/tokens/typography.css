@@ -3,7 +3,7 @@
    Display/headers: Barlow Condensed 700 (bold, energetic)
    Body: DM Sans 400/500
    Numbers/data: DM Mono
-   Fonts loaded via Google Fonts @import in styles.css.
+   Apps load these families through their framework font loader.
    ============================================================ */
 
 :root {

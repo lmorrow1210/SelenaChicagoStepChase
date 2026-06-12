@@ -18,3 +18,4 @@ export interface EmptyStateProps {
  * body, and CTA. For no-group, no-nemesis, week-not-started, etc.
  */
 export function EmptyState(props: EmptyStateProps): JSX.Element;
+export default EmptyState;

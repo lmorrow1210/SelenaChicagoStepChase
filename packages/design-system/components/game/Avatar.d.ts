@@ -24,6 +24,7 @@ export interface AvatarProps {
  * @startingPoint section="Game" subtitle="Trench-coat avatar — 6 colorways, 3 sizes" viewport="700x180"
  */
 export function Avatar(props: AvatarProps): JSX.Element;
+export default Avatar;
 
 export const COLORWAYS: Record<ColorwayId, { label: string; coat: string; boots: string }>;
 export const SKIN_TONES: string[];

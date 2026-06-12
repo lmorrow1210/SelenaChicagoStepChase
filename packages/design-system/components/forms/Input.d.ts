@@ -22,3 +22,4 @@ export interface InputProps {
  * centered monospaced field used on the Prediction screen.
  */
 export function Input(props: InputProps): JSX.Element;
+export default Input;

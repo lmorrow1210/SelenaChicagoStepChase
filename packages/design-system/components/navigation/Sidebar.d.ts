@@ -24,3 +24,4 @@ export interface SidebarProps {
  * hover. Five nav items + avatar at bottom, with active & hover states.
  */
 export function Sidebar(props: SidebarProps): JSX.Element;
+export default Sidebar;
