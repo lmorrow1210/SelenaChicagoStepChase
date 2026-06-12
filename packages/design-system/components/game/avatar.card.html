@@ -1,0 +1,86 @@
+<!-- @dsCard group="Components" viewport="760x340" name="Avatar — trench-coat + fedora" subtitle="6 colorways · 3 sizes · 5 skin tones · 5 hair colors · hat" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { padding: 24px; }
+  .section { margin-bottom: 24px; }
+  .label { font-family: var(--font-body); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .row { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+  .cw { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cap { font-family: var(--font-body); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Avatar, COLORWAYS, SKIN_TONES, HAIR_COLORS, Icon } = window.DesignSystem_19034b;
+  function Demo() {
+    return (
+      <div>
+        {/* Colorways */}
+        <div class="section">
+          <div class="label">Colorways (hat inherits coat)</div>
+          <div class="row">
+            {Object.keys(COLORWAYS).map(id => (
+              <div className="cw" key={id}>
+                <Avatar size={72} colorway={id} />
+                <span className="cap">{COLORWAYS[id].label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Skin tones */}
+        <div class="section">
+          <div class="label">5 Skin tones</div>
+          <div class="row">
+            {SKIN_TONES.map((s, i) => (
+              <div className="cw" key={i}>
+                <Avatar size={56} colorway="chicago" skinTone={s} />
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Hair colors */}
+        <div class="section">
+          <div class="label">5 Hair colors</div>
+          <div class="row">
+            {[['Black','#0D0806'],['Dark Brown','#3D1F0C'],['Lt. Brown / Tan','#9B6535'],['Red / Orange','#C04418'],['Yellow (Blonde)','#D4A827']].map(([name, hex]) => (
+              <div className="cw" key={name}>
+                <Avatar size={56} colorway="chicago" skinTone={SKIN_TONES[1]} hairColor={hex} />
+                <span className="cap">{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Sizes + states */}
+        <div class="section">
+          <div class="label">Sizes &amp; states</div>
+          <div class="row" style={{ alignItems: 'flex-end' }}>
+            <div className="cw"><Avatar size={24} colorway="chicago" /><span className="cap">24</span></div>
+            <div className="cw"><Avatar size={40} colorway="chicago" /><span className="cap">40</span></div>
+            <div className="cw"><Avatar size={80} colorway="chicago" /><span className="cap">80</span></div>
+            <div className="cw">
+              <Avatar size={56} colorway="midnight" ring={true}
+                badge={<span style={{display:'grid',placeItems:'center',width:22,height:22,borderRadius:'50%',background:'var(--gold)',color:'var(--navy)'}}><Icon name="crown" size={14}/></span>} />
+              <span className="cap">leader</span>
+            </div>
+            <div className="cw">
+              <Avatar size={56} colorway="violet" skinTone={SKIN_TONES[2]} hairColor={HAIR_COLORS[2]} ring="var(--gold)" />
+              <span className="cap">skin+hair</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

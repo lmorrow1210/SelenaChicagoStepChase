@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" viewport="700x340" name="Cards, Stats, Badges & Countdown" subtitle="Surfaces, stat tiles, status chips, week countdown" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style> body { padding: 28px; } .row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:18px; align-items:center; } </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Card, StatCard, Badge, CountdownPill } = window.DesignSystem_19034b;
+  function Demo() {
+    return (
+      <div>
+        <div className="row">
+          <StatCard icon="step" label="Steps" value="48,512" unit="this wk" />
+          <StatCard icon="trophy" label="Rank" value="#2" accent="var(--gold)" />
+          <StatCard icon="flame" label="Streak" value="6" unit="days" accent="var(--red)" />
+        </div>
+        <div className="row">
+          <Badge tone="blue" icon="city">Chicago</Badge>
+          <Badge tone="gold" icon="badge" solid>Gold</Badge>
+          <Badge tone="bronze">Bronze</Badge>
+          <Badge tone="silver">Silver</Badge>
+          <Badge tone="red" icon="nemesis">Rivalry</Badge>
+          <Badge tone="muted">Locked</Badge>
+        </div>
+        <div className="row">
+          <CountdownPill hoursLeft={80} />
+          <CountdownPill hoursLeft={40} />
+          <CountdownPill hoursLeft={9} />
+        </div>
+        <div className="row">
+          <Card style={{ maxWidth: 200 }}><b style={{fontFamily:'var(--font-display)',fontSize:20}}>Default card</b><p style={{margin:'6px 0 0',color:'var(--muted)',fontSize:14}}>--card surface</p></Card>
+          <Card variant="elevated" glow="gold" style={{ maxWidth: 200 }}><b style={{fontFamily:'var(--font-display)',fontSize:20}}>Elevated + glow</b><p style={{margin:'6px 0 0',color:'var(--muted)',fontSize:14}}>modal surface</p></Card>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>
