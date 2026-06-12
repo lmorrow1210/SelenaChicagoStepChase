@@ -24,3 +24,4 @@ export interface SkyscraperPairProps {
  * Left = you (blue), right = nemesis (red). Taller gets a gold crown.
  */
 export function SkyscraperPair(props: SkyscraperPairProps): JSX.Element;
+export default SkyscraperPair;

@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    SkyscraperPair — Nemesis duel. Building height = steps.
@@ -7,7 +8,6 @@ const React = window.React;
    ============================================================ */
 
 function Tower({ side, label, pct, win, color, animate }) {
-  const { Icon } = window.DesignSystem_19034b;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
       {win && (
@@ -74,3 +74,5 @@ export function SkyscraperPair({
     </div>
   );
 }
+
+export default SkyscraperPair;
