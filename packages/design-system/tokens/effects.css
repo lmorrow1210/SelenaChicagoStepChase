@@ -48,4 +48,16 @@
     --ease-spring: ease-out; /* @kind other */
     --ease-spring-big: ease-out; /* @kind other */
   }
+
+  /* M9 audit: components set animations inline, so a stylesheet rule needs
+     !important longhands to win. Collapses every animation/transition to a
+     single instant frame (elements land in their end state). */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

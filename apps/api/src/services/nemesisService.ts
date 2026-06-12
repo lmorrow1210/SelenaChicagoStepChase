@@ -144,6 +144,47 @@ export async function closeDayForMatchup(db: Db, matchupId: string, date: string
 }
 
 /**
+ * A player left or was removed mid-week (plan §3 group admin notes): dissolve
+ * their matchup. Their opponent re-pairs with the bye player if one exists
+ * (fresh matchup, scores reset), otherwise the opponent becomes the bye.
+ */
+export async function reassignNemesisOnDeparture(
+  db: Db,
+  weekId: string,
+  departingUserId: string,
+): Promise<void> {
+  const m = await db.query(
+    `SELECT id, player_a, player_b FROM nemesis_matchups
+     WHERE week_id = $1 AND (player_a = $2 OR player_b = $2)`,
+    [weekId, departingUserId],
+  );
+  if (!m.rowCount) return;
+  const opponent =
+    m.rows[0].player_a === departingUserId ? m.rows[0].player_b : m.rows[0].player_a;
+
+  await db.query(`DELETE FROM nemesis_matchups WHERE id = $1`, [m.rows[0].id]);
+
+  const bye = await db.query(
+    `SELECT u.id FROM users u
+     JOIN weeks w ON w.id = $1
+     WHERE u.group_id = w.group_id
+       AND u.id NOT IN ($2, $3)
+       AND NOT EXISTS (
+         SELECT 1 FROM nemesis_matchups nm
+         WHERE nm.week_id = $1 AND (nm.player_a = u.id OR nm.player_b = u.id)
+       )
+     LIMIT 1`,
+    [weekId, departingUserId, opponent],
+  );
+  if (bye.rowCount) {
+    await db.query(
+      `INSERT INTO nemesis_matchups (week_id, player_a, player_b) VALUES ($1, $2, $3)`,
+      [weekId, opponent, bye.rows[0].id],
+    );
+  }
+}
+
+/**
  * Close every fully-elapsed day of a matchup (everything before `todayLocal`,
  * group-local). Lets the manual sync stub stand in for the midnight cron run
  * until M8 — same pattern as bingo detection in /api/sync/run.

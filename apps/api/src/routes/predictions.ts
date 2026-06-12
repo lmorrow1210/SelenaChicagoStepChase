@@ -157,6 +157,33 @@ predictionsRouter.get("/current", async (req, res, next) => {
   }
 });
 
+// Per-week results for closed weeks + lifetime win count (plan §3).
+predictionsRouter.get("/history", async (req, res, next) => {
+  try {
+    const rows = await pool.query(
+      `SELECT w.id AS week_id,
+              to_char(w.starts_on, 'YYYY-MM-DD') AS starts_on,
+              c.name AS city_name,
+              p.predicted_steps,
+              w.group_total_steps AS actual_steps,
+              p.actual_delta,
+              p.is_winner
+       FROM predictions p
+       JOIN weeks w ON w.id = p.week_id
+       JOIN cities c ON c.id = w.city_id
+       WHERE p.user_id = $1 AND w.status = 'closed'
+       ORDER BY w.starts_on DESC`,
+      [req.userId],
+    );
+    res.json({
+      history: rows.rows,
+      wins: rows.rows.filter((r) => r.is_winner).length,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
 predictionsRouter.post("/", async (req, res, next) => {
   try {
     const body = submitPredictionSchema.parse(req.body);

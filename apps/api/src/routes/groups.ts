@@ -5,6 +5,19 @@ import { generateInviteCode } from "../lib/inviteCode.js";
 import { createFirstWeek } from "../services/week.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
+import { reassignNemesisOnDeparture } from "../services/nemesisService.js";
+
+async function activeWeekId(
+  db: { query: typeof pool.query },
+  groupId: string,
+): Promise<string | null> {
+  const week = await db.query(
+    `SELECT id FROM weeks WHERE group_id = $1 AND status = 'active'
+     ORDER BY starts_on DESC LIMIT 1`,
+    [groupId],
+  );
+  return week.rowCount ? week.rows[0].id : null;
+}
 
 export const groupsRouter = Router();
 groupsRouter.use(requireAuth);
@@ -107,6 +120,8 @@ groupsRouter.post("/me/leave", async (req, res, next) => {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      const weekId = await activeWeekId(client, groupId);
+      if (weekId) await reassignNemesisOnDeparture(client, weekId, req.userId!);
       await client.query("UPDATE users SET group_id = NULL WHERE id = $1", [req.userId]);
       const g = await client.query("SELECT admin_id FROM groups WHERE id = $1 FOR UPDATE", [
         groupId,
@@ -122,6 +137,48 @@ groupsRouter.post("/me/leave", async (req, res, next) => {
           groupId,
         ]);
       }
+      await client.query("COMMIT");
+      res.json({ ok: true });
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Admin removes a player (plan §3): drop them from the group and reassign
+// their nemesis pairing if mid-week (opponent re-pairs with the bye, or
+// becomes the bye).
+groupsRouter.delete("/me/members/:userId", async (req, res, next) => {
+  try {
+    const targetId = req.params.userId;
+    const me = await pool.query("SELECT group_id FROM users WHERE id = $1", [req.userId]);
+    const groupId = me.rows[0]?.group_id;
+    if (!groupId) throw errors.notFound("You're not in a group");
+
+    const g = await pool.query("SELECT admin_id FROM groups WHERE id = $1", [groupId]);
+    if (g.rows[0].admin_id !== req.userId) {
+      throw errors.forbidden("Only the group admin can remove players");
+    }
+    if (targetId === req.userId) {
+      throw errors.validation("Use leave to remove yourself");
+    }
+    const target = await pool.query(
+      "SELECT id FROM users WHERE id = $1 AND group_id = $2",
+      [targetId, groupId],
+    );
+    if (!target.rowCount) throw errors.notFound("That player isn't in your group");
+
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const weekId = await activeWeekId(client, groupId);
+      if (weekId) await reassignNemesisOnDeparture(client, weekId, targetId);
+      await client.query("UPDATE users SET group_id = NULL WHERE id = $1", [targetId]);
       await client.query("COMMIT");
       res.json({ ok: true });
     } catch (e) {

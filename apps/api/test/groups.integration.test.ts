@@ -175,4 +175,53 @@ describeDb("groups routes integration", () => {
     expect(updatedGroup.rows[0].admin_id).toBe(secondId);
     expect(owner.rows[0].group_id).toBeNull();
   });
+
+  it("admin removes a player; their nemesis re-pairs with the bye", async () => {
+    const ownerId = await createUser("owner");
+    const group = await createGroup(ownerId);
+    const secondId = await createUser("second");
+    const thirdId = await createUser("third");
+    for (const id of [secondId, thirdId]) {
+      const join = await request(id, "/api/groups/join", {
+        method: "POST",
+        json: { invite_code: group.invite_code },
+      });
+      expect(join.status).toBe(200);
+    }
+
+    // Pair second + third explicitly; owner is the bye.
+    const week = await pool.query("SELECT id FROM weeks WHERE group_id = $1", [group.id]);
+    await pool.query(
+      "INSERT INTO nemesis_matchups (week_id, player_a, player_b) VALUES ($1, $2, $3)",
+      [week.rows[0].id, secondId, thirdId],
+    );
+
+    // Non-admin is forbidden; admin can't remove themselves.
+    const forbidden = await request(secondId, `/api/groups/me/members/${thirdId}`, {
+      method: "DELETE",
+    });
+    expect(forbidden.status).toBe(403);
+    const self = await request(ownerId, `/api/groups/me/members/${ownerId}`, {
+      method: "DELETE",
+    });
+    expect(self.status).toBe(422);
+
+    const removed = await request(ownerId, `/api/groups/me/members/${thirdId}`, {
+      method: "DELETE",
+    });
+    expect(removed.status).toBe(200);
+
+    const target = await pool.query("SELECT group_id FROM users WHERE id = $1", [thirdId]);
+    expect(target.rows[0].group_id).toBeNull();
+
+    // Second got a fresh matchup against the former bye (the owner).
+    const matchups = await pool.query(
+      "SELECT player_a, player_b FROM nemesis_matchups WHERE week_id = $1",
+      [week.rows[0].id],
+    );
+    expect(matchups.rowCount).toBe(1);
+    expect([matchups.rows[0].player_a, matchups.rows[0].player_b].sort()).toEqual(
+      [secondId, ownerId].sort(),
+    );
+  });
 });

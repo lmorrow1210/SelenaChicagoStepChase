@@ -37,5 +37,14 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/selenas_chase_test
       - name: Build web
         run: npm run build -w apps/web
-      # TODO(M0 checklist): add oxlint with SelenaDesign/_adherence.oxlintrc.json
-      # so raw hex / magic numbers outside tokens/ fail the build (plan §7).
+      # Design-token adherence (plan §7 / hard rule 4): app code must use
+      # tokens, never raw hex. (The design-system bundle itself holds the hex
+      # constants, so only app code is gated. oxlint can't run the original
+      # _adherence.oxlintrc.json — no no-restricted-syntax support — so this
+      # enforces the load-bearing rule directly.)
+      - name: Design-token adherence (no raw hex in app code)
+        run: |
+          if grep -rEn '#[0-9a-fA-F]{3,8}\b' apps/web/app apps/web/lib --include='*.tsx' --include='*.ts'; then
+            echo '::error::Raw hex color in app code — use a design-system token via var(--…)'
+            exit 1
+          fi
