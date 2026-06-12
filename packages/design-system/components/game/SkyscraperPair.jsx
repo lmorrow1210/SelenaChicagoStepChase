@@ -8,6 +8,13 @@ import { Icon } from '../icons/Icon.jsx';
    ============================================================ */
 
 function Tower({ side, label, pct, win, color, animate }) {
+  // reduced-motion skips the rise (M6 acceptance); inline animation can't be
+  // overridden from a stylesheet, so gate it here (SSR-safe)
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rise = animate && !reducedMotion;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
       {win && (
@@ -25,7 +32,7 @@ function Tower({ side, label, pct, win, color, animate }) {
           borderRadius: '4px 4px 0 0',
           boxShadow: win ? 'var(--glow-gold)' : 'none',
           transformOrigin: 'bottom',
-          animation: animate ? `sc-bounce-up var(--dur-skyline) var(--ease-spring) both` : 'none',
+          animation: rise ? `sc-bounce-up var(--dur-skyline) var(--ease-spring) both` : 'none',
           position: 'relative',
           display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center',
           paddingTop: 8, gap: 6, overflow: 'hidden',

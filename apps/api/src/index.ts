@@ -11,6 +11,7 @@ import { predictionsRouter } from "./routes/predictions.js";
 import { bingoRouter } from "./routes/bingo.js";
 import { nemesisRouter } from "./routes/nemesis.js";
 import { badgesRouter } from "./routes/badges.js";
+import { notificationsRouter } from "./routes/notifications.js";
 import { errorHandler } from "./middleware/errors.js";
 import { pool } from "./db/pool.js";
 import { startCron } from "./services/cron.js";
@@ -45,6 +46,7 @@ app.use("/api/predictions", predictionsRouter);
 app.use("/api/bingo", bingoRouter);
 app.use("/api/nemesis", nemesisRouter);
 app.use("/api/badges", badgesRouter);
+app.use("/api/notifications", notificationsRouter);
 
 app.use(errorHandler);
 

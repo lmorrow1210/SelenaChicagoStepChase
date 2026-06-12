@@ -180,6 +180,7 @@ export default function MapPage() {
 
   return (
     <main className="mapPage">
+      {data.state === "arrival" && <ArrivalCelebration city={data.nextCity?.name ?? data.city?.name ?? "the next city"} />}
       <section className="mapHero" aria-label="Weekly route">
         <div className="mapHeroTop">
           <div>
@@ -262,6 +263,88 @@ export default function MapPage() {
 
       <MapStyles />
     </main>
+  );
+}
+
+const CONFETTI_COLORS = ["var(--blue)", "var(--gold)", "var(--red)", "var(--cream)"];
+
+/** Arrival is the biggest moment in the app (plan M9): confetti + banner. */
+function ArrivalCelebration({ city }: { city: string }) {
+  const pieces = Array.from({ length: 36 }, (_, i) => ({
+    left: `${(i * 37) % 100}%`,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    delay: `${(i % 9) * 120}ms`,
+    duration: `${1800 + (i % 5) * 350}ms`,
+  }));
+  return (
+    <div className="arrival" role="status" aria-label={`You've arrived in ${city}!`}>
+      <div className="arrivalConfetti" aria-hidden="true">
+        {pieces.map((p, i) => (
+          <span
+            key={i}
+            style={{
+              left: p.left,
+              background: p.color,
+              animationDelay: p.delay,
+              animationDuration: p.duration,
+            }}
+          />
+        ))}
+      </div>
+      <div className="arrivalBanner">
+        <p className="eyebrow">Arrival</p>
+        <h2>You&apos;ve arrived in {city}!</h2>
+        <p className="muted">Selena&apos;s trail is fresh. The new week starts at midnight.</p>
+      </div>
+      <style jsx>{`
+        .arrival {
+          position: relative;
+          overflow: hidden;
+          border: 1.5px solid var(--gold);
+          border-radius: var(--r-card);
+          background: var(--gold-12);
+          padding: var(--sp-4);
+        }
+        .arrivalBanner h2 {
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: var(--fs-h2);
+          text-transform: uppercase;
+          color: var(--gold);
+        }
+        .arrivalConfetti {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+        }
+        .arrivalConfetti span {
+          position: absolute;
+          top: -10px;
+          width: 8px;
+          height: 8px;
+          border-radius: 2px;
+          opacity: 0;
+          animation-name: sc-confetti-fall;
+          animation-timing-function: var(--ease-in-out);
+          animation-iteration-count: infinite;
+        }
+        @keyframes sc-confetti-fall {
+          0% {
+            opacity: 1;
+            transform: translateY(-10px) rotate(0deg);
+          }
+          100% {
+            opacity: 0.4;
+            transform: translateY(140px) rotate(300deg);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .arrivalConfetti {
+            display: none;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
 

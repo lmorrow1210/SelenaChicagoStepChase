@@ -27,7 +27,7 @@ export async function detectUnlocks(
   if (day < 1 || day > 7) return { unlocked: false, landmarkId: null };
 
   const landmark = await db.query(
-    "SELECT id FROM landmarks WHERE city_id = $1 AND day = $2",
+    "SELECT id, name FROM landmarks WHERE city_id = $1 AND day = $2",
     [week.rows[0].city_id, day],
   );
   if (!landmark.rowCount) return { unlocked: false, landmarkId: null };
@@ -58,9 +58,19 @@ export async function detectUnlocks(
        unlocked = TRUE,
        unlocked_at = COALESCE(city_unlocks.unlocked_at, EXCLUDED.unlocked_at),
        triggering_user = COALESCE(city_unlocks.triggering_user, EXCLUDED.triggering_user)
-     RETURNING landmark_id`,
+     RETURNING landmark_id, (xmax = 0) AS fresh`,
     [week.rows[0].id, landmark.rows[0].id, date, triggeringUserId],
   );
+
+  // Notify the whole group on a first-time unlock only (xmax = 0 → inserted,
+  // not updated) so re-running detection never duplicates toasts.
+  if (unlock.rows[0]?.fresh) {
+    await db.query(
+      `INSERT INTO notifications (user_id, kind, message)
+       SELECT id, 'achievement', $2 FROM users WHERE group_id = $1`,
+      [groupId, `${landmark.rows[0].name} unlocked — everyone worked out today!`],
+    );
+  }
 
   return { unlocked: Boolean(unlock.rowCount), landmarkId: unlock.rows[0]?.landmark_id ?? null };
 }

@@ -17,12 +17,22 @@ async function awardBadge(
   cityId: number | null,
   quality: "bronze" | "silver" | "gold" | null,
 ): Promise<void> {
-  await client.query(
+  const r = await client.query(
     `INSERT INTO badges (user_id, badge_code, week_id, city_id, quality)
      VALUES ($1, $2, $3, $4, $5)
-     ON CONFLICT (user_id, badge_code, week_id) DO NOTHING`,
+     ON CONFLICT (user_id, badge_code, week_id) DO NOTHING
+     RETURNING badge_code`,
     [userId, code, weekId, cityId, quality],
   );
+  // Achievement toast for newly-earned badges only (rerun-safe: the upsert
+  // returns no row when the badge already existed).
+  if (r.rowCount) {
+    await client.query(
+      `INSERT INTO notifications (user_id, kind, message)
+       SELECT $1, 'achievement', 'Badge earned: ' || label FROM badge_definitions WHERE code = $2`,
+      [userId, code],
+    );
+  }
 }
 
 /**
@@ -224,10 +234,11 @@ export async function weekRollover(
       `INSERT INTO weeks (group_id, city_id, starts_on, ends_on, group_target_steps)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (group_id, starts_on) DO UPDATE SET group_id = weeks.group_id
-       RETURNING id`,
+       RETURNING id, (xmax = 0) AS fresh`,
       [groupId, nextCityId, nextMonday, addDays(nextMonday, 6), target.rows[0].total],
     );
     const nextWeekId: string = nextWeek.rows[0].id;
+    const createdNextWeek: boolean = !!nextWeek.rows[0].fresh;
 
     // 9. Fresh bingo cards + nemesis pairings; prediction window opens
     // implicitly with the new active week.
@@ -236,6 +247,27 @@ export async function weekRollover(
       await createOrGetBingoCard(client, nextWeekId, r.id);
     }
     await pairAndPersist(client, nextWeekId, groupId);
+
+    // Week-closure summary toast for everyone (only on the run that created
+    // the next week, so reruns don't duplicate).
+    if (createdNextWeek) {
+      const summary = await client.query(
+        `SELECT w.group_total_steps, w.target_hit, c.name AS next_city
+         FROM weeks w, weeks nw JOIN cities c ON c.id = nw.city_id
+         WHERE w.id = $1 AND nw.id = $2`,
+        [weekId, nextWeekId],
+      );
+      const s = summary.rows[0];
+      const total = Number(s.group_total_steps ?? 0).toLocaleString("en-US");
+      const message = s.target_hit
+        ? `Week closed: ${total} steps — target hit! Next stop: ${s.next_city}.`
+        : `Week closed: ${total} steps. Selena slipped away — next stop: ${s.next_city}.`;
+      await client.query(
+        `INSERT INTO notifications (user_id, kind, message)
+         SELECT id, 'social', $2 FROM users WHERE group_id = $1`,
+        [groupId, message],
+      );
+    }
 
     await client.query("COMMIT");
     return { nextWeekId };

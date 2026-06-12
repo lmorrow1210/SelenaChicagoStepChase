@@ -17,3 +17,4 @@ export interface ToastProps {
  * alert = red. e.g. "Tokyo — Senso-ji unlocked!"
  */
 export function Toast(props: ToastProps): JSX.Element;
+export default Toast;

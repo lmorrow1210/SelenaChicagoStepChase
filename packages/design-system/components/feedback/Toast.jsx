@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    Toast — slim bar at top of screen.
@@ -12,7 +13,6 @@ const TYPES = {
 };
 
 export function Toast({ type = 'social', title, message, icon, onClose, style }) {
-  const { Icon } = window.DesignSystem_19034b;
   const t = TYPES[type] || TYPES.social;
   return (
     <div
@@ -49,3 +49,5 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
     </div>
   );
 }
+
+export default Toast;
