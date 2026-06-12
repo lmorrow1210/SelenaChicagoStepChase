@@ -51,10 +51,11 @@ export function SkyscraperPair({
   you = { label: 'You', steps: 8200, colorway: 'chicago' },
   nemesis = { label: 'Nemesis', steps: 7400 },
   outcome,             // 'you' | 'nemesis' | 'tie' | 'progress' (auto if omitted)
+  max: maxProp,        // normalize heights to this (e.g. week max) instead of the pair max
   animate = false,
   style,
 }) {
-  const max = Math.max(you.steps, nemesis.steps, 1);
+  const max = Math.max(maxProp ?? 0, you.steps, nemesis.steps, 1);
   const youPct = (you.steps / max) * 100;
   const nemPct = (nemesis.steps / max) * 100;
   const result = outcome || (you.steps === nemesis.steps ? 'tie' : you.steps > nemesis.steps ? 'you' : 'nemesis');

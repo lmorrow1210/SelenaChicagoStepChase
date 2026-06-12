@@ -7,6 +7,7 @@ import { MockFitbitClient, type FitbitClient } from "../services/fitbitClient.js
 import { syncUserToday } from "../services/sync.js";
 import { detectUnlocks } from "../services/unlocks.js";
 import { createOrGetBingoCard, updateBingoCard } from "../services/bingoService.js";
+import { closeElapsedDays } from "../services/nemesisService.js";
 
 // M2 sync stub: manual "sync now" against the mock client. M8 swaps the
 // client for the real Health API implementation — this route is unchanged.
@@ -49,6 +50,17 @@ syncRouter.post("/run", syncLimit, async (req, res, next) => {
         const weekId = weekRow.rows[0].id as string;
         await createOrGetBingoCard(pool, weekId, r.rows[0].id);
         await updateBingoCard(pool, weekId, r.rows[0].id, date);
+
+        // Nemesis: close all fully-elapsed days of my matchup (stands in for
+        // the M8 midnight cron run — same pattern as bingo detection above)
+        const matchup = await pool.query(
+          `SELECT id FROM nemesis_matchups
+           WHERE week_id = $1 AND (player_a = $2 OR player_b = $2)`,
+          [weekId, r.rows[0].id],
+        );
+        if (matchup.rowCount) {
+          await closeElapsedDays(pool, matchup.rows[0].id, date);
+        }
       }
     }
     res.json({ ok: true, syncedAt: new Date().toISOString() });

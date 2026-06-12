@@ -14,6 +14,8 @@ export interface SkyscraperPairProps {
   nemesis?: TowerData;
   /** Force an outcome; otherwise derived from steps. */
   outcome?: 'you' | 'nemesis' | 'tie' | 'progress';
+  /** Normalize heights to this value (e.g. group week max) instead of the pair max. */
+  max?: number;
   /** Bounce the buildings up on mount (spring overshoot). */
   animate?: boolean;
   style?: React.CSSProperties;
