@@ -30,7 +30,11 @@ Owner: lmorrow1210@gmail.com
 
 ```bash
 npm run test -w apps/api
-# Expected: 25 passed, 7 skipped (integration tests skip without TEST_DATABASE_URL)
+# Expected: 33 passed, 10 skipped (integration tests skip without TEST_DATABASE_URL)
+
+# With local Postgres (see "Local Postgres" below) ALL tests run:
+TEST_DATABASE_URL="postgres://localhost:5432/selenas_chase_test" npm run test -w apps/api
+# Expected: 43 passed, 0 skipped
 
 npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
@@ -41,11 +45,31 @@ npm run build -w apps/web
 # Expected: both succeed
 ```
 
+### Local Postgres (installed June 2026 session)
+
+PostgreSQL 16 is installed via Homebrew on this machine. The server is NOT a
+launchd service — start it manually (the LC_ALL is required or postgres
+refuses to boot):
+
+```bash
+LC_ALL="en_US.UTF-8" /opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/pg16.log start
+```
+
+Databases that exist: `selenas_chase_test` (integration tests; suites reset it),
+`selenas_chase_dev` (manual smoke testing; migrations applied, has leftover
+smoke data — safe to drop and recreate). CI runs the full suite against a
+postgres:16 service container, so the 10 integration tests gate every push.
+
 ---
 
 ## Git log (current state)
 
 ```
+fe00d19 Fix production bugs surfaced by first real integration run; run integration tests in CI
+489bc08 M9: notifications API, toast shelf, week summary + unlock + badge notifications, arrival confetti, reduced-motion
+11c6085 M1: full 5-step onboarding wizard
+2800084 M8 sync pipeline: real Health API client, hourly cron, 429 backoff, invalid_grant handling
+6e0af6b Update HANDOFF.md: M6/M7/M8-rollover complete, next steps + new gotchas
 0df13cb M8 week rollover: full Monday 00:00 transaction + integration tests
 6a10619 M7 Profile & Badges: stats/badges endpoints, full profile screen, migrate StatCard/Badge/Slider to ESM
 9223a90 chore: ignore tsbuildinfo build artifacts
@@ -77,11 +101,11 @@ a219593 init: add docs and README
 - `DELETE /api/auth/fitbit` (revoke token + clear).
 - `POST /api/auth/dev-login` (non-production only) + login UI.
 - `GET /api/auth/session`, `POST /api/auth/logout`.
-- Simple `/onboarding` page (create/join group). Full 5-step onboarding is NOT done (see M1 gaps below).
+- Full 5-step onboarding wizard at `/onboarding/[step]` (see M1 section below).
 
 ### Design-system (M0/M1)
 - All game components migrated from `window.React` / `window.DesignSystem_19034b` shim to ESM imports + default exports: `Button`, `Input`, `EmptyState`, `Skeleton`, `Avatar`, `MapPin`, `ProgressStrip`, `LandmarkTile`, `CityBadge`, `PredictionCard`, `BingoTile`, `Sidebar`, `TabBar`, `Icon`, `SkyscraperPair`, `StatCard`, `Badge`, `Slider`.
-- **Not yet migrated: `Card`, `CountdownPill`, `Toast`** (still on `window.*` — nothing imports them yet; migrate when first used, e.g. Toast in M9).
+- **Not yet migrated: `Card`, `CountdownPill`** (still on `window.*` — nothing imports them; migrate when first used). `Toast` was migrated for M9.
 - `SkyscraperPair` gained an optional `max` prop — normalizes tower heights to a supplied value (the Nemesis screen passes group `weekMax`) instead of the pair max.
 - Fonts via `next/font/google` (Barlow Condensed, DM Sans, DM Mono). `@import` removed from design-system.
 
@@ -131,58 +155,56 @@ All in `apps/api/src/services/`:
 - `GET /api/badges` — earned badges joined with definitions + city name.
 - Profile screen: 120px avatar showcase, stats row (all-time steps as km in DM Mono), badge grid with bronze/silver/gold borders, settings panel (target slider with explicit Save, sync now with 429 handling, disconnect Fitbit, sign out), avatar editor modal (skin/hair/colorway swatches, live preview, PATCH /api/users/me).
 
-### Week rollover (M8 transaction — complete; cron + real client NOT done)
+### Week rollover (M8 — complete)
 - **`services/weekRollover.ts: weekRollover(pool, weekId)`** — single transaction, rolls back on failure, idempotent on rerun:
   1. `closeWeekPredictions` + `prediction_win` badge
   2. City badge to step leader (quality by unlock count 0–2 bronze / 3–5 silver / 6–7 gold, only if `target_hit`) + `streak_3/6/12`
   3. Nemesis: closes Mon–Fri + Saturday tiebreak, force-completes unresolved matchups by weekly step total (dead-even = draw, no winner), `nemesis_victor` badge
   4. Freezes bingo cards; `bingo` / `blackout` / `perfect_week` / `hot_pursuit` badges
   5. Next week at next `route_order` (wraps to first city), target = Σ member targets, fresh bingo cards, new pairings
-- `test/weekRollover.integration.test.ts` — 3 integration tests (full rollover, idempotency, route wrap), skipped without `TEST_DATABASE_URL`.
-- **Nothing calls `weekRollover` yet** — it's invoked by the M8 cron (not built).
+- `test/weekRollover.integration.test.ts` — 3 integration tests (full rollover, idempotency, route wrap).
 
-### Tests
+### Sync pipeline + cron (M8 — complete)
+- `lib/backoff.ts` — `withBackoff` exponential + full jitter (1s→32s cap, 5 tries), unit-tested against a mocked 429 storm.
+- `services/realFitbitClient.ts` — refresh-token flow via google-auth-library, in-process access-token cache (never persisted), 401 → refresh → retry once (second 401 = `InvalidGrantError`), partial sync (sleep/heart optional, steps required). **⚠ endpoint base `health.googleapis.com/v4` still needs verification against Google's docs + the sandbox account before first production sync (plan §5 flag). This file is the only touchpoint.**
+- `services/cron.ts` — hourly tick aligned to top of hour (`startCron`, armed in index.ts, `DISABLE_CRON=1` opt-out); groups synced at local noon/6pm/midnight (`localClock` is unit-tested); noon re-pulls yesterday; midnight closes yesterday (sync → unlocks → bingo → nemesis); Monday 00:00 group-local runs `weekRollover`; per-user failures never abort the batch; `invalid_grant` → `fitbit_connected=false` + alert notification.
+- `services/clientFactory.ts` — process-wide client shared by the sync route and cron: real in production, mock elsewhere, `HEALTH_API_MODE=real|mock` overrides.
+
+### Onboarding (M1 — complete)
+- `/onboarding/[step]` wizard: connect (Fitbit status, Google OAuth link, skip-for-now) → target (slider + daily readout) → avatar (live-preview editor) → group (create/join). Index redirects to `/onboarding/connect`. Step-dot progress indicator.
+
+### Notifications & polish (M9 — mostly complete)
+- `GET /api/notifications` (latest 20, unread first) + `POST /api/notifications/read` (ids or all).
+- `ToastShelf` in `Providers` polls unread notifications (60s + window focus), renders the design-system `Toast` (achievement gold / social blue / alert red), auto-marks read after 8s or on dismiss.
+- Notification producers: first-time landmark unlocks (group-wide, xmax=0 freshness guard), newly-earned badges, week-closure summary (social, all members, only on the run that created the next week).
+- Arrival confetti + banner on the Map when `state='arrival'`; hidden under `prefers-reduced-motion`. SkyscraperPair rise also gated.
+- **Remaining M9 items (manual/QA):** responsive QA on iOS Safari + Android Chrome, Lighthouse a11y ≥ 95, full reduced-motion audit of older screens.
+
+### Tests (43 total, all green in CI against postgres:16 service)
 - `test/engines.test.ts` — 11 unit tests covering all engine functions above.
 - `test/lib.test.ts` — 7 unit tests for invite codes, AES-256-GCM crypto, JWT session.
 - `test/week.test.ts` — 4 unit tests for DST-safe week boundary math.
 - `test/fitbitClient.test.ts` — 3 unit tests for MockFitbitClient fixture behavior.
-- `test/groups.integration.test.ts` — 4 integration tests (skipped without `TEST_DATABASE_URL`).
-- `test/predictions.integration.test.ts` — 3 integration tests for prediction submit/reveal/closeWeekPredictions (skipped without `TEST_DATABASE_URL`).
+- `test/backoff.test.ts` — 8 unit tests: 429 backoff + cron scheduling helpers.
+- `test/groups.integration.test.ts` — 4, `test/predictions.integration.test.ts` — 3, `test/weekRollover.integration.test.ts` — 3 (all run when `TEST_DATABASE_URL` is set; suites share the DB so vitest `fileParallelism` is off; `test/helpers/db.ts` resets + applies every migration).
+
+### Production bugs found & fixed by the first real integration run (June 2026)
+These had never been caught because the integration tests had never executed anywhere:
+1. **pg DATE parsing** — node-postgres returned `DATE` columns as JS `Date` objects while the entire codebase compares them as `YYYY-MM-DD` strings. Net effect: the prediction submission window NEVER opened (always 409) and `GET /api/predictions/current` 500'd. Fixed globally in `db/pool.ts` with `pg.types.setTypeParser(DATE, v => v)`. **Don't remove that parser.**
+2. **Bingo seed too small** — `generateCard` requires 24 distinct challenges; 002 seeded 18. Migration `003_more_bingo_challenges.sql` adds 8 (pool = 26).
+3. **`closeWeekPredictions`** reused `$2` in two type contexts → Postgres "inconsistent types deduced for parameter $2". Fixed with explicit `::int` casts.
+
+A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close → reroll 409 → stats/badges/bingo → `weekRollover`) was run against `selenas_chase_dev` and behaved correctly, including notifications.
 
 ---
 
 ## What is NOT done — next tasks in priority order
 
-### 1. M8 — Real sync + cron (the rollover transaction is DONE — see above)
-
-`weekRollover(pool, weekId)` exists, is transactional, idempotent, and integration-tested. What remains is the pipeline that calls it:
-
-**Sync pipeline (cron, 3×/day):**
-- Real `FitbitClient` behind the same interface as `MockFitbitClient`. Base URL: `health.googleapis.com/v4` (verify before coding — see plan §5).
-- Hourly cron tick; select groups whose local time is noon / 6pm / midnight.
-- Midnight run: sync all → unlock detection → bingo detection → nemesis day-close.
-- 429 backoff: exponential 1s→32s, 5 tries; per-user failures don't abort the batch.
-- `invalid_grant`: set `fitbit_connected=false`, create alert notification.
-- Monday 00:00 group-local tick: call `weekRollover(pool, weekId)` for each group's active week.
-
-### 2. M1 gaps — full onboarding
-
-The current `/onboarding` is a minimal create/join form. The full spec requires 5 steps:
-1. Connect Fitbit (show scope consent status; reconnect banner if `fitbit_connected=false`)
-2. Weekly target slider (35k–140k, default 70k)
-3. Avatar editor (skin tone → hair color → colorway, live preview)
-4. Create or join group
-5. → `/map`
-
-Route structure: `apps/web/app/(onboarding)/onboarding/[step]/page.tsx` (per plan §1 repo layout).
-
-### 3. M9 — Notifications & Polish (last)
-- Toast system (achievement gold / social blue / alert red) — `GET /api/notifications` + mark-read endpoint.
-- Week-closure summary card.
-- Arrival confetti (biggest moment in the app).
-- Responsive QA iOS Safari + Android Chrome.
-- Lighthouse a11y ≥ 95.
-- Reduced-motion audit (all animations gated by `prefers-reduced-motion`).
+1. **Verify the real Health API** (plan §5 flag): confirm endpoint base/paths/scopes against Google's docs with a sandbox account; adjust `realFitbitClient.ts` (single touchpoint). Until then production must run `HEALTH_API_MODE=mock`.
+2. **Deploy**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
+3. **M9 manual QA**: responsive iOS Safari + Android Chrome, Lighthouse a11y ≥ 95, reduced-motion audit of M2–M4 screens.
+4. **Plan §3 stragglers** (nice-to-have): `GET /api/predictions/history`, past-city trophy view polish, admin member removal with mid-week nemesis re-pair, OpenAPI yaml + generated client, oxlint token-adherence CI step.
+5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
 
 ---
 
@@ -221,9 +243,9 @@ packages/design-system/components/
   game/        Avatar, BingoTile, CityBadge, LandmarkTile, MapPin,
                PredictionCard, ProgressStrip, SkyscraperPair — all migrated
   navigation/  Sidebar, TabBar  — migrated
-  core/        Button, StatCard, Badge — migrated; Card, CountdownPill — NOT yet
+  core/        Button, StatCard, Badge — migrated; Card, CountdownPill — NOT yet (unused)
   forms/       Input, Slider     — migrated
-  feedback/    EmptyState, Skeleton — migrated; Toast — NOT yet
+  feedback/    EmptyState, Skeleton, Toast — migrated
   icons/       Icon              — migrated
 
 apps/web/app/
@@ -243,7 +265,7 @@ apps/web/app/
 
 ## Design-system component migration template
 
-Every component still using `window.*` needs this exact treatment (remaining: `Card`, `CountdownPill`, `Toast`):
+Every component still using `window.*` needs this exact treatment (remaining: `Card`, `CountdownPill` — both currently unused):
 
 ```diff
 -const React = window.React;
@@ -275,13 +297,9 @@ In the matching `.d.ts`, add `export default ComponentName;` at the end.
 
 ## Recommended execution order for the next session
 
-(June 2026 session completed: SkyscraperPair migration, all of M6, all of M7, M8 rollover transaction + integration tests.)
-
-1. **M8 sync pipeline + cron** — real `FitbitClient`, hourly tick, midnight pipeline, Monday tick calling `weekRollover`. This makes the game run itself.
-2. **M1 full 5-step onboarding** — Connect Fitbit → target slider → avatar editor (reuse the modal from `profile/page.tsx`) → create/join → /map.
-3. **M9 notifications & polish** — Toast (needs ESM migration first), summary card, arrival confetti, a11y/reduced-motion audit.
-
-Also still open: confirm Saturday sudden-death tiebreak with Lindsey before shipping M6 to real users (plan §10 flag).
+All feature modules (M0–M9) are built. See "What is NOT done" above — the
+remaining work is Health-API verification, deployment, and manual QA, none of
+which is automatable from this machine alone.
 
 ---
 
