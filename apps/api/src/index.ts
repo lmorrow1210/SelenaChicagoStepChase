@@ -3,6 +3,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/auth.js";
 import { groupsRouter } from "./routes/groups.js";
+import { usersRouter } from "./routes/users.js";
 import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
@@ -26,6 +27,7 @@ app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api/groups", groupsRouter);
+app.use("/api/users", usersRouter);
 // TODO(M2+): routes/users, weeks, sync, predictions, nemesis, bingo, cities,
 // badges — see docs/implementation-plan.md §3.
 

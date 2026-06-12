@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createGroupSchema, joinGroupSchema, GROUP_MAX_MEMBERS } from "@selenas-chase/shared";
 import { pool } from "../db/pool.js";
 import { generateInviteCode } from "../lib/inviteCode.js";
+import { createFirstWeek } from "../services/week.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 
@@ -44,6 +45,8 @@ groupsRouter.post("/", async (req, res, next) => {
         group.rows[0].id,
         req.userId,
       ]);
+      // first week starts immediately: city #1, target = Σ member targets
+      await createFirstWeek(client, group.rows[0].id, group.rows[0].timezone);
       await client.query("COMMIT");
       res.status(201).json({ group: group.rows[0] });
     } catch (e) {

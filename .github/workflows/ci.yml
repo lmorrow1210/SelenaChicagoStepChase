@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck api
+        run: npx tsc --noEmit -p apps/api/tsconfig.json
+      - name: Test api
+        run: npm run test -w apps/api
+      - name: Build web
+        run: npm run build -w apps/web
+      # TODO(M0 checklist): add oxlint with SelenaDesign/_adherence.oxlintrc.json
+      # so raw hex / magic numbers outside tokens/ fail the build (plan §7).
