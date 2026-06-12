@@ -41,6 +41,7 @@ export function Slider({
         }} />
         <input
           type="range"
+          aria-label={label || 'Slider'}
           min={min} max={max} step={step} value={value} disabled={disabled}
           onChange={(e) => onChange && onChange(Number(e.target.value))}
           style={{

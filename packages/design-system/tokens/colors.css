@@ -12,7 +12,7 @@
   --red:   #CC0000; /* competition, rivalry, action — Chicago red (boots) */
   --gold:  #D4A820; /* unlocks, badges, achievements */
   --cream: #F0E8DC; /* primary text on dark backgrounds */
-  --muted: #4A6080; /* secondary text, disabled, placeholders */
+  --muted: #8A9FBB; /* secondary text, disabled, placeholders — lightened from #4A6080 (2.5:1, WCAG fail) to ≥4.5:1 on every surface incl. --card-elevated (M9 a11y gate) */
 
   /* ---- Derived surface shades (no pure black/white) ---- */
   --navy-deep:    #06101D; /* map ocean depth, deepest recess */

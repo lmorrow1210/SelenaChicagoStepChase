@@ -283,11 +283,12 @@ function CityStyles() {
         flex-direction: column;
         align-items: center;
         gap: var(--sp-1);
-        opacity: 0.58;
       }
 
-      .avatarStatus[data-done="true"] {
-        opacity: 1;
+      /* Dim only the avatar for not-yet-worked-out members; the name stays
+         at full contrast (M9 a11y). */
+      .avatarStatus[data-done="false"] > :first-child {
+        opacity: 0.58;
       }
 
       .avatarStatus span {

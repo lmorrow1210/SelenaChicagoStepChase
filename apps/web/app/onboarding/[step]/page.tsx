@@ -80,7 +80,7 @@ const bodyText: React.CSSProperties = {
 
 function StepDots({ current }: { current: Step }) {
   return (
-    <div style={{ display: "flex", gap: "var(--sp-2)" }} aria-label={`Step ${STEPS.indexOf(current) + 1} of ${STEPS.length}`}>
+    <div role="group" style={{ display: "flex", gap: "var(--sp-2)" }} aria-label={`Step ${STEPS.indexOf(current) + 1} of ${STEPS.length}`}>
       {STEPS.map((s) => (
         <span
           key={s}
