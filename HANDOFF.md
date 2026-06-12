@@ -46,6 +46,12 @@ npm run build -w apps/web
 ## Git log (current state)
 
 ```
+0df13cb M8 week rollover: full Monday 00:00 transaction + integration tests
+6a10619 M7 Profile & Badges: stats/badges endpoints, full profile screen, migrate StatCard/Badge/Slider to ESM
+9223a90 chore: ignore tsbuildinfo build artifacts
+e869237 M6 Nemesis: pairing persistence, day-close service, current/reroll routes, sync wiring, Nemesis screen
+96dca33 Design-system: migrate SkyscraperPair to ESM imports + default export
+503da8c Update HANDOFF.md: full state snapshot for Fable handoff
 c9b65d4 M4 complete + M5 Bingo: week-close scoring, bingo persistence, API routes, Bingo screen
 66bfc5a Modules 1-4: Google OAuth, design-system ESM migration, Map/City/Prediction screens
 3df94a6 Game engines: prediction scoring, bingo card/lines/detector engine, nemesis pairing+scoring — pure functions, 25 tests green
@@ -74,8 +80,9 @@ a219593 init: add docs and README
 - Simple `/onboarding` page (create/join group). Full 5-step onboarding is NOT done (see M1 gaps below).
 
 ### Design-system (M0/M1)
-- All game components migrated from `window.React` / `window.DesignSystem_19034b` shim to ESM imports + default exports: `Button`, `Input`, `EmptyState`, `Skeleton`, `Avatar`, `MapPin`, `ProgressStrip`, `LandmarkTile`, `CityBadge`, `PredictionCard`, `BingoTile`, `Sidebar`, `TabBar`, `Icon`.
-- **Not yet migrated: `SkyscraperPair`** (still uses `window.React`/`window.DesignSystem_19034b` — needs same treatment for M6 Nemesis screen).
+- All game components migrated from `window.React` / `window.DesignSystem_19034b` shim to ESM imports + default exports: `Button`, `Input`, `EmptyState`, `Skeleton`, `Avatar`, `MapPin`, `ProgressStrip`, `LandmarkTile`, `CityBadge`, `PredictionCard`, `BingoTile`, `Sidebar`, `TabBar`, `Icon`, `SkyscraperPair`, `StatCard`, `Badge`, `Slider`.
+- **Not yet migrated: `Card`, `CountdownPill`, `Toast`** (still on `window.*` — nothing imports them yet; migrate when first used, e.g. Toast in M9).
+- `SkyscraperPair` gained an optional `max` prop — normalizes tower heights to a supplied value (the Nemesis screen passes group `weekMax`) instead of the pair max.
 - Fonts via `next/font/google` (Barlow Condensed, DM Sans, DM Mono). `@import` removed from design-system.
 
 ### Map + Leaderboard (M2)
@@ -110,6 +117,30 @@ All in `apps/api/src/services/`:
 - `bingo.ts: generateCard`, `countBingoLines`, `isBlackout`, `evaluateDetector` — 25-tile card generation + 5+5+2 line detection + full detector evaluation.
 - `nemesis.ts: decideDay`, `tallyScore`, `weekOutcome`, `pairPlayers` — Mon–Fri best-of-5; Saturday sudden death on 5-way tie.
 
+### Nemesis (M6 — complete)
+- **`services/nemesisService.ts`**:
+  - `pairAndPersist(db, weekId, groupId)` — random pairs via `pairPlayers`, idempotent. **Bye = no row** (locked decision: a member with no `nemesis_matchups` row for the week is the bye).
+  - `closeDayForMatchup(db, matchupId, date)` — decides the day, upserts into `daily_results` (re-close replaces the entry, idempotent), retallies scores, advances status: 5 weekday results → outcome; 5-day tie → `status='tiebreak'` + `tiebreaker_date`=Saturday; Saturday non-tie result → complete. No-op once complete.
+  - `closeElapsedDays(db, matchupId, todayLocal)` — closes every day before today (Mon–Sat); called from `/api/sync/run` after bingo detection as the stand-in for the M8 midnight cron.
+- `GET /api/nemesis/current` — lazily pairs on first request of the week; returns `{ matchup, you, nemesis, week, today, weekMax, outcome, state }`; state ∈ active/tiebreak/complete/bye/no_matchup (`no_matchup` = group has <2 members).
+- `POST /api/nemesis/reroll` — one per matchup (409 `REROLL_USED`); re-pairs with a random unpaired member (the bye player), old opponent becomes bye; 409 `REROLL_UNAVAILABLE` if nobody is unpaired.
+- Nemesis screen: ScoreBar, Mon–Fri SkyscraperPair skyline normalized to `weekMax` (done/today/future states, today animates), TodayContextStrip, winner/tiebreak banners, bye + no-matchup empty states, reroll button.
+
+### Profile & Badges (M7 — complete)
+- `GET /api/users/me/stats` — `{ total_steps_alltime, total_steps_this_week, city_wins, bingo_lines_alltime, current_streak }` (streak = consecutive most-recent closed weeks with a `city` badge).
+- `GET /api/badges` — earned badges joined with definitions + city name.
+- Profile screen: 120px avatar showcase, stats row (all-time steps as km in DM Mono), badge grid with bronze/silver/gold borders, settings panel (target slider with explicit Save, sync now with 429 handling, disconnect Fitbit, sign out), avatar editor modal (skin/hair/colorway swatches, live preview, PATCH /api/users/me).
+
+### Week rollover (M8 transaction — complete; cron + real client NOT done)
+- **`services/weekRollover.ts: weekRollover(pool, weekId)`** — single transaction, rolls back on failure, idempotent on rerun:
+  1. `closeWeekPredictions` + `prediction_win` badge
+  2. City badge to step leader (quality by unlock count 0–2 bronze / 3–5 silver / 6–7 gold, only if `target_hit`) + `streak_3/6/12`
+  3. Nemesis: closes Mon–Fri + Saturday tiebreak, force-completes unresolved matchups by weekly step total (dead-even = draw, no winner), `nemesis_victor` badge
+  4. Freezes bingo cards; `bingo` / `blackout` / `perfect_week` / `hot_pursuit` badges
+  5. Next week at next `route_order` (wraps to first city), target = Σ member targets, fresh bingo cards, new pairings
+- `test/weekRollover.integration.test.ts` — 3 integration tests (full rollover, idempotency, route wrap), skipped without `TEST_DATABASE_URL`.
+- **Nothing calls `weekRollover` yet** — it's invoked by the M8 cron (not built).
+
 ### Tests
 - `test/engines.test.ts` — 11 unit tests covering all engine functions above.
 - `test/lib.test.ts` — 7 unit tests for invite codes, AES-256-GCM crypto, JWT session.
@@ -122,73 +153,9 @@ All in `apps/api/src/services/`:
 
 ## What is NOT done — next tasks in priority order
 
-### 1. M6 — Nemesis (highest priority — engines already built)
+### 1. M8 — Real sync + cron (the rollover transaction is DONE — see above)
 
-The scoring logic (`decideDay`, `tallyScore`, `weekOutcome`, `pairPlayers`) is done and tested. What's needed:
-
-**API:**
-- `GET /api/nemesis/current` — must return:
-  ```json
-  {
-    "matchup": { "id", "player_a", "player_b", "score_a", "score_b", "status", "daily_results", "rerolled", "tiebreaker_date" },
-    "you": { "user_id", "display_name", "avatar_colorway", "steps_today", "steps_this_week" },
-    "nemesis": { same shape },
-    "weekMax": <highest daily steps in group this week for skyline normalization>,
-    "outcome": "a" | "b" | "tiebreak" | null (null if week still active),
-    "state": "active" | "tiebreak" | "complete" | "bye" | "no_matchup"
-  }
-  ```
-- `POST /api/nemesis/reroll` — one reroll per matchup; 409 `REROLL_USED` if already rerolled. Re-pairs the user randomly with another unpaired group member. Mutates `nemesis_matchups`.
-- `POST /api/nemesis/day-close` (internal, called by sync pipeline) — append day result to `daily_results`, update `score_a`/`score_b`, set `status='tiebreak'` if 5-day tie, set `status='complete'` + `winner_id` when done.
-
-**Monday pairing persistence:**
-- On Monday week-start (called from week rollover or lazily on first `/nemesis/current` request that week), run `pairPlayers` over all group members, INSERT into `nemesis_matchups`. Bye player gets no row (or a sentinel row — pick one and stick with it).
-
-**Wire into sync:**
-- After bingo detection in `POST /api/sync/run`, call day-close if it's midnight (or expose a manual trigger for now — same pattern as sync stub).
-
-**Frontend:**
-- `SkyscraperPair.jsx` needs same ESM migration as other components (replace `window.React`/`window.DesignSystem_19034b` with `import * as React from 'react'` and `import { Icon } from '../icons/Icon.jsx'`; add `export default SkyscraperPair`). See the BingoTile.jsx migration as the exact template.
-- `apps/web/app/(game)/nemesis/page.tsx` — implement the screen per plan §4:
-  - `ScoreBar` (two avatars + score tally)
-  - 5 × `SkyscraperPair` (Mon–Fri, heights normalized to `weekMax`)
-  - `TodayContextStrip` (your steps vs nemesis today)
-  - Empty state: "Get your nemesis" (no matchup yet)
-  - Winner banner + rematch prompt (status=complete)
-  - Tiebreak banner (Saturday sudden death)
-
-**DB note:** `nemesis_matchups` schema already exists in `001_init.sql`. No new migration needed unless you add an index.
-
-### 2. M7 — Profile & Badges
-
-**API:**
-- `GET /api/users/me/stats` — `{ total_steps_alltime, total_steps_this_week, city_wins, bingo_lines_alltime, current_streak }`. All from step_logs + weeks + badges.
-- `GET /api/badges` — all earned badges for the current user with code/label/description/quality/earned_at.
-- Badge award logic belongs in the week-close rollover (M8), but the endpoints can ship now querying the `badges` table.
-
-**Frontend:**
-- `apps/web/app/(game)/profile/page.tsx` — currently a placeholder `<h1>Profile</h1>`. Implement per plan §4:
-  - Avatar showcase (120px, use `colorway` prop)
-  - Stats row: total steps as km (DM Mono), city wins, bingo lines
-  - Badge grid (bronze/silver/gold borders — use `quality` field)
-  - Settings panel: weekly target slider (`PATCH /api/users/me`, `weekly_step_target` 35k–140k), sync status + "Sync now" button, disconnect Fitbit (`DELETE /api/auth/fitbit`), sign out (`POST /api/auth/logout`)
-  - Avatar editor modal (skin tone / hair color / colorway picker — `PATCH /api/users/me` with avatar fields)
-
-### 3. M8 — Real sync + cron + week rollover
-
-This is the biggest remaining chunk and the one that makes the game actually work end-to-end:
-
-**Week rollover transaction** (Monday 00:00 group-local):
-1. Close current week: `closeWeekPredictions(db, weekId)` (already written).
-2. Compute step leader; award city badge (quality: 0–2 unlocks → bronze, 3–5 → silver, 6–7 → gold; only if `target_hit`).
-3. Evaluate streak badges (3/6/12 consecutive city wins).
-4. Finalize nemesis matchup winner + badge.
-5. Freeze bingo cards (`frozen=true`).
-6. Create next week: `createFirstWeek` variant that uses next `route_order` (wraps after last city).
-7. Generate new bingo cards for all members.
-8. Assign new nemesis matchups via `pairPlayers`.
-9. Open prediction window.
-All in a single transaction — partial failure must roll back.
+`weekRollover(pool, weekId)` exists, is transactional, idempotent, and integration-tested. What remains is the pipeline that calls it:
 
 **Sync pipeline (cron, 3×/day):**
 - Real `FitbitClient` behind the same interface as `MockFitbitClient`. Base URL: `health.googleapis.com/v4` (verify before coding — see plan §5).
@@ -196,8 +163,9 @@ All in a single transaction — partial failure must roll back.
 - Midnight run: sync all → unlock detection → bingo detection → nemesis day-close.
 - 429 backoff: exponential 1s→32s, 5 tries; per-user failures don't abort the batch.
 - `invalid_grant`: set `fitbit_connected=false`, create alert notification.
+- Monday 00:00 group-local tick: call `weekRollover(pool, weekId)` for each group's active week.
 
-### 4. M1 gaps — full onboarding
+### 2. M1 gaps — full onboarding
 
 The current `/onboarding` is a minimal create/join form. The full spec requires 5 steps:
 1. Connect Fitbit (show scope consent status; reconnect banner if `fitbit_connected=false`)
@@ -208,7 +176,7 @@ The current `/onboarding` is a minimal create/join form. The full spec requires 
 
 Route structure: `apps/web/app/(onboarding)/onboarding/[step]/page.tsx` (per plan §1 repo layout).
 
-### 5. M9 — Notifications & Polish (last)
+### 3. M9 — Notifications & Polish (last)
 - Toast system (achievement gold / social blue / alert red) — `GET /api/notifications` + mark-read endpoint.
 - Week-closure summary card.
 - Arrival confetti (biggest moment in the app).
@@ -225,22 +193,22 @@ apps/api/src/
   routes/
     auth.ts         Google OAuth, dev-login, session, logout
     groups.ts       create, join, me, leave
-    users.ts        GET/PATCH /api/users/me
-    sync.ts         POST /api/sync/run  ← wire nemesis day-close here
+    users.ts        GET/PATCH /api/users/me, GET /api/users/me/stats
+    sync.ts         POST /api/sync/run (unlock + bingo + nemesis day-close)
     weeks.ts        GET /api/weeks/current
     cities.ts       GET /api/cities/current
     predictions.ts  GET/POST /api/predictions/current
     bingo.ts        GET /api/bingo/current, /friends
-    ← ADD: nemesis.ts   GET /api/nemesis/current, POST /reroll
-    ← ADD: badges.ts    GET /api/badges
+    nemesis.ts      GET /api/nemesis/current, POST /reroll
+    badges.ts       GET /api/badges
   services/
     prediction.ts   scorePredictions (pure, unit-tested)
     bingo.ts        generateCard, evaluateDetector (pure, unit-tested)
     bingoService.ts createOrGetBingoCard, updateBingoCard (DB-backed)
     nemesis.ts      decideDay, tallyScore, weekOutcome, pairPlayers (pure, unit-tested)
-    ← ADD: nemesisService.ts   pairAndPersist, closeDayForMatchup
+    nemesisService.ts  pairAndPersist, closeDayForMatchup, closeElapsedDays
     weekClose.ts    closeWeekPredictions (DB-backed)
-    ← ADD: weekRollover.ts     full Monday rollover transaction
+    weekRollover.ts weekRollover — full Monday transaction (nothing calls it yet)
     sync.ts         syncUserDay, syncUserToday
     unlocks.ts      detectUnlocks
     week.ts         weekMonday, weekSunday, createFirstWeek
@@ -250,15 +218,12 @@ apps/api/src/
     002_seed_cities.sql  3 cities × 7 landmarks + defs (never edit)
 
 packages/design-system/components/
-  game/
-    SkyscraperPair.jsx   ← needs ESM migration (window.* → import)
-    SkyscraperPair.d.ts  ← add default export line
-    (all others: Avatar, BingoTile, CityBadge, LandmarkTile,
-     MapPin, PredictionCard, ProgressStrip — already migrated)
+  game/        Avatar, BingoTile, CityBadge, LandmarkTile, MapPin,
+               PredictionCard, ProgressStrip, SkyscraperPair — all migrated
   navigation/  Sidebar, TabBar  — migrated
-  core/        Button            — migrated
-  forms/       Input             — migrated
-  feedback/    EmptyState, Skeleton — migrated
+  core/        Button, StatCard, Badge — migrated; Card, CountdownPill — NOT yet
+  forms/       Input, Slider     — migrated
+  feedback/    EmptyState, Skeleton — migrated; Toast — NOT yet
   icons/       Icon              — migrated
 
 apps/web/app/
@@ -270,15 +235,15 @@ apps/web/app/
     city/page.tsx               City + Landmarks (M3) ✓
     prediction/page.tsx         Prediction (M4) ✓
     bingo/page.tsx              Bingo (M5) ✓
-    nemesis/page.tsx            placeholder ← M6
-    profile/page.tsx            placeholder ← M7
+    nemesis/page.tsx            Nemesis duel (M6) ✓
+    profile/page.tsx            Profile & Badges (M7) ✓
 ```
 
 ---
 
 ## Design-system component migration template
 
-Every component still using `window.*` needs this exact treatment (SkyscraperPair is the last one):
+Every component still using `window.*` needs this exact treatment (remaining: `Card`, `CountdownPill`, `Toast`):
 
 ```diff
 -const React = window.React;
@@ -308,17 +273,15 @@ In the matching `.d.ts`, add `export default ComponentName;` at the end.
 
 ---
 
-## Recommended execution order for this session
+## Recommended execution order for the next session
 
-Given Fable's context limit, here's the order that delivers the most playable game per token spent:
+(June 2026 session completed: SkyscraperPair migration, all of M6, all of M7, M8 rollover transaction + integration tests.)
 
-1. **SkyscraperPair ESM migration** (~10 min) — unblocks M6 frontend.
-2. **M6 Nemesis service + routes** — `nemesisService.ts` (pair+persist, day-close), `routes/nemesis.ts` (current + reroll), wire day-close into sync.
-3. **M6 Nemesis screen** — `nemesis/page.tsx` with SkyscraperPair skyline.
-4. **M7 Profile screen + stats/badges endpoints** — relatively self-contained.
-5. **M8 week rollover transaction** — the capstone that ties everything together.
+1. **M8 sync pipeline + cron** — real `FitbitClient`, hourly tick, midnight pipeline, Monday tick calling `weekRollover`. This makes the game run itself.
+2. **M1 full 5-step onboarding** — Connect Fitbit → target slider → avatar editor (reuse the modal from `profile/page.tsx`) → create/join → /map.
+3. **M9 notifications & polish** — Toast (needs ESM migration first), summary card, arrival confetti, a11y/reduced-motion audit.
 
-If you hit the limit mid-M6, commit what compiles and leave a note in this file about where you stopped.
+Also still open: confirm Saturday sudden-death tiebreak with Lindsey before shipping M6 to real users (plan §10 flag).
 
 ---
 
@@ -328,7 +291,10 @@ If you hit the limit mid-M6, commit what compiles and leave a note in this file 
 - `syncUserToday` returns the local date string so the sync route can pass it to `detectUnlocks` and `updateBingoCard`. Don't change that return type.
 - `updateBingoCard` skips tiles that are already `complete` — this is intentional and correct.
 - `bingo_cards` has a `UNIQUE (week_id, user_id)` constraint — `createOrGetBingoCard` uses `ON CONFLICT DO UPDATE SET tiles = bingo_cards.tiles` (i.e., a no-op on conflict) which is safe.
-- `SkyscraperPair` needs a `default export` added to its `.d.ts` — the `.jsx` export map in `packages/design-system/package.json` already handles it via the wildcard `"./components/*"` mapping.
 - The `Avatar` component takes `colorway` (a preset name like `"chicago"`) not numeric `skin`/`hair` indices. Use `COLORWAYS[((n-1) % 6)]` to map DB integers to colorway names.
 - `EmptyState` props: `body` (not `message`), `action` is a `ReactNode` (not `{label, href}`).
 - `Skeleton` props: `preset` (`"bingo"` | `"landmark"` | `"leaderboard"` | `"block"`), not `height`/`width`.
+- pg returns `DATE` columns as JS `Date` objects (local-midnight) — naive `.toISOString().slice(0,10)` can shift a day. Services that do date arithmetic select dates with `to_char(col, 'YYYY-MM-DD')` instead (see `nemesisService.ts`, `weekRollover.ts`).
+- There is no `--red-20` or `--scrim` token. Use `--red-12` for tinted red backgrounds and `color-mix(in srgb, var(--navy) 70%, transparent)` for modal scrims (`--card-elevated` for the modal surface, `--z-overlay` for z-index).
+- `nemesis_matchups` bye convention: **no row** for the bye player. `GET /api/nemesis/current` distinguishes `bye` (≥2 members, no row) from `no_matchup` (<2 members).
+- Reroll swaps you with the bye player; your old opponent becomes the bye. In an even-sized group with no bye it 409s `REROLL_UNAVAILABLE`.
