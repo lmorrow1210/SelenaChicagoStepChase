@@ -1,6 +1,9 @@
 import express from "express";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import { authRouter } from "./routes/auth.js";
+import { groupsRouter } from "./routes/groups.js";
+import { errorHandler } from "./middleware/errors.js";
 
 const app = express();
 
@@ -21,9 +24,16 @@ app.use((req, res, next) => {
 
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// TODO(M1+): mount routes/auth, routes/users, routes/groups, routes/weeks,
-// routes/sync, routes/predictions, routes/nemesis, routes/bingo,
-// routes/cities, routes/badges — see docs/implementation-plan §3.
+app.use("/api/auth", authRouter);
+app.use("/api/groups", groupsRouter);
+// TODO(M2+): routes/users, weeks, sync, predictions, nemesis, bingo, cities,
+// badges — see docs/implementation-plan.md §3.
+
+app.use(errorHandler);
 
 const port = Number(process.env.PORT ?? 4000);
-app.listen(port, () => console.log(`api listening on :${port}`));
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => console.log(`api listening on :${port}`));
+}
+
+export { app };
