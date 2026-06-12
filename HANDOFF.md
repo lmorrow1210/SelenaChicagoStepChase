@@ -30,11 +30,11 @@ Owner: lmorrow1210@gmail.com
 
 ```bash
 npm run test -w apps/api
-# Expected: 33 passed, 10 skipped (integration tests skip without TEST_DATABASE_URL)
+# Expected: 33 passed, 11 skipped (integration tests skip without TEST_DATABASE_URL)
 
 # With local Postgres (see "Local Postgres" below) ALL tests run:
 TEST_DATABASE_URL="postgres://localhost:5432/selenas_chase_test" npm run test -w apps/api
-# Expected: 43 passed, 0 skipped
+# Expected: 44 passed, 0 skipped
 
 npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
@@ -58,7 +58,7 @@ LC_ALL="en_US.UTF-8" /opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew
 Databases that exist: `selenas_chase_test` (integration tests; suites reset it),
 `selenas_chase_dev` (manual smoke testing; migrations applied, has leftover
 smoke data — safe to drop and recreate). CI runs the full suite against a
-postgres:16 service container, so the 10 integration tests gate every push.
+postgres:16 service container, so the 11 integration tests gate every push.
 
 ---
 
@@ -180,13 +180,13 @@ All in `apps/api/src/services/`:
 - Arrival confetti + banner on the Map when `state='arrival'`; hidden under `prefers-reduced-motion`. SkyscraperPair rise also gated.
 - **Remaining M9 items (manual/QA):** responsive QA on iOS Safari + Android Chrome, Lighthouse a11y ≥ 95, full reduced-motion audit of older screens.
 
-### Tests (43 total, all green in CI against postgres:16 service)
+### Tests (44 total, all green in CI against postgres:16 service)
 - `test/engines.test.ts` — 11 unit tests covering all engine functions above.
 - `test/lib.test.ts` — 7 unit tests for invite codes, AES-256-GCM crypto, JWT session.
 - `test/week.test.ts` — 4 unit tests for DST-safe week boundary math.
 - `test/fitbitClient.test.ts` — 3 unit tests for MockFitbitClient fixture behavior.
 - `test/backoff.test.ts` — 8 unit tests: 429 backoff + cron scheduling helpers.
-- `test/groups.integration.test.ts` — 4, `test/predictions.integration.test.ts` — 3, `test/weekRollover.integration.test.ts` — 3 (all run when `TEST_DATABASE_URL` is set; suites share the DB so vitest `fileParallelism` is off; `test/helpers/db.ts` resets + applies every migration).
+- `test/groups.integration.test.ts` — 5 (incl. admin removal + nemesis re-pair), `test/predictions.integration.test.ts` — 3, `test/weekRollover.integration.test.ts` — 3 (all run when `TEST_DATABASE_URL` is set; suites share the DB so vitest `fileParallelism` is off; `test/helpers/db.ts` resets + applies every migration).
 
 ### Production bugs found & fixed by the first real integration run (June 2026)
 These had never been caught because the integration tests had never executed anywhere:
@@ -203,7 +203,7 @@ A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close 
 1. **Verify the real Health API** (plan §5 flag): confirm endpoint base/paths/scopes against Google's docs with a sandbox account; adjust `realFitbitClient.ts` (single touchpoint). Until then production must run `HEALTH_API_MODE=mock`.
 2. **Deploy**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
 3. **M9 manual QA**: responsive iOS Safari + Android Chrome, Lighthouse a11y ≥ 95, reduced-motion audit of M2–M4 screens.
-4. **Plan §3 stragglers** (nice-to-have): `GET /api/predictions/history`, past-city trophy view polish, admin member removal with mid-week nemesis re-pair, OpenAPI yaml + generated client, oxlint token-adherence CI step.
+4. **Plan §3 stragglers** (nice-to-have): past-city trophy view polish, OpenAPI yaml + generated client. (Done: `GET /api/predictions/history`; `DELETE /api/groups/me/members/:userId` with nemesis re-pair — leave re-pairs too; raw-hex CI gate on app code; global reduced-motion kill rule in tokens/effects.css.)
 5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
 
 ---
