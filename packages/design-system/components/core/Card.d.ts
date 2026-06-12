@@ -13,3 +13,4 @@ export interface CardProps {
 
 /** Surface container: default card or elevated modal/overlay surface. */
 export function Card(props: CardProps): JSX.Element;
+export default Card;

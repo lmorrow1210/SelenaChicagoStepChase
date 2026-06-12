@@ -13,3 +13,4 @@ export interface CountdownPillProps {
  * --muted default → --gold at ≤48h → --red at ≤24h.
  */
 export function CountdownPill(props: CountdownPillProps): JSX.Element;
+export default CountdownPill;

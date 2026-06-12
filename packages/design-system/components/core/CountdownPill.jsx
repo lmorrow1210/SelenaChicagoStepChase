@@ -1,4 +1,5 @@
-const React = window.React;
+import * as React from 'react';
+import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    CountdownPill — days/hours until week closes.
@@ -20,7 +21,6 @@ function fmt(hoursLeft) {
 }
 
 export function CountdownPill({ hoursLeft = 72, label = 'Week closes', style }) {
-  const { Icon } = window.DesignSystem_19034b;
   const t = tone(hoursLeft);
   return (
     <span style={{
@@ -36,3 +36,5 @@ export function CountdownPill({ hoursLeft = 72, label = 'Week closes', style }) 
     </span>
   );
 }
+
+export default CountdownPill;

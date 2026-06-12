@@ -1,4 +1,4 @@
-const React = window.React;
+import * as React from 'react';
 
 /* ============================================================
    Card — surface container. Variants: default, elevated.
@@ -34,3 +34,5 @@ export function Card({
     </div>
   );
 }
+
+export default Card;
