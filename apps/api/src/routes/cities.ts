@@ -18,6 +18,107 @@ function dayNumber(startsOn: string, date: string): number {
   return Math.floor((current.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)) + 1;
 }
 
+// Past-city trophy view (plan §3). Fully revealed, read-only (spec: "Past
+// city (badge earned)"). FORBIDDEN until the group has a closed week there —
+// the current city stays on /api/cities/current until rollover closes it.
+citiesRouter.get("/:id(\\d+)", async (req, res, next) => {
+  try {
+    const cityId = Number(req.params.id);
+    const me = await pool.query(
+      `SELECT u.group_id FROM users u WHERE u.id = $1`,
+      [req.userId],
+    );
+    if (!me.rowCount) throw errors.unauthenticated();
+    const groupId = me.rows[0].group_id as string | null;
+    if (!groupId) throw errors.notFound("You're not in a group");
+
+    const city = await pool.query(
+      `SELECT id, name, country, route_order, background_image, lat, lng
+       FROM cities WHERE id = $1`,
+      [cityId],
+    );
+    if (!city.rowCount) throw errors.notFound("No such city");
+
+    // Most recent finished visit; route wrap can produce several.
+    const week = await pool.query(
+      `SELECT id, to_char(starts_on, 'YYYY-MM-DD') AS starts_on,
+              to_char(ends_on, 'YYYY-MM-DD') AS ends_on,
+              group_target_steps, group_total_steps, target_hit
+       FROM weeks
+       WHERE group_id = $1 AND city_id = $2 AND status = 'closed'
+       ORDER BY starts_on DESC
+       LIMIT 1`,
+      [groupId, cityId],
+    );
+    if (!week.rowCount) {
+      throw errors.forbidden("Selena hasn't been chased through this city yet");
+    }
+    const closedWeek = week.rows[0];
+
+    const [landmarks, champion] = await Promise.all([
+      pool.query(
+        `SELECT l.id, l.day, l.name, l.fun_fact, l.image,
+                cu.landmark_id IS NOT NULL AS earned,
+                cu.triggering_user
+         FROM landmarks l
+         LEFT JOIN city_unlocks cu ON cu.landmark_id = l.id AND cu.week_id = $2
+         WHERE l.city_id = $1
+         ORDER BY l.day`,
+        [cityId, closedWeek.id],
+      ),
+      pool.query(
+        `SELECT b.quality, u.id AS user_id, u.display_name,
+                u.avatar_skin, u.avatar_hair, u.avatar_colorway
+         FROM badges b
+         JOIN users u ON u.id = b.user_id
+         WHERE b.badge_code = 'city' AND b.week_id = $1
+         LIMIT 1`,
+        [closedWeek.id],
+      ),
+    ]);
+
+    res.json({
+      city: {
+        id: city.rows[0].id,
+        name: city.rows[0].name,
+        country: city.rows[0].country,
+        route_order: city.rows[0].route_order,
+        background_image: city.rows[0].background_image,
+        lat: Number(city.rows[0].lat),
+        lng: Number(city.rows[0].lng),
+      },
+      week: {
+        starts_on: closedWeek.starts_on,
+        ends_on: closedWeek.ends_on,
+        group_target_steps: closedWeek.group_target_steps,
+        group_total_steps: closedWeek.group_total_steps,
+        target_hit: closedWeek.target_hit,
+      },
+      landmarks: landmarks.rows.map((landmark) => ({
+        id: landmark.id,
+        day: landmark.day,
+        name: landmark.name,
+        fun_fact: landmark.fun_fact,
+        image: landmark.image,
+        earned: landmark.earned,
+      })),
+      unlocked_count: landmarks.rows.filter((landmark) => landmark.earned).length,
+      champion: champion.rowCount
+        ? {
+            user_id: champion.rows[0].user_id,
+            display_name: champion.rows[0].display_name,
+            avatar_skin: champion.rows[0].avatar_skin,
+            avatar_hair: champion.rows[0].avatar_hair,
+            avatar_colorway: champion.rows[0].avatar_colorway,
+            quality: champion.rows[0].quality,
+          }
+        : null,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
 citiesRouter.get("/current", async (req, res, next) => {
   try {
     const me = await pool.query(

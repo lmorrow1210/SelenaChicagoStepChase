@@ -51,6 +51,21 @@ async function request(
   });
 }
 
+// The reveal fires at noon on the week's first day (group tz), so a group in a
+// timezone past local noon would reveal immediately and break the "hidden"
+// assertions. Pick a fixed-offset zone where it's currently mid-morning.
+function preNoonTimezone(now = new Date()): string {
+  for (let utcOffset = -12; utcOffset <= 14; utcOffset += 1) {
+    // IANA Etc/GMT names have an inverted sign: Etc/GMT+5 means UTC-5.
+    const tz = utcOffset === 0 ? "Etc/GMT" : `Etc/GMT${utcOffset > 0 ? "-" : "+"}${Math.abs(utcOffset)}`;
+    const hour = Number(
+      new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", hour: "2-digit" }).format(now),
+    );
+    if (hour >= 1 && hour <= 10) return tz;
+  }
+  throw new Error("unreachable: some offset is always mid-morning");
+}
+
 async function createGroupWithWeek(): Promise<{ groupId: string; weekId: string; adminId: string }> {
   const adminId = await createUser("admin");
   const res = await request(adminId, "/api/groups", {
@@ -63,9 +78,11 @@ async function createGroupWithWeek(): Promise<{ groupId: string; weekId: string;
   const week = await pool.query("SELECT id FROM weeks WHERE group_id = $1", [groupId]);
   // The submission window is the week's Monday only (spec). Tests run on any
   // weekday, so move starts_on to "today" in the group tz to open the window.
+  const tz = preNoonTimezone();
+  await pool.query(`UPDATE groups SET timezone = $2 WHERE id = $1`, [groupId, tz]);
   await pool.query(
-    `UPDATE weeks SET starts_on = (now() AT TIME ZONE 'America/Chicago')::date WHERE id = $1`,
-    [week.rows[0].id],
+    `UPDATE weeks SET starts_on = (now() AT TIME ZONE $2)::date WHERE id = $1`,
+    [week.rows[0].id, tz],
   );
   return { groupId, weekId: week.rows[0].id, adminId };
 }

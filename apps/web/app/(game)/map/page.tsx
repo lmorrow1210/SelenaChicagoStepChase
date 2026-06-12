@@ -197,14 +197,28 @@ export default function MapPage() {
           {data.route.map((city) => {
             const isCurrent = city.city_id === data.city?.id;
             const isNext = city.city_id === data.nextCity?.id;
+            const pin = (
+              <MapPin
+                variant={isCurrent ? "current" : isNext ? "next" : "visited"}
+                label={city.name}
+                selena={isNext}
+                size={isCurrent ? "md" : "sm"}
+              />
+            );
+            const isPast = city.visited && !isCurrent && !isNext;
             return (
               <div className="pinSlot" key={city.city_id}>
-                <MapPin
-                  variant={isCurrent ? "current" : isNext ? "next" : "visited"}
-                  label={city.name}
-                  selena={isNext}
-                  size={isCurrent ? "md" : "sm"}
-                />
+                {isPast ? (
+                  <a
+                    className="pinLink"
+                    href={`/city/${city.city_id}`}
+                    aria-label={`${city.name} trophy view`}
+                  >
+                    {pin}
+                  </a>
+                ) : (
+                  pin
+                )}
               </div>
             );
           })}
@@ -438,6 +452,17 @@ function MapStyles() {
         min-height: var(--sp-9);
         display: grid;
         place-items: center;
+      }
+
+      .pinLink {
+        display: grid;
+        place-items: center;
+        border-radius: var(--r-card);
+        transition: transform var(--dur-fast) var(--ease-out);
+      }
+
+      .pinLink:hover {
+        transform: translateY(calc(-1 * var(--sp-1)));
       }
 
       .statGrid {
