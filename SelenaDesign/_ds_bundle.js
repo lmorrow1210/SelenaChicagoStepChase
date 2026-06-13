@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":3,"namespace":"DesignSystem_19034b","components":[{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"CountdownPill","sourcePath":"components/core/CountdownPill.jsx"},{"name":"StatCard","sourcePath":"components/core/StatCard.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Slider","sourcePath":"components/forms/Slider.jsx"},{"name":"COLORWAYS","sourcePath":"components/game/Avatar.jsx"},{"name":"SKIN_TONES","sourcePath":"components/game/Avatar.jsx"},{"name":"HAIR_COLORS","sourcePath":"components/game/Avatar.jsx"},{"name":"Avatar","sourcePath":"components/game/Avatar.jsx"},{"name":"BingoTile","sourcePath":"components/game/BingoTile.jsx"},{"name":"CityBadge","sourcePath":"components/game/CityBadge.jsx"},{"name":"LandmarkTile","sourcePath":"components/game/LandmarkTile.jsx"},{"name":"MapPin","sourcePath":"components/game/MapPin.jsx"},{"name":"PredictionCard","sourcePath":"components/game/PredictionCard.jsx"},{"name":"ProgressStrip","sourcePath":"components/game/ProgressStrip.jsx"},{"name":"SkyscraperPair","sourcePath":"components/game/SkyscraperPair.jsx"},{"name":"Icon","sourcePath":"components/icons/Icon.jsx"},{"name":"ICON_NAMES","sourcePath":"components/icons/Icon.jsx"},{"name":"Sidebar","sourcePath":"components/navigation/Sidebar.jsx"},{"name":"TabBar","sourcePath":"components/navigation/TabBar.jsx"}],"sourceHashes":{"components/core/Badge.jsx":"b40d3a8695ab","components/core/Button.jsx":"ae803f22990e","components/core/Card.jsx":"8571801ba451","components/core/CountdownPill.jsx":"c87b16f2f9ef","components/core/StatCard.jsx":"0d7cbac69007","components/feedback/EmptyState.jsx":"a57064df0a82","components/feedback/Skeleton.jsx":"c3b91f5ec949","components/feedback/Toast.jsx":"28e599c2a052","components/forms/Input.jsx":"fdc58706fe6e","components/forms/Slider.jsx":"98a6ddfc0162","components/game/Avatar.jsx":"5b74474980b0","components/game/BingoTile.jsx":"d04eedb34fdf","components/game/CityBadge.jsx":"62cebf2c722a","components/game/LandmarkTile.jsx":"882adea19170","components/game/MapPin.jsx":"146ede53c24c","components/game/PredictionCard.jsx":"71aa0ece8488","components/game/ProgressStrip.jsx":"9b49f2691474","components/game/SkyscraperPair.jsx":"447e745ef846","components/icons/Icon.jsx":"9812d82cf821","components/navigation/Sidebar.jsx":"acd2ab28a9ea","components/navigation/TabBar.jsx":"8f040ae8e36a","ui_kits/selenas-chase/AppShell.jsx":"0e87f6c667c0","ui_kits/selenas-chase/BingoScreen.jsx":"65aa16e7bb9c","ui_kits/selenas-chase/CityScreen.jsx":"db78c27bc7a3","ui_kits/selenas-chase/MapScreen.jsx":"dc3958a43163","ui_kits/selenas-chase/NemesisScreen.jsx":"b8f99e752abe","ui_kits/selenas-chase/PredictionScreen.jsx":"40ac853a2495","ui_kits/selenas-chase/WorldMap.jsx":"6bcfc8cae380"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":3,"namespace":"DesignSystem_19034b","components":[{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"CountdownPill","sourcePath":"components/core/CountdownPill.jsx"},{"name":"StatCard","sourcePath":"components/core/StatCard.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Slider","sourcePath":"components/forms/Slider.jsx"},{"name":"COLORWAYS","sourcePath":"components/game/Avatar.jsx"},{"name":"SKIN_TONES","sourcePath":"components/game/Avatar.jsx"},{"name":"HAIR_COLORS","sourcePath":"components/game/Avatar.jsx"},{"name":"Avatar","sourcePath":"components/game/Avatar.jsx"},{"name":"BingoTile","sourcePath":"components/game/BingoTile.jsx"},{"name":"CityBadge","sourcePath":"components/game/CityBadge.jsx"},{"name":"LandmarkTile","sourcePath":"components/game/LandmarkTile.jsx"},{"name":"MapPin","sourcePath":"components/game/MapPin.jsx"},{"name":"PredictionCard","sourcePath":"components/game/PredictionCard.jsx"},{"name":"ProgressStrip","sourcePath":"components/game/ProgressStrip.jsx"},{"name":"SkyscraperPair","sourcePath":"components/game/SkyscraperPair.jsx"},{"name":"Icon","sourcePath":"components/icons/Icon.jsx"},{"name":"ICON_NAMES","sourcePath":"components/icons/Icon.jsx"},{"name":"Sidebar","sourcePath":"components/navigation/Sidebar.jsx"},{"name":"TabBar","sourcePath":"components/navigation/TabBar.jsx"}],"sourceHashes":{"components/core/Badge.jsx":"b40d3a8695ab","components/core/Button.jsx":"ae803f22990e","components/core/Card.jsx":"8571801ba451","components/core/CountdownPill.jsx":"c87b16f2f9ef","components/core/StatCard.jsx":"0d7cbac69007","components/feedback/EmptyState.jsx":"a57064df0a82","components/feedback/Skeleton.jsx":"c3b91f5ec949","components/feedback/Toast.jsx":"28e599c2a052","components/forms/Input.jsx":"fdc58706fe6e","components/forms/Slider.jsx":"98a6ddfc0162","components/game/Avatar.jsx":"5b74474980b0","components/game/BingoTile.jsx":"95460637175b","components/game/CityBadge.jsx":"2b4b7b5e15c8","components/game/LandmarkTile.jsx":"882adea19170","components/game/MapPin.jsx":"78c7f080e7f5","components/game/PredictionCard.jsx":"71aa0ece8488","components/game/ProgressStrip.jsx":"e6fc8e9efae1","components/game/SkyscraperPair.jsx":"447e745ef846","components/icons/Icon.jsx":"9812d82cf821","components/navigation/Sidebar.jsx":"e52acaf4dc1c","components/navigation/TabBar.jsx":"842dd88e313e","ui_kits/selenas-chase/AppShell.jsx":"0e87f6c667c0","ui_kits/selenas-chase/BingoScreen.jsx":"65aa16e7bb9c","ui_kits/selenas-chase/CityScreen.jsx":"db78c27bc7a3","ui_kits/selenas-chase/MapScreen.jsx":"dc3958a43163","ui_kits/selenas-chase/NemesisScreen.jsx":"b8f99e752abe","ui_kits/selenas-chase/PredictionScreen.jsx":"40ac853a2495","ui_kits/selenas-chase/WorldMap.jsx":"6bcfc8cae380"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -1155,8 +1155,9 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   BingoTile — square tile for the 5×5 card.
-   States: incomplete, progress, complete, free.
+   BingoTile v2 — Vintage game board tile.
+   Bevel-raised when active. Bevel-inset (stamped) when complete.
+   States: incomplete | progress | complete | free
    ============================================================ */
 
 function BingoTile({
@@ -1165,7 +1166,6 @@ function BingoTile({
   state = 'incomplete',
   // 'incomplete' | 'progress' | 'complete' | 'free'
   highlight = false,
-  // part of an animated winning line
   style
 }) {
   const {
@@ -1174,9 +1174,19 @@ function BingoTile({
   const free = state === 'free';
   const complete = state === 'complete' || free;
   const progress = state === 'progress';
-  const border = progress ? 'var(--blue)' : complete ? 'var(--blue-40)' : 'var(--hairline)';
-  const bg = free ? 'var(--blue-20)' : complete ? 'var(--blue-20)' : 'var(--card)';
-  const fg = complete || progress ? 'var(--blue)' : 'var(--muted)';
+  const incomplete = state === 'incomplete';
+
+  /* Background surface */
+  const bg = free ? 'var(--selena-deep)' : complete ? 'var(--tobacco)' : progress ? 'var(--felt)' : 'var(--felt)';
+
+  /* Border (bevel direction) */
+  const borderColor = complete ? 'var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)' : /* inset — stamped */
+  progress ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)' : /* selena raised */
+  free ? 'var(--selena) var(--selena-deep) var(--selena-deep) var(--selena)' : highlight ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)' : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)'; /* default raised */
+
+  /* Icon & text color */
+  const fg = free ? 'var(--selena)' : complete ? 'var(--dust)' : progress ? 'var(--selena)' : 'var(--dust)';
+  const textColor = free ? 'var(--parchment)' : complete ? 'var(--dust)' : progress ? 'var(--parchment)' : 'var(--dust)';
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
@@ -1185,13 +1195,12 @@ function BingoTile({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 6,
+      gap: 5,
       textAlign: 'center',
       padding: 8,
-      borderRadius: 'var(--r-card)',
       background: bg,
-      border: `1.5px solid ${border}`,
-      boxShadow: progress || highlight ? 'var(--glow-blue)' : 'none',
+      border: '2px solid',
+      borderColor: borderColor,
       animation: highlight ? 'sc-pulse-blue 0.9s var(--ease-in-out) infinite' : 'none',
       transition: 'background var(--dur-base) var(--ease-out), border-color var(--dur-base)',
       ...style
@@ -1199,15 +1208,16 @@ function BingoTile({
   }, complete && !free && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: 5,
-      right: 5,
+      top: 0,
+      right: 0,
       display: 'grid',
       placeItems: 'center',
-      width: 16,
-      height: 16,
-      borderRadius: '50%',
-      background: 'var(--blue)',
-      color: 'var(--navy)'
+      width: 18,
+      height: 18,
+      background: 'var(--selena)',
+      color: 'var(--tobacco)',
+      borderLeft: '2px solid var(--bevel-lo)',
+      borderBottom: '2px solid var(--bevel-lo)'
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "check",
@@ -1216,15 +1226,17 @@ function BingoTile({
   })), /*#__PURE__*/React.createElement(Icon, {
     name: free ? 'star' : icon,
     size: 26,
-    strokeWidth: 2,
+    strokeWidth: complete ? 1.5 : 2,
     color: fg
   }), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 11,
-      fontWeight: complete ? 600 : 500,
+      fontFamily: free ? 'var(--font-display)' : 'var(--font-body)',
+      fontWeight: free ? undefined : 600,
+      fontSize: free ? 9 : 11,
+      letterSpacing: free ? '0.04em' : '0.01em',
       lineHeight: 1.2,
-      color: complete || progress ? 'var(--cream)' : 'var(--muted)'
+      color: textColor,
+      textTransform: free ? 'uppercase' : 'none'
     }
   }, free ? 'FREE' : label));
 }
@@ -1236,28 +1248,29 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   CityBadge — circular collectible badge.
-   Border quality: bronze / silver / gold. Locked = greyscale.
+   CityBadge v2 — Collectible city badge.
+   Warm parchment palette. Bevel-chrome quality rings.
+   Bronze / silver / gold. Locked = greyscale dust.
    Sizes: 48 (collection grid), 80 (featured).
-
-   Each known city renders a unique SVG landmark silhouette.
-   Unknown cities fall back to a generic skyline icon.
    ============================================================ */
 
-const QUALITY = {
-  bronze: 'var(--bronze)',
-  silver: 'var(--silver)',
-  gold: 'var(--gold)'
+/* Quality ring border-colors (bevel on the ring itself) */
+const QUALITY_BORDER = {
+  gold: 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)',
+  silver: '#C8C8C8 #787878 #787878 #C8C8C8',
+  bronze: '#D89048 #906020 #906020 #D89048'
+};
+const QUALITY_CHECK_BG = {
+  gold: 'var(--gold)',
+  silver: '#A0A0A0',
+  bronze: 'var(--bronze)'
 };
 
 /* ── City landmark silhouettes (viewBox 0 0 48 48) ── */
 const CITY_ICONS = {
   chicago: ({
     color
-  }) =>
-  /*#__PURE__*/
-  /* Willis Tower — bundled-tube silhouette with twin antennae */
-  React.createElement("svg", {
+  }) => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 48 48",
     fill: "none",
     "aria-hidden": "true",
@@ -1271,63 +1284,60 @@ const CITY_ICONS = {
     width: "12",
     height: "28",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "18",
     y: "14",
     width: "5.5",
     height: "14",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "24.5",
     y: "14",
     width: "5.5",
     height: "14",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "18",
     y: "14",
     width: "12",
     height: "8",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "19.5",
     y: "22",
     width: "9",
     height: "6",
     fill: color,
-    rx: "0.3"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "21",
     y: "6",
     width: "1.8",
     height: "9",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "25.2",
     y: "9",
     width: "1.8",
     height: "6",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "16",
     y: "40",
     width: "16",
     height: "2",
     fill: color,
-    rx: "0.5"
+    rx: "0"
   })),
   tokyo: ({
     color
-  }) =>
-  /*#__PURE__*/
-  /* Five-story pagoda with upswept eaves and spire */
-  React.createElement("svg", {
+  }) => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 48 48",
     fill: "none",
     "aria-hidden": "true",
@@ -1340,8 +1350,7 @@ const CITY_ICONS = {
     y: "3",
     width: "2",
     height: "10",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("polygon", {
     points: "19,13 29,13 27,10 21,10",
     fill: color
@@ -1374,8 +1383,7 @@ const CITY_ICONS = {
     y: "32",
     width: "18",
     height: "3",
-    fill: color,
-    rx: "0.3"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "19",
     y: "35",
@@ -1387,15 +1395,11 @@ const CITY_ICONS = {
     y: "40",
     width: "20",
     height: "2",
-    fill: color,
-    rx: "0.5"
+    fill: color
   })),
   cairo: ({
     color
-  }) =>
-  /*#__PURE__*/
-  /* Great Pyramid of Giza with smaller second pyramid */
-  React.createElement("svg", {
+  }) => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 48 48",
     fill: "none",
     "aria-hidden": "true",
@@ -1415,31 +1419,27 @@ const CITY_ICONS = {
     y1: "32",
     x2: "36",
     y2: "32",
-    stroke: "var(--navy)",
+    stroke: "var(--tobacco)",
     strokeWidth: "1",
-    opacity: "0.3"
+    opacity: "0.4"
   }), /*#__PURE__*/React.createElement("line", {
     x1: "16",
     y1: "24",
     x2: "32",
     y2: "24",
-    stroke: "var(--navy)",
+    stroke: "var(--tobacco)",
     strokeWidth: "1",
-    opacity: "0.3"
+    opacity: "0.4"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "2",
     y: "40",
     width: "44",
     height: "2",
-    fill: color,
-    rx: "0.5"
+    fill: color
   })),
   oslo: ({
     color
-  }) =>
-  /*#__PURE__*/
-  /* Viking longship — curved hull, dragon prow, mast & sail */
-  React.createElement("svg", {
+  }) => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 48 48",
     fill: "none",
     "aria-hidden": "true",
@@ -1467,8 +1467,7 @@ const CITY_ICONS = {
     y: "14",
     width: "2",
     height: "17",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("path", {
     d: "M25 14 L25 28 L34 22 Z",
     fill: color,
@@ -1479,39 +1478,35 @@ const CITY_ICONS = {
     width: "15",
     height: "1.5",
     fill: color,
-    rx: "0.5",
     opacity: "0.8"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "14",
     cy: "34",
     r: "1.2",
-    fill: "var(--navy)",
+    fill: "var(--tobacco)",
     opacity: "0.5"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "20",
     cy: "35",
     r: "1.2",
-    fill: "var(--navy)",
+    fill: "var(--tobacco)",
     opacity: "0.5"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "28",
     cy: "35",
     r: "1.2",
-    fill: "var(--navy)",
+    fill: "var(--tobacco)",
     opacity: "0.5"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "34",
     cy: "34",
     r: "1.2",
-    fill: "var(--navy)",
+    fill: "var(--tobacco)",
     opacity: "0.5"
   })),
   lima: ({
     color
-  }) =>
-  /*#__PURE__*/
-  /* Machu Picchu — Incan terraced citadel on a mountain peak */
-  React.createElement("svg", {
+  }) => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 48 48",
     fill: "none",
     "aria-hidden": "true",
@@ -1528,15 +1523,13 @@ const CITY_ICONS = {
     y: "38",
     width: "32",
     height: "4",
-    fill: color,
-    rx: "0.4"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "11",
     y: "32",
     width: "26",
     height: "6",
     fill: color,
-    rx: "0.4",
     opacity: "0.9"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "14",
@@ -1544,7 +1537,6 @@ const CITY_ICONS = {
     width: "20",
     height: "6",
     fill: color,
-    rx: "0.4",
     opacity: "0.85"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "17",
@@ -1552,15 +1544,13 @@ const CITY_ICONS = {
     width: "14",
     height: "6",
     fill: color,
-    rx: "0.4",
     opacity: "0.8"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "20",
     y: "14",
     width: "8",
     height: "6",
-    fill: color,
-    rx: "0.3"
+    fill: color
   }), /*#__PURE__*/React.createElement("polygon", {
     points: "18,14 30,14 24,10",
     fill: color
@@ -1569,12 +1559,9 @@ const CITY_ICONS = {
     y: "42",
     width: "36",
     height: "2",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }))
 };
-
-/* Generic skyline fallback */
 function SkylineFallback({
   color
 }) {
@@ -1591,43 +1578,37 @@ function SkylineFallback({
     y: "28",
     width: "6",
     height: "14",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "16",
     y: "20",
     width: "8",
     height: "22",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "26",
     y: "24",
     width: "6",
     height: "18",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "34",
     y: "30",
     width: "6",
     height: "12",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "20",
     y: "16",
     width: "2",
     height: "5",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }), /*#__PURE__*/React.createElement("rect", {
     x: "6",
     y: "42",
     width: "36",
     height: "2",
-    fill: color,
-    rx: "0.5"
+    fill: color
   }));
 }
 function CityBadge({
@@ -1641,11 +1622,11 @@ function CityBadge({
   const {
     Icon
   } = window.DesignSystem_19034b;
-  const ring = locked ? 'var(--muted)' : QUALITY[quality];
   const featured = size >= 72;
-  const iconColor = locked ? 'var(--muted)' : 'var(--cream)';
+  const iconColor = locked ? 'var(--dust)' : 'var(--parchment)';
   const iconSize = size * 0.62;
   const CityIcon = CITY_ICONS[name.toLowerCase()];
+  const ringBorderColor = locked ? 'var(--walnut) var(--bevel-lo) var(--bevel-lo) var(--walnut)' : QUALITY_BORDER[quality];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -1663,10 +1644,11 @@ function CityBadge({
       width: size,
       height: size,
       borderRadius: '50%',
-      background: locked ? 'var(--navy-deep)' : 'var(--card-elevated)',
-      border: `3px solid ${ring}`,
-      boxShadow: locked ? 'none' : quality === 'gold' ? 'var(--glow-gold)' : 'var(--shadow-card)',
-      filter: locked ? 'grayscale(1) brightness(0.7)' : 'none',
+      background: locked ? 'var(--tobacco)' : 'var(--mahogany)',
+      border: `3px solid`,
+      borderColor: ringBorderColor,
+      boxShadow: !locked && quality === 'gold' ? '2px 2px 0 0 var(--bevel-lo)' : 'none',
+      filter: locked ? 'grayscale(1) brightness(0.6)' : 'none',
       overflow: 'hidden',
       padding: size * 0.1
     }
@@ -1674,7 +1656,7 @@ function CityBadge({
     name: "lock",
     size: size * 0.38,
     strokeWidth: 2,
-    color: "var(--muted)"
+    color: "var(--dust)"
   }) : /*#__PURE__*/React.createElement("div", {
     style: {
       width: iconSize,
@@ -1694,9 +1676,9 @@ function CityBadge({
       width: size * 0.34,
       height: size * 0.34,
       borderRadius: '50%',
-      background: ring,
-      color: 'var(--navy)',
-      border: '2px solid var(--navy)'
+      background: QUALITY_CHECK_BG[quality],
+      color: 'var(--tobacco)',
+      border: '2px solid var(--tobacco)'
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "check",
@@ -1705,13 +1687,12 @@ function CityBadge({
   }))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: featured ? 18 : 13,
+      fontSize: featured ? 11 : 8,
       textTransform: 'uppercase',
-      letterSpacing: '0.01em',
-      color: locked ? 'var(--muted)' : 'var(--cream)',
+      letterSpacing: '0.04em',
+      color: locked ? 'var(--dust)' : 'var(--parchment)',
       textAlign: 'center',
-      lineHeight: 1.1
+      lineHeight: 1.4
     }
   }, locked ? '???' : name));
 }
@@ -1820,9 +1801,11 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   MapPin — world map marker.
-   Variants: current (glowing blue, active pulse),
-             next/selena (dimmer red accent).
+   MapPin v2 — Vintage game world-map marker.
+   current (player): gold border, parchment bg
+   current + selena: sky-blue — Selena's last sighting
+   next:             slate blue — predicted destination
+   visited:          muted tan — already investigated
    ============================================================ */
 
 function MapPin({
@@ -1830,6 +1813,7 @@ function MapPin({
   // 'current' | 'next' | 'visited'
   label,
   selena = false,
+  // true = this is Selena's pin
   size = 'md',
   // 'sm' | 'md'
   style
@@ -1837,17 +1821,24 @@ function MapPin({
   const {
     Icon
   } = window.DesignSystem_19034b;
+  const dim = size === 'sm' ? 16 : 24;
+  const headSize = dim + 14;
   const isCurrent = variant === 'current';
   const isNext = variant === 'next';
-  const dim = size === 'sm' ? 16 : 24;
-  const color = isCurrent ? 'var(--blue)' : isNext ? 'var(--red)' : 'var(--muted)';
+  const isVisited = variant === 'visited';
+
+  /* Background & icon colors by state */
+  const bg = selena && isCurrent ? 'var(--selena)' : isCurrent ? 'var(--mahogany)' : isNext ? 'var(--slate)' : 'var(--walnut)';
+  const iconColor = selena && isCurrent ? 'var(--tobacco)' : isCurrent ? 'var(--selena)' : isNext ? 'var(--parchment)' : 'var(--dust)';
+  const borderColor = selena && isCurrent ? 'var(--selena-dark) var(--bevel-lo) var(--bevel-lo) var(--selena-dark)' : isCurrent ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)' : isNext ? 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)' : 'var(--walnut) var(--bevel-lo) var(--bevel-lo) var(--walnut)';
+  const stemColor = selena && isCurrent ? 'var(--selena)' : isCurrent ? 'var(--gold)' : isNext ? 'var(--slate)' : 'var(--dust)';
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: 4,
+      gap: 3,
       ...style
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -1855,53 +1846,51 @@ function MapPin({
       position: 'relative',
       display: 'grid',
       placeItems: 'center',
-      width: dim + 14,
-      height: dim + 14,
+      width: headSize,
+      height: headSize,
       borderRadius: '50%',
-      background: isCurrent ? 'var(--blue)' : isNext ? 'var(--red)' : 'var(--card-elevated)',
-      border: `2px solid ${isVisitedBorder(variant)}`,
-      boxShadow: isCurrent ? 'var(--glow-blue)' : isNext ? 'var(--glow-red)' : 'var(--shadow-pin)',
-      color: isCurrent || isNext ? 'var(--navy)' : 'var(--muted)'
+      background: bg,
+      border: '2px solid',
+      borderColor: borderColor,
+      color: iconColor,
+      boxShadow: isCurrent ? '2px 2px 0 0 var(--bevel-lo)' : 'none'
     }
   }, isCurrent && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      inset: -2,
+      inset: -4,
       borderRadius: '50%',
-      border: '2px solid var(--blue)',
-      animation: 'sc-pulse-blue 1.8s var(--ease-in-out) infinite'
+      border: `2px solid ${selena ? 'var(--selena)' : 'var(--gold)'}`,
+      animation: 'sc-pulse-blue 2s var(--ease-in-out) infinite',
+      opacity: 0.5
     }
   }), /*#__PURE__*/React.createElement(Icon, {
     name: selena ? 'nemesis' : 'city',
-    size: dim * 0.7,
+    size: Math.round(dim * 0.7),
     strokeWidth: 2.2
   })), /*#__PURE__*/React.createElement("span", {
     style: {
       width: 2,
       height: 8,
-      marginTop: -4,
-      background: color,
-      opacity: 0.7
+      marginTop: -3,
+      background: stemColor,
+      opacity: 0.8,
+      flexShrink: 0
     }
   }), label && /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: 13,
+      fontSize: 8,
       textTransform: 'uppercase',
-      color: 'var(--cream)',
+      letterSpacing: '0.04em',
+      color: 'var(--parchment)',
       whiteSpace: 'nowrap',
-      background: 'var(--navy)',
-      padding: '1px 7px',
-      borderRadius: 'var(--r-pill)',
-      border: `1px solid ${color}`
+      background: 'var(--felt)',
+      padding: '3px 8px',
+      border: '2px solid',
+      borderColor: 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)'
     }
   }, label));
-}
-function isVisitedBorder(variant) {
-  if (variant === 'current') return 'var(--cream)';
-  if (variant === 'next') return 'var(--cream)';
-  return 'var(--hairline)';
 }
 Object.assign(__ds_scope, { MapPin });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/game/MapPin.jsx", error: String((e && e.message) || e) }); }
@@ -2068,10 +2057,9 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   ProgressStrip — straight-line leaderboard.
-   City A (left) → City B (right) connected by a line.
-   Each player avatar sits at proportional position (0–100%).
-   States: default (in progress), end (someone at 100%), empty.
+   ProgressStrip v2 — Vintage detective trail tracker.
+   Carmen Sandiego-style route panel.
+   Left city → right city. Player tokens on inset channel.
    ============================================================ */
 
 function CityNode({
@@ -2088,20 +2076,19 @@ function CityNode({
       flexDirection: 'column',
       alignItems: 'center',
       gap: 6,
-      flex: 'none',
-      width: 64
+      width: 70,
+      flex: 'none'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       placeItems: 'center',
-      width: 44,
-      height: 44,
-      borderRadius: '50%',
-      background: 'var(--card-elevated)',
-      border: `2px solid ${reached ? 'var(--gold)' : side === 'left' ? 'var(--blue)' : 'var(--muted)'}`,
-      color: reached ? 'var(--gold)' : side === 'left' ? 'var(--blue)' : 'var(--muted)',
-      boxShadow: reached ? 'var(--glow-gold)' : 'none'
+      width: 46,
+      height: 46,
+      background: reached ? 'var(--mahogany)' : 'var(--tobacco)',
+      border: '2px solid',
+      borderColor: reached ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)' : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
+      color: reached ? 'var(--gold)' : side === 'left' ? 'var(--selena)' : 'var(--linen)'
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "city",
@@ -2109,12 +2096,14 @@ function CityNode({
   })), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: 14,
+      fontSize: 8,
       textTransform: 'uppercase',
-      color: 'var(--cream)',
-      letterSpacing: '0.01em',
-      whiteSpace: 'nowrap'
+      color: reached ? 'var(--gold)' : 'var(--parchment)',
+      letterSpacing: '0.04em',
+      textAlign: 'center',
+      lineHeight: 1.5,
+      maxWidth: 70,
+      wordBreak: 'break-all'
     }
   }, name));
 }
@@ -2122,58 +2111,41 @@ function ProgressStrip({
   from = 'Chicago',
   to = 'Tokyo',
   players = [],
-  // [{ id, name, pct, colorway, leader }]
   state = 'default',
   // 'default' | 'end' | 'empty'
   compact = false,
   style
 }) {
   const {
-    Avatar,
-    Icon
+    Avatar
   } = window.DesignSystem_19034b;
-  const avSize = compact ? 28 : 40;
-  if (state === 'empty') {
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        padding: '20px 18px',
-        background: 'var(--card)',
-        border: '1px dashed var(--hairline)',
-        borderRadius: 'var(--r-card)',
-        ...style
-      }
-    }, /*#__PURE__*/React.createElement(CityNode, {
-      name: from,
-      side: "left"
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        height: 4,
-        borderRadius: 2,
-        background: 'repeating-linear-gradient(90deg, var(--hairline) 0 8px, transparent 8px 16px)'
-      }
-    }), /*#__PURE__*/React.createElement(CityNode, {
-      name: to,
-      side: "right"
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: 'absolute'
-      }
-    }));
-  }
+  const avSize = compact ? 26 : 34;
+  const maxPct = players.length ? Math.max(0, ...players.map(p => p.pct)) : 0;
   return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: 'var(--felt)',
+      border: '2px solid',
+      borderColor: 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
+      padding: compact ? '10px 12px' : '14px 16px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      ...style
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontSize: 8,
+      color: 'var(--dust)',
+      letterSpacing: '0.05em',
+      borderBottom: '1px solid var(--walnut)',
+      paddingBottom: 8
+    }
+  }, "Trail: ", from, " \u2192 ", to), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
-      padding: compact ? '14px 12px' : '22px 18px',
-      background: 'var(--card)',
-      border: '1px solid var(--hairline)',
-      borderRadius: 'var(--r-card)',
-      ...style
+      gap: 10
     }
   }, /*#__PURE__*/React.createElement(CityNode, {
     name: from,
@@ -2182,7 +2154,7 @@ function ProgressStrip({
     style: {
       position: 'relative',
       flex: 1,
-      height: avSize + 12
+      height: avSize + 20
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2190,25 +2162,26 @@ function ProgressStrip({
       top: '50%',
       left: 0,
       right: 0,
-      height: 4,
-      borderRadius: 2,
+      height: 10,
       transform: 'translateY(-50%)',
-      background: 'var(--hairline)'
+      background: 'var(--tobacco)',
+      border: '2px solid',
+      borderColor: 'var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)',
+      overflow: 'hidden'
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }, state === 'empty' ? /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'absolute',
-      top: '50%',
-      left: 0,
-      height: 4,
-      borderRadius: 2,
-      transform: 'translateY(-50%)',
-      width: `${Math.max(0, ...players.map(p => p.pct))}%`,
-      background: state === 'end' ? 'var(--gold)' : 'var(--blue)',
-      boxShadow: state === 'end' ? 'var(--glow-gold)' : 'none',
+      height: '100%',
+      background: 'repeating-linear-gradient(90deg, var(--walnut) 0 5px, transparent 5px 10px)'
+    }
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: '100%',
+      width: `${maxPct}%`,
+      background: state === 'end' ? 'var(--gold)' : 'var(--selena)',
       transition: 'width var(--dur-hop) var(--ease-spring)'
     }
-  }), players.map((p, i) => /*#__PURE__*/React.createElement("div", {
+  })), state !== 'empty' && players.map((p, i) => /*#__PURE__*/React.createElement("div", {
     key: p.id || i,
     style: {
       position: 'absolute',
@@ -2218,29 +2191,30 @@ function ProgressStrip({
       zIndex: p.leader ? 3 : 2,
       transition: 'left var(--dur-hop) var(--ease-spring)'
     }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      border: '2px solid',
+      borderColor: p.leader ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)' : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)'
+    }
   }, /*#__PURE__*/React.createElement(Avatar, {
     size: avSize,
     colorway: p.colorway || 'chicago',
-    ring: p.leader ? 'var(--gold)' : 'var(--navy)',
-    badge: p.pct >= 100 ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: 'grid',
-        placeItems: 'center',
-        width: avSize * 0.5,
-        height: avSize * 0.5,
-        borderRadius: '50%',
-        background: 'var(--gold)',
-        color: 'var(--navy)'
-      }
-    }, /*#__PURE__*/React.createElement(Icon, {
-      name: "crown",
-      size: avSize * 0.32
-    })) : undefined
-  })))), /*#__PURE__*/React.createElement(CityNode, {
+    ring: p.leader ? 'var(--gold)' : 'var(--walnut)'
+  }))))), /*#__PURE__*/React.createElement(CityNode, {
     name: to,
     side: "right",
     reached: state === 'end'
-  }));
+  })), state === 'end' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontSize: 8,
+      color: 'var(--gold)',
+      letterSpacing: '0.04em',
+      borderTop: '1px solid var(--walnut)',
+      paddingTop: 8,
+      textAlign: 'center'
+    }
+  }, "Selena reached!"));
 }
 Object.assign(__ds_scope, { ProgressStrip });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/game/ProgressStrip.jsx", error: String((e && e.message) || e) }); }
@@ -2598,31 +2572,46 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   Sidebar — desktop nav. 60px collapsed (icons) / 200px on hover.
-   5 nav items + avatar at bottom.
+   Sidebar v2 — Vintage spy terminal.
+   Warm putty plastic outer casing with bevel chrome.
+   CRT phosphor screen inside. Colorful Carmen-style action
+   buttons below the screen. Collapsed: 72px. Expanded: 220px.
    ============================================================ */
 
 const NAV = [{
   id: 'map',
   label: 'Map',
-  icon: 'map'
+  icon: 'map',
+  color: '#41B6E6',
+  textDark: false
 }, {
   id: 'prediction',
   label: 'Prediction',
-  icon: 'prediction'
+  icon: 'prediction',
+  color: '#C8A040',
+  textDark: true
 }, {
   id: 'city',
   label: 'City',
-  icon: 'city'
+  icon: 'city',
+  color: '#4A8A3A',
+  textDark: false
 }, {
   id: 'bingo',
   label: 'Bingo',
-  icon: 'bingo'
+  icon: 'bingo',
+  color: '#4A6898',
+  textDark: false
 }, {
   id: 'nemesis',
   label: 'Nemesis',
-  icon: 'nemesis'
+  icon: 'nemesis',
+  color: '#8B3A2A',
+  textDark: false
 }];
+
+/* CRT scanlines — subtle horizontal line overlay */
+const CRT_SCANLINES = 'repeating-linear-gradient(to bottom, transparent, transparent 1px, rgba(0,0,0,0.22) 1px, rgba(0,0,0,0.22) 2px)';
 function Sidebar({
   active = 'map',
   onNavigate,
@@ -2635,144 +2624,221 @@ function Sidebar({
   } = window.DesignSystem_19034b;
   const [hover, setHover] = React.useState(false);
   const expanded = forceExpanded || hover;
+
+  /* Putty casing bevel */
+  const casingBevel = 'var(--casing-hi) var(--casing-lo) var(--casing-lo) var(--casing-hi)';
+  const casingInset = 'var(--casing-lo) var(--casing-hi) var(--casing-hi) var(--casing-lo)';
   return /*#__PURE__*/React.createElement("nav", {
     onMouseEnter: () => setHover(true),
     onMouseLeave: () => setHover(false),
     style: {
-      width: expanded ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)',
+      width: expanded ? 220 : 72,
       height: '100%',
       flex: 'none',
-      background: 'var(--card)',
-      borderRight: '1px solid var(--hairline)',
+      /* Warm putty plastic outer casing */
+      background: 'var(--casing)',
+      border: '3px solid',
+      borderColor: casingBevel,
       display: 'flex',
       flexDirection: 'column',
-      padding: '20px 10px',
-      gap: 6,
+      padding: 10,
+      gap: 8,
       transition: 'width var(--dur-base) var(--ease-out)',
       overflow: 'hidden',
       zIndex: 'var(--z-nav)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
+      background: 'var(--casing-mid)',
+      border: '2px solid',
+      borderColor: casingInset,
+      padding: '4px 8px',
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
-      padding: '0 8px',
-      height: 40,
-      marginBottom: 12
+      gap: 8,
+      minHeight: 28,
+      overflow: 'hidden',
+      flex: 'none'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      display: 'grid',
-      placeItems: 'center',
-      width: 32,
-      height: 32,
-      flex: 'none',
-      borderRadius: 'var(--r-tight)',
-      background: 'var(--blue)',
-      color: 'var(--navy)',
       fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: 20
+      fontSize: 9,
+      color: '#3A2810',
+      letterSpacing: '0.04em',
+      flex: 'none',
+      lineHeight: 1.4
     }
   }, "S"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: 19,
-      letterSpacing: '0.01em',
-      color: 'var(--cream)',
+      fontSize: 8,
+      color: '#3A2810',
+      letterSpacing: '0.02em',
       whiteSpace: 'nowrap',
-      textTransform: 'uppercase',
+      overflow: 'hidden',
+      lineHeight: 1.4,
       opacity: expanded ? 1 : 0,
       transition: 'opacity var(--dur-fast)'
     }
-  }, "Selena's Chase")), /*#__PURE__*/React.createElement("div", {
+  }, "SELENA'S CHASE")), /*#__PURE__*/React.createElement("div", {
     style: {
+      flex: 1,
+      background: 'var(--crt-bg)',
+      backgroundImage: CRT_SCANLINES,
+      border: '3px solid',
+      /* Deeply inset — the screen sits inside the plastic */
+      borderColor: 'var(--casing-lo) var(--casing-hi) var(--casing-hi) var(--casing-lo)',
+      padding: '8px 6px',
       display: 'flex',
       flexDirection: 'column',
-      gap: 4,
-      flex: 1
+      gap: 1,
+      overflow: 'hidden',
+      position: 'relative'
     }
-  }, items.map(it => {
+  }, expanded && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontSize: 7,
+      color: 'var(--crt-dim)',
+      letterSpacing: '0.05em',
+      marginBottom: 5,
+      paddingBottom: 4,
+      borderBottom: '1px solid #1A4A1A',
+      whiteSpace: 'nowrap'
+    }
+  }, "TRACKER CONSOLE"), items.map(it => {
     const on = it.id === active;
     return /*#__PURE__*/React.createElement("button", {
       key: it.id,
       onClick: () => onNavigate && onNavigate(it.id),
-      title: it.label,
+      title: !expanded ? it.label : undefined,
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        height: 44,
-        padding: '0 10px',
+        gap: 6,
+        height: 30,
+        padding: '0 4px',
         border: 'none',
         cursor: 'pointer',
-        borderRadius: 'var(--r-card)',
+        width: '100%',
+        background: on ? 'var(--crt-row)' : 'transparent',
+        color: on ? 'var(--crt-hi)' : 'var(--crt-dim)',
         textAlign: 'left',
-        background: on ? 'var(--blue-12)' : 'transparent',
-        color: on ? 'var(--blue)' : 'var(--cream)',
-        transition: 'background var(--dur-fast)'
+        transition: 'color var(--dur-fast)'
       },
       onMouseEnter: e => {
-        if (!on) e.currentTarget.style.background = 'var(--cream-08)';
+        if (!on) e.currentTarget.style.color = '#2ABF2A';
       },
       onMouseLeave: e => {
-        if (!on) e.currentTarget.style.background = 'transparent';
+        if (!on) e.currentTarget.style.color = 'var(--crt-dim)';
       }
     }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontSize: 8,
+        color: on ? 'var(--crt-hi)' : 'transparent',
+        flex: 'none',
+        width: 10,
+        lineHeight: 1
+      }
+    }, '>'), /*#__PURE__*/React.createElement("span", {
       style: {
         flex: 'none',
         display: 'grid',
         placeItems: 'center',
-        width: 24
+        width: 20
       }
     }, /*#__PURE__*/React.createElement(Icon, {
       name: it.icon,
-      size: 23,
-      strokeWidth: on ? 2.4 : 2
+      size: 18,
+      strokeWidth: on ? 2.2 : 1.8
     })), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 15,
-        fontWeight: on ? 600 : 500,
+        fontFamily: 'var(--font-display)',
+        fontSize: 8,
+        letterSpacing: '0.03em',
+        textTransform: 'uppercase',
         whiteSpace: 'nowrap',
+        lineHeight: 1,
         opacity: expanded ? 1 : 0,
         transition: 'opacity var(--dur-fast)'
       }
     }, it.label));
-  })), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onNavigate && onNavigate('profile'),
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      background: 'radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 100%)'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: expanded ? 'row' : 'column',
+      gap: 4,
+      alignItems: 'center',
+      justifyContent: expanded ? 'flex-start' : 'center'
+    }
+  }, items.map(it => {
+    const on = it.id === active;
+    return /*#__PURE__*/React.createElement("button", {
+      key: `btn-${it.id}`,
+      onClick: () => onNavigate && onNavigate(it.id),
+      title: it.label,
+      style: {
+        width: expanded ? 34 : 48,
+        height: expanded ? 26 : 36,
+        background: it.color,
+        border: '2px solid',
+        /* Bevel: active = pressed in, inactive = raised */
+        borderColor: on ? '#606060 #D0D0D0 #D0D0D0 #606060' : '#D0D0D0 #606060 #606060 #D0D0D0',
+        display: 'grid',
+        placeItems: 'center',
+        cursor: 'pointer',
+        flex: 'none',
+        padding: 0,
+        opacity: on ? 1 : 0.7,
+        transition: 'opacity var(--dur-fast), border-color var(--dur-fast)'
+      },
+      onMouseEnter: e => {
+        e.currentTarget.style.opacity = '1';
+      },
+      onMouseLeave: e => {
+        e.currentTarget.style.opacity = on ? '1' : '0.7';
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: it.icon,
+      size: expanded ? 13 : 20,
+      strokeWidth: 2,
+      color: it.textDark ? '#3A2810' : '#FFFFFF'
+    }));
+  })), avatar && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
-      height: 48,
-      padding: '0 6px',
-      border: 'none',
-      background: 'transparent',
-      cursor: 'pointer',
-      borderRadius: 'var(--r-card)'
+      gap: 10,
+      paddingTop: 6,
+      borderTop: '1px solid var(--casing-mid)',
+      overflow: 'hidden'
     }
-  }, avatar || /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 40,
-      height: 40,
-      borderRadius: '50%',
-      background: 'var(--card-elevated)',
+      border: '2px solid',
+      borderColor: casingBevel,
       flex: 'none'
     }
-  }), /*#__PURE__*/React.createElement("span", {
+  }, avatar), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      color: 'var(--cream)',
+      fontFamily: 'var(--font-display)',
+      fontSize: 8,
+      color: '#3A2810',
+      letterSpacing: '0.03em',
       whiteSpace: 'nowrap',
       opacity: expanded ? 1 : 0,
       transition: 'opacity var(--dur-fast)'
     }
-  }, "You")));
+  }, "TRACKER")));
 }
 Object.assign(__ds_scope, { Sidebar });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/navigation/Sidebar.jsx", error: String((e && e.message) || e) }); }
@@ -2782,7 +2848,9 @@ try { (() => {
 const React = window.React;
 
 /* ============================================================
-   TabBar — mobile bottom nav. 5 icons + labels. Safe-area aware.
+   TabBar v2 — Vintage detective game action bar.
+   Carmen Sandiego-inspired bottom navigation.
+   Bevel top border. Hard dividers. Press Start 2P labels.
    ============================================================ */
 
 const NAV = [{
@@ -2816,56 +2884,66 @@ function TabBar({
     Icon
   } = window.DesignSystem_19034b;
   return /*#__PURE__*/React.createElement("nav", {
+    role: "navigation",
     style: {
       display: 'flex',
       alignItems: 'stretch',
-      justifyContent: 'space-around',
       width: '100%',
       height: 'var(--tabbar-height)',
       paddingBottom: 'var(--safe-bottom)',
-      background: 'var(--card)',
-      borderTop: '1px solid var(--hairline)',
+      background: 'var(--mahogany)',
+      /* Hard bevel top edge — the shelf that the game world sits above */
+      borderTop: '3px solid var(--bevel-hi)',
+      borderBottom: '2px solid var(--bevel-lo)',
       zIndex: 'var(--z-nav)',
       ...style
     }
-  }, items.map(it => {
+  }, items.map((it, idx) => {
     const on = it.id === active;
     return /*#__PURE__*/React.createElement("button", {
       key: it.id,
       onClick: () => onNavigate && onNavigate(it.id),
+      "aria-current": on ? 'page' : undefined,
       style: {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 3,
+        gap: 4,
         minWidth: 'var(--touch-min)',
-        border: 'none',
-        background: 'transparent',
+        /* Active tab recesses inward */
+        background: on ? 'var(--felt)' : 'transparent',
+        /* Selena-blue top stripe on active tab */
+        borderTop: on ? '2px solid var(--selena)' : '2px solid transparent',
+        /* Hard dividers between tabs */
+        borderRight: idx < items.length - 1 ? '1px solid var(--walnut)' : 'none',
+        borderBottom: 'none',
+        borderLeft: 'none',
+        color: on ? 'var(--selena)' : 'var(--dust)',
         cursor: 'pointer',
-        color: on ? 'var(--blue)' : 'var(--muted)',
-        position: 'relative'
+        transition: 'background var(--dur-fast) var(--ease-out), color var(--dur-fast)',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
+        padding: 0
       }
-    }, on && /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: 'absolute',
-        top: 0,
-        width: 28,
-        height: 3,
-        borderRadius: '0 0 3px 3px',
-        background: 'var(--blue)'
-      }
-    }), /*#__PURE__*/React.createElement(Icon, {
+    }, /*#__PURE__*/React.createElement(Icon, {
       name: it.icon,
-      size: 24,
-      strokeWidth: on ? 2.4 : 2
+      size: 22,
+      strokeWidth: on ? 2.2 : 1.8
     }), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 10.5,
-        fontWeight: on ? 700 : 500,
-        letterSpacing: '0.02em'
+        fontFamily: 'var(--font-display)',
+        fontSize: 8,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        lineHeight: 1,
+        /* Clamp long labels */
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        padding: '0 4px'
       }
     }, it.label));
   }));

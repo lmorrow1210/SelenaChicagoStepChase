@@ -3,7 +3,7 @@
    Consumers link THIS file only. Keep as @import lines only.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
 
 @import './tokens/colors.css';
 @import './tokens/typography.css';
