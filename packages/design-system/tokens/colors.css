@@ -1,76 +1,125 @@
 /* ============================================================
-   Selena's Chase — Color Tokens
-   Dark mode only. No pure black (#000), no pure white (#FFF).
-   Navy is darkest; cream is lightest.
+   Selena's Chase — Color Tokens v2
+   Aesthetic: Vintage detective / Carmen Sandiego era.
+   Dark tobacco base. Aged parchment text.
+   Selena = Chicago Sky Blue #41B6E6.
    ============================================================ */
 
 :root {
-  /* ---- Base palette (exact, locked) ---- */
-  --navy:  #0A1628; /* base background — deep midnight navy */
-  --card:  #0F2240; /* cards, panels, elevated surfaces */
-  --blue:  #7CCDEF; /* primary UI — Chicago flag blue (Pantone 297C, exact flag match) */
-  --red:   #CC0000; /* competition, rivalry, action — Chicago red (boots) */
-  --gold:  #D4A820; /* unlocks, badges, achievements */
-  --cream: #F0E8DC; /* primary text on dark backgrounds */
-  --muted: #8A9FBB; /* secondary text, disabled, placeholders — lightened from #4A6080 (2.5:1, WCAG fail) to ≥4.5:1 on every surface incl. --card-elevated (M9 a11y gate) */
+  /* ---- Base surfaces — warm dark tobacco ---- */
+  --tobacco:    #1A1208;  /* deepest background */
+  --felt:       #261A0A;  /* card / panel surfaces */
+  --mahogany:   #342210;  /* elevated cards, modals */
+  --walnut:     #4A3018;  /* borders, dividers */
+  --tan:        #7A5E38;  /* mid-tone surface, inactive areas */
 
-  /* ---- Derived surface shades (no pure black/white) ---- */
-  --navy-deep:    #06101D; /* map ocean depth, deepest recess */
-  --card-elevated:#16315A; /* modals, overlays, elevated cards */
-  --card-hover:   #14294C; /* card hover surface */
-  --hairline:     #1C355C; /* borders / dividers on dark surfaces */
-  --skeleton:     #16294A; /* loading skeleton shimmer base */
+  /* ---- Text — aged paper ---- */
+  --parchment:  #E8D9B0;  /* primary text */
+  --linen:      #C8B888;  /* secondary text */
+  --dust:       #8A7050;  /* muted / disabled */
 
-  /* ---- Interaction state shifts ---- */
-  --blue-hover:   #60BCDE; /* primary button hover */
-  --blue-press:   #44A8CE; /* primary button active */
-  --red-hover:    #B30000; /* danger hover */
-  --red-press:    #990000; /* danger active */
-  --gold-hover:   #BD9418; /* gold hover */
+  /* ---- Bevel chrome — hard-edge raised/inset panels ---- */
+  /* Usage: border: 2px solid; border-color: var(--bevel-raised); */
+  --bevel-hi:   #B09060;  /* raised top-left highlight */
+  --bevel-lo:   #0A0804;  /* raised bottom-right shadow */
 
-  /* ---- Accent glows (the ONLY gradients allowed — achievement moments) ---- */
-  --glow-blue:  0 0 24px rgba(124, 205, 239, 0.55);
-  --glow-gold:  0 0 24px rgba(212, 168, 32, 0.55);
-  --glow-red:   0 0 20px rgba(204, 0, 0, 0.45);
+  /* ---- Selena's signature — Chicago Sky Blue ---- */
+  --selena:       #41B6E6;
+  --selena-dark:  #2A8CB8;
+  --selena-deep:  #1E6E90;
+  --selena-08:    rgba(65, 182, 230, 0.08);
+  --selena-12:    rgba(65, 182, 230, 0.12);
+  --selena-20:    rgba(65, 182, 230, 0.20);
+  --selena-40:    rgba(65, 182, 230, 0.40);
 
-  /* ---- Translucent fills (component tints) ---- */
-  --blue-08:  rgba(124, 205, 239, 0.08);
-  --blue-12:  rgba(124, 205, 239, 0.12);
-  --blue-20:  rgba(124, 205, 239, 0.20);
-  --blue-40:  rgba(124, 205, 239, 0.40);
-  --gold-12:  rgba(212, 168, 32, 0.12);
-  --gold-20:  rgba(212, 168, 32, 0.20);
-  --red-12:   rgba(204, 0, 0, 0.12);
-  --cream-08: rgba(240, 232, 220, 0.08);
-  --cream-12: rgba(240, 232, 220, 0.12);
+  /* ---- Slate blue — secondary interactive ---- */
+  --slate:        #4A6898;
+  --slate-light:  #6A88C0;
+  --slate-08:     rgba(74, 104, 152, 0.08);
 
-  /* ---- Badge quality ---- */
-  --bronze: #CD7F32;
-  --silver: #A8A9AD;
-  /* gold quality reuses --gold */
+  /* ---- Brick red — danger, time pressure, wrong guess ---- */
+  --brick:        #8B3A2A;
+  --brick-light:  #B04A38;
+  --brick-12:     rgba(139, 58, 42, 0.12);
 
-  /* ---- Map illustrated palette (colorful travel-board look) ---- */
-  --map-ocean:     #15406B; /* mid-blue ocean, lighter than navy */
-  --map-ocean-2:   #1B4E80;
-  --map-land-green:#3E7C54;
-  --map-land-teal: #2E8B83;
-  --map-land-tan:  #C9A86A;
-  --map-land-warm: #C97B4A;
-  --map-land-sage: #6E9E63;
-  --map-route:     #D4A820; /* journey-traveled dashed line */
+  /* ---- Gold — achievements, badge quality, leaderboard ---- */
+  --gold:         #C8A040;
+  --gold-light:   #E0B850;
+  --gold-12:      rgba(200, 160, 64, 0.12);
+  --gold-20:      rgba(200, 160, 64, 0.20);
+
+  /* ---- Badge quality rings ---- */
+  --bronze: #C07830;
+  --silver: #909090;
+  /* gold reuses --gold */
+
+  /* ---- Map illustrated palette ---- */
+  --map-ocean:      #1A3050;
+  --map-land-green: #3E5C30;
+  --map-land-tan:   #8A6E40;
+  --map-land-warm:  #7A5230;
+  --map-route:      var(--selena);
+
+  /* ---- Sidebar / CRT terminal ---- */
+  --casing:     #C2B49A;  /* warm putty plastic frame */
+  --casing-hi:  #D8C8AA;  /* casing bevel highlight — top-left */
+  --casing-lo:  #7A6040;  /* casing bevel shadow — bottom-right */
+  --casing-mid: #A89878;  /* nameplate, recessed panel surface */
+  --crt-bg:     #060E05;  /* phosphor screen background */
+  --crt-hi:     #44FF44;  /* active phosphor text */
+  --crt-dim:    #1A7A1A;  /* inactive phosphor text */
+  --crt-row:    #0A2A0A;  /* selected row highlight */
+
+  /* ---- World map asset ---- */
+  /* --map-world: url('../assets/world.png') — 1656×950 pixel-art map */
 
   /* ---- Semantic aliases ---- */
-  --bg:            var(--navy);
-  --bg-elevated:   var(--card);
-  --surface-card:  var(--card);
-  --surface-modal: var(--card-elevated);
-  --text-primary:  var(--cream);
-  --text-secondary:var(--muted);
-  --text-on-blue:  var(--navy);
-  --text-on-red:   var(--cream);
-  --border:        var(--hairline);
-  --focus-ring:    var(--blue);
-  --accent:        var(--blue);
-  --danger:        var(--red);
-  --reward:        var(--gold);
+  --bg:              var(--tobacco);
+  --bg-elevated:     var(--felt);
+  --surface-card:    var(--felt);
+  --surface-modal:   var(--mahogany);
+  --text-primary:    var(--parchment);
+  --text-secondary:  var(--linen);
+  --text-muted:      var(--dust);
+  --border:          var(--walnut);
+  --focus-ring:      var(--selena);
+  --accent:          var(--selena);
+  --danger:          var(--brick);
+  --reward:          var(--gold);
+
+  /* ---- Legacy aliases — backward compat for components ---- */
+  --navy:            var(--tobacco);
+  --navy-deep:       #0E0A04;
+  --card:            var(--felt);
+  --card-elevated:   var(--mahogany);
+  --card-hover:      #2E2010;
+  --hairline:        var(--walnut);
+  --skeleton:        var(--felt);
+
+  --blue:            var(--selena);
+  --blue-hover:      var(--selena-dark);
+  --blue-press:      var(--selena-deep);
+  --blue-08:         var(--selena-08);
+  --blue-12:         var(--selena-12);
+  --blue-20:         var(--selena-20);
+  --blue-40:         var(--selena-40);
+
+  --red:             var(--brick);
+  --red-hover:       var(--brick-light);
+  --red-press:       var(--brick);
+  --red-12:          var(--brick-12);
+
+  --cream:           var(--parchment);
+  --muted:           var(--dust);
+  --cream-08:        rgba(232, 217, 176, 0.08);
+  --cream-12:        rgba(232, 217, 176, 0.12);
+
+  /* No glows in vintage mode — use hard offset instead */
+  --glow-blue:       2px 2px 0 0 var(--bevel-lo);
+  --glow-gold:       2px 2px 0 0 var(--bevel-lo);
+  --glow-red:        2px 2px 0 0 var(--bevel-lo);
+
+  --gold-hover:      var(--gold-light);
+  --text-on-blue:    var(--tobacco);
+  --text-on-red:     var(--parchment);
 }
