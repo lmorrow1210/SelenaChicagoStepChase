@@ -206,6 +206,7 @@ A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close 
 3. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026)**: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
 4. ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`; `DELETE /api/groups/me/members/:userId` with nemesis re-pair (leave re-pairs too); raw-hex CI gate; global reduced-motion kill rule; **past-city trophy view** (`GET /api/cities/:id` + `/city/[cityId]` page, visited map pins link to it); **OpenAPI 3.0 spec** (`apps/api/openapi.yaml`) + generated web types (`apps/web/lib/api-types.d.ts`, regenerate with `npm run gen:api-types -w apps/web`, CI fails on drift).
 5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
+6. **City icons — 30 SVGs from Gemini in progress** (June 2026): drop SVG files into `packages/design-system/components/game/city-icons/`, then run `node scripts/ingest-city-icons.mjs` — it normalises viewBox/colour/JSX attrs and inserts entries into `CityBadge.jsx` automatically. Currently 8 cities have art (Chicago, Tokyo, Cairo, Oslo, Lima, New York, Washington D.C., Los Angeles). Demo route: Chicago → New York → Washington D.C. → Los Angeles.
 
 ---
 
@@ -243,6 +244,7 @@ apps/api/src/
 packages/design-system/components/
   game/        Avatar, BingoTile, CityBadge, LandmarkTile, MapPin,
                PredictionCard, ProgressStrip, SkyscraperPair — all migrated
+  game/city-icons/   SVG source files for city landmarks (drop here, run ingest script)
   navigation/  Sidebar, TabBar  — migrated
   core/        Button, StatCard, Badge — migrated; Card, CountdownPill — NOT yet (unused)
   forms/       Input, Slider     — migrated

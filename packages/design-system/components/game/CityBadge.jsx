@@ -196,6 +196,25 @@ const CITY_ICONS = {
     </svg>
   ),
 
+  seattle: ({ color }) => (
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      <!-- Space Needle -->
+        <rect x="47" y="50" width="6" height="42" fill={color} />
+        <polygon points="40,50 60,50 55,30 45,30" fill={color} />
+        <rect x="44" y="22" width="12" height="8" fill={color} rx="1" />
+        <rect x="49" y="14" width="2" height="9" fill={color} />
+        <!-- Observation deck ring -->
+        <ellipse cx="50" cy="30" rx="14" ry="3" fill={color} />
+        <!-- Base legs -->
+        <line x1="40" y1="92" x2="50" y2="50" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <line x1="60" y1="92" x2="50" y2="50" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <line x1="50" y1="92" x2="50" y2="50" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <!-- Ground -->
+        <rect x="10" y="92" width="80" height="4" fill={color} rx="1" />
+    </svg>
+  ),
+
+
 };
 
 /* Normalize a city name to an icon key: "New York" -> "newyork". */
