@@ -117,7 +117,96 @@ const CITY_ICONS = {
     </svg>
   ),
 
+  newyork: ({ color }) => (
+    /* Statue of Liberty + Empire State Building + skyline */
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      {/* Empire State Building (centre) */}
+      <rect x="21" y="16" width="8" height="26" fill={color} rx="0.5" />
+      <rect x="23" y="10" width="4" height="6" fill={color} rx="0.5" />
+      <rect x="24.6" y="4" width="1.4" height="6" fill={color} rx="0.5" />
+      {/* Stepped towers (right) */}
+      <rect x="31" y="22" width="6" height="20" fill={color} rx="0.5" />
+      <rect x="38" y="28" width="4" height="14" fill={color} rx="0.5" />
+      {/* Statue of Liberty (left) */}
+      <rect x="7" y="34" width="9" height="8" fill={color} rx="0.5" />
+      <polygon points="9,34 14,34 13,20 10,20" fill={color} />
+      <circle cx="11.5" cy="18" r="1.8" fill={color} />
+      {/* Crown spikes */}
+      <polygon points="9.4,17 10,14.4 10.6,17" fill={color} />
+      <polygon points="10.9,16.6 11.5,13.6 12.1,16.6" fill={color} />
+      <polygon points="12.4,17 13,14.4 13.6,17" fill={color} />
+      {/* Raised arm + torch */}
+      <rect x="13.2" y="12" width="1.5" height="9" fill={color} rx="0.5" transform="rotate(22 13.95 16.5)" />
+      <circle cx="16.4" cy="11" r="1.7" fill={color} />
+      {/* Waterline */}
+      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+    </svg>
+  ),
+
+  washingtondc: ({ color }) => (
+    /* U.S. Capitol dome + Washington Monument */
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      {/* Capitol base / steps */}
+      <rect x="6" y="34" width="22" height="8" fill={color} rx="0.5" />
+      {/* Colonnade: lintel + columns */}
+      <rect x="8.5" y="29" width="17" height="1.8" fill={color} rx="0.3" />
+      <rect x="9.5"  y="30.8" width="1.4" height="3.2" fill={color} />
+      <rect x="12.4" y="30.8" width="1.4" height="3.2" fill={color} />
+      <rect x="15.3" y="30.8" width="1.4" height="3.2" fill={color} />
+      <rect x="18.2" y="30.8" width="1.4" height="3.2" fill={color} />
+      <rect x="21.1" y="30.8" width="1.4" height="3.2" fill={color} />
+      {/* Drum + dome */}
+      <rect x="13.5" y="25" width="7" height="4" fill={color} rx="0.3" />
+      <path d="M13.5 25 Q17 17.5 20.5 25 Z" fill={color} />
+      {/* Lantern + statue of Freedom */}
+      <rect x="16.3" y="15" width="1.4" height="2.6" fill={color} />
+      <circle cx="17" cy="14.2" r="1" fill={color} />
+      {/* Washington Monument (obelisk) */}
+      <rect x="34" y="14" width="4" height="28" fill={color} rx="0.4" />
+      <polygon points="34,14 38,14 36,9" fill={color} />
+      {/* Ground */}
+      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+    </svg>
+  ),
+
+  losangeles: ({ color }) => (
+    /* Hollywood sign on the hills + palm + setting sun */
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      {/* Hill ridge */}
+      <polygon points="2,23 13,13 24,17 34,11 46,16 46,24 2,24" fill={color} opacity="0.22" />
+      {/* Hollywood sign letters */}
+      <rect x="8.5"  y="12" width="1.3" height="5" fill={color} />
+      <rect x="11.6" y="11.4" width="1.3" height="5" fill={color} />
+      <rect x="14.7" y="12.4" width="1.3" height="5" fill={color} />
+      <rect x="17.8" y="13.2" width="1.3" height="5" fill={color} />
+      <rect x="20.9" y="14" width="1.3" height="5" fill={color} />
+      {/* Setting sun */}
+      <circle cx="23" cy="33" r="5" fill={color} />
+      {/* Water reflections */}
+      <rect x="6"  y="39" width="13" height="1.4" fill={color} rx="0.5" opacity="0.7" />
+      <rect x="28" y="39" width="12" height="1.4" fill={color} rx="0.5" opacity="0.7" />
+      {/* Palm tree (right) */}
+      <path d="M37.5 40 Q38.5 31 39.5 25.5" stroke={color} strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M39.5 25.5 Q35.5 23 33 24.8" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      <path d="M39.5 25.5 Q43.5 23 45.5 25.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      <path d="M39.5 25.5 Q37.5 21 38.6 18.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      <path d="M39.5 25.5 Q41.6 21.5 42.8 19.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      {/* Ground */}
+      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+    </svg>
+  ),
+
 };
+
+/* Normalize a city name to an icon key: "New York" -> "newyork". */
+function citySlug(name) {
+  return (name || '').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+/** The per-city silhouette component for a name, or null if none. */
+export function getCityIcon(name) {
+  return CITY_ICONS[citySlug(name)] ?? null;
+}
 
 /* Generic skyline fallback */
 function SkylineFallback({ color }) {
@@ -144,7 +233,7 @@ export function CityBadge({
   const featured = size >= 72;
   const iconColor = locked ? 'var(--muted)' : 'var(--cream)';
   const iconSize = size * 0.62;
-  const CityIcon = CITY_ICONS[name.toLowerCase()];
+  const CityIcon = getCityIcon(name);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: size + 24, ...style }}>

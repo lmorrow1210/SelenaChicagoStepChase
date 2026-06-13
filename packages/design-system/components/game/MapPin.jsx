@@ -1,15 +1,19 @@
 import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
+import { getCityIcon } from './CityBadge.jsx';
 
 /* ============================================================
    MapPin — world map marker.
    Variants: current (glowing blue, active pulse),
              next/selena (dimmer red accent).
+   Pass `cityName` to render that city's landmark silhouette
+   instead of the generic glyph.
    ============================================================ */
 
 export function MapPin({
   variant = 'current',  // 'current' | 'next' | 'visited'
   label,
+  cityName,
   selena = false,
   size = 'md',          // 'sm' | 'md'
   style,
@@ -18,6 +22,8 @@ export function MapPin({
   const isNext = variant === 'next';
   const dim = size === 'sm' ? 16 : 24;
   const color = isCurrent ? 'var(--blue)' : isNext ? 'var(--red)' : 'var(--muted)';
+  const glyphColor = isCurrent || isNext ? 'var(--navy)' : 'var(--muted)';
+  const CityIcon = selena ? null : getCityIcon(cityName);
 
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, ...style }}>
@@ -36,7 +42,13 @@ export function MapPin({
             animation: 'sc-pulse-blue 1.8s var(--ease-in-out) infinite',
           }} />
         )}
-        <Icon name={selena ? 'nemesis' : 'city'} size={dim * 0.7} strokeWidth={2.2} />
+        {CityIcon ? (
+          <div style={{ width: dim * 0.82, height: dim * 0.82, display: 'grid', placeItems: 'center' }}>
+            <CityIcon color={glyphColor} />
+          </div>
+        ) : (
+          <Icon name={selena ? 'nemesis' : 'city'} size={dim * 0.7} strokeWidth={2.2} />
+        )}
       </div>
       {/* stem */}
       <span style={{

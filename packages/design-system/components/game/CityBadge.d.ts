@@ -19,3 +19,8 @@ export interface CityBadgeProps {
  */
 export function CityBadge(props: CityBadgeProps): JSX.Element;
 export default CityBadge;
+
+/** The per-city landmark silhouette component for a name, or null if none. */
+export function getCityIcon(
+  name?: string,
+): ((props: { color: string }) => JSX.Element) | null;

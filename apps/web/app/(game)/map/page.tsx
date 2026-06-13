@@ -204,6 +204,7 @@ export default function MapPage() {
               <MapPin
                 variant={isCurrent ? "current" : isNext ? "next" : "visited"}
                 label={city.name}
+                cityName={city.name}
                 selena={isNext}
                 size={isCurrent ? "md" : "sm"}
               />

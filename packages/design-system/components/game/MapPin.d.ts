@@ -5,6 +5,8 @@ export interface MapPinProps {
   variant?: 'current' | 'next' | 'visited';
   /** Optional city name pill under the pin. */
   label?: string;
+  /** City name used to pick the landmark silhouette (falls back to a glyph). */
+  cityName?: string;
   /** Show Selena's figure icon instead of the city glyph. */
   selena?: boolean;
   size?: 'sm' | 'md';

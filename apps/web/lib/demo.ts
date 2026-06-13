@@ -26,7 +26,8 @@ const MEMBERS = [
 
 const NY = { id: 2, name: "New York", country: "USA", route_order: 2, background_image: null, lat: 40.7128, lng: -74.006 };
 const CHICAGO = { id: 1, name: "Chicago", country: "USA", route_order: 1, background_image: null, lat: 41.8781, lng: -87.6298 };
-const REYKJAVIK = { id: 3, name: "Reykjavik", country: "Iceland", route_order: 3, background_image: null, lat: 64.1466, lng: -21.9426 };
+const DC = { id: 3, name: "Washington, D.C.", country: "USA", route_order: 3, background_image: null, lat: 38.9072, lng: -77.0369 };
+const LA = { id: 4, name: "Los Angeles", country: "USA", route_order: 4, background_image: null, lat: 34.0522, lng: -118.2437 };
 
 const NY_LANDMARKS = [
   { id: 11, day: 1, name: "Brooklyn Bridge", fun_fact: "When it opened in 1883 it was the longest suspension bridge in the world." },
@@ -118,12 +119,13 @@ const FIXTURES: Record<string, unknown> = {
   "/api/weeks/current": {
     week: WEEK,
     city: NY,
-    nextCity: REYKJAVIK,
+    nextCity: DC,
     selenaLeadSteps: 13035,
     route: [
       { city_id: 1, name: "Chicago", visited: true },
       { city_id: 2, name: "New York", visited: false },
-      { city_id: 3, name: "Reykjavik", visited: false },
+      { city_id: 3, name: "Washington, D.C.", visited: false },
+      { city_id: 4, name: "Los Angeles", visited: false },
     ],
     progressStrip: progressStrip(),
     leaderboard: leaderboard(),
