@@ -94,9 +94,21 @@ export function Avatar({
         <rect x="21" y="27" width="6" height="7" fill={skinTone} />
         <circle cx="24" cy="20" r="9" fill={skinTone} />
 
-        {/* ── Hair (sides + back — peek out from under brim) ── */}
-        <path d="M15.5 22 C15 18 16 15 18 13.5 C16 15 15.2 18 15.5 22 Z" fill={hairColor} />
-        <path d="M32.5 22 C33 18 32 15 30 13.5 C32 15 32.8 18 32.5 22 Z" fill={hairColor} />
+        {/* ── Hair — long curly locks falling from under the brim, over the
+               coat shoulders. Chains of overlapping curls so they read as
+               "curly" even at 24px. ── */}
+        <g fill={hairColor}>
+          <circle cx="14.5" cy="17" r="3.4" />
+          <circle cx="13.2" cy="21.5" r="3.6" />
+          <circle cx="13.8" cy="26" r="3.6" fill={shade(hairColor, 16)} />
+          <circle cx="15.2" cy="30.5" r="3.4" />
+          <circle cx="17" cy="34" r="3" fill={shade(hairColor, 16)} />
+          <circle cx="33.5" cy="17" r="3.4" />
+          <circle cx="34.8" cy="21.5" r="3.6" />
+          <circle cx="34.2" cy="26" r="3.6" fill={shade(hairColor, 16)} />
+          <circle cx="32.8" cy="30.5" r="3.4" />
+          <circle cx="31" cy="34" r="3" fill={shade(hairColor, 16)} />
+        </g>
 
         {/* ── Fedora hat ── */}
         {/* Crown */}

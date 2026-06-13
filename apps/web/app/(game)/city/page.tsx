@@ -131,12 +131,12 @@ export default function CityPage() {
       <section className="cityHero">
         <CityBadge name={data.city.name} quality="gold" size={80} />
         <div className="cityHeroText">
-          <p className="eyebrow">City {data.city.route_order}</p>
+          <p className="eyebrow">Destination {data.city.route_order} · She&apos;s here somewhere</p>
           <h1>{data.city.name}</h1>
           <p>{data.city.country}</p>
         </div>
         <div className="landmarkCount">
-          <span>Landmarks</span>
+          <span>Places searched</span>
           <strong>
             {unlockedCount}/{data.landmarks.length}
           </strong>
@@ -160,9 +160,9 @@ export default function CityPage() {
         </div>
       </section>
 
-      <section aria-label="Landmarks">
+      <section aria-label="Places searched">
         <div className="sectionHeader">
-          <h2>Landmarks</h2>
+          <h2>Places you&apos;ve looked</h2>
         </div>
         <div className="landmarkGrid">
           {data.landmarks.map((landmark, index) => (

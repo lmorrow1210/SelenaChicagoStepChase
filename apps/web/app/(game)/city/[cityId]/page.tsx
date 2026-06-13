@@ -155,7 +155,7 @@ export default function PastCityPage() {
           locked={false}
         />
         <div className="trophyHeroText">
-          <p className="eyebrow">City {data.city.route_order} · Completed</p>
+          <p className="eyebrow">Destination {data.city.route_order} · She got away</p>
           <h1>{data.city.name}</h1>
           <p>
             {data.city.country} · {formatWeekRange(data.week.starts_on, data.week.ends_on)}
@@ -172,7 +172,7 @@ export default function PastCityPage() {
         <section className="championPanel" aria-label="City champion">
           <Avatar size={56} colorway={colorwayFrom(data.champion.avatar_colorway)} ring />
           <div>
-            <p className="eyebrow">City champion</p>
+            <p className="eyebrow">Lead detective</p>
             <h2>{data.champion.display_name}</h2>
           </div>
           <span className="championQuality" data-quality={data.champion.quality ?? "bronze"}>
@@ -181,11 +181,11 @@ export default function PastCityPage() {
         </section>
       )}
 
-      <section aria-label="Landmarks">
+      <section aria-label="Places searched">
         <div className="sectionHeader">
-          <h2>Landmarks</h2>
+          <h2>Places you looked</h2>
           <span className="landmarkTally">
-            {data.unlocked_count}/{data.landmarks.length} unlocked
+            {data.unlocked_count}/{data.landmarks.length} searched
           </span>
         </div>
         <div className="landmarkGrid">

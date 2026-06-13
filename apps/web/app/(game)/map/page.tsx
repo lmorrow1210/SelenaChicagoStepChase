@@ -9,6 +9,7 @@ import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton"
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
+import { PredictionSection } from "./PredictionSection";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
@@ -184,10 +185,11 @@ export default function MapPage() {
       <section className="mapHero" aria-label="Weekly route">
         <div className="mapHeroTop">
           <div>
-            <p className="eyebrow">Current city</p>
+            <p className="eyebrow">Selena was last seen in</p>
             <h1>{data.city?.name ?? "Unknown"}</h1>
             <p className="muted">
-              {data.city?.country ?? ""} to {data.nextCity?.name ?? "the finish"}
+              {data.city?.country ?? ""} — and she&apos;s already moving toward{" "}
+              {data.nextCity?.name ?? "the finish"}
             </p>
           </div>
           <div className="countdown">{formatCountdown(data.countdown)}</div>
@@ -231,7 +233,7 @@ export default function MapPage() {
           <strong>{formatNumber(groupSteps)}</strong>
         </div>
         <div className="stat">
-          <span>Selena lead</span>
+          <span>Steps behind her</span>
           <strong>{formatNumber(data.selenaLeadSteps)}</strong>
         </div>
         <div className="stat">
@@ -246,6 +248,8 @@ export default function MapPage() {
         players={progressPlayers}
         state={progressPlayers.length ? (progressPlayers.some((player) => player.pct >= 100) ? "end" : "default") : "empty"}
       />
+
+      <PredictionSection />
 
       <section className="leaderboard" aria-label="Leaderboard">
         <div className="leaderboardHeader">
@@ -291,7 +295,7 @@ function ArrivalCelebration({ city }: { city: string }) {
     duration: `${1800 + (i % 5) * 350}ms`,
   }));
   return (
-    <div className="arrival" role="status" aria-label={`You've arrived in ${city}!`}>
+    <div className="arrival" role="status" aria-label={`So close — she just left ${city}!`}>
       <div className="arrivalConfetti" aria-hidden="true">
         {pieces.map((p, i) => (
           <span
@@ -306,9 +310,9 @@ function ArrivalCelebration({ city }: { city: string }) {
         ))}
       </div>
       <div className="arrivalBanner">
-        <p className="eyebrow">Arrival</p>
-        <h2>You&apos;ve arrived in {city}!</h2>
-        <p className="muted">Selena&apos;s trail is fresh. The new week starts at midnight.</p>
+        <p className="eyebrow">So close</p>
+        <h2>She was just here — {city}, searched!</h2>
+        <p className="muted">Selena slipped out as you closed in. The chase picks up her trail at midnight.</p>
       </div>
       <style jsx>{`
         .arrival {

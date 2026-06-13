@@ -5,7 +5,7 @@ import Sidebar from "@selenas-chase/design-system/components/navigation/Sidebar"
 import TabBar from "@selenas-chase/design-system/components/navigation/TabBar";
 import { usePathname, useRouter } from "next/navigation";
 
-const GAME_SECTIONS = ["map", "prediction", "city", "bingo", "nemesis", "profile"] as const;
+const GAME_SECTIONS = ["map", "city", "bingo", "nemesis", "profile"] as const;
 
 export default function GameLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

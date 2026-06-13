@@ -8,8 +8,7 @@ import Icon from '../icons/Icon.jsx';
 
 const NAV = [
   { id: 'map', label: 'Map', icon: 'map' },
-  { id: 'prediction', label: 'Prediction', icon: 'prediction' },
-  { id: 'city', label: 'City', icon: 'city' },
+  { id: 'city', label: 'Destination', icon: 'city' },
   { id: 'bingo', label: 'Bingo', icon: 'bingo' },
   { id: 'nemesis', label: 'Nemesis', icon: 'nemesis' },
 ];
