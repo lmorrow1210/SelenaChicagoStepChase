@@ -200,9 +200,10 @@ export default function MapPage() {
           {data.route.map((city) => {
             const isCurrent = city.city_id === data.city?.id;
             const isNext = city.city_id === data.nextCity?.id;
+            const pinVariant = isCurrent ? "current" : isNext ? "next" : city.visited ? "visited" : "upcoming";
             const pin = (
               <MapPin
-                variant={isCurrent ? "current" : isNext ? "next" : "visited"}
+                variant={pinVariant}
                 label={city.name}
                 cityName={city.name}
                 selena={isNext}

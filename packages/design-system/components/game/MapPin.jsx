@@ -4,14 +4,17 @@ import { getCityIcon } from './CityBadge.jsx';
 
 /* ============================================================
    MapPin — world map marker.
-   Variants: current (glowing blue, active pulse),
-             next/selena (dimmer red accent).
+   Variants:
+     current  — glowing blue, active pulse (Selena's last known city)
+     next     — red accent (where Selena is heading; renders Selena glyph)
+     visited  — solid dim gold tint (player has already hunted here)
+     upcoming — ghost outline (city is on route but not yet reached)
    Pass `cityName` to render that city's landmark silhouette
    instead of the generic glyph.
    ============================================================ */
 
 export function MapPin({
-  variant = 'current',  // 'current' | 'next' | 'visited'
+  variant = 'current',  // 'current' | 'next' | 'visited' | 'upcoming'
   label,
   cityName,
   selena = false,
@@ -20,20 +23,51 @@ export function MapPin({
 }) {
   const isCurrent = variant === 'current';
   const isNext = variant === 'next';
+  const isVisited = variant === 'visited';
+  const isUpcoming = variant === 'upcoming';
   const dim = size === 'sm' ? 16 : 24;
-  const color = isCurrent ? 'var(--blue)' : isNext ? 'var(--red)' : 'var(--muted)';
-  const glyphColor = isCurrent || isNext ? 'var(--navy)' : 'var(--muted)';
+
+  const accentColor = isCurrent
+    ? 'var(--blue)'
+    : isNext
+    ? 'var(--red)'
+    : isVisited
+    ? 'var(--gold, #c8a96e)'
+    : 'var(--hairline)';
+
+  const bgColor = isCurrent
+    ? 'var(--blue)'
+    : isNext
+    ? 'var(--red)'
+    : isVisited
+    ? 'var(--card-elevated)'
+    : 'transparent';
+
+  const glyphColor = isCurrent || isNext
+    ? 'var(--navy)'
+    : isVisited
+    ? 'var(--gold, #c8a96e)'
+    : 'var(--muted)';
+
+  const borderStyle = isUpcoming
+    ? `1.5px dashed var(--hairline)`
+    : `2px solid ${isCurrent || isNext ? 'var(--cream)' : isVisited ? 'var(--gold, #c8a96e)' : 'var(--hairline)'}`;
+
   const CityIcon = selena ? null : getCityIcon(cityName);
 
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, ...style }}>
+    <div style={{
+      position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+      opacity: isUpcoming ? 0.45 : 1,
+      ...style,
+    }}>
       <div style={{
         position: 'relative', display: 'grid', placeItems: 'center',
         width: dim + 14, height: dim + 14, borderRadius: '50%',
-        background: isCurrent ? 'var(--blue)' : isNext ? 'var(--red)' : 'var(--card-elevated)',
-        border: `2px solid ${isVisitedBorder(variant)}`,
+        background: bgColor,
+        border: borderStyle,
         boxShadow: isCurrent ? 'var(--glow-blue)' : isNext ? 'var(--glow-red)' : 'var(--shadow-pin)',
-        color: isCurrent || isNext ? 'var(--navy)' : 'var(--muted)',
+        color: glyphColor,
       }}>
         {isCurrent && (
           <span style={{
@@ -53,24 +87,19 @@ export function MapPin({
       {/* stem */}
       <span style={{
         width: 2, height: 8, marginTop: -4,
-        background: color, opacity: 0.7,
+        background: accentColor, opacity: 0.7,
       }} />
       {label && (
         <span style={{
           fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, textTransform: 'uppercase',
-          color: 'var(--cream)', whiteSpace: 'nowrap',
-          background: 'var(--navy)', padding: '1px 7px', borderRadius: 'var(--r-pill)',
-          border: `1px solid ${color}`,
+          color: isUpcoming ? 'var(--muted)' : 'var(--cream)', whiteSpace: 'nowrap',
+          background: isUpcoming ? 'transparent' : 'var(--navy)',
+          padding: '1px 7px', borderRadius: 'var(--r-pill)',
+          border: `1px solid ${accentColor}`,
         }}>{label}</span>
       )}
     </div>
   );
-}
-
-function isVisitedBorder(variant) {
-  if (variant === 'current') return 'var(--cream)';
-  if (variant === 'next') return 'var(--cream)';
-  return 'var(--hairline)';
 }
 
 export default MapPin;
