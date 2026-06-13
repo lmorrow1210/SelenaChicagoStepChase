@@ -8,6 +8,7 @@ import EmptyState from "@selenas-chase/design-system/components/feedback/EmptySt
 import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
+import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 
 type LandmarkState = "locked" | "unlocked" | "today";
@@ -91,7 +92,7 @@ export default function CityPage() {
           title="Sign in"
           body="The city dossier is waiting."
           action={
-            <a className="cityAction" href="/login">
+            <a className="cityAction" href={withBase("/login")}>
               Continue
             </a>
           }
@@ -112,7 +113,7 @@ export default function CityPage() {
           body={session.group ? "Try again in a minute." : "Create or join a team to unlock city landmarks."}
           action={
             session.group ? undefined : (
-              <a className="cityAction" href="/onboarding">
+              <a className="cityAction" href={withBase("/onboarding")}>
                 Start
               </a>
             )

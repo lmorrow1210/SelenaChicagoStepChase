@@ -1,0 +1,55 @@
+name: Deploy demo to GitHub Pages
+
+# Builds the static, backend-free demo of the web app (NEXT_PUBLIC_DEMO=1)
+# and publishes it to GitHub Pages. View-only — baked fixture data, no API.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow one concurrent deployment; don't cancel an in-progress one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_OUTPUT: export
+      NEXT_PUBLIC_DEMO: "1"
+      NEXT_PUBLIC_BASE_PATH: /SelenaChicagoStepChase
+      NEXT_PUBLIC_API_URL: https://example.invalid
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build static demo
+        run: npm run build -w apps/web
+      - name: Disable Jekyll (serve _next/)
+        run: touch apps/web/out/.nojekyll
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

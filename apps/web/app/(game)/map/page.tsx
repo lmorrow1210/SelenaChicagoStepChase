@@ -8,6 +8,7 @@ import EmptyState from "@selenas-chase/design-system/components/feedback/EmptySt
 import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
+import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { PredictionSection } from "./PredictionSection";
 
@@ -128,7 +129,7 @@ export default function MapPage() {
           title="Sign in"
           body="Selena is already moving."
           action={
-            <a className="mapAction" href="/login">
+            <a className="mapAction" href={withBase("/login")}>
               Continue
             </a>
           }
@@ -159,7 +160,7 @@ export default function MapPage() {
           title="No group yet"
           body="Create or join a team to start the chase."
           action={
-            <a className="mapAction" href="/onboarding">
+            <a className="mapAction" href={withBase("/onboarding")}>
               Start
             </a>
           }
@@ -213,7 +214,7 @@ export default function MapPage() {
                 {isPast ? (
                   <a
                     className="pinLink"
-                    href={`/city/${city.city_id}`}
+                    href={withBase(`/city/${city.city_id}`)}
                     aria-label={`${city.name} trophy view`}
                   >
                     {pin}

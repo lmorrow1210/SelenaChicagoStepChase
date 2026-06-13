@@ -3,6 +3,8 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "../../../lib/api";
+import { DEMO } from "../../../lib/demo";
+import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -39,11 +41,17 @@ export default function LoginPage() {
       <section className="loginPanel">
         <p className="eyebrow">Selena&apos;s Chase</p>
         <h1>Catch Selena</h1>
-        <a className="primaryAction" href={`${API}/api/auth/google`}>
-          Sign in with Google
-        </a>
+        {DEMO ? (
+          <a className="primaryAction" href={withBase("/map")}>
+            Enter the demo
+          </a>
+        ) : (
+          <a className="primaryAction" href={`${API}/api/auth/google`}>
+            Sign in with Google
+          </a>
+        )}
 
-        {SHOW_DEV_LOGIN && (
+        {!DEMO && SHOW_DEV_LOGIN && (
           <form className="devForm" onSubmit={devLogin}>
             <label>
               Email
