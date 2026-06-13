@@ -112,7 +112,7 @@ a219593 init: add docs and README
 ### Map + Leaderboard (M2)
 - `GET /api/weeks/current` — full composed payload: week, current/next city, route, progress strip, leaderboard (with delta vs last week), countdown, lastSyncedAt, state (in_progress / closing_soon / arrival).
 - `POST /api/sync/run` — rate-limited 1/10min, mock Fitbit client, runs unlock + bingo detection.
-- Map screen: route pins, group stats, progress strip, leaderboard, no-group empty state, lastSyncedAt pill.
+- Map screen: route pins (4 variants: current=blue glow, next=red, visited=gold-tinted, upcoming=ghost), group stats, progress strip, leaderboard, no-group empty state, lastSyncedAt pill. Each pin renders the city's landmark silhouette when available.
 
 ### City + Landmarks (M3)
 - `GET /api/cities/current` — city + 7 landmarks with states (locked/unlocked/today) + group workout status.
@@ -206,7 +206,7 @@ A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close 
 3. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026)**: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
 4. ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`; `DELETE /api/groups/me/members/:userId` with nemesis re-pair (leave re-pairs too); raw-hex CI gate; global reduced-motion kill rule; **past-city trophy view** (`GET /api/cities/:id` + `/city/[cityId]` page, visited map pins link to it); **OpenAPI 3.0 spec** (`apps/api/openapi.yaml`) + generated web types (`apps/web/lib/api-types.d.ts`, regenerate with `npm run gen:api-types -w apps/web`, CI fails on drift).
 5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
-6. **City icons — 30 SVGs from Gemini in progress** (June 2026): drop SVG files into `packages/design-system/components/game/city-icons/`, then run `node scripts/ingest-city-icons.mjs` — it normalises viewBox/colour/JSX attrs and inserts entries into `CityBadge.jsx` automatically. Currently 8 cities have art (Chicago, Tokyo, Cairo, Oslo, Lima, New York, Washington D.C., Los Angeles). Demo route: Chicago → New York → Washington D.C. → Los Angeles.
+6. ~~City icons — 30 SVGs from Gemini in progress~~ **DONE (June 2026)**: All 37 city landmark silhouettes hand-authored and integrated. Chicago, Tokyo, Cairo, Oslo, Lima (+ 32 more matched from Gemini images + spec list). Includes: Miami, Orlando, Charlotte, Indianapolis, San Francisco, Portland, Memphis, Nashville, Denver, Oklahoma City, St. Louis, Boston, Minneapolis, Las Vegas, New Orleans, Atlanta, Detroit, Pittsburgh, Houston, Phoenix, Philadelphia, San Antonio, Salt Lake City, Santa Fe, Honolulu, Anchorage, Austin, San Diego, Seattle (Space Needle fixed). Each icon targets a single landmark silhouette that reads clearly at 24–50 px. Slug alias map handles "New York City" → "newyork". Demo route: Chicago → New York → Washington D.C. → Los Angeles.
 
 ---
 

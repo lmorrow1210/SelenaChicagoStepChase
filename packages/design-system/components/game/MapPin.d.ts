@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 export interface MapPinProps {
-  /** 'current' glowing blue pulse, 'next' red (Selena ahead), 'visited' dim. */
-  variant?: 'current' | 'next' | 'visited';
+  /** 'current' blue glow, 'next' red (Selena ahead), 'visited' gold-tinted, 'upcoming' ghost. */
+  variant?: 'current' | 'next' | 'visited' | 'upcoming';
   /** Optional city name pill under the pin. */
   label?: string;
   /** City name used to pick the landmark silhouette (falls back to a glyph). */
