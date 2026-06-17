@@ -107,7 +107,33 @@ a219593 init: add docs and README
 - All game components migrated from `window.React` / `window.DesignSystem_19034b` shim to ESM imports + default exports: `Button`, `Input`, `EmptyState`, `Skeleton`, `Avatar`, `MapPin`, `ProgressStrip`, `LandmarkTile`, `CityBadge`, `PredictionCard`, `BingoTile`, `Sidebar`, `TabBar`, `Icon`, `SkyscraperPair`, `StatCard`, `Badge`, `Slider`.
 - **Not yet migrated: `Card`, `CountdownPill`** (still on `window.*` — nothing imports them; migrate when first used). `Toast` was migrated for M9.
 - `SkyscraperPair` gained an optional `max` prop — normalizes tower heights to a supplied value (the Nemesis screen passes group `weekMax`) instead of the pair max.
-- Fonts via `next/font/google` (Barlow Condensed, DM Sans, DM Mono). `@import` removed from design-system.
+
+### Design-system v2 — "vintage detective" re-skin (June 2026)
+The whole app was re-skinned to the Claude Design v2 system (Carmen
+Sandiego / vintage-detective aesthetic). Source export lives in `SelenaDesign/`.
+- **Tokens** (`packages/design-system/tokens/`): v2 palette — `--tobacco`/`--felt`/
+  `--mahogany` surfaces, `--parchment`/`--linen`/`--dust` text, `--selena`
+  (Chicago sky blue) accent, `--gold`/`--brick`/`--slate`, plus CRT (`--crt-*`)
+  and putty-casing (`--casing-*`) tokens for the sidebar. **Hard-edge chrome**:
+  all radii are `0` except `--r-avatar` (50%); bevel border-color shorthands
+  (`--bevel-raised`/`--bevel-inset`) and hard-offset shadows replace soft blurs.
+- **Legacy aliases**: `colors.css` maps every v1 token to a v2 value
+  (`--navy`→tobacco, `--blue`→selena, `--cream`→parchment, `--red`→brick, etc.),
+  and `base.css` keeps the `sc-pulse-blue` keyframe alias. This is why the ~50
+  components/pages that still reference v1 token names re-skinned automatically —
+  **do not remove the alias block.** New code should prefer the v2 names.
+- **Fonts** via `next/font/google`: **Press Start 2P** (`--font-display`, pixel,
+  weight 400 only), **Barlow Condensed** (`--font-body`), **VT323** (`--font-mono`,
+  CRT). `@import` removed; loaded in `apps/web/app/layout.tsx`.
+- **Components ported to v2** (visuals): `TabBar`/`Sidebar` (spy-terminal + bevel
+  chrome; NAV preserves Prediction-on-Map + "Destination" tab), `BingoTile`,
+  `ProgressStrip`, `MapPin` (merged with the current/next/visited/upcoming
+  variants + `cityName` silhouettes), `CityBadge` (bevel quality rings; keeps all
+  38 landmark icons + `getCityIcon()`).
+- **A11y**: re-ran the contrast audit under the new palette (`scripts/contrast-audit.mjs`,
+  30/30 AA pass). Lightened `--dust` (#8A7050→#AD8C64) and `--crt-dim`
+  (#1A7A1A→#229F22); BingoTile free space is Selena-blue with a tobacco glyph.
+  Re-added the M9 reduced-motion global kill block that the v2 export had dropped.
 
 ### Map + Leaderboard (M2)
 - `GET /api/weeks/current` — full composed payload: week, current/next city, route, progress strip, leaderboard (with delta vs last week), countdown, lastSyncedAt, state (in_progress / closing_soon / arrival).
@@ -206,7 +232,8 @@ A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close 
 3. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026)**: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
 4. ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`; `DELETE /api/groups/me/members/:userId` with nemesis re-pair (leave re-pairs too); raw-hex CI gate; global reduced-motion kill rule; **past-city trophy view** (`GET /api/cities/:id` + `/city/[cityId]` page, visited map pins link to it); **OpenAPI 3.0 spec** (`apps/api/openapi.yaml`) + generated web types (`apps/web/lib/api-types.d.ts`, regenerate with `npm run gen:api-types -w apps/web`, CI fails on drift).
 5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
-6. ~~City icons — 30 SVGs from Gemini in progress~~ **DONE (June 2026)**: All 37 city landmark silhouettes hand-authored and integrated. Chicago, Tokyo, Cairo, Oslo, Lima (+ 32 more matched from Gemini images + spec list). Includes: Miami, Orlando, Charlotte, Indianapolis, San Francisco, Portland, Memphis, Nashville, Denver, Oklahoma City, St. Louis, Boston, Minneapolis, Las Vegas, New Orleans, Atlanta, Detroit, Pittsburgh, Houston, Phoenix, Philadelphia, San Antonio, Salt Lake City, Santa Fe, Honolulu, Anchorage, Austin, San Diego, Seattle (Space Needle fixed). Each icon targets a single landmark silhouette that reads clearly at 24–50 px. Slug alias map handles "New York City" → "newyork". Demo route: Chicago → New York → Washington D.C. → Los Angeles.
+6. ~~City icons — 30 SVGs from Gemini in progress~~ **DONE (June 2026)**: 38 city landmark silhouettes hand-authored and integrated (37 US + Reykjavik for the seeded route). Chicago, Tokyo, Cairo, Oslo, Lima, Reykjavik (+ matched US cities): Miami, Orlando, Charlotte, Indianapolis, San Francisco, Portland, Memphis, Nashville, Denver, Oklahoma City, St. Louis, Boston, Minneapolis, Las Vegas, New Orleans, Atlanta, Detroit, Pittsburgh, Houston, Phoenix, Philadelphia, San Antonio, Salt Lake City, Santa Fe, Honolulu, Anchorage, Austin, San Diego, Seattle. Each targets a single landmark silhouette readable at 24–50 px. Slug alias map handles "New York City" → "newyork". All seeded + demo-route cities covered. Demo route: Chicago → New York → Washington D.C. → Los Angeles.
+7. **v2 re-skin — visual polish pass needed (June 2026)** (eyes-on, do with the rendered app): the v2 token+font swap re-skinned every screen, but only 6 components were structurally ported. The other components (`LandmarkTile`, `PredictionCard`, `SkyscraperPair`, `StatCard`, `Badge`, `Card`, `Button`, `Input`, `Slider`, `Avatar`, `EmptyState`, `Skeleton`, `Toast`) and page-level headings still use **v1 type sizes** that assumed the narrow Barlow display font. **Press Start 2P is much wider**, so large display sizes (e.g. PredictionCard headline 30px, "Locked in!" 28px, EmptyState title 26px, page `<h1>`s) likely render oversized / overflow and need resizing down to the v2 scale (display 24/18/14/11px). Also sanity-check long city names in CityBadge / MapPin labels (pixel font + `nowrap`). None of this is verifiable without a browser — it was deliberately left for a screenshot-driven pass.
 
 ---
 
@@ -319,3 +346,6 @@ which is automatable from this machine alone.
 - There is no `--red-20` or `--scrim` token. Use `--red-12` for tinted red backgrounds and `color-mix(in srgb, var(--navy) 70%, transparent)` for modal scrims (`--card-elevated` for the modal surface, `--z-overlay` for z-index).
 - `nemesis_matchups` bye convention: **no row** for the bye player. `GET /api/nemesis/current` distinguishes `bye` (≥2 members, no row) from `no_matchup` (<2 members).
 - Reroll swaps you with the bye player; your old opponent becomes the bye. In an even-sized group with no bye it 409s `REROLL_UNAVAILABLE`.
+- **v2 tokens**: don't remove the "Legacy aliases" block in `colors.css` (it's what lets v1-named references re-skin) or the `sc-pulse-blue` keyframe alias in `base.css`. All radii are `0` except `--r-avatar` — square corners are intentional. Shadows are hard offsets (`Xpx Ypx 0 0 var(--bevel-lo)`), not blurs; `--glow-*` are now hard offsets too.
+- **v2 fonts**: `--font-display` is **Press Start 2P, weight 400 only** — never set `fontWeight` on it (faux-bold smears the pixels). It's a wide pixel font; keep display sizes small (≤24px) or text overflows. `--font-mono` (VT323) is designed for ≥24px.
+- **A11y gate**: run `node scripts/contrast-audit.mjs` after any token/color change — it checks WCAG AA for every text/surface pair the UI uses. Currently 30/30 pass; `--dust` and `--crt-dim` are tuned to the minimum that clears 4.5:1, so don't darken them.
