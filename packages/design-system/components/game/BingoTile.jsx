@@ -18,9 +18,9 @@ export function BingoTile({
   const complete = state === 'complete' || free;
   const progress = state === 'progress';
 
-  /* Background surface */
+  /* Background surface — free space is Selena's bright sky-blue center */
   const bg =
-    free      ? 'var(--selena-deep)' :
+    free      ? 'var(--selena)'      :
     complete  ? 'var(--tobacco)'     :
     progress  ? 'var(--felt)'        :
     'var(--felt)';
@@ -29,19 +29,19 @@ export function BingoTile({
   const borderColor =
     complete  ? 'var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)' :  /* inset — stamped */
     progress  ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)'     :  /* selena raised */
-    free      ? 'var(--selena) var(--selena-deep) var(--selena-deep) var(--selena)' :
+    free      ? 'var(--selena-dark) var(--selena-deep) var(--selena-deep) var(--selena-dark)' :
     highlight ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)'     :
     'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)';              /* default raised */
 
-  /* Icon & text color */
+  /* Icon & text color — tobacco glyph on the bright free tile (7.99:1) */
   const fg =
-    free     ? 'var(--selena)'    :
+    free     ? 'var(--tobacco)'   :
     complete ? 'var(--dust)'      :
     progress ? 'var(--selena)'    :
     'var(--dust)';
 
   const textColor =
-    free     ? 'var(--parchment)'  :
+    free     ? 'var(--tobacco)'    :
     complete ? 'var(--dust)'       :
     progress ? 'var(--parchment)'  :
     'var(--dust)';

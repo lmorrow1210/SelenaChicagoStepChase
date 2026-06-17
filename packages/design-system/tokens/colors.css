@@ -16,7 +16,7 @@
   /* ---- Text — aged paper ---- */
   --parchment:  #E8D9B0;  /* primary text */
   --linen:      #C8B888;  /* secondary text */
-  --dust:       #8A7050;  /* muted / disabled */
+  --dust:       #AD8C64;  /* muted text — lightened from #8A7050 (3.3:1, WCAG fail) to ≥4.5:1 on tobacco/felt/mahogany (a11y gate) */
 
   /* ---- Bevel chrome — hard-edge raised/inset panels ---- */
   /* Usage: border: 2px solid; border-color: var(--bevel-raised); */
@@ -55,9 +55,12 @@
 
   /* ---- Map illustrated palette ---- */
   --map-ocean:      #1A3050;
+  --map-ocean-2:    #234A70;  /* lighter ocean band for gradients (login/map bg) */
   --map-land-green: #3E5C30;
+  --map-land-teal:  #2E6258;  /* muted teal landmass (city pages, LandmarkTile) */
   --map-land-tan:   #8A6E40;
   --map-land-warm:  #7A5230;
+  --map-land-sage:  #5E7A4A;  /* muted sage landmass (city pages) */
   --map-route:      var(--selena);
 
   /* ---- Sidebar / CRT terminal ---- */
@@ -67,7 +70,7 @@
   --casing-mid: #A89878;  /* nameplate, recessed panel surface */
   --crt-bg:     #060E05;  /* phosphor screen background */
   --crt-hi:     #44FF44;  /* active phosphor text */
-  --crt-dim:    #1A7A1A;  /* inactive phosphor text */
+  --crt-dim:    #229F22;  /* inactive phosphor text — lightened from #1A7A1A (3.6:1) to ≥4.5:1 on crt-bg (a11y gate) */
   --crt-row:    #0A2A0A;  /* selected row highlight */
 
   /* ---- World map asset ---- */
