@@ -44,7 +44,7 @@ export function LandmarkTile({
       <div style={{ padding: '10px 12px', background: isUnlocked ? 'var(--card)' : 'transparent' }}>
         {isUnlocked ? (
           <>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, textTransform: 'uppercase', color: 'var(--cream)' }}>{name}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', color: 'var(--cream)' }}>{name}</div>
             {fact && <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>{fact}</div>}
           </>
         ) : (

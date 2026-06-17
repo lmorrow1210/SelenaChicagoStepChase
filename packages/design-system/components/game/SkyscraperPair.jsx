@@ -47,7 +47,7 @@ function Tower({ side, label, pct, win, color, animate }) {
         </div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, textTransform: 'uppercase', color: 'var(--cream)' }}>{label}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, textTransform: 'uppercase', color: 'var(--cream)' }}>{label}</div>
       </div>
       <style>{`@keyframes sc-bounce-up{0%{height:0}70%{height:calc(${Math.max(8, Math.min(100, pct))}% + 10px)}100%{height:${Math.max(8, Math.min(100, pct))}%}}`}</style>
     </div>
@@ -75,7 +75,7 @@ export function SkyscraperPair({
       <Tower side="you" label={you.label} pct={youPct}
         win={result === 'you' || result === 'tie'} color="var(--blue)" animate={animate} />
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 90, color: 'var(--muted)' }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18 }}>VS</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>VS</span>
       </div>
       <Tower side="nemesis" label={nemesis.label} pct={nemPct}
         win={result === 'nemesis' || result === 'tie'} color="var(--red)" animate={animate} />

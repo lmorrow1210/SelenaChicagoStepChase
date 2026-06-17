@@ -52,7 +52,7 @@ export function PredictionCard({
         {!submitted ? (
           <>
             <h2 style={{
-              margin: 0, maxWidth: 340, fontFamily: 'var(--font-display)', fontWeight: 700,
+              margin: 0, maxWidth: 340, fontFamily: 'var(--font-display)',
               fontSize: 30, lineHeight: 1.05, textTransform: 'uppercase', color: 'var(--cream)',
             }}>{headline}</h2>
             <Input variant="numeric" suffix="steps" placeholder="0" value={value} onChange={onChange} />
@@ -65,7 +65,7 @@ export function PredictionCard({
             <span style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: '50%', background: 'var(--gold)', color: 'var(--navy)', animation: 'sc-bounce-in var(--dur-skyline) var(--ease-spring) both' }}>
               <Icon name="check" size={28} strokeWidth={3} />
             </span>
-            <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 28, textTransform: 'uppercase', color: 'var(--cream)' }}>Locked in!</h2>
+            <h2 style={{ margin: '6px 0 0', fontFamily: 'var(--font-display)', fontSize: 28, textTransform: 'uppercase', color: 'var(--cream)' }}>Locked in!</h2>
             <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--cream)' }}>
               You predicted <b style={{ fontFamily: 'var(--font-mono)', color: 'var(--blue)' }}>{prediction}</b> steps. See you Sunday.
             </p>

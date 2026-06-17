@@ -19,7 +19,7 @@ export function EmptyState({ icon = 'globe', title, body, action, accent = 'var(
         <Icon name={icon} size={34} strokeWidth={1.8} />
       </div>
       {title && <h3 style={{
-        margin: 0, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26,
+        margin: 0, fontFamily: 'var(--font-display)', fontSize: 26,
         textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--cream)',
       }}>{title}</h3>}
       {body && <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.5, color: 'var(--muted)' }}>{body}</p>}
