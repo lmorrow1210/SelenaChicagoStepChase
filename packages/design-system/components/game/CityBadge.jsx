@@ -123,6 +123,30 @@ const CITY_ICONS = {
     </svg>
   ),
 
+  reykjavik: ({ color }) => (
+    /* Hallgrímskirkja — expressionist church with stepped basalt-column wings */
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      {/* Spire */}
+      <polygon points="24,3 21,12 27,12" fill={color} />
+      {/* Central tower */}
+      <rect x="21" y="11" width="6" height="31" fill={color} rx="0.3" />
+      {/* Stepped wings — left (rising toward center) */}
+      <rect x="18" y="20" width="3" height="22" fill={color} rx="0.3" />
+      <rect x="15" y="26" width="3" height="16" fill={color} rx="0.3" />
+      <rect x="12" y="31" width="3" height="11" fill={color} rx="0.3" />
+      <rect x="9"  y="35" width="3" height="7"  fill={color} rx="0.3" />
+      {/* Stepped wings — right */}
+      <rect x="27" y="20" width="3" height="22" fill={color} rx="0.3" />
+      <rect x="30" y="26" width="3" height="16" fill={color} rx="0.3" />
+      <rect x="33" y="31" width="3" height="11" fill={color} rx="0.3" />
+      <rect x="36" y="35" width="3" height="7"  fill={color} rx="0.3" />
+      {/* Doorway cutout */}
+      <rect x="22.5" y="34" width="3" height="8" fill="var(--tobacco)" opacity="0.45" />
+      {/* Ground */}
+      <rect x="7" y="42" width="34" height="2" fill={color} rx="0.5" />
+    </svg>
+  ),
+
   newyork: ({ color }) => (
     /* Statue of Liberty + Empire State Building + skyline */
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
