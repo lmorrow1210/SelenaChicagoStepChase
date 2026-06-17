@@ -52,3 +52,5 @@ jobs:
             echo '::error::Raw hex color in app code — use a design-system token via var(--…)'
             exit 1
           fi
+      - name: WCAG contrast audit (v2 palette)
+        run: node scripts/contrast-audit.mjs
