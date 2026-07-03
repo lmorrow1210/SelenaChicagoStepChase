@@ -225,6 +225,45 @@ A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close 
 
 ---
 
+### M10 "Field Ops" — merged screen + scout economy (July 2026, addendum)
+The One Step Ahead master brief + addendum landed a full rebrand, the
+"Midnight Dossier" visual system, and a gameplay re-architecture:
+- **Rebrand**: One Step Ahead / The Search for Selena Chicago ("She's
+  always one step ahead."). Package scope @one-step-ahead/*; CI DB
+  one_step_ahead_test. GitHub repo/folder name + Pages basePath still
+  SelenaChicagoStepChase (rename together when ready).
+- **Nav is 4 screens**: Map · Field Ops · Prediction · Nemesis.
+  /fieldops merges City+Bingo (Ops Board = cause, recon Trail =
+  effect; drone animation on new lines). /bingo + /city redirect;
+  /city/[id] trophies remain. Prediction is standalone again.
+- **Scout economy** (migration 004 + scoutService): 5 recon landmarks
+  per city, always ONE CITY AHEAD (getReconCity wraps the route).
+  BINGO lines = scout tokens; team unlocks pace ≤1/day with
+  per-player caps (2 for ≥3 groups, 3 for pairs, uncapped solo);
+  overflow beyond 5 → forecast-edge bonus. The old
+  all-members-worked-out unlock rule is retired from sync/cron
+  (services/unlocks.ts is now unused by the pipeline).
+- **Objective pool = 52** (13 honor-system) across
+  steps/workout/sleep/heart/social/wildcard/strength/cardio/recovery/
+  hydration. Weekly cards are a SHARED base (seededRand(weekId)) with
+  per-player accessibility substitutions (users.objective_prefs +
+  groups.disabled_categories; onboarding "objectives" step + profile
+  admin toggles).
+- **Intel Wallet** (/wallet, GET /api/fieldops/wallet): the scout who
+  pops a landmark keeps the card; revisits mint a CONFIRMED holo
+  variant. **Gift-a-Tile** (POST /api/fieldops/gift): 2 assists/week,
+  giver must have completed the tile. **Honor tiles** (POST
+  /api/fieldops/honor): dashed-ring mark, tap to self-report.
+- Tests: 56 green incl. test/scout.integration.test.ts (pacing, caps,
+  shared cards, substitutions, gifts, honor, intel cards).
+- **Known gaps**: openapi.yaml doesn't yet describe the /api/fieldops
+  routes (the CI drift gate only checks generated types vs the spec,
+  so it passes — add them before deploy). New auto detectors
+  steps_before/steps_after/workout_day_streak/sleep_nights stay
+  incomplete until the Health API intraday context is wired
+  (documented in services/bingo.ts). Prediction range-chart labels
+  can still overlap when three calls sit within a few px.
+
 ## What is NOT done — next tasks in priority order
 
 1. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
