@@ -6,7 +6,7 @@ import {
   evaluateDetector,
   type DetectorContext,
 } from "./bingo.js";
-import type { BingoTile } from "@selenas-chase/shared";
+import type { BingoTile } from "@one-step-ahead/shared";
 
 /** Persist a new bingo card for a user+week if one doesn't already exist. */
 export async function createOrGetBingoCard(

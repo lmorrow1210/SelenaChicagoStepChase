@@ -1,5 +1,5 @@
 {
-  "name": "@selenas-chase/design-system",
+  "name": "@one-step-ahead/design-system",
   "private": true,
   "exports": {
     "./styles.css": "./styles.css",

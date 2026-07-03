@@ -20,7 +20,7 @@ export interface ButtonProps {
 }
 
 /**
- * Pill button for Selena's Chase.
+ * Pill button for One Step Ahead.
  * @startingPoint section="Core" subtitle="Primary, secondary, danger & ghost buttons" viewport="700x200"
  */
 export function Button(props: ButtonProps): JSX.Element;

@@ -3,7 +3,7 @@ import { pool } from "../db/pool.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 import { createOrGetBingoCard } from "../services/bingoService.js";
-import type { BingoTile } from "@selenas-chase/shared";
+import type { BingoTile } from "@one-step-ahead/shared";
 
 export const bingoRouter = Router();
 bingoRouter.use(requireAuth);

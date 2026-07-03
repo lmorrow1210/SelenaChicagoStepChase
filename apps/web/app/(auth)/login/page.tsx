@@ -39,7 +39,7 @@ export default function LoginPage() {
   return (
     <main className="loginPage">
       <section className="loginPanel">
-        <p className="eyebrow">Selena&apos;s Chase</p>
+        <p className="eyebrow">One Step Ahead</p>
         <h1>Catch Selena</h1>
         {DEMO ? (
           <a className="primaryAction" href={withBase("/map")}>

@@ -1,4 +1,4 @@
-import { FREE_SPACE_INDEX, type BingoTile } from "@selenas-chase/shared";
+import { FREE_SPACE_INDEX, type BingoTile } from "@one-step-ahead/shared";
 
 // Bingo engine (plan M5): line detection over a 5×5 row-major card
 // (5 rows + 5 cols + 2 diagonals) and detector-JSON evaluation.

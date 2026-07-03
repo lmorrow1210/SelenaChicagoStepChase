@@ -1,5 +1,5 @@
 {
-  "name": "@selenas-chase/api",
+  "name": "@one-step-ahead/api",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@selenas-chase/shared": "*",
+    "@one-step-ahead/shared": "*",
     "cookie-parser": "^1.4.6",
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",

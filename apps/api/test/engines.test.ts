@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { BingoTile } from "@selenas-chase/shared";
+import type { BingoTile } from "@one-step-ahead/shared";
 import { scorePredictions } from "../src/services/prediction.js";
 import { countBingoLines, isBlackout, generateCard, evaluateDetector } from "../src/services/bingo.js";
 import { decideDay, weekOutcome, pairPlayers } from "../src/services/nemesis.js";

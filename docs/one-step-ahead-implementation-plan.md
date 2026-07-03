@@ -1,6 +1,6 @@
-# Selena's Chase — Implementation Plan v1.0
+# One Step Ahead — Implementation Plan v1.0
 
-Phased execution roadmap for CodEx. Source of truth: `selenas-chase-spec.md` (product) and `selenas-chase-design-system-prompt.md` + design-system bundle (`styles.css`, `_ds_bundle.js`, `components/`) for all visual decisions. Nothing below overrides the spec; the two places where this plan proposes a change are explicitly flagged with **⚠ PROPOSED CHANGE**.
+Phased execution roadmap for CodEx. Source of truth: `one-step-ahead-spec.md` (product) and `one-step-ahead-design-system-prompt.md` + design-system bundle (`styles.css`, `_ds_bundle.js`, `components/`) for all visual decisions. Nothing below overrides the spec; the two places where this plan proposes a change are explicitly flagged with **⚠ PROPOSED CHANGE**.
 
 ---
 
@@ -108,7 +108,7 @@ Copy-paste-ready SQL. Run as migration `001_init.sql`, then `002_seed_cities.sql
 
 ```sql
 -- ============================================================
--- 001_init.sql — Selena's Chase schema (PostgreSQL 16)
+-- 001_init.sql — One Step Ahead schema (PostgreSQL 16)
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()

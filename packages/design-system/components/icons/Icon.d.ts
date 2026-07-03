@@ -19,7 +19,7 @@ export interface IconProps extends React.SVGAttributes<SVGElement> {
 }
 
 /**
- * Selena's Chase icon set — 24px grid, 2px stroke, rounded caps.
+ * One Step Ahead icon set — 24px grid, 2px stroke, rounded caps.
  * Color via currentColor: --cream default, --blue active.
  */
 export function Icon(props: IconProps): JSX.Element;

@@ -1,4 +1,4 @@
-# Selena's Chase — Product Spec v1
+# One Step Ahead — Product Spec v1
 
 A web-first (mobile-responsive) fitness social game powered by the Google Health API (Fitbit data). Players chase the villain Selena Chicago around the world, competing and collaborating on weekly fitness goals.
 

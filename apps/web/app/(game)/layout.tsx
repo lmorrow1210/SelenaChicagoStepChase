@@ -1,8 +1,8 @@
 "use client";
 
-import Avatar from "@selenas-chase/design-system/components/game/Avatar";
-import Sidebar from "@selenas-chase/design-system/components/navigation/Sidebar";
-import TabBar from "@selenas-chase/design-system/components/navigation/TabBar";
+import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
+import Sidebar from "@one-step-ahead/design-system/components/navigation/Sidebar";
+import TabBar from "@one-step-ahead/design-system/components/navigation/TabBar";
 import { usePathname, useRouter } from "next/navigation";
 
 const GAME_SECTIONS = ["map", "city", "bingo", "nemesis", "profile"] as const;

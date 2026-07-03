@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { INVITE_CODE_CHARSET } from "@selenas-chase/shared";
+import { INVITE_CODE_CHARSET } from "@one-step-ahead/shared";
 import { generateInviteCode } from "../src/lib/inviteCode.js";
 import { encryptToken, decryptToken } from "../src/lib/crypto.js";
 import { signSession, verifySession } from "../src/lib/session.js";

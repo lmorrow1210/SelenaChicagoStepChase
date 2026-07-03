@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { updateMeSchema } from "@selenas-chase/shared";
+import { updateMeSchema } from "@one-step-ahead/shared";
 import { pool } from "../db/pool.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";

@@ -1,4 +1,4 @@
-The game group — the gameplay primitives unique to Selena's Chase.
+The game group — the gameplay primitives unique to One Step Ahead.
 
 ```jsx
 <Avatar size={40} colorway="chicago" />

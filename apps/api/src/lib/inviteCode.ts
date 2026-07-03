@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { INVITE_CODE_CHARSET } from "@selenas-chase/shared";
+import { INVITE_CODE_CHARSET } from "@one-step-ahead/shared";
 
 export function generateInviteCode(): string {
   let code = "";

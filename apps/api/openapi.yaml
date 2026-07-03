@@ -1,6 +1,6 @@
 openapi: "3.0.3"
 info:
-  title: Selena's Chase API
+  title: One Step Ahead API
   description: >
     Multiplayer step-tracking game API. Behavior is normative in
     docs/implementation-plan.md §3; this document is normative for shapes.

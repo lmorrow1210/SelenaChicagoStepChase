@@ -4,12 +4,12 @@ import Avatar, {
   COLORWAYS,
   SKIN_TONES,
   HAIR_COLORS,
-} from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import Button from "@selenas-chase/design-system/components/core/Button";
-import Slider from "@selenas-chase/design-system/components/forms/Slider";
-import Input from "@selenas-chase/design-system/components/forms/Input";
-import Icon from "@selenas-chase/design-system/components/icons/Icon";
+} from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import Button from "@one-step-ahead/design-system/components/core/Button";
+import Slider from "@one-step-ahead/design-system/components/forms/Slider";
+import Input from "@one-step-ahead/design-system/components/forms/Input";
+import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -406,7 +406,7 @@ export default function OnboardingStepPage() {
     return (
       <main style={page}>
         <section style={panel}>
-          <p style={eyebrow}>Selena&apos;s Chase</p>
+          <p style={eyebrow}>One Step Ahead</p>
           <h1 style={heading}>Sign in first</h1>
           <Button fullWidth onClick={() => router.push("/login")}>
             Continue

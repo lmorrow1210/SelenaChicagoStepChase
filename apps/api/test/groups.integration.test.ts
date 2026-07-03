@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
-import { INVITE_CODE_CHARSET } from "@selenas-chase/shared";
+import { INVITE_CODE_CHARSET } from "@one-step-ahead/shared";
 import type { app as expressApp } from "../src/index.js";
 import type { pool as appPool } from "../src/db/pool.js";
 import type { signSession as signSessionFn } from "../src/lib/session.js";

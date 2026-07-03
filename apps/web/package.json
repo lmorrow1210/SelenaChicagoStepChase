@@ -1,5 +1,5 @@
 {
-  "name": "@selenas-chase/web",
+  "name": "@one-step-ahead/web",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,8 +8,8 @@
     "gen:api-types": "openapi-typescript ../api/openapi.yaml -o lib/api-types.d.ts"
   },
   "dependencies": {
-    "@selenas-chase/design-system": "*",
-    "@selenas-chase/shared": "*",
+    "@one-step-ahead/design-system": "*",
+    "@one-step-ahead/shared": "*",
     "@tanstack/react-query": "^5.51.0",
     "next": "^14.2.5",
     "react": "^18.3.1",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, Barlow_Condensed, VT323 } from "next/font/google";
-import "@selenas-chase/design-system/styles.css";
+import "@one-step-ahead/design-system/styles.css";
 import { Providers } from "./providers";
 
 // v2 vintage-detective type stack:
@@ -26,8 +26,13 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "Selena's Chase",
-  description: "Catch Selena. One city a week.",
+  title: "One Step Ahead — The Search for Selena Chicago",
+  description: "She's always one step ahead.",
+  openGraph: {
+    title: "One Step Ahead",
+    description: "The Search for Selena Chicago — she's always one step ahead.",
+    siteName: "One Step Ahead",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

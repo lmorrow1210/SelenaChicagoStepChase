@@ -1,6 +1,6 @@
-# Selena's Chase — Implementation Plan v1.0
+# One Step Ahead — Implementation Plan v1.0
 
-Phased execution roadmap. Source of truth: `selenas-chase-spec.md` (product) and `selenas-chase-design-system-prompt.md` + design-system bundle (`SelenaDesign/`: `styles.css`, `_ds_bundle.js`, `components/`) for all visual decisions. Nothing below overrides the spec; the two places where this plan proposes a change are explicitly flagged with **⚠ PROPOSED CHANGE**.
+Phased execution roadmap. Source of truth: `one-step-ahead-spec.md` (product) and `one-step-ahead-design-system-prompt.md` + design-system bundle (`SelenaDesign/`: `styles.css`, `_ds_bundle.js`, `components/`) for all visual decisions. Nothing below overrides the spec; the two places where this plan proposes a change are explicitly flagged with **⚠ PROPOSED CHANGE**.
 
 ---
 

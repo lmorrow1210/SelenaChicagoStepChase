@@ -1,12 +1,12 @@
 "use client";
 
-import SkyscraperPair from "@selenas-chase/design-system/components/game/SkyscraperPair";
-import Avatar from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import Button from "@selenas-chase/design-system/components/core/Button";
-import EmptyState from "@selenas-chase/design-system/components/feedback/EmptyState";
-import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
-import Icon from "@selenas-chase/design-system/components/icons/Icon";
+import SkyscraperPair from "@one-step-ahead/design-system/components/game/SkyscraperPair";
+import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import Button from "@one-step-ahead/design-system/components/core/Button";
+import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
+import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
+import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../../lib/api";
 import { useSession } from "../../../lib/session";

@@ -4,14 +4,14 @@ import Avatar, {
   COLORWAYS,
   SKIN_TONES,
   HAIR_COLORS,
-} from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import StatCard from "@selenas-chase/design-system/components/core/StatCard";
-import Badge from "@selenas-chase/design-system/components/core/Badge";
-import Button from "@selenas-chase/design-system/components/core/Button";
-import Slider from "@selenas-chase/design-system/components/forms/Slider";
-import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
-import Icon from "@selenas-chase/design-system/components/icons/Icon";
+} from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import StatCard from "@one-step-ahead/design-system/components/core/StatCard";
+import Badge from "@one-step-ahead/design-system/components/core/Badge";
+import Button from "@one-step-ahead/design-system/components/core/Button";
+import Slider from "@one-step-ahead/design-system/components/forms/Slider";
+import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
+import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

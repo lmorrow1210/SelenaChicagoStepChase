@@ -1,8 +1,8 @@
 "use client";
 
-import Avatar from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import PredictionCard from "@selenas-chase/design-system/components/game/PredictionCard";
+import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import PredictionCard from "@one-step-ahead/design-system/components/game/PredictionCard";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useState } from "react";
 import { api, ApiError } from "../../../lib/api";

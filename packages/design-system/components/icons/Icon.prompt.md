@@ -1,4 +1,4 @@
-Renders a single icon from the Selena's Chase set (24px grid, 2px stroke, rounded caps); use anywhere you need a nav, stat, or UI glyph.
+Renders a single icon from the One Step Ahead set (24px grid, 2px stroke, rounded caps); use anywhere you need a nav, stat, or UI glyph.
 
 ```jsx
 <Icon name="map" size={24} />

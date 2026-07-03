@@ -1,6 +1,6 @@
-# Selena's Chase — Design System
+# One Step Ahead — Design System
 
-A complete design system for **Selena's Chase**, a web-first (mobile-responsive)
+A complete design system for **One Step Ahead**, a web-first (mobile-responsive)
 fitness social game. Players connect their Fitbit data and chase a globe-trotting
 villain named **Selena Chicago** around the world — competing on weekly step counts
 and unlocking cities together across five screens: **Map, Prediction, City, Bingo,

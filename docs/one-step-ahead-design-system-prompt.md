@@ -1,8 +1,8 @@
-# Design System Brief: Selena's Chase
+# Design System Brief: One Step Ahead
 
 ## What you're designing
 
-A complete design system for **Selena's Chase** — a web-first (mobile-responsive) fitness social game. Players connect their Fitbit data and chase a globe-trotting villain named Selena Chicago around the world, competing on weekly step counts and unlocking cities together.
+A complete design system for **One Step Ahead** — a web-first (mobile-responsive) fitness social game. Players connect their Fitbit data and chase a globe-trotting villain named Selena Chicago around the world, competing on weekly step counts and unlocking cities together.
 
 The app has 5 screens: Map, Prediction, City, Bingo, Nemesis. It is built in React / Next.js. The design system should produce all tokens, components, and guidelines needed to hand off to a developer.
 

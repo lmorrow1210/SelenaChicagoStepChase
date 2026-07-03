@@ -1,10 +1,10 @@
 "use client";
 
-import { BingoTile } from "@selenas-chase/design-system/components/game/BingoTile";
-import Avatar from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import EmptyState from "@selenas-chase/design-system/components/feedback/EmptyState";
-import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
+import { BingoTile } from "@one-step-ahead/design-system/components/game/BingoTile";
+import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
+import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";

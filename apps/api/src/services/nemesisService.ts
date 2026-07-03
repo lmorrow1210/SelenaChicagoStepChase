@@ -1,6 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 import { decideDay, tallyScore, weekOutcome, pairPlayers } from "./nemesis.js";
-import type { NemesisDayResult } from "@selenas-chase/shared";
+import type { NemesisDayResult } from "@one-step-ahead/shared";
 
 type Db = Pool | PoolClient;
 

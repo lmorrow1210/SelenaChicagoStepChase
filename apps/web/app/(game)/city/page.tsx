@@ -1,11 +1,11 @@
 "use client";
 
-import Avatar from "@selenas-chase/design-system/components/game/Avatar";
-import type { ColorwayId } from "@selenas-chase/design-system/components/game/Avatar";
-import CityBadge from "@selenas-chase/design-system/components/game/CityBadge";
-import LandmarkTile from "@selenas-chase/design-system/components/game/LandmarkTile";
-import EmptyState from "@selenas-chase/design-system/components/feedback/EmptyState";
-import Skeleton from "@selenas-chase/design-system/components/feedback/Skeleton";
+import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
+import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
+import CityBadge from "@one-step-ahead/design-system/components/game/CityBadge";
+import LandmarkTile from "@one-step-ahead/design-system/components/game/LandmarkTile";
+import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
+import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";

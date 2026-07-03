@@ -1,5 +1,5 @@
 {
-  "name": "selenas-chase",
+  "name": "one-step-ahead",
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {

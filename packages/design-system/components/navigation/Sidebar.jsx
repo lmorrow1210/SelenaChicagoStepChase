@@ -67,7 +67,7 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
           lineHeight: 1.4,
           opacity: expanded ? 1 : 0,
           transition: 'opacity var(--dur-fast)',
-        }}>SELENA'S CHASE</span>
+        }}>ONE STEP AHEAD</span>
       </div>
 
       {/* ── CRT Phosphor Screen ── */}

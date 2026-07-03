@@ -2,7 +2,7 @@
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const nextConfig = {
-  transpilePackages: ["@selenas-chase/shared", "@selenas-chase/design-system"],
+  transpilePackages: ["@one-step-ahead/shared", "@one-step-ahead/design-system"],
   // Static export for the GitHub Pages demo (NEXT_OUTPUT=export). The normal
   // server build (CI, Vercel) leaves output undefined so nothing else changes.
   output: process.env.NEXT_OUTPUT === "export" ? "export" : undefined,

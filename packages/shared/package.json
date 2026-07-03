@@ -1,5 +1,5 @@
 {
-  "name": "@selenas-chase/shared",
+  "name": "@one-step-ahead/shared",
   "private": true,
   "type": "module",
   "main": "src/index.ts",

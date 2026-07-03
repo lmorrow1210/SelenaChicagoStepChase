@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 /* ============================================================
-   Icon — Selena's Chase icon set.
+   Icon — One Step Ahead icon set.
    24px grid, 2px stroke, rounded caps/joins, consistent weight.
    Color inherits from `currentColor` (set color via CSS).
    ============================================================ */

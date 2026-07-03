@@ -1,6 +1,6 @@
 "use client";
 
-import Toast from "@selenas-chase/design-system/components/feedback/Toast";
+import Toast from "@one-step-ahead/design-system/components/feedback/Toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { api } from "./api";

@@ -1,4 +1,4 @@
-# Selena's Chase — Handoff (Claude Code → Fable, June 2026)
+# One Step Ahead — Handoff (Claude Code → Fable, June 2026)
 
 Repo: `/Users/lindseymorrow/SelenaChicagoStepChase`
 Branch: `main` — clean, all work committed, all tests green.
@@ -10,9 +10,9 @@ Owner: lmorrow1210@gmail.com
 
 | File | Purpose |
 |---|---|
-| `docs/selenas-chase-spec.md` | Product spec — final word on feature intent |
+| `docs/one-step-ahead-spec.md` | Product spec — final word on feature intent |
 | `docs/implementation-plan.md` | Master roadmap: architecture §1, schema §2, API spec §3, screen trees §4, module acceptance criteria §6 |
-| `docs/selenas-chase-design-system-prompt.md` + `SelenaDesign/` | All visual decisions — tokens, components, screens. Consume, don't rebuild. |
+| `docs/one-step-ahead-design-system-prompt.md` + `SelenaDesign/` | All visual decisions — tokens, components, screens. Consume, don't rebuild. |
 
 ---
 
@@ -33,7 +33,7 @@ npm run test -w apps/api
 # Expected: 33 passed, 12 skipped (integration tests skip without TEST_DATABASE_URL)
 
 # With local Postgres (see "Local Postgres" below) ALL tests run:
-TEST_DATABASE_URL="postgres://localhost:5432/selenas_chase_test" npm run test -w apps/api
+TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" npm run test -w apps/api
 # Expected: 45 passed, 0 skipped
 
 npx tsc --noEmit -p apps/api/tsconfig.json
@@ -55,8 +55,8 @@ refuses to boot):
 LC_ALL="en_US.UTF-8" /opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/pg16.log start
 ```
 
-Databases that exist: `selenas_chase_test` (integration tests; suites reset it),
-`selenas_chase_dev` (manual smoke testing; migrations applied, has leftover
+Databases that exist: `one_step_ahead_test` (integration tests; suites reset it),
+`one_step_ahead_dev` (manual smoke testing; migrations applied, has leftover
 smoke data — safe to drop and recreate). CI runs the full suite against a
 postgres:16 service container, so the 11 integration tests gate every push.
 
@@ -221,7 +221,7 @@ These had never been caught because the integration tests had never executed any
 2. **Bingo seed too small** — `generateCard` requires 24 distinct challenges; 002 seeded 18. Migration `003_more_bingo_challenges.sql` adds 8 (pool = 26).
 3. **`closeWeekPredictions`** reused `$2` in two type contexts → Postgres "inconsistent types deduced for parameter $2". Fixed with explicit `::int` casts.
 
-A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close → reroll 409 → stats/badges/bingo → `weekRollover`) was run against `selenas_chase_dev` and behaved correctly, including notifications.
+A full end-to-end smoke (dev-login ×2 → group → sync → nemesis day-close → reroll 409 → stats/badges/bingo → `weekRollover`) was run against `one_step_ahead_dev` and behaved correctly, including notifications.
 
 ---
 

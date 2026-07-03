@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createGroupSchema, joinGroupSchema, GROUP_MAX_MEMBERS } from "@selenas-chase/shared";
+import { createGroupSchema, joinGroupSchema, GROUP_MAX_MEMBERS } from "@one-step-ahead/shared";
 import { pool } from "../db/pool.js";
 import { generateInviteCode } from "../lib/inviteCode.js";
 import { createFirstWeek } from "../services/week.js";

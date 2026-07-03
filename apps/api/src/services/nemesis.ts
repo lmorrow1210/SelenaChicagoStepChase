@@ -1,4 +1,4 @@
-import type { NemesisDayResult } from "@selenas-chase/shared";
+import type { NemesisDayResult } from "@one-step-ahead/shared";
 
 // Nemesis daily winner (plan M6): higher steps wins the day; tie → earlier
 // target_hit_at; both null (or equal) → tie carries.
