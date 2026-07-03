@@ -3,13 +3,13 @@ import Icon from '../icons/Icon.jsx';
 import { getCityIcon } from './CityBadge.jsx';
 
 /* ============================================================
-   MapPin v2 — Vintage game world-map marker.
+   MapPin v3 — "Midnight Dossier" world-map marker.
    Variants:
-     current  — Selena's last sighting (selena=true → sky blue);
-                player's current city (gold bevel, mahogany bg)
-     next     — slate blue, predicted destination (Selena glyph)
-     visited  — muted walnut, already investigated (player has been)
-     upcoming — ghost: dashed walnut, low opacity, not yet reached
+     current  — amber live pulse (Selena's last confirmed sighting)
+     next     — where she's heading; with selena=true this is HER
+                red calling-card pin (the only red on the trail)
+     visited  — dimmed manila with a ✓ notch (already investigated)
+     upcoming — ghost outline (on the route, not reached)
    Pass `cityName` to render that city's landmark silhouette
    instead of the generic glyph.
    ============================================================ */
@@ -18,7 +18,7 @@ export function MapPin({
   variant = 'current',  // 'current' | 'next' | 'visited' | 'upcoming'
   label,
   cityName,
-  selena = false,       // true = this is Selena's pin
+  selena = false,       // true = Selena's calling-card pin
   size = 'md',          // 'sm' | 'md'
   style,
 }) {
@@ -29,44 +29,43 @@ export function MapPin({
   const isNext = variant === 'next';
   const isVisited = variant === 'visited';
   const isUpcoming = variant === 'upcoming';
+  const isSelena = selena && (isNext || isCurrent);
 
-  /* Background & icon colors by state */
   const bg =
-    selena && isCurrent ? 'var(--selena)'    :
-    isCurrent           ? 'var(--mahogany)'  :
-    isNext              ? 'var(--slate)'     :
-    isVisited           ? 'var(--walnut)'    :
+    isSelena  ? 'var(--signal-red)' :
+    isCurrent ? 'var(--ink-600)'    :
+    isNext    ? 'var(--ink-600)'    :
+    isVisited ? 'var(--ink-700)'    :
     'transparent';
 
-  const iconColor =
-    selena && isCurrent ? 'var(--tobacco)'   :
-    isCurrent           ? 'var(--selena)'    :
-    isNext              ? 'var(--parchment)' :
-    isVisited           ? 'var(--linen)'     :
-    'var(--dust)';
+  const glyphColor =
+    isSelena  ? 'var(--ink-900)' :
+    isCurrent ? 'var(--amber)'   :
+    isNext    ? 'var(--bone)'    :
+    isVisited ? 'var(--bone-dim)' :
+    'var(--bone-dim)';
 
-  const borderColor =
-    selena && isCurrent ? 'var(--selena-dark) var(--bevel-lo) var(--bevel-lo) var(--selena-dark)'  :
-    isCurrent           ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)'             :
-    isNext              ? 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)'         :
-    isVisited           ? 'var(--walnut) var(--bevel-lo) var(--bevel-lo) var(--walnut)'             :
-    'var(--walnut)';
+  const ringColor =
+    isSelena  ? 'var(--signal-red)' :
+    isCurrent ? 'var(--amber)'      :
+    isNext    ? 'var(--hairline-paper)' :
+    isVisited ? 'var(--hairline-paper)' :
+    'var(--hairline-paper)';
 
   const stemColor =
-    selena && isCurrent ? 'var(--selena)'   :
-    isCurrent           ? 'var(--gold)'     :
-    isNext              ? 'var(--slate)'    :
-    isVisited           ? 'var(--linen)'    :
-    'var(--dust)';
+    isSelena  ? 'var(--signal-red)' :
+    isCurrent ? 'var(--amber)'      :
+    isVisited ? 'var(--bone-dim)'   :
+    'var(--bone-dim)';
 
-  /* City silhouette overrides the generic glyph (never for Selena's pin) */
+  /* City silhouette overrides the generic glyph (never on Selena's pin) */
   const CityIcon = selena ? null : getCityIcon(cityName);
 
   return (
     <div style={{
       position: 'relative', display: 'flex', flexDirection: 'column',
       alignItems: 'center', gap: 3,
-      opacity: isUpcoming ? 0.5 : 1,
+      opacity: isUpcoming ? 0.45 : 1,
       ...style,
     }}>
       {/* Pin head */}
@@ -74,23 +73,23 @@ export function MapPin({
         position: 'relative', display: 'grid', placeItems: 'center',
         width: headSize, height: headSize, borderRadius: '50%',
         background: bg,
-        border: isUpcoming ? '1.5px dashed' : '2px solid',
-        borderColor: borderColor,
-        color: iconColor,
-        boxShadow: isCurrent ? '2px 2px 0 0 var(--bevel-lo)' : 'none',
+        border: isUpcoming ? '1.5px dashed var(--hairline-paper)' : `2px solid ${ringColor}`,
+        boxShadow:
+          isSelena  ? 'var(--glow-selena)' :
+          isCurrent ? 'var(--glow-live)'   :
+          'var(--shadow-pin)',
+        color: glyphColor,
       }}>
-        {/* Active pulse ring for current locations */}
-        {isCurrent && (
+        {/* Live pulse — amber for the sighting, red for Selena herself */}
+        {(isCurrent || isSelena) && (
           <span style={{
             position: 'absolute', inset: -4, borderRadius: '50%',
-            border: `2px solid ${selena ? 'var(--selena)' : 'var(--gold)'}`,
-            animation: 'sc-pulse-blue 2s var(--ease-in-out) infinite',
-            opacity: 0.5,
+            animation: `${isSelena ? 'sc-pulse-selena' : 'sc-pulse-amber'} 2s var(--ease-in-out) infinite`,
           }} />
         )}
         {CityIcon ? (
           <div style={{ width: dim * 0.82, height: dim * 0.82, display: 'grid', placeItems: 'center' }}>
-            <CityIcon color={iconColor} />
+            <CityIcon color={glyphColor} />
           </div>
         ) : (
           <Icon
@@ -99,27 +98,38 @@ export function MapPin({
             strokeWidth={2.2}
           />
         )}
+        {/* Visited ✓ notch */}
+        {isVisited && (
+          <span style={{
+            position: 'absolute', bottom: -3, right: -3,
+            display: 'grid', placeItems: 'center',
+            width: 14, height: 14, borderRadius: '50%',
+            background: 'var(--ink-900)',
+            border: '1px solid var(--hairline-paper)',
+            color: 'var(--bone-dim)',
+          }}>
+            <Icon name="check" size={8} strokeWidth={3} />
+          </span>
+        )}
       </div>
 
       {/* Stem */}
       <span style={{
         width: 2, height: 8, marginTop: -3,
-        background: stemColor, opacity: 0.8,
-        flexShrink: 0,
+        background: stemColor, opacity: 0.8, flexShrink: 0,
       }} />
 
-      {/* Label chip */}
+      {/* Label — stamped file-tab chip */}
       {label && (
         <span style={{
-          fontFamily: 'var(--font-display)', fontSize: 8,
-          textTransform: 'uppercase', letterSpacing: '0.04em',
-          color: isUpcoming ? 'var(--dust)' : 'var(--parchment)', whiteSpace: 'nowrap',
-          background: isUpcoming ? 'transparent' : 'var(--felt)',
-          padding: '3px 8px',
-          border: '2px solid',
-          borderColor: isUpcoming
-            ? 'var(--walnut)'
-            : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
+          fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
+          textTransform: 'uppercase', letterSpacing: '0.08em',
+          color: isSelena ? 'var(--signal-red)' : isUpcoming ? 'var(--bone-dim)' : 'var(--bone)',
+          whiteSpace: 'nowrap',
+          background: isUpcoming ? 'transparent' : 'var(--ink-800)',
+          padding: '2px 8px',
+          borderRadius: 'var(--r-tight)',
+          border: `1px solid ${isSelena ? 'var(--signal-red-20)' : 'var(--hairline-paper)'}`,
         }}>{label}</span>
       )}
     </div>

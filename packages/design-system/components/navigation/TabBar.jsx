@@ -2,9 +2,10 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   TabBar v2 — Vintage detective game action bar.
-   Carmen Sandiego-inspired bottom navigation.
-   Bevel top border. Hard dividers. Press Start 2P labels.
+   TabBar v3 — "Midnight Dossier" command rail.
+   The chunky command row of the two-pane console. Ink face with
+   a 2-tone bevel; the active command is pressed in with an amber
+   inner glow and stamped label. Red never appears here.
    NAV reflects product decisions: Prediction lives on the Map
    screen, and the city tab is framed as "Destination".
    ============================================================ */
@@ -25,10 +26,9 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
         width: '100%',
         height: 'var(--tabbar-height)',
         paddingBottom: 'var(--safe-bottom)',
-        background: 'var(--mahogany)',
-        /* Hard bevel top edge — the shelf the game world sits above */
-        borderTop: '3px solid var(--bevel-hi)',
-        borderBottom: '2px solid var(--bevel-lo)',
+        background: 'var(--ink-700)',
+        borderTop: '1px solid var(--hairline-paper)',
+        boxShadow: 'var(--bevel-raised-shadow)',
         zIndex: 'var(--z-nav)',
         ...style,
       }}
@@ -44,17 +44,14 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
               flex: 1,
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
-              gap: 4,
+              gap: 3,
               minWidth: 'var(--touch-min)',
-              /* Active tab recesses inward */
-              background: on ? 'var(--felt)' : 'transparent',
-              /* Selena-blue top stripe on active tab */
-              borderTop: on ? '2px solid var(--selena)' : '2px solid transparent',
-              /* Hard dividers between tabs */
-              borderRight: idx < items.length - 1 ? '1px solid var(--walnut)' : 'none',
-              borderBottom: 'none',
-              borderLeft: 'none',
-              color: on ? 'var(--selena)' : 'var(--dust)',
+              background: on ? 'var(--ink-800)' : 'transparent',
+              boxShadow: on ? 'var(--bevel-pressed-shadow)' : 'none',
+              border: 'none',
+              borderRight: idx < items.length - 1 ? '1px solid rgba(243,236,217,0.07)' : 'none',
+              borderRadius: 0,
+              color: on ? 'var(--amber)' : 'var(--bone-dim)',
               cursor: 'pointer',
               transition: 'background var(--dur-fast) var(--ease-out), color var(--dur-fast)',
               WebkitTapHighlightColor: 'transparent',
@@ -62,11 +59,12 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
               padding: 0,
             }}
           >
-            <Icon name={it.icon} size={22} strokeWidth={on ? 2.2 : 1.8} />
+            <Icon name={it.icon} size={22} strokeWidth={on ? 2.3 : 1.9} />
             <span style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 8,
-              letterSpacing: '0.04em',
+              fontWeight: 600,
+              fontSize: 11,
+              letterSpacing: 'var(--ls-label)',
               textTransform: 'uppercase',
               lineHeight: 1,
               maxWidth: '100%',

@@ -2,101 +2,88 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   Sidebar v2 — Vintage spy terminal.
-   Warm putty plastic outer casing with bevel chrome.
-   CRT phosphor screen inside. Colorful Carmen-style action
-   buttons below the screen. Collapsed: 72px. Expanded: 220px.
+   Sidebar v3 — "Midnight Dossier" amber phosphor terminal.
+   A nighttime intelligence terminal: ink chassis, inset amber
+   phosphor screen listing tracker commands, stamped bureau
+   header. Collapsed 60px → expanded 200px on hover (§10).
    NAV reflects product decisions: Prediction lives on the Map
    screen, and the city tab is framed as "Destination".
    ============================================================ */
 
 const NAV = [
-  { id: 'map',     label: 'Map',         icon: 'map',     color: '#41B6E6', textDark: false },
-  { id: 'city',    label: 'Destination', icon: 'city',    color: '#4A8A3A', textDark: false },
-  { id: 'bingo',   label: 'Bingo',       icon: 'bingo',   color: '#4A6898', textDark: false },
-  { id: 'nemesis', label: 'Nemesis',     icon: 'nemesis', color: '#8B3A2A', textDark: false },
+  { id: 'map', label: 'Map', icon: 'map' },
+  { id: 'city', label: 'Destination', icon: 'city' },
+  { id: 'bingo', label: 'Bingo', icon: 'bingo' },
+  { id: 'nemesis', label: 'Nemesis', icon: 'nemesis' },
 ];
 
-/* CRT scanlines — subtle horizontal line overlay */
-const CRT_SCANLINES = 'repeating-linear-gradient(to bottom, transparent, transparent 1px, rgba(0,0,0,0.22) 1px, rgba(0,0,0,0.22) 2px)';
+/* Faint phosphor scanlines — texture, not a CRT filter */
+const SCANLINES = 'repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(0,0,0,0.16) 2px, rgba(0,0,0,0.16) 3px)';
 
 export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, forceExpanded = false }) {
   const [hover, setHover] = React.useState(false);
   const expanded = forceExpanded || hover;
-
-  /* Putty casing bevel */
-  const casingBevel = 'var(--casing-hi) var(--casing-lo) var(--casing-lo) var(--casing-hi)';
-  const casingInset = 'var(--casing-lo) var(--casing-hi) var(--casing-hi) var(--casing-lo)';
 
   return (
     <nav
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        width: expanded ? 220 : 72,
+        width: expanded ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)',
         height: '100%', flex: 'none',
-        /* Warm putty plastic outer casing */
-        background: 'var(--casing)',
-        border: '3px solid',
-        borderColor: casingBevel,
+        background: 'var(--ink-700)',
+        borderRight: '1px solid var(--hairline-paper)',
+        boxShadow: 'var(--bevel-raised-shadow)',
         display: 'flex', flexDirection: 'column',
-        padding: 10, gap: 8,
+        padding: '12px 8px', gap: 10,
         transition: 'width var(--dur-base) var(--ease-out)',
         overflow: 'hidden',
         zIndex: 'var(--z-nav)',
       }}
     >
-      {/* ── Brand nameplate — recessed into casing ── */}
+      {/* ── Bureau nameplate — stamped label on the chassis ── */}
       <div style={{
-        background: 'var(--casing-mid)',
-        border: '2px solid',
-        borderColor: casingInset,
-        padding: '4px 8px',
-        display: 'flex', alignItems: 'center', gap: 8,
-        minHeight: 28, overflow: 'hidden', flex: 'none',
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '2px 6px', minHeight: 34, flex: 'none', overflow: 'hidden',
       }}>
         <span style={{
-          fontFamily: 'var(--font-display)', fontSize: 9,
-          color: '#3A2810', letterSpacing: '0.04em',
-          flex: 'none', lineHeight: 1.4,
-        }}>S</span>
+          display: 'grid', placeItems: 'center',
+          width: 28, height: 28, flex: 'none',
+          borderRadius: 'var(--r-tight)',
+          background: 'var(--amber)', color: 'var(--ink-900)',
+          fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18,
+        }}>1</span>
         <span style={{
-          fontFamily: 'var(--font-display)', fontSize: 8,
-          color: '#3A2810', letterSpacing: '0.02em',
-          whiteSpace: 'nowrap', overflow: 'hidden',
-          lineHeight: 1.4,
-          opacity: expanded ? 1 : 0,
-          transition: 'opacity var(--dur-fast)',
-        }}>ONE STEP AHEAD</span>
+          fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
+          letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'var(--bone)', whiteSpace: 'nowrap',
+          opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
+        }}>One Step Ahead</span>
       </div>
 
-      {/* ── CRT Phosphor Screen ── */}
+      {/* ── Phosphor screen — inset telemetry well with nav lines ── */}
       <div style={{
         flex: 1,
         background: 'var(--crt-bg)',
-        backgroundImage: CRT_SCANLINES,
-        border: '3px solid',
-        /* Deeply inset — the screen sits inside the plastic */
-        borderColor: 'var(--casing-lo) var(--casing-hi) var(--casing-hi) var(--casing-lo)',
-        padding: '8px 6px',
-        display: 'flex', flexDirection: 'column',
-        gap: 1, overflow: 'hidden',
-        position: 'relative',
+        backgroundImage: SCANLINES,
+        borderRadius: 'var(--r-tight)',
+        boxShadow: 'var(--screen-inset-shadow)',
+        padding: '10px 6px',
+        display: 'flex', flexDirection: 'column', gap: 2,
+        overflow: 'hidden', position: 'relative',
       }}>
-        {/* Screen header line */}
-        {expanded && (
-          <div style={{
-            fontFamily: 'var(--font-display)', fontSize: 7,
-            color: 'var(--crt-dim)', letterSpacing: '0.05em',
-            marginBottom: 5, paddingBottom: 4,
-            borderBottom: '1px solid #1A4A1A',
-            whiteSpace: 'nowrap',
-          }}>
-            TRACKER CONSOLE
-          </div>
-        )}
+        {/* Stamped screen header */}
+        <div style={{
+          fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 10,
+          color: 'var(--crt-dim)', letterSpacing: 'var(--ls-label)',
+          textTransform: 'uppercase',
+          marginBottom: 6, paddingBottom: 6, paddingLeft: 4,
+          borderBottom: '1px solid rgba(255, 176, 32, 0.14)',
+          whiteSpace: 'nowrap', overflow: 'hidden',
+        }}>
+          {expanded ? '[ LOOP BUREAU ]' : '[ · ]'}
+        </div>
 
-        {/* Nav items — terminal readout lines */}
         {items.map((it) => {
           const on = it.id === active;
           return (
@@ -106,119 +93,68 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
               title={!expanded ? it.label : undefined}
               aria-current={on ? 'page' : undefined}
               style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                height: 30, padding: '0 4px',
-                border: 'none', cursor: 'pointer', width: '100%',
+                display: 'flex', alignItems: 'center', gap: 8,
+                height: 36, padding: '0 6px', width: '100%',
+                border: 'none', cursor: 'pointer',
+                borderRadius: 'var(--r-tight)',
                 background: on ? 'var(--crt-row)' : 'transparent',
+                boxShadow: on ? 'inset 0 0 10px 0 rgba(255,176,32,0.10)' : 'none',
                 color: on ? 'var(--crt-hi)' : 'var(--crt-dim)',
                 textAlign: 'left',
-                transition: 'color var(--dur-fast)',
+                transition: 'color var(--dur-fast), background var(--dur-fast)',
               }}
-              onMouseEnter={(e) => { if (!on) e.currentTarget.style.color = '#2ABF2A'; }}
+              onMouseEnter={(e) => { if (!on) e.currentTarget.style.color = 'var(--amber)'; }}
               onMouseLeave={(e) => { if (!on) e.currentTarget.style.color = 'var(--crt-dim)'; }}
             >
-              {/* Terminal ">" cursor */}
+              {/* Terminal cursor marks the live line */}
               <span style={{
-                fontFamily: 'var(--font-display)', fontSize: 8,
+                fontFamily: 'var(--font-mono)', fontSize: 12,
                 color: on ? 'var(--crt-hi)' : 'transparent',
                 flex: 'none', width: 10, lineHeight: 1,
               }}>{'>'}</span>
-              {/* Icon */}
-              <span style={{ flex: 'none', display: 'grid', placeItems: 'center', width: 20 }}>
-                <Icon name={it.icon} size={18} strokeWidth={on ? 2.2 : 1.8} />
+              <span style={{ flex: 'none', display: 'grid', placeItems: 'center', width: 22 }}>
+                <Icon name={it.icon} size={19} strokeWidth={on ? 2.3 : 1.9} />
               </span>
-              {/* Label — only visible when expanded */}
               <span style={{
-                fontFamily: 'var(--font-display)', fontSize: 8,
-                letterSpacing: '0.03em', textTransform: 'uppercase',
+                fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 12,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
                 whiteSpace: 'nowrap', lineHeight: 1,
-                opacity: expanded ? 1 : 0,
-                transition: 'opacity var(--dur-fast)',
+                opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
               }}>{it.label}</span>
             </button>
           );
         })}
 
-        {/* CRT vignette — darkens edges like a real CRT tube */}
+        {/* Phosphor vignette — corners fall off like a tube, no flicker */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 100%)',
+          borderRadius: 'var(--r-tight)',
+          background: 'radial-gradient(ellipse at 50% 45%, transparent 60%, rgba(0,0,0,0.45) 100%)',
         }} />
       </div>
 
-      {/* ── Action buttons — Carmen Sandiego colorful squares ── */}
-      <div style={{
-        display: 'flex',
-        flexDirection: expanded ? 'row' : 'column',
-        gap: 4,
-        alignItems: 'center',
-        justifyContent: expanded ? 'flex-start' : 'center',
-      }}>
-        {items.map((it) => {
-          const on = it.id === active;
-          return (
-            <button
-              key={`btn-${it.id}`}
-              onClick={() => onNavigate && onNavigate(it.id)}
-              title={it.label}
-              style={{
-                width:  expanded ? 34 : 48,
-                height: expanded ? 26 : 36,
-                background: it.color,
-                border: '2px solid',
-                /* Bevel: active = pressed in, inactive = raised */
-                borderColor: on
-                  ? '#606060 #D0D0D0 #D0D0D0 #606060'
-                  : '#D0D0D0 #606060 #606060 #D0D0D0',
-                display: 'grid', placeItems: 'center',
-                cursor: 'pointer', flex: 'none', padding: 0,
-                opacity: on ? 1 : 0.7,
-                transition: 'opacity var(--dur-fast), border-color var(--dur-fast)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = on ? '1' : '0.7'; }}
-            >
-              <Icon
-                name={it.icon}
-                size={expanded ? 13 : 20}
-                strokeWidth={2}
-                color={it.textDark ? '#3A2810' : '#FFFFFF'}
-              />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Avatar / tracker ID ── */}
-      {avatar && (
-        <button
-          onClick={() => onNavigate && onNavigate('profile')}
-          aria-current={active === 'profile' ? 'page' : undefined}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            paddingTop: 6,
-            borderTop: '1px solid var(--casing-mid)',
-            border: 'none', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--casing-mid)',
-            background: 'transparent', cursor: 'pointer',
-            overflow: 'hidden', width: '100%',
-          }}
-        >
-          <div style={{
-            border: '2px solid',
-            borderColor: casingBevel,
-            flex: 'none',
-          }}>
-            {avatar}
-          </div>
-          <span style={{
-            fontFamily: 'var(--font-display)', fontSize: 8,
-            color: '#3A2810', letterSpacing: '0.03em',
-            whiteSpace: 'nowrap',
-            opacity: expanded ? 1 : 0,
-            transition: 'opacity var(--dur-fast)',
-          }}>TRACKER</span>
-        </button>
-      )}
+      {/* ── Operative file — avatar + profile ── */}
+      <button
+        onClick={() => onNavigate && onNavigate('profile')}
+        aria-current={active === 'profile' ? 'page' : undefined}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          height: 52, padding: '0 4px', width: '100%',
+          border: 'none', background: 'transparent', cursor: 'pointer',
+          borderTop: '1px solid var(--hairline-paper)',
+          overflow: 'hidden',
+        }}
+      >
+        <span style={{ flex: 'none', display: 'grid', placeItems: 'center' }}>
+          {avatar || <span style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--ink-600)' }} />}
+        </span>
+        <span style={{
+          fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
+          letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
+          color: 'var(--bone-dim)', whiteSpace: 'nowrap',
+          opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
+        }}>Operative file</span>
+      </button>
     </nav>
   );
 }

@@ -2,9 +2,10 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   LandmarkTile — City screen tile.
-   States: locked (silhouette), unlocked (full color + fact),
-   today (locked + pulsing blue border).
+   LandmarkTile v3 — manila photo case-card (Landmark Hunt Desk).
+   Unlocked = duotone landmark vignette on manila paper with a
+   field note. Locked = ink overlay + red [REDACTED] stamp.
+   Today = locked but live: amber edge pulse marks the active file.
    ============================================================ */
 
 export function LandmarkTile({
@@ -22,36 +23,87 @@ export function LandmarkTile({
     <div style={{
       position: 'relative', display: 'flex', flexDirection: 'column',
       borderRadius: 'var(--r-card)', overflow: 'hidden',
-      background: isUnlocked ? 'var(--card-elevated)' : 'var(--navy-deep)',
-      border: `2px solid ${isToday ? 'var(--blue)' : 'var(--hairline)'}`,
-      animation: isToday ? 'sc-pulse-blue 1.8s var(--ease-in-out) infinite' : 'none',
-      minHeight: 132, ...style,
+      background: isUnlocked ? 'var(--manila)' : 'var(--ink-800)',
+      border: `1px solid ${isToday ? 'var(--amber)' : 'var(--hairline-paper)'}`,
+      boxShadow: isToday
+        ? 'var(--bevel-raised-shadow), var(--glow-live)'
+        : 'var(--bevel-raised-shadow), var(--shadow-card)',
+      animation: isToday ? 'sc-pulse-amber 1.8s var(--ease-in-out) infinite' : 'none',
+      minHeight: 128, ...style,
     }}>
-      {/* art area */}
+      {/* Photo area — duotone vignette (ink → manila, amber rim) */}
       <div style={{
-        flex: 1, display: 'grid', placeItems: 'center', minHeight: 78,
+        flex: 1, display: 'grid', placeItems: 'center', minHeight: 74,
+        position: 'relative',
         background: isUnlocked
-          ? `radial-gradient(circle at 50% 35%, ${color} 0%, ${color} 60%, color-mix(in srgb, ${color} 60%, var(--navy)) 100%)`
-          : 'transparent',
-        color: isUnlocked ? 'var(--cream)' : 'var(--muted)',
-        opacity: isUnlocked ? 1 : 0.55,
-        filter: isUnlocked ? 'none' : 'grayscale(1)',
+          ? 'radial-gradient(circle at 50% 30%, var(--ink-600) 0%, var(--ink-800) 78%, var(--ink-900) 100%)'
+          : 'var(--ink-900)',
+        color: isUnlocked ? 'var(--manila)' : 'var(--ink-600)',
       }}>
-        <Icon name={isUnlocked ? icon : (isToday ? icon : icon)} size={42} strokeWidth={1.8}
-          style={{ opacity: isUnlocked ? 1 : 0.5 }} />
+        <Icon
+          name={icon}
+          size={40}
+          strokeWidth={1.8}
+          style={{
+            opacity: isUnlocked ? 1 : 0.6,
+            filter: isUnlocked ? 'drop-shadow(0 0 6px rgba(255,176,32,0.30))' : 'none',
+          }}
+        />
+        {/* Locked: red [REDACTED] stamp across the photo */}
+        {!isUnlocked && (
+          <span aria-hidden="true" style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-8deg)',
+            fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--signal-red)',
+            border: '2px solid var(--signal-red)',
+            borderRadius: 2,
+            padding: '1px 8px',
+            opacity: 0.85,
+            whiteSpace: 'nowrap',
+          }}>Redacted</span>
+        )}
+        {/* File corner cut — case-file chrome */}
+        <span aria-hidden="true" style={{
+          position: 'absolute', top: 0, right: 0,
+          width: 0, height: 0,
+          borderTop: `14px solid ${isUnlocked ? 'var(--manila)' : 'var(--ink-800)'}`,
+          borderLeft: '14px solid transparent',
+        }} />
       </div>
-      {/* label area */}
-      <div style={{ padding: '10px 12px', background: isUnlocked ? 'var(--card)' : 'transparent' }}>
+
+      {/* Label strip — manila field note when unlocked */}
+      <div style={{
+        padding: '8px 10px',
+        background: isUnlocked ? 'var(--manila)' : 'transparent',
+        borderTop: isUnlocked ? '1px solid rgba(12,15,20,0.18)' : '1px solid var(--hairline-paper)',
+      }}>
         {isUnlocked ? (
           <>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, textTransform: 'uppercase', color: 'var(--cream)' }}>{name}</div>
-            {fact && <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>{fact}</div>}
+            <div style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
+              textTransform: 'uppercase', letterSpacing: '0.04em',
+              color: 'var(--ink-900)', lineHeight: 1.15,
+            }}>{name}</div>
+            {fact && (
+              <div style={{
+                fontFamily: 'var(--font-body)', fontSize: 12,
+                color: 'rgba(12,15,20,0.72)', marginTop: 2, lineHeight: 1.45,
+              }}>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em',
+                  color: 'var(--stamp-red)', textTransform: 'uppercase', marginRight: 5,
+                }}>Field note:</span>
+                {fact}
+              </div>
+            )}
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--bone-dim)' }}>
             <Icon name="lock" size={13} />
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 500 }}>
-              {isToday ? "Today's landmark" : 'Locked'}
+              {isToday ? "Today's coordinate — sync to unlock" : 'Clearance pending'}
             </span>
           </div>
         )}

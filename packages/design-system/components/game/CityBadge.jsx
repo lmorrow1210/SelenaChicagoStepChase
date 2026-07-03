@@ -10,15 +10,10 @@ import Icon from '../icons/Icon.jsx';
    Unknown cities fall back to a generic skyline icon.
    ============================================================ */
 
-/* v2 bevel-chrome quality rings (border-color shorthand) */
-const QUALITY_BORDER = {
-  gold:   'var(--gold-light) var(--gold) var(--gold) var(--gold-light)',
-  silver: '#C8C8C8 #787878 #787878 #C8C8C8',
-  bronze: '#D89048 #906020 #906020 #D89048',
-};
-const QUALITY_CHECK_BG = {
-  gold:   'var(--gold)',
-  silver: '#A0A0A0',
+/* v3 quality rings — gold quality = amber (the reward hue) */
+const QUALITY_RING = {
+  gold:   'var(--amber)',
+  silver: 'var(--silver)',
   bronze: 'var(--bronze)',
 };
 
@@ -677,52 +672,46 @@ export function CityBadge({
   style,
 }) {
   const featured = size >= 72;
-  const iconColor = locked ? 'var(--dust)' : 'var(--parchment)';
+  /* §8: locked = ink silhouette + amber outline (a lead not yet confirmed) */
+  const iconColor = locked ? 'var(--ink-600)' : 'var(--manila)';
   const iconSize = size * 0.62;
   const CityIcon = getCityIcon(name);
-  const ringBorderColor = locked
-    ? 'var(--walnut) var(--bevel-lo) var(--bevel-lo) var(--walnut)'
-    : QUALITY_BORDER[quality];
+  const ring = locked ? 'var(--amber-40)' : QUALITY_RING[quality];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: size + 24, ...style }}>
       <div style={{
         position: 'relative', display: 'grid', placeItems: 'center',
         width: size, height: size, borderRadius: '50%',
-        background: locked ? 'var(--tobacco)' : 'var(--mahogany)',
-        border: '3px solid',
-        borderColor: ringBorderColor,
-        boxShadow: (!locked && quality === 'gold') ? '2px 2px 0 0 var(--bevel-lo)' : 'none',
-        filter: locked ? 'grayscale(1) brightness(0.6)' : 'none',
+        background: locked ? 'var(--ink-800)' : 'var(--ink-600)',
+        border: locked ? '2px dashed var(--amber-40)' : `3px solid ${ring}`,
+        boxShadow: locked
+          ? 'var(--screen-inset-shadow)'
+          : (quality === 'gold' ? 'var(--glow-live)' : 'var(--shadow-card)'),
         overflow: 'hidden',
         padding: size * 0.1,
       }}>
-        {locked
-          ? <Icon name="lock" size={size * 0.38} strokeWidth={2} color="var(--dust)" />
-          : (
-            <div style={{ width: iconSize, height: iconSize }}>
-              {CityIcon
-                ? <CityIcon color={iconColor} />
-                : <SkylineFallback color={iconColor} />
-              }
-            </div>
-          )
-        }
+        <div style={{ width: iconSize, height: iconSize }}>
+          {CityIcon
+            ? <CityIcon color={iconColor} />
+            : <SkylineFallback color={iconColor} />
+          }
+        </div>
         {!locked && featured && (
           <span style={{
             position: 'absolute', bottom: -2, right: -2,
             display: 'grid', placeItems: 'center', width: size * 0.34, height: size * 0.34,
-            borderRadius: '50%', background: QUALITY_CHECK_BG[quality], color: 'var(--tobacco)',
-            border: '2px solid var(--tobacco)',
+            borderRadius: '50%', background: ring, color: 'var(--ink-900)',
+            border: '2px solid var(--ink-900)',
           }}>
             <Icon name="check" size={size * 0.2} strokeWidth={3} />
           </span>
         )}
       </div>
       <span style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: featured ? 11 : 8, textTransform: 'uppercase', letterSpacing: '0.04em',
-        color: locked ? 'var(--dust)' : 'var(--parchment)', textAlign: 'center', lineHeight: 1.4,
+        fontFamily: 'var(--font-display)', fontWeight: 600,
+        fontSize: featured ? 14 : 11, textTransform: 'uppercase', letterSpacing: '0.08em',
+        color: locked ? 'var(--bone-dim)' : 'var(--bone)', textAlign: 'center', lineHeight: 1.25,
       }}>{locked ? '???' : name}</span>
     </div>
   );

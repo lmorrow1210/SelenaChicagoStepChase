@@ -6,15 +6,17 @@ export interface BingoTileProps {
   icon?: IconName;
   /** Tile state. 'free' is the always-complete Selena center square. */
   state?: 'incomplete' | 'progress' | 'complete' | 'free';
-  /** Pulse + glow when part of an animated winning line. */
+  /** Amber pulse + glow when part of a line one tile from completion. */
   highlight?: boolean;
+  /** Vector category cast on the idle face. */
+  tint?: 'step' | 'routine' | 'biometric';
   style?: React.CSSProperties;
 }
 
 /**
- * Square tile for the 5×5 bingo card. incomplete (dark outline, muted),
- * progress (blue glow outline), complete (blue 20% fill + check),
- * free (Selena/star center, always complete).
+ * Operational-matrix tile for the 5×5 card. incomplete (raised ink, muted),
+ * progress (amber edge), complete (pressed inset + amber fill + stamped ✓),
+ * free (Selena silhouette on amber, always complete).
  */
 export function BingoTile(props: BingoTileProps): JSX.Element;
 export default BingoTile;

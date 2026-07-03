@@ -2,14 +2,17 @@ import * as React from 'react';
 import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
-   Toast — slim bar at top of screen.
-   Types: achievement (gold), social (blue), alert (red).
+   Toast v3 — intercepted transmission strip.
+   Types: achievement (amber — rewards), social (vector — the
+   team's own channel), alert (signal-red — Selena/danger only).
+   Rendered inside the stacked toast region above the TabBar
+   (never over the header). Slides up on entry.
    ============================================================ */
 
 const TYPES = {
-  achievement: { accent: 'var(--gold)', icon: 'badge' },
-  social:      { accent: 'var(--blue)', icon: 'nemesis' },
-  alert:       { accent: 'var(--red)',  icon: 'sync' },
+  achievement: { accent: 'var(--amber)',      icon: 'badge',   tag: 'UNLOCK' },
+  social:      { accent: 'var(--vector)',     icon: 'nemesis', tag: 'BUREAU' },
+  alert:       { accent: 'var(--signal-red)', icon: 'sync',    tag: 'ALERT' },
 };
 
 export function Toast({ type = 'social', title, message, icon, onClose, style }) {
@@ -18,32 +21,51 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
     <div
       role="status"
       style={{
-        display: 'flex', alignItems: 'center', gap: 12,
+        display: 'flex', alignItems: 'center', gap: 10,
         width: '100%', maxWidth: 460,
-        background: 'var(--card-elevated)',
-        borderRadius: 'var(--r-card)',
-        borderLeft: `4px solid ${t.accent}`,
-        boxShadow: 'var(--shadow-elevated)',
-        padding: '12px 14px',
+        background: 'var(--ink-600)',
+        borderRadius: 'var(--r-tight)',
+        border: '1px solid var(--hairline-paper)',
+        borderLeft: `3px solid ${t.accent}`,
+        boxShadow: 'var(--bevel-raised-shadow), var(--shadow-elevated)',
+        padding: '9px 12px',
+        animation: 'sc-toast-in var(--dur-base) var(--ease-out)',
         ...style,
       }}
     >
       <span style={{
-        display: 'grid', placeItems: 'center', width: 32, height: 32, flex: 'none',
-        borderRadius: '50%', background: 'transparent', color: t.accent,
+        display: 'grid', placeItems: 'center', width: 28, height: 28, flex: 'none',
+        color: t.accent,
       }}>
-        <Icon name={icon || t.icon} size={20} />
+        <Icon name={icon || t.icon} size={18} />
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        {title && <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 14, color: 'var(--cream)' }}>{title}</div>}
-        {message && <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', marginTop: 1 }}>{message}</div>}
+        {title && (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, minWidth: 0 }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.14em',
+              color: t.accent, flex: 'none',
+            }}>[{t.tag}]</span>
+            <span style={{
+              fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13,
+              color: 'var(--bone)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{title}</span>
+          </div>
+        )}
+        {message && (
+          <div style={{
+            fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--bone-dim)',
+            marginTop: 1, lineHeight: 1.4,
+          }}>{message}</div>
+        )}
       </div>
       {onClose && (
         <button onClick={onClose} aria-label="Dismiss" style={{
-          background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--muted)',
-          display: 'grid', placeItems: 'center', padding: 4, borderRadius: 6,
+          background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--bone-dim)',
+          display: 'grid', placeItems: 'center', padding: 4, borderRadius: 'var(--r-tight)',
+          flex: 'none',
         }}>
-          <Icon name="close" size={16} />
+          <Icon name="close" size={15} />
         </button>
       )}
     </div>

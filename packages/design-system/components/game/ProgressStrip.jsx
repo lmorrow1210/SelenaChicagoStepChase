@@ -3,35 +3,38 @@ import Avatar from './Avatar.jsx';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   ProgressStrip v2 — Vintage detective trail tracker.
-   Carmen Sandiego-style route panel.
-   Left city → right city. Player tokens on inset channel.
+   ProgressStrip v3 — "Midnight Dossier" trail tracker.
+   A dashed intel flight-path from the last confirmed sighting to
+   Selena's next silhouette. The leading edge glows amber; Selena
+   waits at the far end as a red calling-card node. Team tokens
+   sit proportionally along the channel (teal = team movement);
+   near-overlapping tokens stagger vertically so the pack stays
+   legible instead of cramming into one spot.
    ============================================================ */
 
-function CityNode({ name, side, reached }) {
+function CityNode({ name, side, selena, reached }) {
+  const red = selena && !reached;
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-      width: 70, flex: 'none',
+      width: 74, flex: 'none',
     }}>
       <div style={{
         display: 'grid', placeItems: 'center',
-        width: 46, height: 46,
-        background: reached ? 'var(--mahogany)' : 'var(--tobacco)',
-        border: '2px solid',
-        borderColor: reached
-          ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)'
-          : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
-        color: reached ? 'var(--gold)' : (side === 'left' ? 'var(--selena)' : 'var(--linen)'),
+        width: 44, height: 44, borderRadius: '50%',
+        background: red ? 'var(--signal-red)' : 'var(--ink-600)',
+        border: `2px solid ${red ? 'var(--signal-red)' : reached ? 'var(--amber)' : 'var(--hairline-paper)'}`,
+        boxShadow: red ? 'var(--glow-selena)' : reached ? 'var(--glow-live)' : 'var(--shadow-pin)',
+        color: red ? 'var(--ink-900)' : reached ? 'var(--amber)' : 'var(--manila)',
       }}>
-        <Icon name="city" size={22} />
+        <Icon name={red ? 'nemesis' : 'city'} size={20} strokeWidth={2.1} />
       </div>
       <span style={{
-        fontFamily: 'var(--font-display)', fontSize: 8,
-        textTransform: 'uppercase',
-        color: reached ? 'var(--gold)' : 'var(--parchment)',
-        letterSpacing: '0.04em', textAlign: 'center', lineHeight: 1.5,
-        maxWidth: 70, wordBreak: 'break-all',
+        fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
+        textTransform: 'uppercase', letterSpacing: '0.08em',
+        color: red ? 'var(--signal-red)' : reached ? 'var(--amber)' : 'var(--bone)',
+        textAlign: 'center', lineHeight: 1.2,
+        maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
       }}>{name}</span>
     </div>
   );
@@ -39,99 +42,124 @@ function CityNode({ name, side, reached }) {
 
 export function ProgressStrip({
   from = 'Chicago',
-  to = 'Tokyo',
+  to = 'New York',
   players = [],
   state = 'default',   // 'default' | 'end' | 'empty'
   compact = false,
   style,
 }) {
-  const avSize = compact ? 26 : 34;
+  const avSize = compact ? 24 : 32;
   const maxPct = players.length ? Math.max(0, ...players.map(p => p.pct)) : 0;
+
+  /* Cluster stagger: tokens within 6% of a neighbour get vertical offsets
+     so a tight pack reads as a pack, not a single blob. */
+  const sorted = [...players]
+    .map((p, i) => ({ ...p, _i: i }))
+    .sort((a, b) => a.pct - b.pct);
+  const offsets = new Map();
+  let cluster = [];
+  const flush = () => {
+    cluster.forEach((p, k) => {
+      const mid = (cluster.length - 1) / 2;
+      offsets.set(p._i, Math.round((k - mid) * (avSize * 0.55)));
+    });
+    cluster = [];
+  };
+  sorted.forEach((p) => {
+    if (cluster.length && p.pct - cluster[cluster.length - 1].pct > 6) flush();
+    cluster.push(p);
+  });
+  flush();
 
   return (
     <div style={{
-      background: 'var(--felt)',
-      border: '2px solid',
-      borderColor: 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
-      padding: compact ? '10px 12px' : '14px 16px 16px',
-      display: 'flex', flexDirection: 'column', gap: 10,
+      background: 'var(--ink-700)',
+      borderRadius: 'var(--r-card)',
+      border: '1px solid var(--hairline-paper)',
+      boxShadow: 'var(--bevel-raised-shadow), var(--shadow-card)',
+      padding: compact ? '10px 12px' : '12px 14px 14px',
+      display: 'flex', flexDirection: 'column', gap: 8,
       ...style,
     }}>
-      {/* Dossier-style header label */}
+      {/* Stamped file header */}
       <div style={{
-        fontFamily: 'var(--font-display)', fontSize: 8,
-        color: 'var(--dust)', letterSpacing: '0.05em',
-        borderBottom: '1px solid var(--walnut)', paddingBottom: 8,
+        fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
+        color: 'var(--bone-dim)', letterSpacing: 'var(--ls-label)',
+        textTransform: 'uppercase',
+        borderBottom: '1px solid var(--hairline-paper)', paddingBottom: 7,
       }}>
-        Trail: {from} → {to}
+        [ Bureau vector: {from} → {to} ]
       </div>
 
       {/* Track row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <CityNode name={from} side="left" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <CityNode name={from} side="left" reached />
 
-        <div style={{ position: 'relative', flex: 1, height: avSize + 20 }}>
-          {/* Inset channel */}
-          <div style={{
-            position: 'absolute', top: '50%', left: 0, right: 0,
-            height: 10, transform: 'translateY(-50%)',
-            background: 'var(--tobacco)',
-            border: '2px solid',
-            borderColor: 'var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)',
-            overflow: 'hidden',
-          }}>
-            {state === 'empty' ? (
-              <div style={{
-                height: '100%',
-                background: 'repeating-linear-gradient(90deg, var(--walnut) 0 5px, transparent 5px 10px)',
-              }} />
-            ) : (
-              <div style={{
-                height: '100%',
-                width: `${maxPct}%`,
-                background: state === 'end' ? 'var(--gold)' : 'var(--selena)',
-                transition: 'width var(--dur-hop) var(--ease-spring)',
-              }} />
+        <div style={{ position: 'relative', flex: 1, height: avSize + 28 }}>
+          {/* Dashed intel trail */}
+          <svg
+            aria-hidden="true"
+            style={{ position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)', width: '100%', height: 12, overflow: 'visible' }}
+            viewBox="0 0 100 12" preserveAspectRatio="none"
+          >
+            {/* Route still ahead — dim dashes */}
+            <line x1="0" y1="6" x2="100" y2="6"
+              stroke="var(--bone-dim)" strokeOpacity="0.35" strokeWidth="2"
+              strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+            {/* Ground covered — team vector, solid */}
+            {state !== 'empty' && (
+              <line x1="0" y1="6" x2={maxPct} y2="6"
+                stroke={state === 'end' ? 'var(--amber)' : 'var(--vector)'} strokeWidth="3"
+                vectorEffect="non-scaling-stroke" />
             )}
-          </div>
+            {/* Glowing leading edge — the live dash segment */}
+            {state === 'default' && maxPct > 0 && maxPct < 100 && (
+              <line x1={maxPct} y1="6" x2={Math.min(100, maxPct + 8)} y2="6"
+                stroke="var(--amber)" strokeWidth="3"
+                strokeDasharray="4 4" vectorEffect="non-scaling-stroke"
+                style={{ animation: 'sc-trail-pulse 1.6s var(--ease-in-out) infinite' }} />
+            )}
+          </svg>
 
-          {/* Player tokens */}
+          {/* Team tokens */}
           {state !== 'empty' && players.map((p, i) => (
             <div key={p.id || i} style={{
               position: 'absolute', top: '50%',
               left: `${Math.min(100, Math.max(0, p.pct))}%`,
-              transform: 'translate(-50%, -50%)',
+              transform: `translate(-50%, calc(-50% + ${offsets.get(i) ?? 0}px))`,
               zIndex: p.leader ? 3 : 2,
               transition: 'left var(--dur-hop) var(--ease-spring)',
             }}>
-              <div style={{
-                border: '2px solid',
-                borderColor: p.leader
-                  ? 'var(--gold-light) var(--gold) var(--gold) var(--gold-light)'
-                  : 'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)',
-              }}>
-                <Avatar
-                  size={avSize}
-                  colorway={p.colorway || 'chicago'}
-                  ring={p.leader ? 'var(--gold)' : 'var(--walnut)'}
-                />
-              </div>
+              <Avatar
+                size={avSize}
+                colorway={p.colorway || 'chicago'}
+                ring={p.leader ? 'var(--amber)' : 'var(--ink-600)'}
+              />
             </div>
           ))}
+
+          {/* Empty state — dormant channel note */}
+          {state === 'empty' && (
+            <span style={{
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -140%)',
+              fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--bone-dim)',
+              whiteSpace: 'nowrap',
+            }}>No telemetry yet</span>
+          )}
         </div>
 
-        <CityNode name={to} side="right" reached={state === 'end'} />
+        <CityNode name={to} side="right" selena reached={state === 'end'} />
       </div>
 
-      {/* End state: caught-up message */}
+      {/* End state: caught up */}
       {state === 'end' && (
         <div style={{
-          fontFamily: 'var(--font-display)', fontSize: 8,
-          color: 'var(--gold)', letterSpacing: '0.04em',
-          borderTop: '1px solid var(--walnut)', paddingTop: 8,
+          fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
+          color: 'var(--amber)', letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
+          borderTop: '1px solid var(--hairline-paper)', paddingTop: 7,
           textAlign: 'center',
         }}>
-          Selena reached!
+          Destination reached — she was just here
         </div>
       )}
     </div>

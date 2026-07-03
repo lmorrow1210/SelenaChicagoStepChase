@@ -2,99 +2,111 @@ import * as React from 'react';
 import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
-   BingoTile v2 — Vintage game board tile.
-   Bevel-raised when active. Bevel-inset (stamped) when complete.
-   States: incomplete | progress | complete | free
+   BingoTile v3 — "Midnight Dossier" operational matrix tile.
+   Cleared = pressed inset + amber fill + stamped ✓ (never red —
+   red is Selena's). In-progress = raised with amber edge light.
+   Free space = Selena silhouette on amber (the one square she
+   gave the Bureau for free).
+   Optional `tint`: 'step' | 'routine' | 'biometric' — subtle
+   vector-category cast on the idle face.
    ============================================================ */
+
+const TINTS = {
+  step:      'rgba(255, 176, 32, 0.05)',   /* amber cast */
+  routine:   'rgba(55, 211, 196, 0.05)',   /* vector cast */
+  biometric: 'rgba(243, 236, 217, 0.05)',  /* bone cast */
+};
 
 export function BingoTile({
   label = '10k steps',
   icon = 'step',
   state = 'incomplete',  // 'incomplete' | 'progress' | 'complete' | 'free'
-  highlight = false,
+  highlight = false,     // part of a line one tile from completion
+  tint,                  // 'step' | 'routine' | 'biometric'
   style,
 }) {
   const free = state === 'free';
   const complete = state === 'complete' || free;
   const progress = state === 'progress';
 
-  /* Background surface — free space is Selena's bright sky-blue center */
   const bg =
-    free      ? 'var(--selena)'      :
-    complete  ? 'var(--tobacco)'     :
-    progress  ? 'var(--felt)'        :
-    'var(--felt)';
+    free     ? 'var(--amber)' :
+    complete ? 'var(--amber-12)' :
+    TINTS[tint] || 'var(--ink-700)';
 
-  /* Border (bevel direction) */
-  const borderColor =
-    complete  ? 'var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)' :  /* inset — stamped */
-    progress  ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)'     :  /* selena raised */
-    free      ? 'var(--selena-dark) var(--selena-deep) var(--selena-deep) var(--selena-dark)' :
-    highlight ? 'var(--selena) var(--bevel-lo) var(--bevel-lo) var(--selena)'     :
-    'var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)';              /* default raised */
+  const boxShadow =
+    complete ? 'var(--bevel-pressed-shadow)' :
+    'var(--bevel-raised-shadow)';
 
-  /* Icon & text color — tobacco glyph on the bright free tile (7.99:1) */
+  const border =
+    progress  ? '1px solid var(--amber)' :
+    highlight ? '1px solid var(--amber-40)' :
+    free      ? '1px solid var(--amber)' :
+    '1px solid var(--hairline-paper)';
+
   const fg =
-    free     ? 'var(--tobacco)'   :
-    complete ? 'var(--dust)'      :
-    progress ? 'var(--selena)'    :
-    'var(--dust)';
+    free     ? 'var(--ink-900)' :
+    complete ? 'var(--amber)'   :
+    progress ? 'var(--amber)'   :
+    'var(--bone-dim)';
 
   const textColor =
-    free     ? 'var(--tobacco)'    :
-    complete ? 'var(--dust)'       :
-    progress ? 'var(--parchment)'  :
-    'var(--dust)';
+    free     ? 'var(--ink-900)' :
+    complete ? 'var(--manila)'  :
+    progress ? 'var(--bone)'    :
+    'var(--bone-dim)';
 
   return (
     <div style={{
       position: 'relative', aspectRatio: '1',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      gap: 5, textAlign: 'center',
-      padding: 8,
+      gap: 4, textAlign: 'center',
+      padding: 6,
       background: bg,
-      border: '2px solid',
-      borderColor: borderColor,
-      animation: highlight ? 'sc-pulse-blue 0.9s var(--ease-in-out) infinite' : 'none',
-      transition: 'background var(--dur-base) var(--ease-out), border-color var(--dur-base)',
+      border,
+      borderRadius: 'var(--r-tight)',
+      boxShadow: highlight
+        ? `${boxShadow}, var(--glow-live)`
+        : boxShadow,
+      animation: highlight ? 'sc-pulse-amber 1.6s var(--ease-in-out) infinite' : 'none',
+      transition: 'background var(--dur-base) var(--ease-out), box-shadow var(--dur-base)',
       ...style,
     }}>
 
-      {/* Complete stamp: corner marker */}
+      {/* Stamped ✓ — cleared corner mark */}
       {complete && !free && (
         <span style={{
-          position: 'absolute', top: 0, right: 0,
+          position: 'absolute', top: 3, right: 3,
           display: 'grid', placeItems: 'center',
-          width: 18, height: 18,
-          background: 'var(--selena)',
-          color: 'var(--tobacco)',
-          borderLeft: '2px solid var(--bevel-lo)',
-          borderBottom: '2px solid var(--bevel-lo)',
+          width: 16, height: 16,
+          borderRadius: 'var(--r-tight)',
+          background: 'var(--amber)',
+          color: 'var(--ink-900)',
         }}>
-          <Icon name="check" size={11} strokeWidth={3} />
+          <Icon name="check" size={10} strokeWidth={3.2} />
         </span>
       )}
 
-      {/* Main icon */}
+      {/* Main glyph — free space is Selena's silhouette */}
       <Icon
-        name={free ? 'star' : icon}
-        size={26}
-        strokeWidth={complete ? 1.5 : 2}
+        name={free ? 'nemesis' : icon}
+        size={24}
+        strokeWidth={complete ? 2.2 : 1.9}
         color={fg}
       />
 
       {/* Label */}
       <span style={{
-        fontFamily: free ? 'var(--font-display)' : 'var(--font-body)',
-        fontWeight: free ? undefined : 600,
-        fontSize: free ? 9 : 11,
-        letterSpacing: free ? '0.04em' : '0.01em',
-        lineHeight: 1.2,
+        fontFamily: 'var(--font-body)',
+        fontWeight: free ? 700 : 500,
+        fontSize: 11,
+        lineHeight: 1.25,
         color: textColor,
         textTransform: free ? 'uppercase' : 'none',
+        letterSpacing: free ? '0.08em' : 0,
       }}>
-        {free ? 'FREE' : label}
+        {free ? 'Free' : label}
       </span>
     </div>
   );

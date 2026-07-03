@@ -65,23 +65,26 @@ export function ToastShelf() {
 
   if (!unread.length) return null;
 
+  // Stacked region anchored ABOVE the TabBar (§9A) — never over the header.
+  // On desktop (no TabBar) it sits at the bottom edge with the same offset.
   return (
     <div
       aria-live="polite"
       style={{
         position: "fixed",
-        top: "var(--sp-3)",
+        bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + var(--sp-3))",
         left: "50%",
         transform: "translateX(-50%)",
         width: "min(100% - 2 * var(--sp-3), 460px)",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "column-reverse",
         gap: "var(--sp-2)",
         zIndex: "var(--z-toast)" as unknown as number,
+        pointerEvents: "none",
       }}
     >
       {unread.map((n) => (
-        <div key={n.id} className="toastSlideIn">
+        <div key={n.id} style={{ pointerEvents: "auto" }}>
           <Toast
             type={n.kind}
             message={n.message}
@@ -94,16 +97,6 @@ export function ToastShelf() {
           />
         </div>
       ))}
-      <style>{`
-        .toastSlideIn { animation: sc-toast-in var(--dur-base) var(--ease-out) both; }
-        @keyframes sc-toast-in {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .toastSlideIn { animation: none; }
-        }
-      `}</style>
     </div>
   );
 }
