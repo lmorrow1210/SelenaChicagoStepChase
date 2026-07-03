@@ -4,11 +4,19 @@ import {
   countBingoLines,
   isBlackout,
   evaluateDetector,
+  seededRand,
+  substituteExcluded,
   type DetectorContext,
 } from "./bingo.js";
 import type { BingoTile } from "@one-step-ahead/shared";
 
-/** Persist a new bingo card for a user+week if one doesn't already exist. */
+/**
+ * Persist a new bingo card for a user+week if one doesn't already exist.
+ * M10 (addendum §4): the draw + layout are seeded from the WEEK id, so every
+ * teammate gets the same shared base card that week; accessibility exclusions
+ * (group admin category toggles + player objective prefs) then substitute
+ * tiles deterministically per player.
+ */
 export async function createOrGetBingoCard(
   db: Pool | PoolClient,
   weekId: string,
@@ -24,7 +32,26 @@ export async function createOrGetBingoCard(
   const challenges = await db.query(
     "SELECT id, category FROM bingo_challenge_definitions ORDER BY id",
   );
-  const tiles = generateCard(challenges.rows);
+
+  // Shared weekly base — same 25 tiles, same positions, for the whole squad.
+  let tiles = generateCard(challenges.rows, seededRand(weekId));
+
+  // Per-player accessibility substitutions.
+  const prefRows = await db.query(
+    `SELECT u.objective_prefs, COALESCE(g.disabled_categories, '[]'::jsonb) AS disabled
+     FROM users u LEFT JOIN groups g ON g.id = u.group_id
+     WHERE u.id = $1`,
+    [userId],
+  );
+  if (prefRows.rowCount) {
+    const prefs: Record<string, boolean> = prefRows.rows[0].objective_prefs ?? {};
+    const disabled: string[] = prefRows.rows[0].disabled ?? [];
+    const excluded = new Set<string>([
+      ...disabled,
+      ...Object.entries(prefs).filter(([, on]) => on === false).map(([cat]) => cat),
+    ]);
+    tiles = substituteExcluded(tiles, challenges.rows, excluded, seededRand(`${weekId}:${userId}`));
+  }
 
   const inserted = await db.query(
     `INSERT INTO bingo_cards (week_id, user_id, tiles, bingo_lines, blackout, frozen)

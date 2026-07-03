@@ -19,6 +19,61 @@ export function isBlackout(tiles: BingoTile[]): boolean {
 }
 
 /**
+ * Deterministic PRNG from a string seed (mulberry32 over an FNV-1a hash).
+ * M10: the weekly card is a SHARED base — every teammate generating from
+ * the same week id gets the same 25-tile draw + layout (addendum §4).
+ */
+export function seededRand(seed: string): () => number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  let a = h >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * M10 accessibility substitutions (addendum §4/§7C): swap tiles whose
+ * category is excluded (group admin toggle or player prefs) for eligible
+ * alternatives, deterministically per player. The card stays a shared base
+ * with personal substitutions layered on.
+ */
+export function substituteExcluded(
+  tiles: BingoTile[],
+  pool: { id: number; category: string }[],
+  excludedCategories: Set<string>,
+  rand: () => number,
+): BingoTile[] {
+  if (!excludedCategories.size) return tiles;
+  const byId = new Map(pool.map((c) => [c.id, c]));
+  const onCard = new Set(
+    tiles.filter((t): t is Extract<BingoTile, { challenge_id: number }> => "challenge_id" in t)
+      .map((t) => t.challenge_id),
+  );
+  const eligible = pool.filter((c) => !excludedCategories.has(c.category) && !onCard.has(c.id));
+  // deterministic shuffle of the replacement queue
+  for (let i = eligible.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [eligible[i], eligible[j]] = [eligible[j], eligible[i]];
+  }
+  return tiles.map((t) => {
+    if (!("challenge_id" in t)) return t;
+    const cat = byId.get(t.challenge_id)?.category;
+    if (!cat || !excludedCategories.has(cat)) return t;
+    const sub = eligible.pop();
+    if (!sub) return t; // pool exhausted — keep original rather than break the card
+    return { challenge_id: sub.id, state: "incomplete" as const };
+  });
+}
+
+/**
  * Generate a 25-tile card: 24 distinct challenge ids + free space at index 12.
  * Category-balanced sampling: round-robin across categories until 24 picked.
  */
@@ -133,9 +188,19 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
       return ctx.workouts.length === 0 && ctx.hit_daily_target === true;
     case "target_on_weekday":
       return ctx.weekday === detector.weekday && ctx.hit_daily_target === true;
+    case "workout_duration":
+      // M10 fine variant: any single workout of at least N minutes
+      return ctx.workouts.some((w) => cmp(op, w.duration_min, value));
+    case "honor":
+      // Honor-system tiles never auto-complete — only the explicit
+      // self-report endpoint (scoutService.honorComplete) marks them.
+      return false;
     default:
-      // steps_before / bedtime_before / weekend variants need intraday or
-      // multi-night data — evaluated by dedicated callers later (M5 TODO)
+      // steps_before/steps_after, workout_day_streak, sleep_nights, and
+      // bedtime/weekend variants need intraday or multi-night context the
+      // sync pipeline doesn't carry yet — they stay incomplete rather than
+      // false-fire (documented in HANDOFF; wire when the Health API
+      // exposes intraday series).
       return false;
   }
 }

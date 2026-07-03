@@ -5,8 +5,8 @@ import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 import { getFitbitClient } from "../services/clientFactory.js";
 import { syncUserToday } from "../services/sync.js";
-import { detectUnlocks } from "../services/unlocks.js";
 import { createOrGetBingoCard, updateBingoCard } from "../services/bingoService.js";
+import { processScoutTokens } from "../services/scoutService.js";
 import { closeElapsedDays } from "../services/nemesisService.js";
 
 // Manual "sync now". Shares the process-wide client with the cron:
@@ -38,9 +38,10 @@ syncRouter.post("/run", syncLimit, async (req, res, next) => {
     const date = await syncUserToday(pool, fitbit, r.rows[0].id, r.rows[0].timezone);
     if (r.rows[0].group_id) {
       const groupId = r.rows[0].group_id as string;
-      await detectUnlocks(pool, groupId, date, r.rows[0].id);
 
-      // Bingo: ensure card exists then re-evaluate all tiles for today
+      // Bingo: ensure card exists then re-evaluate all tiles for today.
+      // M10 Field Ops: landmark unlocks flow FROM bingo lines (scout
+      // tokens) — the old all-members-worked-out unlock rule is retired.
       const weekRow = await pool.query(
         `SELECT id FROM weeks WHERE group_id = $1 AND status = 'active'
          ORDER BY starts_on DESC LIMIT 1`,
@@ -50,6 +51,7 @@ syncRouter.post("/run", syncLimit, async (req, res, next) => {
         const weekId = weekRow.rows[0].id as string;
         await createOrGetBingoCard(pool, weekId, r.rows[0].id);
         await updateBingoCard(pool, weekId, r.rows[0].id, date);
+        await processScoutTokens(pool, weekId, groupId, r.rows[0].id, date);
 
         // Nemesis: close all fully-elapsed days of my matchup (stands in for
         // the M8 midnight cron run — same pattern as bingo detection above)

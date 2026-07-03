@@ -96,7 +96,8 @@ export async function weekRollover(
         [weekId],
       );
       const unlocks = Number(unlockRow.rows[0].n);
-      const quality = unlocks >= 6 ? "gold" : unlocks >= 3 ? "silver" : "bronze";
+      // M10: each city has 5 recon landmarks - full trail = gold.
+      const quality = unlocks >= 5 ? "gold" : unlocks >= 3 ? "silver" : "bronze";
       await awardBadge(client, leaderId, "city", weekId, week.city_id, quality);
 
       // 3. Streak badges: consecutive closed weeks (ending here) won by leader.

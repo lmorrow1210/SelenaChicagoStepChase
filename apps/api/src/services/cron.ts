@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import type { FitbitClient } from "./fitbitClient.js";
 import { syncUserDay } from "./sync.js";
-import { detectUnlocks } from "./unlocks.js";
+import { processScoutTokens } from "./scoutService.js";
 import { createOrGetBingoCard, updateBingoCard } from "./bingoService.js";
 import { closeElapsedDays } from "./nemesisService.js";
 import { weekRollover } from "./weekRollover.js";
@@ -97,7 +97,9 @@ export async function runGroupSync(
     }
   }
 
-  // Detection pipeline for each synced date: unlocks → bingo → nemesis.
+  // Detection pipeline for each synced date: bingo → scout tokens → nemesis.
+  // (M10 Field Ops: landmark unlocks flow from bingo lines, not the old
+  // all-members-worked-out rule.)
   const week = await pool.query(
     `SELECT id FROM weeks WHERE group_id = $1 AND status = 'active'
      ORDER BY starts_on DESC LIMIT 1`,
@@ -106,16 +108,12 @@ export async function runGroupSync(
   const weekId: string | null = week.rowCount ? week.rows[0].id : null;
 
   for (const date of dates) {
-    try {
-      await detectUnlocks(pool, group.id, date, null);
-    } catch (err) {
-      console.error(`cron: unlock detection failed for group ${group.id}:`, err);
-    }
     if (weekId) {
       for (const userId of memberIds) {
         try {
           await createOrGetBingoCard(pool, weekId, userId);
           await updateBingoCard(pool, weekId, userId, date);
+          await processScoutTokens(pool, weekId, group.id, userId, date);
         } catch (err) {
           console.error(`cron: bingo update failed for user ${userId}:`, err);
         }

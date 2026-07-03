@@ -43,10 +43,25 @@ export const bingoTileSchema = z.union([
     challenge_id: z.number().int(),
     state: z.enum(["incomplete", "in_progress", "complete"]),
     completed_at: z.string().datetime().nullable().optional(),
+    // M10 provenance: self-reported honor completion (optional note),
+    // or covered by a teammate's Gift-a-Tile assist.
+    honor: z.boolean().optional(),
+    honor_note: z.string().max(280).nullable().optional(),
+    gifted_by: z.string().uuid().nullable().optional(),
   }),
   z.object({ free: z.literal(true), state: z.literal("complete") }),
 ]);
 export const bingoTilesSchema = z.array(bingoTileSchema).length(25);
+
+// ---- M10 Field Ops request bodies ----
+export const honorCompleteSchema = z.object({
+  challenge_id: z.number().int(),
+  note: z.string().max(280).optional(),
+});
+export const giftTileSchema = z.object({
+  to_user_id: z.string().uuid(),
+  challenge_id: z.number().int(),
+});
 
 // ---- nemesis daily result (JSONB in nemesis_matchups.daily_results) ----
 export const nemesisDayResultSchema = z.object({
