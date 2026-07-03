@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Press_Start_2P, Barlow_Condensed, VT323 } from "next/font/google";
+import { Barlow_Condensed, DM_Mono, DM_Sans } from "next/font/google";
 import "@one-step-ahead/design-system/styles.css";
 import { Providers } from "./providers";
 
-// v2 vintage-detective type stack:
-//   display/headers/labels → Press Start 2P (pixel font, weight 400 only)
-//   body/UI prose          → Barlow Condensed
-//   data/numbers/scores    → VT323 (CRT monospace, weight 400 only)
-const pressStart = Press_Start_2P({
+// v3 "Midnight Dossier" type stack:
+//   display / stamped labels → Barlow Condensed 700, UPPERCASE
+//   narrative / intel body   → DM Sans, sentence case
+//   telemetry / odometers    → DM Mono, tabular-nums
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["600", "700"],
   variable: "--font-display",
 });
 
-const barlowCondensed = Barlow_Condensed({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
   variable: "--font-body",
 });
 
-const vt323 = VT323({
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500"],
   variable: "--font-mono",
 });
 
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${pressStart.variable} ${barlowCondensed.variable} ${vt323.variable}`}>
+      <body className={`${barlowCondensed.variable} ${dmSans.variable} ${dmMono.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

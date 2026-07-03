@@ -1,16 +1,16 @@
 /* ============================================================
-   One Step Ahead — Typography Tokens v2
-   Display/headers/labels: Press Start 2P (pixel font)
-   Body/UI prose:          Barlow Condensed (condensed sans)
-   Data/numbers/scores:    VT323 (CRT monospace)
-   Fonts loaded via Google Fonts @import in styles.css.
+   One Step Ahead — Typography Tokens v3 "Midnight Dossier"
+   Display / stamped labels: Barlow Condensed 700 UPPERCASE
+   Narrative / intel body:   DM Sans, sentence case
+   Telemetry / odometers:    DM Mono, tabular-nums, amber
+   Fonts load via next/font in apps/web/app/layout.tsx.
    ============================================================ */
 
 :root {
   /* ---- Families ---- */
-  --font-display: 'Press Start 2P', monospace;
-  --font-body:    'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --font-mono:    'VT323', monospace;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', ui-monospace, monospace;
 
   /* ---- Weights ---- */
   --fw-regular:  400; /* @kind font */
@@ -19,97 +19,108 @@
   --fw-bold:     700; /* @kind font */
 
   /* ---- Type scale ----
-     Press Start 2P is inherently bold and wide — use sparingly at small sizes.
-     VT323 is designed for large use (24px+) to read as a CRT display.
-     Barlow Condensed carries the bulk of UI copy.
-  ---- */
-  --fs-display:  24px; /* Press Start 2P — title cards, screen headers */
-  --fs-h1:       18px; /* Press Start 2P — section headers */
-  --fs-h2:       14px; /* Press Start 2P — subsection titles */
-  --fs-h3:       11px; /* Press Start 2P — card headers, panel titles */
-  --fs-body:     18px; /* Barlow Condensed — main UI prose */
-  --fs-body-sm:  15px; /* Barlow Condensed — secondary UI prose */
-  --fs-label:    9px;  /* Press Start 2P — eyebrow labels, button text */
-  --fs-caption:  14px; /* Barlow Condensed — captions, helper text */
-  --fs-data:     36px; /* VT323 — big step counts, scores */
-  --fs-data-sm:  24px; /* VT323 — inline stats */
+     Display is condensed caps — hero place names run 40–56px.
+     Density is ~30% up from v1: tighter line-heights, smaller captions. */
+  --fs-display:  48px; /* hero place names (clamp 40–56 at screen level) */
+  --fs-h1:       32px; /* screen titles */
+  --fs-h2:       22px; /* section headers */
+  --fs-h3:       17px; /* card headers */
+  --fs-body:     15px; /* intel body (DM Sans) */
+  --fs-body-sm:  13px; /* secondary body */
+  --fs-label:    11px; /* stamped labels — caps, tracked, bone-dim */
+  --fs-caption:  12px; /* metadata captions (e.g. LAST SYNC) */
+  --fs-data:     32px; /* odometer step counts (DM Mono) */
+  --fs-data-sm:  18px; /* inline stats */
 
   /* ---- Line heights ---- */
-  --lh-display: 1.6;  /* @kind other */
-  --lh-tight:   1.2;  /* @kind other */
-  --lh-heading: 1.4;  /* @kind other */
-  --lh-body:    1.45; /* @kind other */
+  --lh-display: 0.95; /* @kind other — condensed caps sit tight */
+  --lh-tight:   1.1;  /* @kind other */
+  --lh-heading: 1.15; /* @kind other */
+  --lh-body:    1.5;  /* @kind other */
   --lh-data:    1.0;  /* @kind other */
 
   /* ---- Letter spacing ---- */
-  --ls-display: 0.03em; /* @kind font */
+  --ls-display: 0.02em; /* @kind font */
   --ls-heading: 0.02em; /* @kind font */
-  --ls-body:    0.01em; /* @kind font */
-  --ls-label:   0.06em; /* @kind font */
-  --ls-data:    0.02em; /* @kind font */
+  --ls-body:    0;      /* @kind font */
+  --ls-label:   0.14em; /* @kind font — stamped label tracking */
+  --ls-data:    0.01em; /* @kind font */
 }
 
 /* ---- Role utility classes ---- */
 .t-display {
   font-family: var(--font-display);
+  font-weight: var(--fw-bold);
   font-size: var(--fs-display);
   line-height: var(--lh-display);
   letter-spacing: var(--ls-display);
-  color: var(--parchment);
+  text-transform: uppercase;
+  color: var(--bone);
 }
 .t-h1 {
   font-family: var(--font-display);
+  font-weight: var(--fw-bold);
   font-size: var(--fs-h1);
   line-height: var(--lh-heading);
   letter-spacing: var(--ls-display);
-  color: var(--parchment);
+  text-transform: uppercase;
+  color: var(--bone);
 }
 .t-h2 {
   font-family: var(--font-display);
+  font-weight: var(--fw-bold);
   font-size: var(--fs-h2);
   line-height: var(--lh-heading);
-  letter-spacing: var(--ls-display);
-  color: var(--parchment);
+  letter-spacing: var(--ls-heading);
+  text-transform: uppercase;
+  color: var(--bone);
 }
 .t-h3 {
   font-family: var(--font-display);
+  font-weight: var(--fw-bold);
   font-size: var(--fs-h3);
   line-height: var(--lh-heading);
-  letter-spacing: var(--ls-label);
-  color: var(--parchment);
+  letter-spacing: var(--ls-heading);
+  text-transform: uppercase;
+  color: var(--bone);
 }
 .t-body {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  color: var(--parchment);
+  color: var(--bone);
 }
 .t-body-sm {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-body);
-  color: var(--parchment);
+  color: var(--manila);
 }
+/* Stamped label — [BUREAU VECTOR ACTIVE] style headers */
 .t-label {
   font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-label);
-  line-height: 1.4;
+  line-height: 1.3;
   letter-spacing: var(--ls-label);
-  color: var(--dust);
+  text-transform: uppercase;
+  color: var(--bone-dim);
 }
+/* Telemetry — amber odometer on inset ink screen */
 .t-data {
   font-family: var(--font-mono);
   font-size: var(--fs-data);
   line-height: var(--lh-data);
   letter-spacing: var(--ls-data);
-  color: var(--parchment);
+  font-variant-numeric: tabular-nums;
+  color: var(--amber);
 }
 .t-caption {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-caption);
   line-height: var(--lh-body);
-  color: var(--linen);
+  color: var(--bone-dim);
 }

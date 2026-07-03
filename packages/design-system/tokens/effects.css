@@ -1,48 +1,66 @@
 /* ============================================================
-   One Step Ahead — Effects v2
-   Chrome language: hard-edge bevel, zero radii, offset shadows.
-   Vintage 80s/90s computer game aesthetic.
+   One Step Ahead — Effects v3 "Midnight Dossier"
+   Material language: 2-tone box-shadow bevels on ink faces,
+   tight 6–8px radii, low shadow spread, one emissive amber glow
+   for whatever is "live". Never thick border + big shadow + big
+   radius stacked.
    ============================================================ */
 
 :root {
-  /* ---- Border radius — HARD EDGES ---- */
-  /* All chrome is square-cornered like a vintage PC game. */
-  --r-tight:  0px;
-  --r-card:   0px;
-  --r-pill:   0px;
-  --r-full:   0px;
-  --r-avatar: 50%; /* circular avatars/badges are the only exception */
+  /* ---- Border radius — tight, consistent ---- */
+  --r-tight:  6px;   /* chips, inputs, small controls */
+  --r-card:   8px;   /* cards, panels, tiles */
+  --r-pill:   8px;   /* pills read as file tabs, not capsules */
+  --r-full:   999px; /* reserved: odometer capsules, dots */
+  --r-avatar: 50%;   /* circular avatars/badges only */
 
-  /* ---- Bevel border-color shorthands ---- */
-  /* Apply via: border: 2px solid; border-color: var(--bevel-raised); */
+  /* ---- Bevel — 2-tone box-shadow (NOT border-style: outset) ----
+     Raised: light top-left (--ink-600), dark bottom-right (#05080C).
+     Pressed: inverted + amber inner glow (use for BingoTiles, locked
+     PredictionCard, active nav). Compose with --shadow-card as needed. */
+  --bevel-raised-shadow:
+    inset 1px 1px 0 0 var(--ink-600),
+    inset -1px -1px 0 0 #05080C;
+  --bevel-pressed-shadow:
+    inset 1px 1px 0 0 #05080C,
+    inset -1px -1px 0 0 var(--ink-600),
+    inset 0 0 14px 0 rgba(255, 176, 32, 0.12);
+  /* Inset "screen" — telemetry wells (amber DM Mono on ink-800) */
+  --screen-inset-shadow:
+    inset 0 2px 6px 0 rgba(0, 0, 0, 0.55),
+    inset 1px 1px 0 0 #05080C,
+    inset -1px -1px 0 0 var(--ink-600);
+
+  /* Legacy v2 border-color bevel shorthands (phase out — prefer the
+     box-shadow bevels above) */
   --bevel-raised:  var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
   --bevel-inset:   var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
   --bevel-pressed: var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
 
-  /* ---- Hard-offset shadows (no blur — pixel-era aesthetic) ---- */
-  --shadow-card:     2px 2px 0 0 var(--bevel-lo);
-  --shadow-elevated: 3px 3px 0 0 var(--bevel-lo);
-  --shadow-modal:    4px 4px 0 0 var(--bevel-lo);
-  --shadow-pin:      2px 2px 0 0 var(--bevel-lo);
-  --shadow-inset:    inset 1px 1px 0 0 var(--bevel-lo);
+  /* ---- One elevation system — low spread, ink-tinted ---- */
+  --shadow-card:     0 1px 3px 0 rgba(2, 4, 8, 0.5);
+  --shadow-elevated: 0 4px 10px -2px rgba(2, 4, 8, 0.55);
+  --shadow-modal:    0 12px 28px -6px rgba(2, 4, 8, 0.65);
+  --shadow-pin:      0 2px 6px 0 rgba(2, 4, 8, 0.5);
+  --shadow-inset:    inset 0 1px 0 rgba(243, 236, 217, 0.04);
 
-  /* ---- Z-index scale ---- */
+  /* ---- Emissive — the ONE glow that marks what's live ---- */
+  --glow-live:   0 0 16px 0 rgba(255, 176, 32, 0.35);
+  --glow-selena: 0 0 14px 0 rgba(255, 59, 48, 0.35); /* Selena moments only */
+
+  /* ---- Z-index ---- */
   --z-base:     0;   /* @kind other */
   --z-raised:   10;  /* @kind other */
-  --z-sticky:   100; /* @kind other */
-  --z-nav:      200; /* @kind other */
-  --z-overlay:  300; /* @kind other */
-  --z-modal:    400; /* @kind other */
-  --z-toast:    500; /* @kind other */
-  --z-tooltip:  600; /* @kind other */
+  --z-nav:      100; /* @kind other */
+  --z-overlay:  200; /* @kind other */
+  --z-modal:    300; /* @kind other */
+  --z-toast:    400; /* @kind other */
 
-  /* ---- Motion: durations ---- */
-  --dur-fast:    150ms; /* @kind other */
-  --dur-base:    250ms; /* @kind other */
-  --dur-unlock:  500ms; /* @kind other */
-  --dur-bingo:   400ms; /* @kind other */
-  --dur-skyline: 600ms; /* @kind other */
-  --dur-hop:     800ms; /* @kind other */
+  /* ---- Motion: duration ---- */
+  --dur-fast:   120ms; /* @kind other */
+  --dur-base:   200ms; /* @kind other */
+  --dur-slow:   350ms; /* @kind other */
+  --dur-hop:    600ms; /* @kind other */
 
   /* ---- Motion: easing ---- */
   --ease-out:        cubic-bezier(0.22, 1, 0.36, 1);    /* @kind other */

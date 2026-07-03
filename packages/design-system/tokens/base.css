@@ -1,43 +1,56 @@
 /* ============================================================
-   One Step Ahead — Base resets & primitives v2
+   One Step Ahead — Base resets & primitives v3 "Midnight Dossier"
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--tobacco);
-  color: var(--parchment);
+  background: var(--ink-900);
+  color: var(--bone);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  image-rendering: pixelated; /* honor pixel art assets */
 }
 
 ::selection {
-  background: var(--selena-40);
-  color: var(--parchment);
+  background: var(--amber-40);
+  color: var(--ink-900);
 }
 
 :focus-visible {
-  outline: 2px solid var(--selena);
+  outline: 2px solid var(--amber);
   outline-offset: 2px;
-  outline-style: dashed; /* dashed focus ring for vintage feel */
 }
 
-a { color: var(--selena); text-decoration: none; }
+a { color: var(--amber); text-decoration: none; }
 
 /* ---- Shared keyframes ---- */
-@keyframes sc-pulse-selena {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(65, 182, 230, 0.5); }
-  50%       { box-shadow: 0 0 0 6px rgba(65, 182, 230, 0); }
+/* Amber pulse — the "live" marker (current pin, active telemetry) */
+@keyframes sc-pulse-amber {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(255, 176, 32, 0); }
 }
-/* Legacy alias */
+/* Selena's red pulse — her pin and escape moments ONLY */
+@keyframes sc-pulse-selena {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); }
+}
+/* Legacy alias (v1/v2 components) — now amber, the live accent */
 @keyframes sc-pulse-blue {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(65, 182, 230, 0.5); }
-  50%       { box-shadow: 0 0 0 6px rgba(65, 182, 230, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(255, 176, 32, 0); }
+}
+/* Trail leading edge — dashes crawl toward Selena (dashoffset) */
+@keyframes sc-trail-crawl {
+  to { stroke-dashoffset: -16; }
+}
+/* Emissive breathing for the trail's glowing leading edge */
+@keyframes sc-trail-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
 }
 @keyframes sc-bounce-in {
   0%   { transform: scale(0.4); opacity: 0; }
@@ -57,11 +70,14 @@ a { color: var(--selena); text-decoration: none; }
   40%  { transform: translate(calc(-50% + var(--hop-dx, 0px) * 0.5), -14px); }
   100% { transform: translate(calc(-50% + var(--hop-dx, 0px)), 0); }
 }
-/* CRT scanline flicker — for special unlock moments */
-@keyframes sc-crt-flash {
-  0%, 100% { opacity: 1; }
-  10%       { opacity: 0.85; }
-  20%       { opacity: 1; }
-  40%       { opacity: 0.9; }
-  60%       { opacity: 1; }
+/* Stamp slam — confidential stamps thunk in slightly rotated */
+@keyframes sc-stamp {
+  0%   { transform: scale(1.6) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(0.96) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); }
+}
+/* Toast slide-up for the stacked toast region above the TabBar */
+@keyframes sc-toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
