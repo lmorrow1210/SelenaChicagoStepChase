@@ -2,7 +2,7 @@ import StepClient from "./StepClient";
 
 // Enumerate the wizard steps so `output: export` can prerender each one.
 export function generateStaticParams() {
-  return [{ step: "connect" }, { step: "target" }, { step: "avatar" }, { step: "group" }];
+  return [{ step: "connect" }, { step: "target" }, { step: "objectives" }, { step: "avatar" }, { step: "group" }];
 }
 
 export const dynamicParams = false;

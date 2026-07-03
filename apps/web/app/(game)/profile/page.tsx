@@ -13,6 +13,7 @@ import Slider from "@one-step-ahead/design-system/components/forms/Slider";
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { withBase } from "../../../lib/links";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, ApiError } from "../../../lib/api";
@@ -237,7 +238,7 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
 }
 
 export default function ProfilePage() {
-  const { user, refresh } = useSession();
+  const { user, group, refresh } = useSession();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -465,6 +466,21 @@ export default function ProfilePage() {
             )}
           </div>
 
+          <a
+            href={withBase("/wallet")}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              gap: "var(--sp-2)", padding: "10px 0",
+              borderTop: "1px solid var(--hairline)",
+              fontFamily: "var(--font-body)", fontSize: 14, color: "var(--amber)",
+            }}
+          >
+            Intel wallet
+            <Icon name="chevronRight" size={16} />
+          </a>
+
+          {group && user.id === group.admin_id && <AdminCategoryToggles />}
+
           <Button
             variant="ghost"
             fullWidth
@@ -477,6 +493,84 @@ export default function ProfilePage() {
       </div>
 
       {editing && <AvatarEditor onClose={() => setEditing(false)} />}
+    </div>
+  );
+}
+
+
+/* M10 (addendum §7C): group-admin category toggles — opt the whole squad
+   out of objective categories. Takes effect on next week's cards. */
+const ADMIN_CATEGORIES: { key: string; label: string }[] = [
+  { key: "strength", label: "Gym / strength" },
+  { key: "cardio", label: "Classes, swim & rides" },
+  { key: "heart", label: "Heart-rate zones" },
+  { key: "sleep", label: "Sleep & recovery" },
+  { key: "hydration", label: "Hydration" },
+  { key: "social", label: "Social objectives" },
+];
+
+function AdminCategoryToggles() {
+  const [disabled, setDisabled] = useState<Set<string>>(new Set());
+  const [saved, setSaved] = useState(false);
+
+  const save = useMutation({
+    mutationFn: (next: string[]) =>
+      api("/api/groups/me/categories", {
+        method: "PATCH",
+        body: JSON.stringify({ disabled_categories: next }),
+      }),
+    onSuccess: () => {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    },
+  });
+
+  function toggle(key: string) {
+    setDisabled((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      save.mutate([...next]);
+      return next;
+    });
+  }
+
+  return (
+    <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: "var(--sp-3)" }}>
+      <div style={{
+        fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "var(--fs-label)",
+        letterSpacing: "var(--ls-label)", textTransform: "uppercase", color: "var(--bone-dim)",
+        marginBottom: "var(--sp-2)",
+      }}>
+        [ Squad categories — admin ]
+      </div>
+      <p style={{ margin: "0 0 10px", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--bone-dim)" }}>
+        Toggle a category off to keep it off everyone&apos;s card from next week.
+        {saved ? " Saved." : ""}
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--sp-2)" }}>
+        {ADMIN_CATEGORIES.map((c) => {
+          const off = disabled.has(c.key);
+          return (
+            <button
+              key={c.key}
+              onClick={() => toggle(c.key)}
+              aria-pressed={!off}
+              style={{
+                padding: "6px 10px", borderRadius: "var(--r-tight)",
+                border: `1px solid ${off ? "var(--hairline)" : "var(--amber-40)"}`,
+                background: off ? "var(--ink-800)" : "var(--amber-08)",
+                color: off ? "var(--bone-dim)" : "var(--bone)",
+                fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600,
+                cursor: "pointer",
+                textDecoration: off ? "line-through" : "none",
+              }}
+            >
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

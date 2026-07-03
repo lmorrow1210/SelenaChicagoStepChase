@@ -8,7 +8,7 @@ export const usersRouter = Router();
 usersRouter.use(requireAuth);
 
 const PROFILE_FIELDS = `id, email, display_name, group_id, weekly_step_target,
-  avatar_skin, avatar_hair, avatar_colorway, fitbit_connected, last_synced_at, created_at`;
+  avatar_skin, avatar_hair, avatar_colorway, objective_prefs, fitbit_connected, last_synced_at, created_at`;
 
 usersRouter.get("/me", async (req, res, next) => {
   try {

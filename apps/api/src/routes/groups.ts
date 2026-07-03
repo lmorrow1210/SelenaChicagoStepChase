@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createGroupSchema, joinGroupSchema, GROUP_MAX_MEMBERS } from "@one-step-ahead/shared";
+import { createGroupSchema, joinGroupSchema, updateGroupCategoriesSchema, GROUP_MAX_MEMBERS } from "@one-step-ahead/shared";
 import { pool } from "../db/pool.js";
 import { generateInviteCode } from "../lib/inviteCode.js";
 import { createFirstWeek } from "../services/week.js";
@@ -152,6 +152,31 @@ groupsRouter.post("/me/leave", async (req, res, next) => {
 
 // Admin removes a player (plan §3): drop them from the group and reassign
 // their nemesis pairing if mid-week (opponent re-pairs with the bye, or
+/* M10 (addendum §7C): the group admin can opt the whole team out of
+   entire objective categories (e.g. disable gym/strength). Applies to
+   cards generated after the change (next week). */
+groupsRouter.patch("/me/categories", async (req, res, next) => {
+  try {
+    const body = updateGroupCategoriesSchema.parse(req.body);
+    const me = await pool.query("SELECT group_id FROM users WHERE id = $1", [req.userId]);
+    const groupId = me.rows[0]?.group_id;
+    if (!groupId) throw errors.notFound("You're not in a group");
+
+    const g = await pool.query("SELECT admin_id FROM groups WHERE id = $1", [groupId]);
+    if (g.rows[0].admin_id !== req.userId) {
+      throw errors.forbidden("Only the group admin can toggle categories");
+    }
+    const r = await pool.query(
+      `UPDATE groups SET disabled_categories = $2 WHERE id = $1 RETURNING disabled_categories`,
+      // guard: never allow disabling core steps play
+      [groupId, JSON.stringify(body.disabled_categories.filter((c) => c !== "steps" && c !== "wildcard"))],
+    );
+    res.json({ disabled_categories: r.rows[0].disabled_categories });
+  } catch (e) {
+    next(e);
+  }
+});
+
 // becomes the bye).
 groupsRouter.delete("/me/members/:userId", async (req, res, next) => {
   try {

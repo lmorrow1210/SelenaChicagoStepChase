@@ -9,6 +9,7 @@ import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../../../lib/api";
+import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
 
@@ -201,6 +202,9 @@ export default function FieldOpsPage() {
           {scout.unlockedToday && nextNode && (
             <span className="tokenCaption">Next decrypt available tomorrow — the trail unspools daily.</span>
           )}
+          <a className="walletLink" href={withBase("/wallet")}>
+            Intel wallet →
+          </a>
         </div>
       </header>
 
@@ -439,6 +443,14 @@ function OpsStyles() {
         font-size: var(--fs-caption);
         color: var(--bone-dim);
         text-align: right;
+      }
+      .walletLink {
+        font-family: var(--font-display);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-label);
+        letter-spacing: var(--ls-label);
+        text-transform: uppercase;
+        color: var(--amber);
       }
       .opsError {
         display: flex;

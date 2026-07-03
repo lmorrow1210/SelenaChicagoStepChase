@@ -12,13 +12,27 @@ export const avatarConfigSchema = z.object({
   avatar_colorway: z.number().int().min(1).max(6),
 });
 
+// M10 objective categories (bingo_challenge_definitions.category values)
+export const OBJECTIVE_CATEGORIES = [
+  "steps", "workout", "sleep", "heart", "social", "wildcard",
+  "strength", "cardio", "recovery", "hydration",
+] as const;
+export const objectiveCategorySchema = z.enum(OBJECTIVE_CATEGORIES);
+
 export const updateMeSchema = z
   .object({
     display_name: z.string().min(1).max(40),
     weekly_step_target: z.number().int().min(35000).max(140000),
+    // M10 accessibility: category → false hides it from the weekly card
+    objective_prefs: z.record(objectiveCategorySchema, z.boolean()),
   })
   .merge(avatarConfigSchema)
   .partial();
+
+// M10 group-admin category toggles
+export const updateGroupCategoriesSchema = z.object({
+  disabled_categories: z.array(objectiveCategorySchema).max(8),
+});
 
 // ---- group ----
 export const createGroupSchema = z.object({

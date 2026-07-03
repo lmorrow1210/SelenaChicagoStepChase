@@ -22,12 +22,13 @@ function colorwayFrom(n: number): ColorwayId {
   return COLORWAY_IDS[((n ?? 1) - 1) % COLORWAY_IDS.length];
 }
 
-const STEPS = ["connect", "target", "avatar", "group"] as const;
+const STEPS = ["connect", "target", "objectives", "avatar", "group"] as const;
 type Step = (typeof STEPS)[number];
 
 const STEP_TITLES: Record<Step, string> = {
   connect: "Connect your steps",
   target: "Set your weekly target",
+  objectives: "Tune your objectives",
   avatar: "Build your detective",
   group: "Find your crew",
 };
@@ -141,6 +142,83 @@ function ConnectStep({ onNext }: { onNext: () => void }) {
         {connected ? "Continue" : "Skip for now"}
       </Button>
     </>
+  );
+}
+
+/* M10 accessibility (addendum §7C): a few quick questions decide which
+   objective categories appear on this player's weekly card. Off = the
+   generator substitutes tiles from other categories. */
+const OBJECTIVE_QUESTIONS: { key: string; label: string; hint: string }[] = [
+  { key: "strength", label: "Gym / strength equipment", hint: "Weights, resistance work, gym access" },
+  { key: "cardio", label: "Classes, swimming & rides", hint: "Cardio classes, pool access, cycling" },
+  { key: "heart", label: "Heart-rate zone goals", hint: "Needs a wearable with HR zones" },
+  { key: "sleep", label: "Sleep & recovery goals", hint: "Needs sleep tracking on your device" },
+];
+
+function ObjectivesStep({ onNext }: { onNext: () => void }) {
+  const [prefs, setPrefs] = useState<Record<string, boolean>>({
+    strength: true,
+    cardio: true,
+    heart: true,
+    sleep: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await api("/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({ objective_prefs: prefs }),
+      });
+    } catch {
+      // Non-blocking: defaults are fine if the save fails.
+    } finally {
+      setSaving(false);
+      onNext();
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+      <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: 14, color: "var(--manila)" }}>
+        Your weekly ops card mixes step goals with wider objectives. Turn off anything that
+        doesn&apos;t fit your equipment or routine — the card fills in around it.
+      </p>
+      {OBJECTIVE_QUESTIONS.map((q) => (
+        <button
+          key={q.key}
+          onClick={() => setPrefs((p) => ({ ...p, [q.key]: !p[q.key] }))}
+          aria-pressed={prefs[q.key]}
+          style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+            padding: "10px 12px", borderRadius: "var(--r-tight)",
+            border: `1px solid ${prefs[q.key] ? "var(--amber-40)" : "var(--hairline)"}`,
+            background: prefs[q.key] ? "var(--amber-08)" : "var(--ink-800)",
+            cursor: "pointer", textAlign: "left",
+          }}
+        >
+          <span>
+            <span style={{ display: "block", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, color: "var(--bone)" }}>
+              {q.label}
+            </span>
+            <span style={{ display: "block", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--bone-dim)" }}>
+              {q.hint}
+            </span>
+          </span>
+          <span style={{
+            fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: prefs[q.key] ? "var(--amber)" : "var(--bone-dim)",
+          }}>
+            {prefs[q.key] ? "On" : "Off"}
+          </span>
+        </button>
+      ))}
+      <Button fullWidth loading={saving} onClick={() => void save()}>
+        Save and continue
+      </Button>
+    </div>
   );
 }
 
@@ -426,6 +504,7 @@ export default function OnboardingStepPage() {
         <h1 style={heading}>{STEP_TITLES[step]}</h1>
         {step === "connect" && <ConnectStep onNext={next} />}
         {step === "target" && <TargetStep onNext={next} />}
+        {step === "objectives" && <ObjectivesStep onNext={next} />}
         {step === "avatar" && <AvatarStep onNext={next} />}
         {step === "group" && <GroupStep />}
       </section>
