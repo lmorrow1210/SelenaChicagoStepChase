@@ -138,7 +138,8 @@ describeDb("cities routes integration", () => {
       group_total_steps: 81234,
       target_hit: true,
     });
-    expect(body.landmarks).toHaveLength(7);
+    // M10 Field Ops: each city has exactly 5 recon landmarks (migration 004)
+    expect(body.landmarks).toHaveLength(5);
     expect(body.unlocked_count).toBe(2);
     expect(body.landmarks.filter((l: { earned: boolean }) => l.earned)).toHaveLength(2);
     expect(body.champion).toMatchObject({
