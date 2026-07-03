@@ -13,7 +13,6 @@ import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { CallingCard } from "../../../lib/CallingCard";
-import { PredictionSection } from "./PredictionSection";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
@@ -313,8 +312,6 @@ export default function MapPage() {
         players={progressPlayers}
         state={progressPlayers.length ? (progressPlayers.some((player) => player.pct >= 100) ? "end" : "default") : "empty"}
       />
-
-      <PredictionSection />
 
       <section className="leaderboard" aria-label="Leaderboard">
         <div className="leaderboardHeader">

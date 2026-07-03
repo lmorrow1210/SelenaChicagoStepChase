@@ -6,14 +6,13 @@ import Icon from '../icons/Icon.jsx';
    A nighttime intelligence terminal: ink chassis, inset amber
    phosphor screen listing tracker commands, stamped bureau
    header. Collapsed 60px → expanded 200px on hover (§10).
-   NAV reflects product decisions: Prediction lives on the Map
-   screen, and the city tab is framed as "Destination".
+   NAV per addendum §1: Map · Field Ops · Prediction · Nemesis.
    ============================================================ */
 
 const NAV = [
   { id: 'map', label: 'Map', icon: 'map' },
-  { id: 'city', label: 'Destination', icon: 'city' },
-  { id: 'bingo', label: 'Bingo', icon: 'bingo' },
+  { id: 'fieldops', label: 'Field Ops', icon: 'bingo' },
+  { id: 'prediction', label: 'Predict', icon: 'prediction' },
   { id: 'nemesis', label: 'Nemesis', icon: 'nemesis' },
 ];
 
