@@ -49,22 +49,30 @@ function perPlayerCap(groupSize: number): number {
   return 2;
 }
 
-/**
- * Advance the team trail after a player's card changed. Idempotent —
- * computes team tokens from all cards and unlocks at most one landmark
- * (today, respecting the per-player cap). The unlocking player gets the
- * Intel Card. Returns the current scout state for the group's week.
- */
-export async function processScoutTokens(
+interface ScoutSnapshot {
+  state: ScoutState;
+  groupSize: number;
+  unlocked: { landmark_id: number; triggering_user: string | null; unlock_date: string }[];
+  nextLandmarkId: number | null;
+  reconId: number | null;
+}
+
+/** Read-only scout state — safe for GET handlers (never unlocks). */
+export async function getScoutState(
   db: Pool | PoolClient,
   weekId: string,
   groupId: string,
-  triggeringUserId: string | null,
   today: string,
-): Promise<ScoutState> {
+): Promise<ScoutSnapshot> {
   const recon = await getReconCity(db, weekId);
   if (!recon) {
-    return { reconCity: null, teamTokens: 0, unlockedCount: 0, overflowBonus: 0, unlockedToday: false };
+    return {
+      state: { reconCity: null, teamTokens: 0, unlockedCount: 0, overflowBonus: 0, unlockedToday: false },
+      groupSize: 0,
+      unlocked: [],
+      nextLandmarkId: null,
+      reconId: null,
+    };
   }
 
   // Team tokens = sum of every member's bingo lines this week.
@@ -79,7 +87,6 @@ export async function processScoutTokens(
   const teamTokens = Number(tokensRow.rows[0].tokens);
   const groupSize = Number(tokensRow.rows[0].group_size);
 
-  // Recon landmarks + current unlock state.
   const unlocksRow = await db.query(
     `SELECT l.id AS landmark_id, cu.unlocked, cu.unlock_date, cu.triggering_user
      FROM landmarks l
@@ -89,16 +96,40 @@ export async function processScoutTokens(
     [recon.id, weekId],
   );
   const unlocked = unlocksRow.rows.filter((r) => r.unlocked);
-  const unlockedCount = unlocked.length;
-  const overflowBonus = Math.max(0, teamTokens - 5);
+  const next = unlocksRow.rows.find((r) => !r.unlocked);
 
-  const state: ScoutState = {
-    reconCity: { id: recon.id, name: recon.name, country: recon.country },
-    teamTokens,
-    unlockedCount,
-    overflowBonus,
-    unlockedToday: unlocked.some((r) => String(r.unlock_date) === today),
+  return {
+    state: {
+      reconCity: { id: recon.id, name: recon.name, country: recon.country },
+      teamTokens,
+      unlockedCount: unlocked.length,
+      overflowBonus: Math.max(0, teamTokens - 5),
+      unlockedToday: unlocked.some((r) => String(r.unlock_date) === today),
+    },
+    groupSize,
+    unlocked,
+    nextLandmarkId: next ? next.landmark_id : null,
+    reconId: recon.id,
   };
+}
+
+/**
+ * Advance the team trail after a player's card changed. Idempotent —
+ * computes team tokens from all cards and unlocks at most one landmark
+ * (today, respecting the per-player cap). The unlocking player gets the
+ * Intel Card. Returns the current scout state for the group's week.
+ */
+export async function processScoutTokens(
+  db: Pool | PoolClient,
+  weekId: string,
+  groupId: string,
+  triggeringUserId: string | null,
+  today: string,
+): Promise<ScoutState> {
+  const snapshot = await getScoutState(db, weekId, groupId, today);
+  const { state, groupSize, unlocked } = snapshot;
+  if (!snapshot.reconId) return state;
+  const { teamTokens, unlockedCount } = state;
 
   // Nothing more to unlock, no spare tokens, or already unlocked today.
   if (unlockedCount >= 5 || teamTokens <= unlockedCount || state.unlockedToday) return state;
@@ -109,8 +140,8 @@ export async function processScoutTokens(
     if (mine >= perPlayerCap(groupSize)) return state;
   }
 
-  const next = unlocksRow.rows.find((r) => !r.unlocked);
-  if (!next) return state;
+  if (snapshot.nextLandmarkId == null) return state;
+  const nextLandmarkId = snapshot.nextLandmarkId;
 
   await db.query(
     `INSERT INTO city_unlocks (week_id, landmark_id, unlock_date, unlocked, unlocked_at, triggering_user)
@@ -119,20 +150,20 @@ export async function processScoutTokens(
        unlocked = TRUE,
        unlocked_at = COALESCE(city_unlocks.unlocked_at, EXCLUDED.unlocked_at),
        triggering_user = COALESCE(city_unlocks.triggering_user, EXCLUDED.triggering_user)`,
-    [weekId, next.landmark_id, today, triggeringUserId],
+    [weekId, nextLandmarkId, today, triggeringUserId],
   );
 
   // Intel Card for the scout — CONFIRMED holo if it's a revisit.
   if (triggeringUserId) {
     const prior = await db.query(
       `SELECT 1 FROM intel_cards WHERE user_id = $1 AND landmark_id = $2 AND week_id <> $3 LIMIT 1`,
-      [triggeringUserId, next.landmark_id, weekId],
+      [triggeringUserId, nextLandmarkId, weekId],
     );
     await db.query(
       `INSERT INTO intel_cards (user_id, landmark_id, city_id, week_id, variant)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (user_id, landmark_id, week_id) DO NOTHING`,
-      [triggeringUserId, next.landmark_id, recon.id, weekId, prior.rowCount ? "confirmed" : "scouted"],
+      [triggeringUserId, nextLandmarkId, snapshot.reconId, weekId, prior.rowCount ? "confirmed" : "scouted"],
     );
   }
 

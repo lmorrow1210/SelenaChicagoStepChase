@@ -60,14 +60,17 @@ function bingoTiles() {
     "Hydrate + move", "Group workout", "5k before noon", "Bedtime by 11", "Hot pursuit",
   ];
   const done = new Set([0, 1, 2, 5, 6, 9, 12, 13, 16, 19]);
-  const categories = ["steps", "workout", "sleep", "heart", "social"];
+  const categories = ["steps", "workout", "sleep", "heart", "social", "strength", "cardio", "hydration"];
+  const honorIdx = new Set([4, 9, 15, 21, 23]); // self-reported objectives
   return labels.map((label, i) => ({
     challenge_id: i,
     label,
     icon: i % 3 === 0 ? "step" : i % 3 === 1 ? "workout" : "flame",
     category: i === 12 ? "wildcard" : categories[i % categories.length],
+    source: honorIdx.has(i) ? "honor" : "auto",
     state: i === 12 ? "complete" : done.has(i) ? "complete" : i % 4 === 0 ? "in_progress" : "incomplete",
     free: i === 12 ? true : undefined,
+    gifted_by: i === 9 ? "demo-maya" : undefined,
     completed_at: null,
   }));
 }
@@ -174,6 +177,36 @@ const FIXTURES: Record<string, unknown> = {
     friends: [
       { ...MEMBERS[1], bingo_lines: 1, blackout: false },
       { ...MEMBERS[2], bingo_lines: 3, blackout: false },
+    ],
+  },
+  "/api/fieldops": {
+    card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
+    scout: {
+      reconCity: { id: 3, name: "Washington, D.C.", country: "USA" },
+      teamTokens: 6,
+      unlockedCount: 3,
+      overflowBonus: 1,
+      unlockedToday: true,
+    },
+    reconCity: { id: 3, name: "Washington, D.C.", country: "USA" },
+    trail: [
+      { id: 31, day: 1, name: "The Capitol Dome", fun_fact: "Her comm intercepts reference 'the iron dome that grew twice.'", unlocked: true, unlock_date: "2026-06-10", scouted_by: "Jess" },
+      { id: 32, day: 2, name: "Lincoln Memorial", fun_fact: "A courier saw a sky-blue fedora on the marble steps at dawn.", unlocked: true, unlock_date: "2026-06-11", scouted_by: "You" },
+      { id: 33, day: 3, name: "The Washington Monument", fun_fact: "Its shadow marks a dead-drop only at 12 noon.", unlocked: true, unlock_date: "2026-06-12", scouted_by: "Maya" },
+      { id: 34, day: 4, name: "Smithsonian Castle", fun_fact: null, unlocked: false, unlock_date: null, scouted_by: null },
+      { id: 35, day: 5, name: "Georgetown Canal", fun_fact: null, unlocked: false, unlock_date: null, scouted_by: null },
+    ],
+    assists: { remaining: 1 },
+    teammates: [
+      { ...MEMBERS[1], bingo_lines: 1, blackout: false },
+      { ...MEMBERS[2], bingo_lines: 3, blackout: false },
+    ],
+  },
+  "/api/fieldops/wallet": {
+    cards: [
+      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_name: "The Washington Monument", fun_fact: "Its shadow marks a dead-drop only at 12 noon.", city_id: 3, city_name: "Washington, D.C." },
+      { id: "ic-2", variant: "scouted", created_at: "2026-06-04T09:00:00Z", landmark_name: "Brooklyn Bridge", fun_fact: "When it opened in 1883 it was the longest suspension bridge in the world.", city_id: 2, city_name: "New York" },
+      { id: "ic-1", variant: "confirmed", created_at: "2026-05-28T20:00:00Z", landmark_name: "Willis Tower Skydeck", fun_fact: "The Ledge's glass boxes extend 4.3 feet out on the 103rd floor.", city_id: 1, city_name: "Chicago" },
     ],
   },
   "/api/bingo/friends": {
