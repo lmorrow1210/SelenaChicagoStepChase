@@ -23,7 +23,37 @@ interface EnrichedTile {
   state: TileState;
   label: string;
   icon: string;
+  category?: string;
   completed_at?: string | null;
+}
+
+/* Map challenge categories onto the three operational vectors (§9D). */
+function vectorTint(category?: string): "step" | "routine" | "biometric" | undefined {
+  if (!category) return undefined;
+  if (category === "steps" || category === "wildcard") return "step";
+  if (category === "workout" || category === "social") return "routine";
+  if (category === "sleep" || category === "heart") return "biometric";
+  return undefined;
+}
+
+/* All 12 bingo lines on a 5×5 card (rows, cols, 2 diagonals). */
+const LINES: number[][] = [
+  ...Array.from({ length: 5 }, (_, r) => Array.from({ length: 5 }, (_, c) => r * 5 + c)),
+  ...Array.from({ length: 5 }, (_, c) => Array.from({ length: 5 }, (_, r) => r * 5 + c)),
+  [0, 6, 12, 18, 24],
+  [4, 8, 12, 16, 20],
+];
+
+/* Indices of incomplete tiles that are the LAST missing tile in some line —
+   these glow (§9D: "Glow any line one tile from completion"). */
+function nearWinTiles(tiles: EnrichedTile[]): Set<number> {
+  const isDone = (i: number) => tiles[i]?.free || tiles[i]?.state === "complete";
+  const hot = new Set<number>();
+  for (const line of LINES) {
+    const missing = line.filter((i) => !isDone(i));
+    if (missing.length === 1) hot.add(missing[0]);
+  }
+  return hot;
 }
 
 interface BingoPayload {
@@ -55,6 +85,7 @@ function useBingoData(enabled: boolean) {
 }
 
 function BingoGrid({ tiles, frozen }: { tiles: EnrichedTile[]; frozen: boolean }) {
+  const hot = nearWinTiles(tiles);
   return (
     <div
       style={{
@@ -69,7 +100,9 @@ function BingoGrid({ tiles, frozen }: { tiles: EnrichedTile[]; frozen: boolean }
           key={tile.free ? "free" : (tile.challenge_id ?? idx)}
           label={tile.label}
           icon={tile.icon as any}
-          state={tile.free ? "free" : (tile.state as any)}
+          state={tile.free ? "free" : tile.state === "in_progress" ? "progress" : (tile.state as any)}
+          tint={vectorTint(tile.category)}
+          highlight={!frozen && hot.has(idx)}
         />
       ))}
     </div>
@@ -91,23 +124,25 @@ function BingoStatus({
         style={{
           textAlign: "center",
           padding: "var(--sp-3) var(--sp-4)",
-          background: "var(--gold-20)",
+          background: "var(--amber-20)",
           borderRadius: "var(--r-card)",
-          border: "1.5px solid var(--gold)",
+          border: "1px solid var(--amber)",
+          boxShadow: "var(--glow-live)",
         }}
       >
         <div
           style={{
             fontFamily: "var(--font-display)",
+            fontWeight: 700,
             fontSize: 22,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
-            color: "var(--gold)",
+            color: "var(--amber)",
           }}
         >
           Blackout!
         </div>
-        <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted)", marginTop: 4 }}>
+        <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--manila)", marginTop: 4 }}>
           All 25 tiles complete — legendary week.
         </div>
       </div>
@@ -121,17 +156,17 @@ function BingoStatus({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "var(--sp-3) var(--sp-4)",
-          background: "var(--blue-20)",
-          borderRadius: "var(--r-card)",
-          border: "1.5px solid var(--blue-40)",
+          padding: "var(--sp-2) var(--sp-3)",
+          background: "var(--amber-12)",
+          borderRadius: "var(--r-tight)",
+          border: "1px solid var(--amber-40)",
         }}
       >
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--cream)" }}>
-          {lines === 1 ? "1 bingo line" : `${lines} bingo lines`}
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--amber)" }}>
+          {lines === 1 ? "1 line cleared" : `${lines} lines cleared`}
         </span>
         {frozen && (
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--muted)" }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--bone-dim)" }}>
             Card frozen
           </span>
         )}
@@ -142,16 +177,16 @@ function BingoStatus({
   return (
     <div
       style={{
-        padding: "var(--sp-3) var(--sp-4)",
-        background: "var(--card)",
-        borderRadius: "var(--r-card)",
-        border: "1.5px solid var(--hairline)",
+        padding: "var(--sp-2) var(--sp-3)",
+        background: "var(--ink-800)",
+        borderRadius: "var(--r-tight)",
+        boxShadow: "var(--screen-inset-shadow)",
       }}
     >
-      <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted)" }}>
+      <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--bone-dim)" }}>
         {frozen
           ? "Card frozen — final state."
-          : "Complete a full row, column, or diagonal to get bingo."}
+          : "Clear a full row, column, or diagonal to report a line."}
       </span>
     </div>
   );
@@ -249,14 +284,28 @@ export default function BingoPage() {
       }}
     >
       <div>
+        <p
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 600,
+            fontSize: "var(--fs-label)",
+            letterSpacing: "var(--ls-label)",
+            textTransform: "uppercase",
+            color: "var(--bone-dim)",
+            margin: 0,
+          }}
+        >
+          [ Operational matrix ]
+        </p>
         <h1
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: 28,
+            fontWeight: 700,
+            fontSize: 30,
             textTransform: "uppercase",
-            letterSpacing: "0.04em",
-            color: "var(--cream)",
-            margin: 0,
+            letterSpacing: "0.03em",
+            color: "var(--bone)",
+            margin: "2px 0 0",
           }}
         >
           Bingo
@@ -265,11 +314,11 @@ export default function BingoPage() {
           style={{
             fontFamily: "var(--font-body)",
             fontSize: 13,
-            color: "var(--muted)",
+            color: "var(--bone-dim)",
             margin: "var(--sp-1) 0 0",
           }}
         >
-          Complete challenges to fill your card. New card every Monday.
+          Clear field objectives to fill the card. New card every Monday.
         </p>
       </div>
 

@@ -74,6 +74,8 @@ function useNemesisData(enabled: boolean) {
   });
 }
 
+/* VS cabinet (§9E) — split-screen dueling panel: your amber corner vs their
+   slate corner, big condensed VS plate, best-of-5 score in mono. */
 function ScoreBar({
   you,
   nemesis,
@@ -88,47 +90,79 @@ function ScoreBar({
   return (
     <div
       style={{
-        display: "flex",
+        position: "relative",
+        display: "grid",
+        gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
-        justifyContent: "space-between",
-        padding: "var(--sp-3) var(--sp-4)",
-        background: "var(--card)",
+        gap: "var(--sp-2)",
+        padding: "var(--sp-4) var(--sp-3)",
+        background:
+          "linear-gradient(105deg, var(--amber-08) 0%, var(--ink-700) 42%, var(--ink-700) 58%, var(--slate-08) 100%)",
         borderRadius: "var(--r-card)",
-        border: "1.5px solid var(--hairline)",
+        border: "1px solid var(--hairline)",
+        boxShadow: "var(--bevel-raised-shadow), var(--shadow-card)",
+        overflow: "hidden",
       }}
     >
+      {/* split seam */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute", top: 0, bottom: 0, left: "50%",
+          width: 1, background: "var(--hairline)", transform: "skewX(-12deg)",
+        }}
+      />
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <Avatar size={48} colorway={colorwayFrom(you.avatar_colorway)} />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--cream)" }}>
+        <Avatar size={52} colorway={colorwayFrom(you.avatar_colorway)} ring="var(--amber)" />
+        <span
+          style={{
+            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20,
+            textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--amber)",
+          }}
+        >
           You
         </span>
       </div>
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: "center", zIndex: 1 }}>
         <div
           style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 32,
-            color: "var(--cream)",
-            letterSpacing: "0.05em",
+            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15,
+            letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--bone-dim)",
           }}
         >
-          {youScore} — {nemesisScore}
+          vs
         </div>
         <div
           style={{
-            fontFamily: "var(--font-body)",
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            color: "var(--muted)",
+            fontFamily: "var(--font-mono)",
+            fontVariantNumeric: "tabular-nums",
+            fontSize: 34,
+            lineHeight: 1,
+            color: "var(--bone)",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {youScore}–{nemesisScore}
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 10,
+            textTransform: "uppercase", letterSpacing: "var(--ls-label)", color: "var(--bone-dim)",
+            marginTop: 2,
           }}
         >
           Best of 5
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <Avatar size={48} colorway={colorwayFrom(nemesis.avatar_colorway)} />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--cream)" }}>
+        <Avatar size={52} colorway={colorwayFrom(nemesis.avatar_colorway)} ring="var(--slate-light)" />
+        <span
+          style={{
+            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20,
+            textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--slate-light)",
+            maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}
+        >
           {nemesis.display_name}
         </span>
       </div>
@@ -184,31 +218,46 @@ function Banner({
   );
 }
 
+/* Live pacing readout — the delta is a red odometer when you're behind
+   (time pressure), amber when you're ahead. */
 function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerInfo }) {
   const delta = you.steps_today - nemesis.steps_today;
+  const behind = delta < 0;
   return (
     <div
       style={{
-        display: "flex",
+        display: "grid",
+        gridTemplateColumns: "auto 1fr auto",
         alignItems: "center",
-        justifyContent: "space-between",
-        padding: "var(--sp-2) var(--sp-4)",
-        background: "var(--card)",
-        borderRadius: "var(--r-card)",
-        border: "1px solid var(--hairline)",
+        gap: "var(--sp-3)",
+        padding: "var(--sp-2) var(--sp-3)",
+        background: "var(--ink-800)",
+        borderRadius: "var(--r-tight)",
+        boxShadow: "var(--screen-inset-shadow)",
       }}
     >
-      <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--blue)" }}>
+      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--amber)" }}>
         You {you.steps_today.toLocaleString()}
       </span>
-      <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--muted)" }}>
+      <span
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontVariantNumeric: "tabular-nums",
+          fontSize: 16,
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          color: delta === 0 ? "var(--bone-dim)" : behind ? "var(--signal-red)" : "var(--amber-hot)",
+          textShadow: behind ? "0 0 10px rgba(255,59,48,0.30)" : "none",
+        }}
+      >
         {delta === 0
-          ? "Dead even today"
-          : delta > 0
-            ? `${delta.toLocaleString()} ahead today`
-            : `${Math.abs(delta).toLocaleString()} behind today`}
+          ? "Dead even"
+          : behind
+            ? `${Math.abs(delta).toLocaleString()} behind today`
+            : `${delta.toLocaleString()} ahead today`}
       </span>
-      <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--red)" }}>
+      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--slate-light)" }}>
         {nemesis.steps_today.toLocaleString()} {nemesis.display_name}
       </span>
     </div>
@@ -340,14 +389,28 @@ export default function NemesisPage() {
       }}
     >
       <div>
+        <p
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 600,
+            fontSize: "var(--fs-label)",
+            letterSpacing: "var(--ls-label)",
+            textTransform: "uppercase",
+            color: "var(--bone-dim)",
+            margin: 0,
+          }}
+        >
+          [ Pacing console ]
+        </p>
         <h1
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: 28,
+            fontWeight: 700,
+            fontSize: 30,
             textTransform: "uppercase",
-            letterSpacing: "0.04em",
-            color: "var(--cream)",
-            margin: 0,
+            letterSpacing: "0.03em",
+            color: "var(--bone)",
+            margin: "2px 0 0",
           }}
         >
           Nemesis
@@ -356,7 +419,7 @@ export default function NemesisPage() {
           style={{
             fontFamily: "var(--font-body)",
             fontSize: 13,
-            color: "var(--muted)",
+            color: "var(--bone-dim)",
             margin: "var(--sp-1) 0 0",
           }}
         >

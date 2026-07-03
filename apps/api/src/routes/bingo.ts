@@ -43,17 +43,25 @@ bingoRouter.get("/current", async (req, res, next) => {
       .map((t) => t.challenge_id);
 
     const challengeRows = await pool.query(
-      `SELECT id, label, icon FROM bingo_challenge_definitions WHERE id = ANY($1)`,
+      `SELECT id, label, icon, category FROM bingo_challenge_definitions WHERE id = ANY($1)`,
       [challengeIds],
     );
     const challengeMeta = new Map(
-      challengeRows.rows.map((r) => [Number(r.id), { label: r.label, icon: r.icon }]),
+      challengeRows.rows.map((r) => [
+        Number(r.id),
+        { label: r.label, icon: r.icon, category: r.category },
+      ]),
     );
 
     const enrichedTiles = tiles.map((tile) => {
-      if ("free" in tile) return { ...tile, label: "FREE", icon: "star" };
+      if ("free" in tile) return { ...tile, label: "FREE", icon: "star", category: "wildcard" };
       const meta = challengeMeta.get(tile.challenge_id);
-      return { ...tile, label: meta?.label ?? "", icon: meta?.icon ?? "step" };
+      return {
+        ...tile,
+        label: meta?.label ?? "",
+        icon: meta?.icon ?? "step",
+        category: meta?.category ?? "steps",
+      };
     });
 
     // Friends progress (same group, same week)

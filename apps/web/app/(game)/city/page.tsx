@@ -132,15 +132,25 @@ export default function CityPage() {
       <section className="cityHero">
         <CityBadge name={data.city.name} quality="gold" size={80} />
         <div className="cityHeroText">
-          <p className="eyebrow">Destination {data.city.route_order} · She&apos;s here somewhere</p>
+          <p className="eyebrow">[ Destination {data.city.route_order} · She&apos;s here somewhere ]</p>
           <h1>{data.city.name}</h1>
           <p>{data.city.country}</p>
         </div>
-        <div className="landmarkCount">
-          <span>Places searched</span>
-          <strong>
-            {unlockedCount}/{data.landmarks.length}
-          </strong>
+        {/* Clearance header — segmented amber meter (§9C) */}
+        <div className="clearance" role="status" aria-label={`${unlockedCount} of ${data.landmarks.length} coordinates scouted`}>
+          <span className="clearanceLabel">
+            {unlockedCount}/{data.landmarks.length} coordinates scouted
+          </span>
+          <div className="clearanceMeter" aria-hidden="true">
+            {data.landmarks.map((landmark) => (
+              <span
+                key={landmark.id}
+                className="clearanceSeg"
+                data-lit={landmark.state === "unlocked" ? "true" : "false"}
+                data-live={landmark.state === "today" ? "true" : "false"}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -163,7 +173,7 @@ export default function CityPage() {
 
       <section aria-label="Places searched">
         <div className="sectionHeader">
-          <h2>Places you&apos;ve looked</h2>
+          <h2>[ Landmark hunt desk ]</h2>
         </div>
         <div className="landmarkGrid">
           {data.landmarks.map((landmark, index) => (
@@ -199,8 +209,8 @@ function CityStyles() {
       .workoutPanel {
         border: 1px solid var(--hairline);
         border-radius: var(--r-card);
-        background: var(--card);
-        box-shadow: var(--shadow-card);
+        background: var(--ink-700);
+        box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
       }
 
       .cityHero {
@@ -216,15 +226,15 @@ function CityStyles() {
       }
 
       .eyebrow,
-      .landmarkCount span,
+      .clearanceLabel,
       .avatarStatus span {
         margin: var(--sp-0);
-        font-family: var(--font-body);
+        font-family: var(--font-display);
         font-size: var(--fs-label);
-        font-weight: var(--fw-medium);
+        font-weight: var(--fw-semibold);
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
-        color: var(--muted);
+        color: var(--bone-dim);
       }
 
       h1,
@@ -251,18 +261,35 @@ function CityStyles() {
         color: var(--muted);
       }
 
-      .landmarkCount {
+      /* Clearance — segmented amber meter */
+      .clearance {
         display: flex;
         flex-direction: column;
-        gap: var(--sp-1);
-        text-align: right;
+        gap: var(--sp-2);
+        align-items: flex-end;
+        min-width: 160px;
       }
-
-      .landmarkCount strong {
-        font-family: var(--font-mono);
-        font-size: var(--fs-data);
-        line-height: var(--lh-data);
-        color: var(--gold);
+      .clearanceMeter {
+        display: flex;
+        gap: 3px;
+        padding: 4px;
+        border-radius: var(--r-tight);
+        background: var(--ink-800);
+        box-shadow: var(--screen-inset-shadow);
+      }
+      .clearanceSeg {
+        width: 18px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--ink-600);
+      }
+      .clearanceSeg[data-lit="true"] {
+        background: var(--amber);
+        box-shadow: 0 0 6px rgba(255, 176, 32, 0.45);
+      }
+      .clearanceSeg[data-live="true"] {
+        background: var(--amber-40);
+        animation: sc-skeleton 1.6s var(--ease-in-out) infinite;
       }
 
       .workoutPanel {
@@ -343,8 +370,8 @@ function CityStyles() {
           line-height: var(--lh-heading);
         }
 
-        .landmarkCount {
-          text-align: left;
+        .clearance {
+          align-items: flex-start;
         }
 
         .avatarRow {

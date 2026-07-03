@@ -4,6 +4,7 @@ import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
 import MapPin from "@one-step-ahead/design-system/components/game/MapPin";
 import ProgressStrip from "@one-step-ahead/design-system/components/game/ProgressStrip";
+import { getCityIcon } from "@one-step-ahead/design-system/components/game/CityBadge";
 import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -91,18 +92,28 @@ function formatCountdown(value: string | null): string {
   const totalHours = Math.ceil(ms / (60 * 60 * 1000));
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
-  if (days > 0) return `${days}d ${hours}h left`;
-  return `${hours}h left`;
+  if (days > 0) return `${days}d ${hours}h`;
+  return `${hours}h`;
 }
 
 function lastSyncedLabel(value: string | null): string {
-  if (!value) return "Not synced yet";
+  if (!value) return "not synced yet";
   return new Date(value).toLocaleString([], {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+/** Case-file day/time stamp, e.g. "THURSDAY, 12 P.M." */
+function fileStamp(): string {
+  const now = new Date();
+  const day = now.toLocaleDateString([], { weekday: "long" });
+  let h = now.getHours();
+  const suffix = h >= 12 ? "P.M." : "A.M.";
+  h = h % 12 || 12;
+  return `${day}, ${h} ${suffix}`.toUpperCase();
 }
 
 function LoadingMap() {
@@ -112,6 +123,26 @@ function LoadingMap() {
       <Skeleton rows={4} />
       <MapStyles />
     </main>
+  );
+}
+
+/* City postcard — the intercepted intel vignette (§7/§8): duotone landmark
+   on an ink field inside a manila file frame, with a day/time stamp. */
+function CityPostcard({ city, stamp }: { city: string; stamp: string }) {
+  const CityIcon = getCityIcon(city);
+  return (
+    <figure className="postcard" aria-label={`${city} — last confirmed sighting`}>
+      <div className="postcardArt" aria-hidden="true">
+        {CityIcon ? <CityIcon color="var(--manila)" /> : null}
+        <span className="postcardRim" />
+      </div>
+      <figcaption className="postcardPlate">
+        <span className="postcardCity">{city}</span>
+        <span className="postcardStamp">{stamp}</span>
+      </figcaption>
+      <span className="postcardCorner" aria-hidden="true" />
+      <span className="postcardMark" aria-hidden="true">Last confirmed sighting</span>
+    </figure>
   );
 }
 
@@ -158,7 +189,7 @@ export default function MapPage() {
         <EmptyState
           icon="globe"
           title="No group yet"
-          body="Create or join a team to start the chase."
+          body="Create or join a team to start the hunt."
           action={
             <a className="mapAction" href={withBase("/onboarding")}>
               Start
@@ -183,20 +214,48 @@ export default function MapPage() {
   return (
     <main className="mapPage">
       {data.state === "arrival" && <ArrivalCelebration city={data.nextCity?.name ?? data.city?.name ?? "the next city"} />}
-      <section className="mapHero" aria-label="Weekly route">
-        <div className="mapHeroTop">
-          <div>
-            <p className="eyebrow">Selena was last seen in</p>
+
+      {/* ── Tracking Vector Terminal — two-pane console (§9A) ── */}
+      <section className="console" aria-label="Tracking vector terminal">
+        {/* Left pane: intercepted city postcard */}
+        <CityPostcard city={data.city?.name ?? "Unknown"} stamp={fileStamp()} />
+
+        {/* Right pane: intel readout */}
+        <div className="intel">
+          <div className="intelHeader">
+            <p className="stamped">[ Selena was last seen in ]</p>
             <h1>{data.city?.name ?? "Unknown"}</h1>
-            <p className="muted">
-              {data.city?.country ?? ""} — and she&apos;s already moving toward{" "}
-              {data.nextCity?.name ?? "the finish"}
+            <p className="intelSub">
+              Already moving toward {data.nextCity?.name ?? "the finish"}.
             </p>
           </div>
-          <div className="countdown">{formatCountdown(data.countdown)}</div>
-        </div>
 
-        <div className="pinRoute" aria-label="Route cities">
+          {/* Hero gap stat — signal-red odometer (the one red on this screen) */}
+          <div className="gapWell" role="status">
+            <span className="stamped">Selena is</span>
+            <span className="gapNumber">{formatNumber(data.selenaLeadSteps)}</span>
+            <span className="stamped">steps ahead</span>
+          </div>
+
+          <div className="intelRow">
+            <div className="telemetry">
+              <span className="stamped">Group steps</span>
+              <span className="telemetryNumber">{formatNumber(groupSteps)}</span>
+            </div>
+            <div className="countdown">
+              <span className="stamped">She moves in</span>
+              <span className="countdownNumber">{formatCountdown(data.countdown)}</span>
+            </div>
+          </div>
+
+          <p className="syncCaption">Last sync {lastSyncedLabel(data.lastSyncedAt)}</p>
+        </div>
+      </section>
+
+      {/* ── Route — dashed intel trail with city pins ── */}
+      <section className="routeSection" aria-label="Route cities">
+        <p className="stamped routeLabel">[ Bureau vector active ]</p>
+        <div className="pinRoute">
           {data.route.map((city) => {
             const isCurrent = city.city_id === data.city?.id;
             const isNext = city.city_id === data.nextCity?.id;
@@ -230,21 +289,6 @@ export default function MapPage() {
         </div>
       </section>
 
-      <section className="statGrid" aria-label="Week stats">
-        <div className="stat">
-          <span>Group steps</span>
-          <strong>{formatNumber(groupSteps)}</strong>
-        </div>
-        <div className="stat">
-          <span>Steps behind her</span>
-          <strong>{formatNumber(data.selenaLeadSteps)}</strong>
-        </div>
-        <div className="stat">
-          <span>Last sync</span>
-          <strong>{lastSyncedLabel(data.lastSyncedAt)}</strong>
-        </div>
-      </section>
-
       <ProgressStrip
         from={data.city?.name ?? "Start"}
         to={data.nextCity?.name ?? "Finish"}
@@ -256,8 +300,8 @@ export default function MapPage() {
 
       <section className="leaderboard" aria-label="Leaderboard">
         <div className="leaderboardHeader">
-          <h2>Leaderboard</h2>
-          <span>This week</span>
+          <h2>[ Bureau leaderboard ]</h2>
+          <span className="stamped">This week</span>
         </div>
         <div className="leaderboardRows">
           {data.leaderboard.map((player) => {
@@ -265,11 +309,11 @@ export default function MapPage() {
             const isLeader = player.user_id === leaderId;
             return (
               <div className="leaderboardRow" data-mine={isMe ? "true" : "false"} key={player.user_id}>
-                <span className="rank">{player.rank}</span>
+                <span className="rank" data-first={isLeader ? "true" : "false"}>{player.rank}</span>
                 <Avatar
-                  size={36}
+                  size={30}
                   colorway={colorwayFrom(player.avatar_colorway)}
-                  ring={isLeader ? "var(--gold)" : undefined}
+                  ring={isLeader ? "var(--amber-hot)" : undefined}
                 />
                 <span className="name">{player.display_name}</span>
                 <span className="steps">{formatNumber(player.steps)}</span>
@@ -287,9 +331,10 @@ export default function MapPage() {
   );
 }
 
-const CONFETTI_COLORS = ["var(--blue)", "var(--gold)", "var(--red)", "var(--cream)"];
+/* Arrival — she slipped out as the team closed in. Amber celebration with
+   one red Selena accent (her escape). */
+const CONFETTI_COLORS = ["var(--amber)", "var(--amber-hot)", "var(--bone)", "var(--vector)"];
 
-/** Arrival is the biggest moment in the app (plan M9): confetti + banner. */
 function ArrivalCelebration({ city }: { city: string }) {
   const pieces = Array.from({ length: 36 }, (_, i) => ({
     left: `${(i * 37) % 100}%`,
@@ -313,25 +358,39 @@ function ArrivalCelebration({ city }: { city: string }) {
         ))}
       </div>
       <div className="arrivalBanner">
-        <p className="eyebrow">So close</p>
+        <p className="stamped">So close</p>
         <h2>She was just here — {city}, searched!</h2>
-        <p className="muted">Selena slipped out as you closed in. The chase picks up her trail at midnight.</p>
+        <p className="arrivalSub">
+          <span className="selenaMark">Selena slipped out as you closed in.</span>{" "}
+          The hunt picks up her trail at midnight.
+        </p>
       </div>
       <style jsx>{`
         .arrival {
           position: relative;
           overflow: hidden;
-          border: 1.5px solid var(--gold);
+          border: 1px solid var(--amber);
           border-radius: var(--r-card);
-          background: var(--gold-12);
+          background: var(--amber-12);
+          box-shadow: var(--glow-live);
           padding: var(--sp-4);
         }
         .arrivalBanner h2 {
           margin: 0;
           font-family: var(--font-display);
+          font-weight: var(--fw-bold);
           font-size: var(--fs-h2);
           text-transform: uppercase;
-          color: var(--gold);
+          color: var(--amber);
+        }
+        .arrivalSub {
+          margin: var(--sp-1) 0 0;
+          font-family: var(--font-body);
+          font-size: var(--fs-body-sm);
+          color: var(--bone);
+        }
+        .selenaMark {
+          color: var(--signal-red);
         }
         .arrivalConfetti {
           position: absolute;
@@ -341,8 +400,8 @@ function ArrivalCelebration({ city }: { city: string }) {
         .arrivalConfetti span {
           position: absolute;
           top: -10px;
-          width: 8px;
-          height: 8px;
+          width: 7px;
+          height: 7px;
           border-radius: 2px;
           opacity: 0;
           animation-name: sc-confetti-fall;
@@ -374,191 +433,316 @@ function MapStyles() {
     <style jsx global>{`
       .mapPage {
         min-height: 100dvh;
-        padding: var(--sp-5);
+        padding: var(--sp-4);
         display: flex;
         flex-direction: column;
-        gap: var(--sp-5);
-      }
-
-      .mapHero {
-        display: flex;
-        flex-direction: column;
-        gap: var(--sp-5);
-        padding: var(--sp-5);
-        border-bottom: 1px solid var(--hairline);
-        background:
-          radial-gradient(circle at 20% 25%, var(--map-land-green), transparent 18%),
-          radial-gradient(circle at 74% 38%, var(--map-land-tan), transparent 20%),
-          linear-gradient(135deg, var(--map-ocean), var(--map-ocean-2));
-      }
-
-      .mapHeroTop {
-        display: flex;
-        justify-content: space-between;
         gap: var(--sp-4);
-        align-items: flex-start;
+        max-width: 1080px;
+        margin: 0 auto;
+        width: 100%;
       }
 
-      .eyebrow,
-      .stat span,
-      .leaderboardHeader span,
-      .delta {
-        margin: var(--sp-0);
-        font-family: var(--font-body);
+      /* Stamped label role — [ BUREAU VECTOR ACTIVE ] headers */
+      .stamped {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: var(--fw-semibold);
         font-size: var(--fs-label);
-        font-weight: var(--fw-medium);
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
-        color: var(--muted);
+        color: var(--bone-dim);
       }
 
-      h1,
-      h2 {
-        margin: var(--sp-0);
+      /* ── Two-pane console ── */
+      .console {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--sp-4);
+        padding: var(--sp-4);
+        border-radius: var(--r-card);
+        border: 1px solid var(--hairline);
+        background: var(--ink-700);
+        box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
+      }
+      @media (min-width: 1024px) {
+        .console {
+          grid-template-columns: minmax(260px, 2fr) 3fr;
+          align-items: stretch;
+        }
+      }
+
+      /* City postcard — manila file frame around a duotone vignette */
+      .postcard {
+        position: relative;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--r-tight);
+        background: var(--manila);
+        padding: var(--sp-2);
+        box-shadow: var(--shadow-elevated);
+        min-height: 220px;
+      }
+      .postcardArt {
+        position: relative;
+        flex: 1;
+        min-height: 150px;
+        display: grid;
+        place-items: center;
+        border-radius: 4px;
+        background:
+          radial-gradient(circle at 50% 32%, var(--ink-600) 0%, var(--ink-800) 72%, var(--ink-900) 100%);
+        overflow: hidden;
+        padding: var(--sp-4);
+      }
+      .postcardArt > :global(svg) {
+        width: 70%;
+        height: 70%;
+        max-width: 180px;
+        filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.35));
+      }
+      .postcardRim {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse at 50% 100%, rgba(255, 176, 32, 0.10), transparent 55%);
+      }
+      .postcardPlate {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--sp-2);
+        padding: var(--sp-2) var(--sp-1) 0;
+      }
+      .postcardCity {
         font-family: var(--font-display);
         font-weight: var(--fw-bold);
+        font-size: 22px;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: var(--cream);
+        color: var(--ink-900);
+        line-height: 1;
       }
-
-      h1 {
-        font-size: var(--fs-display);
-        line-height: var(--lh-display);
-      }
-
-      h2 {
-        font-size: var(--fs-h3);
-        line-height: var(--lh-heading);
-      }
-
-      .muted {
-        margin: var(--sp-1) var(--sp-0) var(--sp-0);
-        color: var(--cream);
-        font-family: var(--font-body);
-      }
-
-      .countdown {
-        flex: none;
-        border: 1px solid var(--blue-40);
-        border-radius: var(--r-pill);
-        padding: var(--sp-2) var(--sp-3);
-        background: var(--blue-12);
-        color: var(--cream);
+      .postcardStamp {
         font-family: var(--font-mono);
-        font-size: var(--fs-data-sm);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: rgba(12, 15, 20, 0.65);
+        white-space: nowrap;
+      }
+      .postcardCorner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-top: 16px solid var(--ink-900);
+        border-left: 16px solid transparent;
+        border-top-right-radius: var(--r-tight);
+      }
+      .postcardMark {
+        position: absolute;
+        top: var(--sp-3);
+        left: var(--sp-3);
+        transform: rotate(-8deg);
+        font-family: var(--font-display);
+        font-weight: var(--fw-bold);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--stamp-red);
+        border: 1.5px solid var(--stamp-red);
+        border-radius: 2px;
+        padding: 1px 6px;
+        opacity: 0.9;
+        pointer-events: none;
       }
 
+      /* Intel readout */
+      .intel {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-3);
+        min-width: 0;
+      }
+      .intelHeader h1 {
+        margin: 2px 0 0;
+        font-family: var(--font-display);
+        font-weight: var(--fw-bold);
+        font-size: clamp(40px, 6vw, 56px);
+        line-height: var(--lh-display);
+        letter-spacing: var(--ls-display);
+        text-transform: uppercase;
+        color: var(--bone);
+      }
+      .intelSub {
+        margin: var(--sp-1) 0 0;
+        font-family: var(--font-body);
+        font-size: var(--fs-body-sm);
+        color: var(--manila);
+      }
+
+      /* Hero gap stat — red odometer on an inset ink screen */
+      .gapWell {
+        display: flex;
+        align-items: baseline;
+        gap: var(--sp-3);
+        flex-wrap: wrap;
+        padding: var(--sp-3) var(--sp-4);
+        border-radius: var(--r-tight);
+        background: var(--ink-800);
+        box-shadow: var(--screen-inset-shadow);
+      }
+      .gapNumber {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: clamp(30px, 4.5vw, 40px);
+        line-height: 1;
+        color: var(--signal-red);
+        text-shadow: 0 0 12px rgba(255, 59, 48, 0.35);
+      }
+
+      .intelRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--sp-3);
+      }
+      .telemetry,
+      .countdown {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: var(--sp-2) var(--sp-3);
+        border-radius: var(--r-tight);
+        background: var(--ink-800);
+        box-shadow: var(--screen-inset-shadow);
+        min-width: 0;
+      }
+      .telemetryNumber,
+      .countdownNumber {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: var(--fs-data-sm);
+        line-height: 1.1;
+        color: var(--amber);
+      }
+
+      /* LAST SYNC demoted to a caption (§5) */
+      .syncCaption {
+        margin: 0;
+        font-family: var(--font-body);
+        font-size: var(--fs-caption);
+        color: var(--bone-dim);
+      }
+
+      /* ── Route ── */
+      .routeSection {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-3);
+        padding: var(--sp-4);
+        border-radius: var(--r-card);
+        border: 1px solid var(--hairline);
+        background: var(--ink-700);
+        box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
+      }
+      .routeLabel {
+        border-bottom: 1px solid var(--hairline);
+        padding-bottom: var(--sp-2);
+      }
       .pinRoute {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: var(--sp-4);
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: var(--sp-3);
         align-items: end;
       }
-
       .pinSlot {
         min-height: var(--sp-9);
         display: grid;
         place-items: center;
       }
-
       .pinLink {
         display: grid;
         place-items: center;
         border-radius: var(--r-card);
         transition: transform var(--dur-fast) var(--ease-out);
       }
-
       .pinLink:hover {
         transform: translateY(calc(-1 * var(--sp-1)));
       }
 
-      .statGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: var(--sp-3);
-      }
-
-      .stat,
+      /* ── Leaderboard — dense case-file rows ── */
       .leaderboard {
         border: 1px solid var(--hairline);
         border-radius: var(--r-card);
-        background: var(--card);
-        box-shadow: var(--shadow-card);
-      }
-
-      .stat {
-        padding: var(--sp-4);
-        display: flex;
-        flex-direction: column;
-        gap: var(--sp-2);
-      }
-
-      .stat strong {
-        font-family: var(--font-mono);
-        font-size: var(--fs-data);
-        line-height: var(--lh-data);
-        color: var(--cream);
-      }
-
-      .leaderboard {
+        background: var(--ink-700);
+        box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
         overflow: hidden;
       }
-
-      .leaderboardHeader,
-      .leaderboardRow {
+      .leaderboardHeader {
         display: grid;
+        grid-template-columns: 1fr auto;
         align-items: center;
         gap: var(--sp-3);
-      }
-
-      .leaderboardHeader {
-        grid-template-columns: 1fr auto;
-        padding: var(--sp-4);
+        padding: var(--sp-3) var(--sp-4);
         border-bottom: 1px solid var(--hairline);
       }
-
+      .leaderboardHeader h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-label);
+        letter-spacing: var(--ls-label);
+        text-transform: uppercase;
+        color: var(--bone-dim);
+      }
       .leaderboardRows {
         display: flex;
         flex-direction: column;
       }
-
       .leaderboardRow {
+        display: grid;
         grid-template-columns: var(--sp-6) auto minmax(0, 1fr) auto auto;
-        padding: var(--sp-3) var(--sp-4);
-        border-bottom: 1px solid var(--hairline);
+        align-items: center;
+        gap: var(--sp-3);
+        padding: var(--sp-2) var(--sp-4);
+        border-bottom: 1px solid rgba(243, 236, 217, 0.07);
       }
-
       .leaderboardRow:last-child {
         border-bottom: 0;
       }
-
       .leaderboardRow[data-mine="true"] {
-        background: var(--blue-08);
+        background: var(--amber-08);
       }
-
       .rank,
       .steps {
         font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
       }
-
       .rank {
-        color: var(--muted);
+        color: var(--bone-dim);
       }
-
+      .rank[data-first="true"] {
+        color: var(--amber-hot);
+      }
       .name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: var(--cream);
+        color: var(--bone);
         font-weight: var(--fw-medium);
+        font-size: var(--fs-body-sm);
       }
-
       .steps {
-        color: var(--cream);
+        color: var(--amber);
       }
-
+      .delta {
+        font-family: var(--font-mono);
+        font-size: var(--fs-caption);
+        color: var(--bone-dim);
+      }
       .delta.positive {
-        color: var(--blue);
+        color: var(--vector);
       }
 
       .mapAction {
@@ -567,31 +751,29 @@ function MapStyles() {
         align-items: center;
         justify-content: center;
         padding: var(--sp-2) var(--sp-4);
-        border-radius: var(--r-pill);
-        background: var(--blue);
-        color: var(--navy);
+        border-radius: var(--r-tight);
+        background: var(--amber);
+        color: var(--ink-900);
         font-weight: var(--fw-bold);
       }
 
       @media (max-width: 767px) {
         .mapPage {
-          padding: var(--sp-4);
+          padding: var(--sp-3);
+          gap: var(--sp-3);
         }
-
-        .mapHeroTop,
-        .leaderboardRow {
-          align-items: stretch;
+        .intelHeader h1 {
+          font-size: 40px;
         }
-
-        h1 {
-          font-size: var(--fs-h1);
-          line-height: var(--lh-heading);
+        .intelRow {
+          grid-template-columns: 1fr;
         }
-
+        .postcard {
+          min-height: 180px;
+        }
         .leaderboardRow {
           grid-template-columns: var(--sp-5) auto minmax(0, 1fr);
         }
-
         .steps,
         .delta {
           grid-column: 3;

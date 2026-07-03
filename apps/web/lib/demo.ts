@@ -60,10 +60,12 @@ function bingoTiles() {
     "Hydrate + move", "Group workout", "5k before noon", "Bedtime by 11", "Hot pursuit",
   ];
   const done = new Set([0, 1, 2, 5, 6, 9, 12, 13, 16, 19]);
+  const categories = ["steps", "workout", "sleep", "heart", "social"];
   return labels.map((label, i) => ({
     challenge_id: i,
     label,
     icon: i % 3 === 0 ? "step" : i % 3 === 1 ? "workout" : "flame",
+    category: i === 12 ? "wildcard" : categories[i % categories.length],
     state: i === 12 ? "complete" : done.has(i) ? "complete" : i % 4 === 0 ? "in_progress" : "incomplete",
     free: i === 12 ? true : undefined,
     completed_at: null,
