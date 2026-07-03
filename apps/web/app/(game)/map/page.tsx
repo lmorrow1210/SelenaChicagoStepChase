@@ -5,12 +5,14 @@ import type { ColorwayId } from "@one-step-ahead/design-system/components/game/A
 import MapPin from "@one-step-ahead/design-system/components/game/MapPin";
 import ProgressStrip from "@one-step-ahead/design-system/components/game/ProgressStrip";
 import { getCityIcon } from "@one-step-ahead/design-system/components/game/CityBadge";
+import SelenaMark from "@one-step-ahead/design-system/components/game/SelenaMark";
 import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
+import { CallingCard } from "../../../lib/CallingCard";
 import { PredictionSection } from "./PredictionSection";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
@@ -215,6 +217,11 @@ export default function MapPage() {
     <main className="mapPage">
       {data.state === "arrival" && <ArrivalCelebration city={data.nextCity?.name ?? data.city?.name ?? "the next city"} />}
 
+      {/* Sunday reset — her calling card (shows once per fresh week) */}
+      {data.week && data.city && (
+        <CallingCard weekId={data.week.id} weekStartsOn={data.week.starts_on} lastSeen={data.city.name} />
+      )}
+
       {/* ── Tracking Vector Terminal — two-pane console (§9A) ── */}
       <section className="console" aria-label="Tracking vector terminal">
         {/* Left pane: intercepted city postcard */}
@@ -232,10 +239,21 @@ export default function MapPage() {
 
           {/* Hero gap stat — signal-red odometer (the one red on this screen) */}
           <div className="gapWell" role="status">
+            <span className="gapMark" aria-hidden="true">
+              <SelenaMark size={30} />
+            </span>
             <span className="stamped">Selena is</span>
             <span className="gapNumber">{formatNumber(data.selenaLeadSteps)}</span>
             <span className="stamped">steps ahead</span>
           </div>
+
+          {/* Marginal impact — make the gap feel closable (§11) */}
+          {data.selenaLeadSteps > 3000 && (
+            <p className="gapHint">
+              A 3,000-step lunch walk closes the gap to{" "}
+              <b>{formatNumber(data.selenaLeadSteps - 3000)}</b>.
+            </p>
+          )}
 
           <div className="intelRow">
             <div className="telemetry">
@@ -593,6 +611,11 @@ function MapStyles() {
         background: var(--ink-800);
         box-shadow: var(--screen-inset-shadow);
       }
+      .gapMark {
+        display: grid;
+        place-items: center;
+        align-self: center;
+      }
       .gapNumber {
         font-family: var(--font-mono);
         font-variant-numeric: tabular-nums;
@@ -625,6 +648,19 @@ function MapStyles() {
         font-size: var(--fs-data-sm);
         line-height: 1.1;
         color: var(--amber);
+      }
+
+      .gapHint {
+        margin: calc(-1 * var(--sp-2)) 0 0;
+        font-family: var(--font-body);
+        font-size: var(--fs-body-sm);
+        color: var(--manila);
+      }
+      .gapHint b {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        color: var(--amber);
+        font-weight: 500;
       }
 
       /* LAST SYNC demoted to a caption (§5) */

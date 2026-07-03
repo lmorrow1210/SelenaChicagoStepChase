@@ -10,6 +10,7 @@ import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
+import { SundayCountdown } from "../../../lib/SundayCountdown";
 import { useState } from "react";
 
 const COLORWAYS: ColorwayId[] = ["chicago", "midnight", "emerald", "crimson", "desert", "violet"];
@@ -425,6 +426,7 @@ export default function NemesisPage() {
         >
           Best of 5, Monday to Friday. Most steps wins the day.
         </p>
+        <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </div>
 
       {matchup.status === "complete" && (

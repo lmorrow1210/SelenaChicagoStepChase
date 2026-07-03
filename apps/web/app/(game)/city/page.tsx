@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
+import { SundayCountdown } from "../../../lib/SundayCountdown";
 
 type LandmarkState = "locked" | "unlocked" | "today";
 
@@ -135,6 +136,7 @@ export default function CityPage() {
           <p className="eyebrow">[ Destination {data.city.route_order} · She&apos;s here somewhere ]</p>
           <h1>{data.city.name}</h1>
           <p>{data.city.country}</p>
+          <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
         </div>
         {/* Clearance header — segmented amber meter (§9C) */}
         <div className="clearance" role="status" aria-label={`${unlockedCount} of ${data.landmarks.length} coordinates scouted`}>

@@ -8,6 +8,7 @@ import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
+import { SundayCountdown } from "../../../lib/SundayCountdown";
 
 const COLORWAYS: ColorwayId[] = ["chicago", "midnight", "emerald", "crimson", "desert", "violet"];
 
@@ -320,6 +321,7 @@ export default function BingoPage() {
         >
           Clear field objectives to fill the card. New card every Monday.
         </p>
+        <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </div>
 
       <BingoStatus lines={card.bingo_lines} blackout={card.blackout} frozen={card.frozen} />
