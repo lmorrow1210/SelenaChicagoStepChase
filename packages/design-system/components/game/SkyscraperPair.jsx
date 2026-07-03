@@ -78,7 +78,7 @@ export function SkyscraperPair({
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>VS</span>
       </div>
       <Tower side="nemesis" label={nemesis.label} pct={nemPct}
-        win={result === 'nemesis' || result === 'tie'} color="var(--red)" animate={animate} />
+        win={result === 'nemesis' || result === 'tie'} color="var(--slate-light)" animate={animate} />
     </div>
   );
 }

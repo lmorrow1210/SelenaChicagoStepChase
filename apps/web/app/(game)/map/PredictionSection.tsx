@@ -237,7 +237,7 @@ export function PredictionSection() {
         .rangeAxis {
           position: relative;
           height: 2px;
-          margin: 34px 10px 26px;
+          margin: 34px 10px 40px;
           background: var(--hairline);
         }
         .rangeTick {
@@ -325,6 +325,9 @@ function RangeChart({
   const span = max - min || 1;
   const pos = (v: number) => 8 + ((v - min) / span) * 84; // keep ticks inside the axis
 
+  // Sort by value and alternate label rows so clustered calls stay legible.
+  const sorted = [...rows].sort((a, b) => a.predicted_steps - b.predicted_steps);
+
   return (
     <div className="rangeChart" role="img" aria-label="Range of the team's step calls">
       <div className="rangeAxis">
@@ -336,7 +339,7 @@ function RangeChart({
             </span>
           </>
         )}
-        {rows.map((row) => (
+        {sorted.map((row, i) => (
           <span
             key={row.user_id}
             className="rangeTick"
@@ -347,7 +350,9 @@ function RangeChart({
             <span className="tickAvatar">
               <Avatar size={24} colorway={colorwayFrom(row.avatar_colorway)} ring={row.is_winner ? "var(--amber-hot)" : undefined} />
             </span>
-            <span className="tickValue">{formatNumber(row.predicted_steps)}</span>
+            <span className="tickValue" style={{ top: i % 2 === 0 ? 12 : 26 }}>
+              {formatNumber(row.predicted_steps)}
+            </span>
           </span>
         ))}
       </div>

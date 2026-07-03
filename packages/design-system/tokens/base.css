@@ -57,6 +57,12 @@ a { color: var(--amber); text-decoration: none; }
   60%  { transform: scale(1.12); opacity: 1; }
   100% { transform: scale(1); }
 }
+/* Skyscraper bars rise from the ground (transform-origin: bottom) */
+@keyframes sc-bounce-up {
+  0%   { transform: scaleY(0); }
+  60%  { transform: scaleY(1.06); }
+  100% { transform: scaleY(1); }
+}
 @keyframes sc-skeleton {
   0%   { opacity: 0.4; }
   50%  { opacity: 0.7; }

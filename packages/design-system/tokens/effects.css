@@ -57,10 +57,11 @@
   --z-toast:    400; /* @kind other */
 
   /* ---- Motion: duration ---- */
-  --dur-fast:   120ms; /* @kind other */
-  --dur-base:   200ms; /* @kind other */
-  --dur-slow:   350ms; /* @kind other */
-  --dur-hop:    600ms; /* @kind other */
+  --dur-fast:    120ms; /* @kind other */
+  --dur-base:    200ms; /* @kind other */
+  --dur-slow:    350ms; /* @kind other */
+  --dur-skyline: 600ms; /* @kind other — SkyscraperPair rise */
+  --dur-hop:     600ms; /* @kind other */
 
   /* ---- Motion: easing ---- */
   --ease-out:        cubic-bezier(0.22, 1, 0.36, 1);    /* @kind other */
