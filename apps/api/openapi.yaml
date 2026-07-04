@@ -585,6 +585,135 @@ paths:
                     items: { $ref: "#/components/schemas/BingoFriend" }
         "404": { $ref: "#/components/responses/NotFound" }
 
+  # ---- Field Ops (M10) ----
+  /api/fieldops:
+    get:
+      summary: Merged Field Ops payload — ops board (cause) + recon intel (effect)
+      tags: [fieldops]
+      responses:
+        "200":
+          description: >-
+            Bingo card enriched with label/icon/category/source, scout-economy
+            state, recon-city intel nodes, assists remaining, and teammates for
+            the gift picker. `fun_fact` on intel nodes is the decode reward and
+            is null until that landmark is unlocked.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  card:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      tiles:
+                        type: array
+                        minItems: 25
+                        maxItems: 25
+                        items: { $ref: "#/components/schemas/BingoTile" }
+                      bingo_lines: { type: integer }
+                      blackout: { type: boolean }
+                      frozen: { type: boolean }
+                  scout: { $ref: "#/components/schemas/ScoutState" }
+                  reconCity:
+                    allOf:
+                      - { $ref: "#/components/schemas/ReconCity" }
+                    nullable: true
+                  intel:
+                    type: array
+                    items: { $ref: "#/components/schemas/IntelNode" }
+                  assists:
+                    type: object
+                    properties:
+                      remaining: { type: integer, minimum: 0, maximum: 2 }
+                  teammates:
+                    type: array
+                    items: { $ref: "#/components/schemas/BingoFriend" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/fieldops/honor:
+    post:
+      summary: Self-report an honor-system tile (addendum §3)
+      tags: [fieldops]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challenge_id]
+              properties:
+                challenge_id: { type: integer }
+                note: { type: string, maxLength: 200 }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: NOT_HONOR / already complete / card frozen.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/fieldops/gift:
+    post:
+      summary: Cover a completed tile for a teammate (2 assists/week, §7B)
+      tags: [fieldops]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to_user_id, challenge_id]
+              properties:
+                to_user_id: { type: string, format: uuid }
+                challenge_id: { type: integer }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: NOT_COMPLETED / ASSISTS_SPENT / recipient already has it.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/fieldops/dossier:
+    get:
+      summary: Personal Dossier — season-long intel-card collection (§7A)
+      tags: [fieldops]
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+          description: >-
+            View a teammate's dossier. Must be in the viewer's group;
+            anyone else gets 403.
+      responses:
+        "200":
+          description: >-
+            Cards the owner has earned plus the full city/landmark catalogue
+            for grouping. Catalogue `fun_fact` is null unless the owner holds
+            a card for that landmark (spoiler rule).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  owner:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      display_name: { type: string }
+                  cards:
+                    type: array
+                    items: { $ref: "#/components/schemas/DossierCard" }
+                  cities:
+                    type: array
+                    items: { $ref: "#/components/schemas/DossierCitySlot" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
   # ---- Nemesis ----
   /api/nemesis/current:
     get:
@@ -880,6 +1009,72 @@ components:
           properties:
             bingo_lines: { type: integer }
             blackout: { type: boolean }
+
+    ReconCity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        country: { type: string }
+
+    ScoutState:
+      description: M10 scout-token economy snapshot for the active week.
+      type: object
+      properties:
+        reconCity:
+          allOf:
+            - { $ref: "#/components/schemas/ReconCity" }
+          nullable: true
+        teamTokens: { type: integer }
+        unlockedCount: { type: integer, minimum: 0, maximum: 5 }
+        overflowBonus: { type: integer }
+        unlockedToday: { type: boolean }
+
+    IntelNode:
+      description: >-
+        Recon-city landmark. fun_fact is the decode reward — null while the
+        landmark is still encrypted (unlocked=false).
+      type: object
+      properties:
+        id: { type: integer }
+        day: { type: integer }
+        name: { type: string }
+        fun_fact: { type: string, nullable: true }
+        image: { type: string, nullable: true }
+        unlocked: { type: boolean }
+        unlock_date: { type: string, format: date, nullable: true }
+        scouted_by_id: { type: string, format: uuid, nullable: true }
+        scouted_by: { type: string, nullable: true }
+
+    DossierCard:
+      description: Intel card an operative has personally earned.
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        variant: { type: string, enum: [scouted, confirmed] }
+        created_at: { type: string, format: date-time }
+        landmark_id: { type: integer }
+        landmark_name: { type: string }
+        fun_fact: { type: string, nullable: true }
+        image: { type: string, nullable: true }
+        city_id: { type: integer }
+        city_name: { type: string }
+        city_country: { type: string }
+
+    DossierCitySlot:
+      description: >-
+        Catalogue slot for grouping the dossier by city. fun_fact ships only
+        for landmarks the dossier owner holds a card for.
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        country: { type: string }
+        landmark_id: { type: integer }
+        day: { type: integer }
+        landmark_name: { type: string }
+        fun_fact: { type: string, nullable: true }
+        image: { type: string, nullable: true }
 
     NemesisMatchup:
       type: object

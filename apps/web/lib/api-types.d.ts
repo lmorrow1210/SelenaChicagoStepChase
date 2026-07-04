@@ -989,6 +989,199 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/fieldops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Merged Field Ops payload — ops board (cause) + recon intel (effect) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Bingo card enriched with label/icon/category/source, scout-economy state, recon-city intel nodes, assists remaining, and teammates for the gift picker. `fun_fact` on intel nodes is the decode reward and is null until that landmark is unlocked. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            card?: {
+                                /** Format: uuid */
+                                id?: string;
+                                tiles?: components["schemas"]["BingoTile"][];
+                                bingo_lines?: number;
+                                blackout?: boolean;
+                                frozen?: boolean;
+                            };
+                            scout?: components["schemas"]["ScoutState"];
+                            reconCity?: components["schemas"]["ReconCity"] | null;
+                            intel?: components["schemas"]["IntelNode"][];
+                            assists?: {
+                                remaining?: number;
+                            };
+                            teammates?: components["schemas"]["BingoFriend"][];
+                        };
+                    };
+                };
+                404: components["responses"]["NotFound"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fieldops/honor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Self-report an honor-system tile (addendum §3) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        challenge_id: number;
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                200: components["responses"]["Ok"];
+                404: components["responses"]["NotFound"];
+                /** @description NOT_HONOR / already complete / card frozen. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fieldops/gift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cover a completed tile for a teammate (2 assists/week, §7B) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        to_user_id: string;
+                        challenge_id: number;
+                    };
+                };
+            };
+            responses: {
+                200: components["responses"]["Ok"];
+                404: components["responses"]["NotFound"];
+                /** @description NOT_COMPLETED / ASSISTS_SPENT / recipient already has it. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fieldops/dossier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Personal Dossier — season-long intel-card collection (§7A) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description View a teammate's dossier. Must be in the viewer's group; anyone else gets 403. */
+                    user_id?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Cards the owner has earned plus the full city/landmark catalogue for grouping. Catalogue `fun_fact` is null unless the owner holds a card for that landmark (spoiler rule). */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            owner?: {
+                                /** Format: uuid */
+                                id?: string;
+                                display_name?: string;
+                            };
+                            cards?: components["schemas"]["DossierCard"][];
+                            cities?: components["schemas"]["DossierCitySlot"][];
+                        };
+                    };
+                };
+                403: components["responses"]["Forbidden"];
+                404: components["responses"]["NotFound"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/nemesis/current": {
         parameters: {
             query?: never;
@@ -1375,6 +1568,60 @@ export interface components {
         BingoFriend: components["schemas"]["Member"] & {
             bingo_lines?: number;
             blackout?: boolean;
+        };
+        ReconCity: {
+            id?: number;
+            name?: string;
+            country?: string;
+        };
+        /** @description M10 scout-token economy snapshot for the active week. */
+        ScoutState: {
+            reconCity?: components["schemas"]["ReconCity"] | null;
+            teamTokens?: number;
+            unlockedCount?: number;
+            overflowBonus?: number;
+            unlockedToday?: boolean;
+        };
+        /** @description Recon-city landmark. fun_fact is the decode reward — null while the landmark is still encrypted (unlocked=false). */
+        IntelNode: {
+            id?: number;
+            day?: number;
+            name?: string;
+            fun_fact?: string | null;
+            image?: string | null;
+            unlocked?: boolean;
+            /** Format: date */
+            unlock_date?: string | null;
+            /** Format: uuid */
+            scouted_by_id?: string | null;
+            scouted_by?: string | null;
+        };
+        /** @description Intel card an operative has personally earned. */
+        DossierCard: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            variant?: "scouted" | "confirmed";
+            /** Format: date-time */
+            created_at?: string;
+            landmark_id?: number;
+            landmark_name?: string;
+            fun_fact?: string | null;
+            image?: string | null;
+            city_id?: number;
+            city_name?: string;
+            city_country?: string;
+        };
+        /** @description Catalogue slot for grouping the dossier by city. fun_fact ships only for landmarks the dossier owner holds a card for. */
+        DossierCitySlot: {
+            id?: number;
+            name?: string;
+            country?: string;
+            landmark_id?: number;
+            day?: number;
+            landmark_name?: string;
+            fun_fact?: string | null;
+            image?: string | null;
         };
         NemesisMatchup: {
             /** Format: uuid */
