@@ -4,6 +4,8 @@ import LandmarkCard from "@one-step-ahead/design-system/components/game/Landmark
 import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
 
@@ -41,9 +43,12 @@ function dateLabel(value: string): string {
   return new Date(value).toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-export default function DossierPage({ searchParams }: { searchParams?: { user_id?: string } }) {
+/* The teammate link (?user_id=) is read client-side via useSearchParams so
+   the route stays statically exportable for the GitHub Pages demo — the
+   `searchParams` page prop would force dynamic rendering. */
+function DossierContent() {
   const { user } = useSession();
-  const userId = searchParams?.user_id;
+  const userId = useSearchParams().get("user_id") ?? undefined;
   const path = userId ? `/api/fieldops/dossier?user_id=${encodeURIComponent(userId)}` : "/api/fieldops/dossier";
   const { data, isLoading } = useQuery<DossierPayload>({
     queryKey: ["dossier", userId ?? "me"],
@@ -208,5 +213,14 @@ export default function DossierPage({ searchParams }: { searchParams?: { user_id
         }
       `}</style>
     </main>
+  );
+}
+
+export default function DossierPage() {
+  // Next requires a Suspense boundary around useSearchParams for static export.
+  return (
+    <Suspense fallback={null}>
+      <DossierContent />
+    </Suspense>
   );
 }
