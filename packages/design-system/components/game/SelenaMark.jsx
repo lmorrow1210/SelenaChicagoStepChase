@@ -13,7 +13,7 @@ export function SelenaMark({ size = 32, mono = false, style }) {
   /* mono=true renders single-color (currentColor) for stamps/redactions */
   const sky = mono ? 'currentColor' : '#41B6E6';
   const band = mono ? 'currentColor' : 'var(--signal-red, #FF3B30)';
-  const coat = mono ? 'currentColor' : 'var(--phosphor, #F3ECD9)';
+  const coat = mono ? 'currentColor' : 'var(--phosphor, #58E06A)';
   return (
     <svg
       viewBox="0 0 48 48"
