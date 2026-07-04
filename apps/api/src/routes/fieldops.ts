@@ -27,7 +27,7 @@ async function currentWeekAndGroup(userId: string) {
   if (!groupId) throw errors.notFound("You're not in a group");
 
   const week = await pool.query(
-    `SELECT id, to_char(now() AT TIME ZONE COALESCE(g.timezone, 'America/Chicago'), 'YYYY-MM-DD') AS today
+    `SELECT w.id, to_char(now() AT TIME ZONE COALESCE(g.timezone, 'America/Chicago'), 'YYYY-MM-DD') AS today
      FROM weeks w
      JOIN groups g ON g.id = w.group_id
      WHERE w.group_id = $1 AND w.status = 'active'
@@ -74,10 +74,13 @@ fieldopsRouter.get("/", async (req, res, next) => {
     // in the sync/honor/gift paths where a scout gets credited).
     const snapshot = await getScoutState(pool, weekId, groupId, today);
     const scout = snapshot.state;
+    // fun_fact is the decode reward — never ship it for still-encrypted
+    // landmarks (the UI hides it, but the payload must not leak it either).
     const intel = snapshot.reconId
       ? (
           await pool.query(
-            `SELECT l.id, l.day, l.name, l.fun_fact, l.image,
+            `SELECT l.id, l.day, l.name, l.image,
+                    CASE WHEN COALESCE(cu.unlocked, FALSE) THEN l.fun_fact END AS fun_fact,
                     COALESCE(cu.unlocked, FALSE) AS unlocked,
                     to_char(cu.unlock_date, 'YYYY-MM-DD') AS unlock_date,
                     u.id AS scouted_by_id,
@@ -195,12 +198,19 @@ fieldopsRouter.get("/dossier", async (req, res, next) => {
       [targetUserId],
     );
 
+    // Same spoiler rule as Field Ops intel: fun_fact only ships for landmarks
+    // this dossier actually holds a card for — locked slots stay encrypted.
     const cities = await pool.query(
       `SELECT c.id, c.name, c.country,
-              l.id AS landmark_id, l.day, l.name AS landmark_name, l.fun_fact, l.image
+              l.id AS landmark_id, l.day, l.name AS landmark_name, l.image,
+              CASE WHEN EXISTS (
+                SELECT 1 FROM intel_cards ic2
+                WHERE ic2.user_id = $1 AND ic2.landmark_id = l.id
+              ) THEN l.fun_fact END AS fun_fact
        FROM cities c
        JOIN landmarks l ON l.city_id = c.id
        ORDER BY c.route_order ASC, l.day ASC`,
+      [targetUserId],
     );
 
     res.json({
