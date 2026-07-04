@@ -42,7 +42,7 @@ export function CallingCard({
           Last seen: {lastSeen}. Next silhouette: <span className="unknown">???</span>
         </h2>
         <p className="callingCardNote">
-          The board reset at midnight. New card, new pairings — pick up her trail.
+          The board reset at midnight. New card, new pairings — open the next file.
         </p>
       </div>
       <button
@@ -63,10 +63,11 @@ export function CallingCard({
           gap: var(--sp-3);
           align-items: center;
           padding: var(--sp-3) var(--sp-4);
-          background: var(--manila);
+          background: var(--tan-200);
           border-radius: var(--r-card);
           box-shadow: var(--shadow-elevated);
           overflow: hidden;
+          text-shadow: none; /* paper printout does not glow */
         }
         .callingCard::after {
           content: "";
@@ -75,7 +76,7 @@ export function CallingCard({
           right: 0;
           width: 0;
           height: 0;
-          border-top: 16px solid var(--ink-900);
+          border-top: 16px solid var(--case-900);
           border-left: 16px solid transparent;
         }
         .callingCardArt {
@@ -84,7 +85,7 @@ export function CallingCard({
           width: 68px;
           height: 68px;
           border-radius: var(--r-tight);
-          background: radial-gradient(circle at 50% 35%, var(--ink-600), var(--ink-900) 85%);
+          background: radial-gradient(circle at 50% 35%, var(--case-700), var(--case-900) 85%);
         }
         .callingCardStamp {
           margin: 0;
@@ -96,9 +97,9 @@ export function CallingCard({
           font-size: 13px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: var(--stamp-red);
-          border: 2px solid var(--stamp-red);
-          border-radius: 2px;
+          color: var(--red-deep);
+          border: 2px solid var(--red-deep);
+          border-radius: var(--r-tight);
           padding: 1px 8px;
           animation: sc-stamp var(--dur-slow) var(--ease-spring) both;
         }
@@ -110,20 +111,20 @@ export function CallingCard({
           line-height: 1.1;
           letter-spacing: 0.03em;
           text-transform: uppercase;
-          color: var(--ink-900);
+          color: var(--case-900);
         }
         .unknown {
-          color: var(--stamp-red);
+          color: var(--red-deep);
         }
         .callingCardNote {
           margin: var(--sp-1) 0 0;
           font-family: var(--font-body);
           font-size: var(--fs-body-sm);
-          color: rgba(12, 15, 20, 0.72);
+          color: var(--case-700);
         }
         .callingCardDismiss {
           align-self: start;
-          border: 1.5px solid var(--ink-900);
+          border: 1.5px solid var(--case-700);
           background: transparent;
           border-radius: var(--r-tight);
           padding: var(--sp-1) var(--sp-2);
@@ -132,7 +133,7 @@ export function CallingCard({
           font-size: 11px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: var(--ink-900);
+          color: var(--case-900);
           cursor: pointer;
         }
       `}</style>

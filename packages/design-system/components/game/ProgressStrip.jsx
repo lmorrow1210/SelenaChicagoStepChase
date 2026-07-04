@@ -21,18 +21,18 @@ function CityNode({ name, side, selena, reached }) {
     }}>
       <div style={{
         display: 'grid', placeItems: 'center',
-        width: 44, height: 44, borderRadius: '50%',
-        background: red ? 'var(--signal-red)' : 'var(--ink-600)',
-        border: `2px solid ${red ? 'var(--signal-red)' : reached ? 'var(--amber)' : 'var(--hairline-paper)'}`,
+        width: 44, height: 44, borderRadius: 'var(--r-full)',
+        background: red ? 'var(--signal-red)' : 'var(--screen-600)',
+        border: `2px solid ${red ? 'var(--signal-red)' : reached ? 'var(--phosphor)' : 'var(--hairline-paper)'}`,
         boxShadow: red ? 'var(--glow-selena)' : reached ? 'var(--glow-live)' : 'var(--shadow-pin)',
-        color: red ? 'var(--ink-900)' : reached ? 'var(--amber)' : 'var(--manila)',
+        color: red ? 'var(--screen-base)' : reached ? 'var(--phosphor)' : 'var(--phosphor-dim)',
       }}>
         <Icon name={red ? 'nemesis' : 'city'} size={20} strokeWidth={2.1} />
       </div>
       <span style={{
         fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
         textTransform: 'uppercase', letterSpacing: '0.08em',
-        color: red ? 'var(--signal-red)' : reached ? 'var(--amber)' : 'var(--bone)',
+        color: red ? 'var(--signal-red)' : reached ? 'var(--phosphor)' : 'var(--phosphor)',
         textAlign: 'center', lineHeight: 1.2,
         maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
       }}>{name}</span>
@@ -73,7 +73,7 @@ export function ProgressStrip({
 
   return (
     <div style={{
-      background: 'var(--ink-700)',
+      background: 'var(--screen-700)',
       borderRadius: 'var(--r-card)',
       border: '1px solid var(--hairline-paper)',
       boxShadow: 'var(--bevel-raised-shadow), var(--shadow-card)',
@@ -84,7 +84,7 @@ export function ProgressStrip({
       {/* Stamped file header */}
       <div style={{
         fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
-        color: 'var(--bone-dim)', letterSpacing: 'var(--ls-label)',
+        color: 'var(--phosphor-dim)', letterSpacing: 'var(--ls-label)',
         textTransform: 'uppercase',
         borderBottom: '1px solid var(--hairline-paper)', paddingBottom: 7,
       }}>
@@ -104,18 +104,18 @@ export function ProgressStrip({
           >
             {/* Route still ahead — dim dashes */}
             <line x1="0" y1="6" x2="100" y2="6"
-              stroke="var(--bone-dim)" strokeOpacity="0.35" strokeWidth="2"
+              stroke="var(--phosphor-dim)" strokeOpacity="0.35" strokeWidth="2"
               strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
             {/* Ground covered — team vector, solid */}
             {state !== 'empty' && (
               <line x1="0" y1="6" x2={maxPct} y2="6"
-                stroke={state === 'end' ? 'var(--amber)' : 'var(--vector)'} strokeWidth="3"
+                stroke={state === 'end' ? 'var(--phosphor)' : 'var(--phosphor-hot)'} strokeWidth="3"
                 vectorEffect="non-scaling-stroke" />
             )}
             {/* Glowing leading edge — the live dash segment */}
             {state === 'default' && maxPct > 0 && maxPct < 100 && (
               <line x1={maxPct} y1="6" x2={Math.min(100, maxPct + 8)} y2="6"
-                stroke="var(--amber)" strokeWidth="3"
+                stroke="var(--phosphor)" strokeWidth="3"
                 strokeDasharray="4 4" vectorEffect="non-scaling-stroke"
                 style={{ animation: 'sc-trail-pulse 1.6s var(--ease-in-out) infinite' }} />
             )}
@@ -133,7 +133,7 @@ export function ProgressStrip({
               <Avatar
                 size={avSize}
                 colorway={p.colorway || 'chicago'}
-                ring={p.leader ? 'var(--amber)' : 'var(--ink-600)'}
+                ring={p.leader ? 'var(--phosphor)' : 'var(--grid-line)'}
               />
             </div>
           ))}
@@ -142,7 +142,7 @@ export function ProgressStrip({
           {state === 'empty' && (
             <span style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -140%)',
-              fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--bone-dim)',
+              fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--phosphor-dim)',
               whiteSpace: 'nowrap',
             }}>No telemetry yet</span>
           )}
@@ -155,7 +155,7 @@ export function ProgressStrip({
       {state === 'end' && (
         <div style={{
           fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
-          color: 'var(--amber)', letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
+          color: 'var(--phosphor)', letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
           borderTop: '1px solid var(--hairline-paper)', paddingTop: 7,
           textAlign: 'center',
         }}>

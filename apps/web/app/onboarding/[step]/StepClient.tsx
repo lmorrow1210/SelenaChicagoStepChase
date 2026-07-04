@@ -181,7 +181,7 @@ function ObjectivesStep({ onNext }: { onNext: () => void }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
-      <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: 14, color: "var(--manila)" }}>
+      <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: 14, color: "var(--phosphor-dim)" }}>
         Your weekly ops card mixes step goals with wider objectives. Turn off anything that
         doesn&apos;t fit your equipment or routine — the card fills in around it.
       </p>
@@ -193,23 +193,23 @@ function ObjectivesStep({ onNext }: { onNext: () => void }) {
           style={{
             display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
             padding: "10px 12px", borderRadius: "var(--r-tight)",
-            border: `1px solid ${prefs[q.key] ? "var(--amber-40)" : "var(--hairline)"}`,
-            background: prefs[q.key] ? "var(--amber-08)" : "var(--ink-800)",
+            border: `1px solid ${prefs[q.key] ? "var(--phosphor-40)" : "var(--hairline)"}`,
+            background: prefs[q.key] ? "var(--phosphor-08)" : "var(--screen-700)",
             cursor: "pointer", textAlign: "left",
           }}
         >
           <span>
-            <span style={{ display: "block", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, color: "var(--bone)" }}>
+            <span style={{ display: "block", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, color: "var(--phosphor)" }}>
               {q.label}
             </span>
-            <span style={{ display: "block", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--bone-dim)" }}>
+            <span style={{ display: "block", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--phosphor-dim)" }}>
               {q.hint}
             </span>
           </span>
           <span style={{
             fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.08em",
             textTransform: "uppercase",
-            color: prefs[q.key] ? "var(--amber)" : "var(--bone-dim)",
+            color: prefs[q.key] ? "var(--phosphor)" : "var(--phosphor-dim)",
           }}>
             {prefs[q.key] ? "On" : "Off"}
           </span>
@@ -311,7 +311,7 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
             style={{
               width: 32,
               height: 32,
-              borderRadius: "50%",
+              borderRadius: "var(--r-full)",
               background: color,
               border: selected === i + 1 ? "2.5px solid var(--blue)" : "2px solid var(--hairline)",
               cursor: "pointer",
@@ -358,7 +358,7 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
               style={{
                 width: 32,
                 height: 32,
-                borderRadius: "50%",
+                borderRadius: "var(--r-full)",
                 background: COLORWAYS[id].coat,
                 border:
                   colorway === i + 1 ? "2.5px solid var(--blue)" : "2px solid var(--hairline)",

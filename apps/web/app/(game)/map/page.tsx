@@ -13,6 +13,7 @@ import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { CallingCard } from "../../../lib/CallingCard";
+import { SundayCountdown } from "../../../lib/SundayCountdown";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
@@ -83,18 +84,12 @@ function formatNumber(value: number): string {
 
 function formatDelta(value: number): string {
   if (value === 0) return "even";
-  return `${value > 0 ? "+" : ""}${formatNumber(value)}`;
+  return `${value > 0 ? "▲" : "▼"} ${formatNumber(Math.abs(value))}`;
 }
 
-function formatCountdown(value: string | null): string {
-  if (!value) return "Not scheduled";
-  const ms = new Date(value).getTime() - Date.now();
-  if (ms <= 0) return "Arriving now";
-  const totalHours = Math.ceil(ms / (60 * 60 * 1000));
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
-  if (days > 0) return `${days}d ${hours}h`;
-  return `${hours}h`;
+/** End a sentence without doubling a trailing period ("Washington, D.C.."). */
+function sentence(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`;
 }
 
 function lastSyncedLabel(value: string | null): string {
@@ -134,7 +129,7 @@ function CityPostcard({ city, stamp }: { city: string; stamp: string }) {
   return (
     <figure className="postcard" aria-label={`${city} — last confirmed sighting`}>
       <div className="postcardArt" aria-hidden="true">
-        {CityIcon ? <CityIcon color="var(--manila)" /> : null}
+        {CityIcon ? <CityIcon color="var(--tan-200)" /> : null}
         <span className="postcardRim" />
       </div>
       <figcaption className="postcardPlate">
@@ -142,7 +137,6 @@ function CityPostcard({ city, stamp }: { city: string; stamp: string }) {
         <span className="postcardStamp">{stamp}</span>
       </figcaption>
       <span className="postcardCorner" aria-hidden="true" />
-      <span className="postcardMark" aria-hidden="true">Last confirmed sighting</span>
     </figure>
   );
 }
@@ -226,13 +220,12 @@ export default function MapPage() {
         {/* Left pane: intercepted city postcard */}
         <CityPostcard city={data.city?.name ?? "Unknown"} stamp={fileStamp()} />
 
-        {/* Right pane: intel readout */}
+        {/* Right pane: intel readout — the postcard carries the big city name */}
         <div className="intel">
           <div className="intelHeader">
-            <p className="stamped">[ Selena was last seen in ]</p>
-            <h1>{data.city?.name ?? "Unknown"}</h1>
+            <h1 className="stamped sightingLine">[ Last confirmed sighting ]</h1>
             <p className="intelSub">
-              Already moving toward {data.nextCity?.name ?? "the finish"}.
+              {sentence(`Already moving toward ${data.nextCity?.name ?? "the finish"}`)}
             </p>
           </div>
 
@@ -259,10 +252,8 @@ export default function MapPage() {
               <span className="stamped">Group steps</span>
               <span className="telemetryNumber">{formatNumber(groupSteps)}</span>
             </div>
-            <div className="countdown">
-              <span className="stamped">She moves in</span>
-              <span className="countdownNumber">{formatCountdown(data.countdown)}</span>
-            </div>
+            {/* One reset clock everywhere — Sunday 11:59 PM */}
+            <SundayCountdown style={{ alignSelf: "center", justifySelf: "start" }} />
           </div>
 
           <p className="syncCaption">Last sync {lastSyncedLabel(data.lastSyncedAt)}</p>
@@ -273,6 +264,11 @@ export default function MapPage() {
       <section className="routeSection" aria-label="Route cities">
         <p className="stamped routeLabel">[ Bureau vector active ]</p>
         <div className="pinRoute">
+          {/* Dashed amber intel vector behind the pins, pulsing dot at the leading edge */}
+          <RouteVector
+            count={data.route.length}
+            currentIndex={Math.max(0, data.route.findIndex((city) => city.city_id === data.city?.id))}
+          />
           {data.route.map((city) => {
             const isCurrent = city.city_id === data.city?.id;
             const isNext = city.city_id === data.nextCity?.id;
@@ -304,6 +300,12 @@ export default function MapPage() {
             );
           })}
         </div>
+        <div className="routeLegend" aria-label="Route legend">
+          <span className="legendItem"><span className="legendSwatch legendCleared" /> Cleared</span>
+          <span className="legendItem"><span className="legendSwatch legendCurrent" /> Current</span>
+          <span className="legendItem"><span className="legendSwatch legendSelena" /> Selena</span>
+          <span className="legendItem"><span className="legendSwatch legendFuture" /> Future</span>
+        </div>
       </section>
 
       <ProgressStrip
@@ -328,11 +330,11 @@ export default function MapPage() {
                 <Avatar
                   size={30}
                   colorway={colorwayFrom(player.avatar_colorway)}
-                  ring={isLeader ? "var(--amber-hot)" : undefined}
+                  ring={isLeader ? "var(--phosphor-hot)" : undefined}
                 />
                 <span className="name">{player.display_name}</span>
                 <span className="steps">{formatNumber(player.steps)}</span>
-                <span className={player.deltaVsLastWeek >= 0 ? "delta positive" : "delta"}>
+                <span className={player.deltaVsLastWeek > 0 ? "delta positive" : "delta"}>
                   {formatDelta(player.deltaVsLastWeek)}
                 </span>
               </div>
@@ -346,9 +348,38 @@ export default function MapPage() {
   );
 }
 
+/* Dashed amber intel vector drawn behind the route pins. The covered leg is
+   bright amber; the leg ahead is dimmed. A pulsing dot rides the leading
+   edge (the current city). Pin centers sit at (i + 0.5) / count. */
+function RouteVector({ count, currentIndex }: { count: number; currentIndex: number }) {
+  if (count < 2) return null;
+  const at = (i: number) => ((i + 0.5) / count) * 100;
+  const lead = at(currentIndex);
+  return (
+    <svg className="routeVector" aria-hidden="true" viewBox="0 0 100 12" preserveAspectRatio="none">
+      <line
+        x1={at(0)} y1="6" x2={lead} y2="6"
+        stroke="var(--map-route)" strokeWidth="2" strokeDasharray="6 5"
+        vectorEffect="non-scaling-stroke"
+        style={{ animation: "sc-trail-crawl 1.4s linear infinite" }}
+      />
+      <line
+        x1={lead} y1="6" x2={at(count - 1)} y2="6"
+        stroke="var(--phosphor-dim)" strokeOpacity="0.35" strokeWidth="2" strokeDasharray="4 5"
+        vectorEffect="non-scaling-stroke"
+      />
+      <circle
+        cx={lead} cy="6" r="3.5"
+        fill="var(--phosphor)"
+        style={{ animation: "sc-trail-pulse 1.6s var(--ease-in-out) infinite" }}
+      />
+    </svg>
+  );
+}
+
 /* Arrival — she slipped out as the team closed in. Amber celebration with
    one red Selena accent (her escape). */
-const CONFETTI_COLORS = ["var(--amber)", "var(--amber-hot)", "var(--bone)", "var(--vector)"];
+const CONFETTI_COLORS = ["var(--phosphor)", "var(--phosphor-hot)", "var(--phosphor)", "var(--phosphor-hot)"];
 
 function ArrivalCelebration({ city }: { city: string }) {
   const pieces = Array.from({ length: 36 }, (_, i) => ({
@@ -384,9 +415,9 @@ function ArrivalCelebration({ city }: { city: string }) {
         .arrival {
           position: relative;
           overflow: hidden;
-          border: 1px solid var(--amber);
+          border: 1px solid var(--phosphor);
           border-radius: var(--r-card);
-          background: var(--amber-12);
+          background: var(--phosphor-12);
           box-shadow: var(--glow-live);
           padding: var(--sp-4);
         }
@@ -396,13 +427,13 @@ function ArrivalCelebration({ city }: { city: string }) {
           font-weight: var(--fw-bold);
           font-size: var(--fs-h2);
           text-transform: uppercase;
-          color: var(--amber);
+          color: var(--phosphor);
         }
         .arrivalSub {
           margin: var(--sp-1) 0 0;
           font-family: var(--font-body);
           font-size: var(--fs-body-sm);
-          color: var(--bone);
+          color: var(--phosphor);
         }
         .selenaMark {
           color: var(--signal-red);
@@ -417,7 +448,6 @@ function ArrivalCelebration({ city }: { city: string }) {
           top: -10px;
           width: 7px;
           height: 7px;
-          border-radius: 2px;
           opacity: 0;
           animation-name: sc-confetti-fall;
           animation-timing-function: var(--ease-in-out);
@@ -447,12 +477,11 @@ function MapStyles() {
   return (
     <style jsx global>{`
       .mapPage {
-        min-height: 100dvh;
-        padding: var(--sp-4);
+        padding: var(--space-md) var(--space-lg) var(--space-2xl);
         display: flex;
         flex-direction: column;
-        gap: var(--sp-4);
-        max-width: 1080px;
+        gap: var(--space-md);
+        max-width: var(--content-max);
         margin: 0 auto;
         width: 100%;
       }
@@ -465,7 +494,7 @@ function MapStyles() {
         font-size: var(--fs-label);
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
-        color: var(--bone-dim);
+        color: var(--phosphor-dim);
       }
 
       /* ── Two-pane console ── */
@@ -476,7 +505,7 @@ function MapStyles() {
         padding: var(--sp-4);
         border-radius: var(--r-card);
         border: 1px solid var(--hairline);
-        background: var(--ink-700);
+        background: var(--screen-700);
         box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
       }
       @media (min-width: 1024px) {
@@ -486,17 +515,18 @@ function MapStyles() {
         }
       }
 
-      /* City postcard — manila file frame around a duotone vignette */
+      /* City postcard — tan printout frame around a duotone vignette */
       .postcard {
         position: relative;
         margin: 0;
         display: flex;
         flex-direction: column;
         border-radius: var(--r-tight);
-        background: var(--manila);
+        background: var(--tan-200);
         padding: var(--sp-2);
         box-shadow: var(--shadow-elevated);
         min-height: 220px;
+        text-shadow: none; /* paper printout does not glow */
       }
       .postcardArt {
         position: relative;
@@ -504,9 +534,8 @@ function MapStyles() {
         min-height: 150px;
         display: grid;
         place-items: center;
-        border-radius: 4px;
         background:
-          radial-gradient(circle at 50% 32%, var(--ink-600) 0%, var(--ink-800) 72%, var(--ink-900) 100%);
+          radial-gradient(circle at 50% 32%, var(--case-700) 0%, var(--case-800) 72%, var(--case-900) 100%);
         overflow: hidden;
         padding: var(--sp-4);
       }
@@ -514,13 +543,13 @@ function MapStyles() {
         width: 70%;
         height: 70%;
         max-width: 180px;
-        filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.35));
+        filter: drop-shadow(0 0 10px rgba(var(--phosphor-glow), 0.35));
       }
       .postcardRim {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: radial-gradient(ellipse at 50% 100%, rgba(255, 176, 32, 0.10), transparent 55%);
+        background: radial-gradient(ellipse at 50% 100%, rgba(var(--phosphor-glow), 0.10), transparent 55%);
       }
       .postcardPlate {
         display: flex;
@@ -535,14 +564,14 @@ function MapStyles() {
         font-size: 22px;
         letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: var(--ink-900);
+        color: var(--case-900);
         line-height: 1;
       }
       .postcardStamp {
         font-family: var(--font-mono);
         font-size: 10px;
         letter-spacing: 0.1em;
-        color: rgba(12, 15, 20, 0.65);
+        color: var(--case-700);
         white-space: nowrap;
       }
       .postcardCorner {
@@ -551,26 +580,8 @@ function MapStyles() {
         right: 0;
         width: 0;
         height: 0;
-        border-top: 16px solid var(--ink-900);
+        border-top: 16px solid var(--case-900);
         border-left: 16px solid transparent;
-        border-top-right-radius: var(--r-tight);
-      }
-      .postcardMark {
-        position: absolute;
-        top: var(--sp-3);
-        left: var(--sp-3);
-        transform: rotate(-8deg);
-        font-family: var(--font-display);
-        font-weight: var(--fw-bold);
-        font-size: 10px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--stamp-red);
-        border: 1.5px solid var(--stamp-red);
-        border-radius: 2px;
-        padding: 1px 6px;
-        opacity: 0.9;
-        pointer-events: none;
       }
 
       /* Intel readout */
@@ -580,21 +591,17 @@ function MapStyles() {
         gap: var(--sp-3);
         min-width: 0;
       }
-      .intelHeader h1 {
-        margin: 2px 0 0;
-        font-family: var(--font-display);
-        font-weight: var(--fw-bold);
-        font-size: clamp(40px, 6vw, 56px);
-        line-height: var(--lh-display);
-        letter-spacing: var(--ls-display);
-        text-transform: uppercase;
-        color: var(--bone);
+      /* The sighting status line is an h1 for semantics only — it stays a
+         small stamped label; the postcard carries the big city name. */
+      h1.sightingLine {
+        font-size: var(--fs-label);
+        line-height: var(--lh-body);
       }
       .intelSub {
         margin: var(--sp-1) 0 0;
         font-family: var(--font-body);
         font-size: var(--fs-body-sm);
-        color: var(--manila);
+        color: var(--phosphor-dim);
       }
 
       /* Hero gap stat — red odometer on an inset ink screen */
@@ -605,7 +612,7 @@ function MapStyles() {
         flex-wrap: wrap;
         padding: var(--sp-3) var(--sp-4);
         border-radius: var(--r-tight);
-        background: var(--ink-800);
+        background: var(--screen-700);
         box-shadow: var(--screen-inset-shadow);
       }
       .gapMark {
@@ -624,39 +631,38 @@ function MapStyles() {
 
       .intelRow {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr auto;
+        align-items: center;
         gap: var(--sp-3);
       }
-      .telemetry,
-      .countdown {
+      .telemetry {
         display: flex;
         flex-direction: column;
         gap: 3px;
         padding: var(--sp-2) var(--sp-3);
         border-radius: var(--r-tight);
-        background: var(--ink-800);
+        background: var(--screen-700);
         box-shadow: var(--screen-inset-shadow);
         min-width: 0;
       }
-      .telemetryNumber,
-      .countdownNumber {
+      .telemetryNumber {
         font-family: var(--font-mono);
         font-variant-numeric: tabular-nums;
         font-size: var(--fs-data-sm);
         line-height: 1.1;
-        color: var(--amber);
+        color: var(--phosphor);
       }
 
       .gapHint {
         margin: calc(-1 * var(--sp-2)) 0 0;
         font-family: var(--font-body);
         font-size: var(--fs-body-sm);
-        color: var(--manila);
+        color: var(--phosphor-dim);
       }
       .gapHint b {
         font-family: var(--font-mono);
         font-variant-numeric: tabular-nums;
-        color: var(--amber);
+        color: var(--phosphor);
         font-weight: 500;
       }
 
@@ -665,7 +671,7 @@ function MapStyles() {
         margin: 0;
         font-family: var(--font-body);
         font-size: var(--fs-caption);
-        color: var(--bone-dim);
+        color: var(--phosphor-dim);
       }
 
       /* ── Route ── */
@@ -676,7 +682,7 @@ function MapStyles() {
         padding: var(--sp-4);
         border-radius: var(--r-card);
         border: 1px solid var(--hairline);
-        background: var(--ink-700);
+        background: var(--screen-700);
         box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
       }
       .routeLabel {
@@ -684,10 +690,58 @@ function MapStyles() {
         padding-bottom: var(--sp-2);
       }
       .pinRoute {
+        position: relative;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
         gap: var(--sp-3);
         align-items: end;
+      }
+      .routeVector {
+        position: absolute;
+        top: 30px; /* rides through the pin heads */
+        left: 0;
+        width: 100%;
+        height: 12px;
+        overflow: visible;
+        pointer-events: none;
+      }
+      .routeLegend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-2) var(--sp-4);
+        border-top: 1px solid var(--hairline);
+        padding-top: var(--sp-2);
+      }
+      .legendItem {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        font-family: var(--font-display);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-label);
+        letter-spacing: var(--ls-label);
+        text-transform: uppercase;
+        color: var(--phosphor-dim);
+      }
+      .legendSwatch {
+        width: 10px;
+        height: 10px;
+        flex: none;
+      }
+      .legendCleared {
+        background: var(--screen-700);
+        border: 1px solid var(--hairline-paper);
+      }
+      .legendCurrent {
+        background: var(--phosphor);
+        box-shadow: var(--glow-live);
+      }
+      .legendSelena {
+        background: var(--signal-red);
+      }
+      .legendFuture {
+        background: transparent;
+        border: 1.5px dashed var(--hairline-paper);
       }
       .pinSlot {
         min-height: var(--sp-9);
@@ -708,7 +762,7 @@ function MapStyles() {
       .leaderboard {
         border: 1px solid var(--hairline);
         border-radius: var(--r-card);
-        background: var(--ink-700);
+        background: var(--screen-700);
         box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
         overflow: hidden;
       }
@@ -727,7 +781,7 @@ function MapStyles() {
         font-size: var(--fs-label);
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
-        color: var(--bone-dim);
+        color: var(--phosphor-dim);
       }
       .leaderboardRows {
         display: flex;
@@ -739,13 +793,15 @@ function MapStyles() {
         align-items: center;
         gap: var(--sp-3);
         padding: var(--sp-2) var(--sp-4);
-        border-bottom: 1px solid rgba(243, 236, 217, 0.07);
+        border-bottom: 1px solid rgba(var(--phosphor-glow), 0.07);
       }
       .leaderboardRow:last-child {
         border-bottom: 0;
       }
       .leaderboardRow[data-mine="true"] {
-        background: var(--amber-08);
+        background: var(--phosphor-08);
+        box-shadow: var(--bevel-pressed-shadow);
+        border-left: 2px solid var(--phosphor);
       }
       .rank,
       .steps {
@@ -753,29 +809,29 @@ function MapStyles() {
         font-variant-numeric: tabular-nums;
       }
       .rank {
-        color: var(--bone-dim);
+        color: var(--phosphor-dim);
       }
       .rank[data-first="true"] {
-        color: var(--amber-hot);
+        color: var(--phosphor-hot);
       }
       .name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: var(--bone);
+        color: var(--phosphor);
         font-weight: var(--fw-medium);
         font-size: var(--fs-body-sm);
       }
       .steps {
-        color: var(--amber);
+        color: var(--phosphor);
       }
       .delta {
         font-family: var(--font-mono);
         font-size: var(--fs-caption);
-        color: var(--bone-dim);
+        color: var(--phosphor-dim);
       }
       .delta.positive {
-        color: var(--vector);
+        color: var(--phosphor-hot);
       }
 
       .mapAction {
@@ -785,18 +841,15 @@ function MapStyles() {
         justify-content: center;
         padding: var(--sp-2) var(--sp-4);
         border-radius: var(--r-tight);
-        background: var(--amber);
-        color: var(--ink-900);
+        background: var(--phosphor);
+        color: var(--case-900);
         font-weight: var(--fw-bold);
       }
 
       @media (max-width: 767px) {
         .mapPage {
-          padding: var(--sp-3);
-          gap: var(--sp-3);
-        }
-        .intelHeader h1 {
-          font-size: 40px;
+          padding: var(--space-sm) var(--space-sm) var(--space-xl);
+          gap: var(--space-sm);
         }
         .intelRow {
           grid-template-columns: 1fr;

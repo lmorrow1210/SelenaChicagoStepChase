@@ -218,11 +218,13 @@ function TrophyStyles() {
   return (
     <style jsx global>{`
       .trophyPage {
-        min-height: 100dvh;
-        padding: var(--sp-5);
+        padding: var(--space-md) var(--space-lg) var(--space-2xl);
         display: flex;
         flex-direction: column;
-        gap: var(--sp-5);
+        gap: var(--space-lg);
+        max-width: var(--content-max);
+        margin: 0 auto;
+        width: 100%;
       }
 
       .backLink {

@@ -18,8 +18,8 @@ interface AppNotification {
   created_at: string;
 }
 
-const AUTO_READ_MS = 8000;
-const MAX_VISIBLE = 3;
+const AUTO_READ_MS = 5000;
+const MAX_VISIBLE = 2;
 
 export function ToastShelf() {
   const { user } = useSession();
@@ -39,7 +39,10 @@ export function ToastShelf() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
-  const unread = (data?.notifications ?? []).filter((n) => !n.read).slice(0, MAX_VISIBLE);
+  const unread = (data?.notifications ?? [])
+    .filter((n) => !n.read)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, MAX_VISIBLE);
 
   // Auto-mark visible toasts as read after they've been seen.
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
@@ -65,20 +68,18 @@ export function ToastShelf() {
 
   if (!unread.length) return null;
 
-  // Stacked region anchored ABOVE the TabBar (§9A) — never over the header.
-  // On desktop (no TabBar) it sits at the bottom edge with the same offset.
+  // Fixed stack above the mobile TabBar. It reserves no layout space.
   return (
     <div
       aria-live="polite"
       style={{
         position: "fixed",
-        bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + var(--sp-3))",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "min(100% - 2 * var(--sp-3), 460px)",
+        bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + var(--space-md))",
+        right: "var(--space-md)",
+        width: "min(calc(100vw - 2 * var(--space-md)), 360px)",
         display: "flex",
-        flexDirection: "column-reverse",
-        gap: "var(--sp-2)",
+        flexDirection: "column",
+        gap: "var(--space-xs)",
         zIndex: "var(--z-toast)" as unknown as number,
         pointerEvents: "none",
       }}

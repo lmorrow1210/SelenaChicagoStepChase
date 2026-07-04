@@ -4,20 +4,29 @@ export interface PredictionCardProps {
   headline?: string;
   /** Eyebrow city name. */
   city?: string;
-  value?: string | number;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Current forecast in steps. */
+  value?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Fired by both the slider and the synced numeric input. */
+  onChange?: (steps: number) => void;
   onSubmit?: () => void;
   /** Switches to the post-submission confirmation state. */
   submitted?: boolean;
-  /** Value echoed back in the submitted state. */
+  /** Formatted value echoed back in the submitted state. */
   prediction?: string | number;
+  /** Stake reminder copy under the FILE FORECAST button. */
+  stakeNote?: string;
+  /** Optional teammate-preview strip rendered above the button. */
+  teammates?: React.ReactNode;
   style?: React.CSSProperties;
 }
 
 /**
- * Central Prediction-screen card over a bright illustrated globe backdrop
- * (the one warm, colorful surface). Headline + large numeric input +
- * submit, with a bouncy confirmation state after submitting.
+ * Intercept Forecast console card. Open state: headline + big amber DM Mono
+ * readout + large slider + synced numeric input + FILE FORECAST. Locked
+ * state: pressed bevel with a red stamp.
  */
 export function PredictionCard(props: PredictionCardProps): JSX.Element;
 export default PredictionCard;

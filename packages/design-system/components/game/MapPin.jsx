@@ -33,30 +33,30 @@ export function MapPin({
 
   const bg =
     isSelena  ? 'var(--signal-red)' :
-    isCurrent ? 'var(--ink-600)'    :
-    isNext    ? 'var(--ink-600)'    :
-    isVisited ? 'var(--ink-700)'    :
+    isCurrent ? 'var(--screen-600)'    :
+    isNext    ? 'var(--screen-600)'    :
+    isVisited ? 'var(--screen-700)'    :
     'transparent';
 
   const glyphColor =
-    isSelena  ? 'var(--ink-900)' :
-    isCurrent ? 'var(--amber)'   :
-    isNext    ? 'var(--bone)'    :
-    isVisited ? 'var(--bone-dim)' :
-    'var(--bone-dim)';
+    isSelena  ? 'var(--screen-base)' :
+    isCurrent ? 'var(--phosphor)'   :
+    isNext    ? 'var(--phosphor)'    :
+    isVisited ? 'var(--phosphor-dim)' :
+    'var(--phosphor-dim)';
 
   const ringColor =
     isSelena  ? 'var(--signal-red)' :
-    isCurrent ? 'var(--amber)'      :
+    isCurrent ? 'var(--phosphor)'      :
     isNext    ? 'var(--hairline-paper)' :
     isVisited ? 'var(--hairline-paper)' :
     'var(--hairline-paper)';
 
   const stemColor =
     isSelena  ? 'var(--signal-red)' :
-    isCurrent ? 'var(--amber)'      :
-    isVisited ? 'var(--bone-dim)'   :
-    'var(--bone-dim)';
+    isCurrent ? 'var(--phosphor)'      :
+    isVisited ? 'var(--phosphor-dim)'   :
+    'var(--phosphor-dim)';
 
   /* City silhouette overrides the generic glyph (never on Selena's pin) */
   const CityIcon = selena ? null : getCityIcon(cityName);
@@ -71,7 +71,7 @@ export function MapPin({
       {/* Pin head */}
       <div style={{
         position: 'relative', display: 'grid', placeItems: 'center',
-        width: headSize, height: headSize, borderRadius: '50%',
+        width: headSize, height: headSize, borderRadius: 'var(--r-full)',
         background: bg,
         border: isUpcoming ? '1.5px dashed var(--hairline-paper)' : `2px solid ${ringColor}`,
         boxShadow:
@@ -83,7 +83,7 @@ export function MapPin({
         {/* Live pulse — amber for the sighting, red for Selena herself */}
         {(isCurrent || isSelena) && (
           <span style={{
-            position: 'absolute', inset: -4, borderRadius: '50%',
+            position: 'absolute', inset: -4, borderRadius: 'var(--r-full)',
             animation: `${isSelena ? 'sc-pulse-selena' : 'sc-pulse-amber'} 2s var(--ease-in-out) infinite`,
           }} />
         )}
@@ -103,10 +103,10 @@ export function MapPin({
           <span style={{
             position: 'absolute', bottom: -3, right: -3,
             display: 'grid', placeItems: 'center',
-            width: 14, height: 14, borderRadius: '50%',
-            background: 'var(--ink-900)',
+            width: 14, height: 14, borderRadius: 'var(--r-full)',
+            background: 'var(--screen-base)',
             border: '1px solid var(--hairline-paper)',
-            color: 'var(--bone-dim)',
+            color: 'var(--phosphor-dim)',
           }}>
             <Icon name="check" size={8} strokeWidth={3} />
           </span>
@@ -124,9 +124,9 @@ export function MapPin({
         <span style={{
           fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
           textTransform: 'uppercase', letterSpacing: '0.08em',
-          color: isSelena ? 'var(--signal-red)' : isUpcoming ? 'var(--bone-dim)' : 'var(--bone)',
+          color: isSelena ? 'var(--signal-red)' : isUpcoming ? 'var(--phosphor-dim)' : 'var(--phosphor)',
           whiteSpace: 'nowrap',
-          background: isUpcoming ? 'transparent' : 'var(--ink-800)',
+          background: isUpcoming ? 'transparent' : 'var(--screen-700)',
           padding: '2px 8px',
           borderRadius: 'var(--r-tight)',
           border: `1px solid ${isSelena ? 'var(--signal-red-20)' : 'var(--hairline-paper)'}`,

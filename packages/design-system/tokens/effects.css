@@ -1,51 +1,59 @@
 /* ============================================================
-   One Step Ahead — Effects v3 "Midnight Dossier"
-   Material language: 2-tone box-shadow bevels on ink faces,
-   tight 6–8px radii, low shadow spread, one emissive amber glow
-   for whatever is "live". Never thick border + big shadow + big
-   radius stacked.
+   One Step Ahead — Effects v4 "Field Terminal"
+   Material language: molded tan-plastic chrome with 2-tone
+   box-shadow bevels (tan-300 top-light, case-shadow groove);
+   recessed phosphor-green CRT panels with a faint text glow.
+   Square corners throughout. One emissive green glow for
+   whatever is "live"; red glow only for Selena moments.
    ============================================================ */
 
 :root {
-  /* ---- Border radius — tight, consistent ---- */
-  --r-tight:  6px;   /* chips, inputs, small controls */
-  --r-card:   8px;   /* cards, panels, tiles */
-  --r-pill:   8px;   /* pills read as file tabs, not capsules */
-  --r-full:   999px; /* reserved: odometer capsules, dots */
-  --r-avatar: 50%;   /* circular avatars/badges only */
+  /* ---- Border radius — square everywhere ---- */
+  --r-tight:  0; /* chips, inputs, small controls */
+  --r-card:   0; /* cards, panels, tiles */
+  --r-pill:   0; /* square terminal chips, not capsules */
+  --r-full:   0; /* square by default */
+  --r-avatar: 0; /* avatars are square by default */
+  --radius-sm:   0;
+  --radius-md:   0;
+  --radius-lg:   0;
+  --radius-pill: 0;
 
-  /* ---- Bevel — 2-tone box-shadow (NOT border-style: outset) ----
-     Raised: light top-left (--ink-600), dark bottom-right (#05080C).
-     Pressed: inverted + amber inner glow (use for BingoTiles, locked
-     PredictionCard, active nav). Compose with --shadow-card as needed. */
-  --bevel-raised-shadow:
-    inset 1px 1px 0 0 var(--ink-600),
-    inset -1px -1px 0 0 #05080C;
+  /* ---- Bevel — 2-tone box-shadow on tan chrome (NOT border-style) ----
+     Raised: light top-left (--tan-300), groove bottom-right
+     (--case-shadow). Pressed: inverted. Compose with --shadow-card. */
+  --bevel-raised:
+    inset 1px 1px 0 var(--tan-300),
+    inset -1px -1px 0 var(--case-shadow);
+  --bevel-pressed:
+    inset 1px 1px 3px var(--case-shadow),
+    inset -1px -1px 0 var(--tan-300);
+  --bevel-raised-shadow: var(--bevel-raised);
   --bevel-pressed-shadow:
-    inset 1px 1px 0 0 #05080C,
-    inset -1px -1px 0 0 var(--ink-600),
-    inset 0 0 14px 0 rgba(255, 176, 32, 0.12);
-  /* Inset "screen" — telemetry wells (amber DM Mono on ink-800) */
-  --screen-inset-shadow:
-    inset 0 2px 6px 0 rgba(0, 0, 0, 0.55),
-    inset 1px 1px 0 0 #05080C,
-    inset -1px -1px 0 0 var(--ink-600);
+    var(--bevel-pressed),
+    inset 0 0 14px 0 rgba(var(--phosphor-glow), 0.10);
 
-  /* Legacy v2 border-color bevel shorthands (phase out — prefer the
-     box-shadow bevels above) */
-  --bevel-raised:  var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
-  --bevel-inset:   var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
-  --bevel-pressed: var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
+  /* On-screen green panels: recessed CRT feel */
+  --screen-inset:
+    inset 0 0 0 1px var(--grid-line),
+    inset 0 0 28px rgba(0, 0, 0, 0.55);
+  --screen-inset-shadow: var(--screen-inset);
 
-  /* ---- One elevation system — low spread, ink-tinted ---- */
-  --shadow-card:     0 1px 3px 0 rgba(2, 4, 8, 0.5);
-  --shadow-elevated: 0 4px 10px -2px rgba(2, 4, 8, 0.55);
-  --shadow-modal:    0 12px 28px -6px rgba(2, 4, 8, 0.65);
-  --shadow-pin:      0 2px 6px 0 rgba(2, 4, 8, 0.5);
-  --shadow-inset:    inset 0 1px 0 rgba(243, 236, 217, 0.04);
+  /* Phosphor glow — ONLY for green screen text/icons, never tan paper text */
+  --text-glow: 0 0 6px rgba(var(--phosphor-glow), 0.35);
+
+  /* Legacy alias name used by older components. */
+  --bevel-inset: var(--bevel-pressed);
+
+  /* ---- One elevation system — low spread, case-tinted ---- */
+  --shadow-card:     0 1px 3px 0 rgba(28, 20, 11, 0.5);
+  --shadow-elevated: 0 4px 10px -2px rgba(28, 20, 11, 0.55);
+  --shadow-modal:    0 12px 28px -6px rgba(28, 20, 11, 0.65);
+  --shadow-pin:      0 2px 6px 0 rgba(28, 20, 11, 0.5);
+  --shadow-inset:    inset 0 1px 0 rgba(157, 252, 166, 0.04);
 
   /* ---- Emissive — the ONE glow that marks what's live ---- */
-  --glow-live:   0 0 16px 0 rgba(255, 176, 32, 0.35);
+  --glow-live:   0 0 16px 0 rgba(var(--phosphor-glow), 0.35);
   --glow-selena: 0 0 14px 0 rgba(255, 59, 48, 0.35); /* Selena moments only */
 
   /* ---- Z-index ---- */

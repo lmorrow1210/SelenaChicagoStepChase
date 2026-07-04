@@ -55,7 +55,7 @@
   line-height: var(--lh-display);
   letter-spacing: var(--ls-display);
   text-transform: uppercase;
-  color: var(--bone);
+  color: var(--phosphor);
 }
 .t-h1 {
   font-family: var(--font-display);
@@ -64,7 +64,7 @@
   line-height: var(--lh-heading);
   letter-spacing: var(--ls-display);
   text-transform: uppercase;
-  color: var(--bone);
+  color: var(--phosphor);
 }
 .t-h2 {
   font-family: var(--font-display);
@@ -73,7 +73,7 @@
   line-height: var(--lh-heading);
   letter-spacing: var(--ls-heading);
   text-transform: uppercase;
-  color: var(--bone);
+  color: var(--phosphor);
 }
 .t-h3 {
   font-family: var(--font-display);
@@ -82,21 +82,21 @@
   line-height: var(--lh-heading);
   letter-spacing: var(--ls-heading);
   text-transform: uppercase;
-  color: var(--bone);
+  color: var(--phosphor);
 }
 .t-body {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  color: var(--bone);
+  color: var(--phosphor);
 }
 .t-body-sm {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-body);
-  color: var(--manila);
+  color: var(--phosphor-dim);
 }
 /* Stamped label — [BUREAU VECTOR ACTIVE] style headers */
 .t-label {
@@ -106,21 +106,21 @@
   line-height: 1.3;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: var(--bone-dim);
+  color: var(--phosphor-dim);
 }
-/* Telemetry — amber odometer on inset ink screen */
+/* Telemetry — phosphor odometer on inset CRT screen */
 .t-data {
   font-family: var(--font-mono);
   font-size: var(--fs-data);
   line-height: var(--lh-data);
   letter-spacing: var(--ls-data);
   font-variant-numeric: tabular-nums;
-  color: var(--amber);
+  color: var(--phosphor);
 }
 .t-caption {
   font-family: var(--font-body);
   font-weight: var(--fw-regular);
   font-size: var(--fs-caption);
   line-height: var(--lh-body);
-  color: var(--bone-dim);
+  color: var(--phosphor-dim);
 }

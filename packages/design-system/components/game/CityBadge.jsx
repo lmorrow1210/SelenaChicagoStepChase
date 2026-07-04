@@ -12,7 +12,7 @@ import Icon from '../icons/Icon.jsx';
 
 /* v3 quality rings — gold quality = amber (the reward hue) */
 const QUALITY_RING = {
-  gold:   'var(--amber)',
+  gold:   'var(--phosphor)',
   silver: 'var(--silver)',
   bronze: 'var(--bronze)',
 };
@@ -24,18 +24,18 @@ const CITY_ICONS = {
     /* Willis Tower — bundled-tube silhouette with twin antennae */
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       {/* Main tower block */}
-      <rect x="18" y="14" width="12" height="28" fill={color} rx="0.5" />
+      <rect x="18" y="14" width="12" height="28" fill={color} />
       {/* Upper setback notches (bundled tube look) */}
-      <rect x="18" y="14" width="5.5" height="14" fill={color} rx="0.5" />
-      <rect x="24.5" y="14" width="5.5" height="14" fill={color} rx="0.5" />
-      <rect x="18" y="14" width="12" height="8" fill={color} rx="0.5" />
+      <rect x="18" y="14" width="5.5" height="14" fill={color} />
+      <rect x="24.5" y="14" width="5.5" height="14" fill={color} />
+      <rect x="18" y="14" width="12" height="8" fill={color} />
       {/* Skydeck notch */}
-      <rect x="19.5" y="22" width="9" height="6" fill={color} rx="0.3" />
+      <rect x="19.5" y="22" width="9" height="6" fill={color} />
       {/* Twin antennae */}
-      <rect x="21" y="6" width="1.8" height="9" fill={color} rx="0.5" />
-      <rect x="25.2" y="9" width="1.8" height="6" fill={color} rx="0.5" />
+      <rect x="21" y="6" width="1.8" height="9" fill={color} />
+      <rect x="25.2" y="9" width="1.8" height="6" fill={color} />
       {/* Base */}
-      <rect x="16" y="40" width="16" height="2" fill={color} rx="0.5" />
+      <rect x="16" y="40" width="16" height="2" fill={color} />
     </svg>
   ),
 
@@ -43,7 +43,7 @@ const CITY_ICONS = {
     /* Five-story pagoda with upswept eaves and spire */
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       {/* Spire */}
-      <rect x="23" y="3" width="2" height="10" fill={color} rx="0.5" />
+      <rect x="23" y="3" width="2" height="10" fill={color} />
       {/* Tier 1 (top) */}
       <polygon points="19,13 29,13 27,10 21,10" fill={color} />
       <rect x="21" y="13" width="6" height="4" fill={color} />
@@ -54,9 +54,9 @@ const CITY_ICONS = {
       <polygon points="13,28 35,28 33,25 15,25" fill={color} />
       <rect x="18" y="28" width="12" height="4" fill={color} />
       {/* Base platform */}
-      <rect x="15" y="32" width="18" height="3" fill={color} rx="0.3" />
+      <rect x="15" y="32" width="18" height="3" fill={color} />
       <rect x="19" y="35" width="10" height="6" fill={color} />
-      <rect x="14" y="40" width="20" height="2" fill={color} rx="0.5" />
+      <rect x="14" y="40" width="20" height="2" fill={color} />
     </svg>
   ),
 
@@ -71,7 +71,7 @@ const CITY_ICONS = {
       <line x1="12" y1="32" x2="36" y2="32" stroke="var(--navy)" strokeWidth="1" opacity="0.3" />
       <line x1="16" y1="24" x2="32" y2="24" stroke="var(--navy)" strokeWidth="1" opacity="0.3" />
       {/* Ground line */}
-      <rect x="2" y="40" width="44" height="2" fill={color} rx="0.5" />
+      <rect x="2" y="40" width="44" height="2" fill={color} />
     </svg>
   ),
 
@@ -87,11 +87,11 @@ const CITY_ICONS = {
       {/* Stern curl */}
       <path d="M7 30 Q3 26 6 23 Q9 27 9 30" fill={color} />
       {/* Mast */}
-      <rect x="23" y="14" width="2" height="17" fill={color} rx="0.5" />
+      <rect x="23" y="14" width="2" height="17" fill={color} />
       {/* Sail */}
       <path d="M25 14 L25 28 L34 22 Z" fill={color} opacity="0.75" />
       {/* Cross-spar */}
-      <rect x="19" y="17" width="15" height="1.5" fill={color} rx="0.5" opacity="0.8" />
+      <rect x="19" y="17" width="15" height="1.5" fill={color} opacity="0.8" />
       {/* Oar dots */}
       <circle cx="14" cy="34" r="1.2" fill="var(--navy)" opacity="0.5" />
       <circle cx="20" cy="35" r="1.2" fill="var(--navy)" opacity="0.5" />
@@ -106,15 +106,15 @@ const CITY_ICONS = {
       {/* Mountain peak behind */}
       <polygon points="8,42 24,12 40,42" fill={color} opacity="0.25" />
       {/* Terraces (bottom to top) */}
-      <rect x="8"  y="38" width="32" height="4" fill={color} rx="0.4" />
-      <rect x="11" y="32" width="26" height="6" fill={color} rx="0.4" opacity="0.9" />
-      <rect x="14" y="26" width="20" height="6" fill={color} rx="0.4" opacity="0.85" />
-      <rect x="17" y="20" width="14" height="6" fill={color} rx="0.4" opacity="0.8" />
+      <rect x="8"  y="38" width="32" height="4" fill={color} />
+      <rect x="11" y="32" width="26" height="6" fill={color} opacity="0.9" />
+      <rect x="14" y="26" width="20" height="6" fill={color} opacity="0.85" />
+      <rect x="17" y="20" width="14" height="6" fill={color} opacity="0.8" />
       {/* Temple on top */}
-      <rect x="20" y="14" width="8" height="6" fill={color} rx="0.3" />
+      <rect x="20" y="14" width="8" height="6" fill={color} />
       <polygon points="18,14 30,14 24,10" fill={color} />
       {/* Ground */}
-      <rect x="6" y="42" width="36" height="2" fill={color} rx="0.5" />
+      <rect x="6" y="42" width="36" height="2" fill={color} />
     </svg>
   ),
 
@@ -124,21 +124,21 @@ const CITY_ICONS = {
       {/* Spire */}
       <polygon points="24,3 21,12 27,12" fill={color} />
       {/* Central tower */}
-      <rect x="21" y="11" width="6" height="31" fill={color} rx="0.3" />
+      <rect x="21" y="11" width="6" height="31" fill={color} />
       {/* Stepped wings — left (rising toward center) */}
-      <rect x="18" y="20" width="3" height="22" fill={color} rx="0.3" />
-      <rect x="15" y="26" width="3" height="16" fill={color} rx="0.3" />
-      <rect x="12" y="31" width="3" height="11" fill={color} rx="0.3" />
-      <rect x="9"  y="35" width="3" height="7"  fill={color} rx="0.3" />
+      <rect x="18" y="20" width="3" height="22" fill={color} />
+      <rect x="15" y="26" width="3" height="16" fill={color} />
+      <rect x="12" y="31" width="3" height="11" fill={color} />
+      <rect x="9"  y="35" width="3" height="7"  fill={color} />
       {/* Stepped wings — right */}
-      <rect x="27" y="20" width="3" height="22" fill={color} rx="0.3" />
-      <rect x="30" y="26" width="3" height="16" fill={color} rx="0.3" />
-      <rect x="33" y="31" width="3" height="11" fill={color} rx="0.3" />
-      <rect x="36" y="35" width="3" height="7"  fill={color} rx="0.3" />
+      <rect x="27" y="20" width="3" height="22" fill={color} />
+      <rect x="30" y="26" width="3" height="16" fill={color} />
+      <rect x="33" y="31" width="3" height="11" fill={color} />
+      <rect x="36" y="35" width="3" height="7"  fill={color} />
       {/* Doorway cutout */}
       <rect x="22.5" y="34" width="3" height="8" fill="var(--tobacco)" opacity="0.45" />
       {/* Ground */}
-      <rect x="7" y="42" width="34" height="2" fill={color} rx="0.5" />
+      <rect x="7" y="42" width="34" height="2" fill={color} />
     </svg>
   ),
 
@@ -146,14 +146,14 @@ const CITY_ICONS = {
     /* Statue of Liberty + Empire State Building + skyline */
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       {/* Empire State Building (centre) */}
-      <rect x="21" y="16" width="8" height="26" fill={color} rx="0.5" />
-      <rect x="23" y="10" width="4" height="6" fill={color} rx="0.5" />
-      <rect x="24.6" y="4" width="1.4" height="6" fill={color} rx="0.5" />
+      <rect x="21" y="16" width="8" height="26" fill={color} />
+      <rect x="23" y="10" width="4" height="6" fill={color} />
+      <rect x="24.6" y="4" width="1.4" height="6" fill={color} />
       {/* Stepped towers (right) */}
-      <rect x="31" y="22" width="6" height="20" fill={color} rx="0.5" />
-      <rect x="38" y="28" width="4" height="14" fill={color} rx="0.5" />
+      <rect x="31" y="22" width="6" height="20" fill={color} />
+      <rect x="38" y="28" width="4" height="14" fill={color} />
       {/* Statue of Liberty (left) */}
-      <rect x="7" y="34" width="9" height="8" fill={color} rx="0.5" />
+      <rect x="7" y="34" width="9" height="8" fill={color} />
       <polygon points="9,34 14,34 13,20 10,20" fill={color} />
       <circle cx="11.5" cy="18" r="1.8" fill={color} />
       {/* Crown spikes */}
@@ -161,10 +161,10 @@ const CITY_ICONS = {
       <polygon points="10.9,16.6 11.5,13.6 12.1,16.6" fill={color} />
       <polygon points="12.4,17 13,14.4 13.6,17" fill={color} />
       {/* Raised arm + torch */}
-      <rect x="13.2" y="12" width="1.5" height="9" fill={color} rx="0.5" transform="rotate(22 13.95 16.5)" />
+      <rect x="13.2" y="12" width="1.5" height="9" fill={color} transform="rotate(22 13.95 16.5)" />
       <circle cx="16.4" cy="11" r="1.7" fill={color} />
       {/* Waterline */}
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -172,25 +172,25 @@ const CITY_ICONS = {
     /* U.S. Capitol dome + Washington Monument */
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       {/* Capitol base / steps */}
-      <rect x="6" y="34" width="22" height="8" fill={color} rx="0.5" />
+      <rect x="6" y="34" width="22" height="8" fill={color} />
       {/* Colonnade: lintel + columns */}
-      <rect x="8.5" y="29" width="17" height="1.8" fill={color} rx="0.3" />
+      <rect x="8.5" y="29" width="17" height="1.8" fill={color} />
       <rect x="9.5"  y="30.8" width="1.4" height="3.2" fill={color} />
       <rect x="12.4" y="30.8" width="1.4" height="3.2" fill={color} />
       <rect x="15.3" y="30.8" width="1.4" height="3.2" fill={color} />
       <rect x="18.2" y="30.8" width="1.4" height="3.2" fill={color} />
       <rect x="21.1" y="30.8" width="1.4" height="3.2" fill={color} />
       {/* Drum + dome */}
-      <rect x="13.5" y="25" width="7" height="4" fill={color} rx="0.3" />
+      <rect x="13.5" y="25" width="7" height="4" fill={color} />
       <path d="M13.5 25 Q17 17.5 20.5 25 Z" fill={color} />
       {/* Lantern + statue of Freedom */}
       <rect x="16.3" y="15" width="1.4" height="2.6" fill={color} />
       <circle cx="17" cy="14.2" r="1" fill={color} />
       {/* Washington Monument (obelisk) */}
-      <rect x="34" y="14" width="4" height="28" fill={color} rx="0.4" />
+      <rect x="34" y="14" width="4" height="28" fill={color} />
       <polygon points="34,14 38,14 36,9" fill={color} />
       {/* Ground */}
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -208,8 +208,8 @@ const CITY_ICONS = {
       {/* Setting sun */}
       <circle cx="23" cy="33" r="5" fill={color} />
       {/* Water reflections */}
-      <rect x="6"  y="39" width="13" height="1.4" fill={color} rx="0.5" opacity="0.7" />
-      <rect x="28" y="39" width="12" height="1.4" fill={color} rx="0.5" opacity="0.7" />
+      <rect x="6"  y="39" width="13" height="1.4" fill={color} opacity="0.7" />
+      <rect x="28" y="39" width="12" height="1.4" fill={color} opacity="0.7" />
       {/* Palm tree (right) */}
       <path d="M37.5 40 Q38.5 31 39.5 25.5" stroke={color} strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <path d="M39.5 25.5 Q35.5 23 33 24.8" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
@@ -217,20 +217,20 @@ const CITY_ICONS = {
       <path d="M39.5 25.5 Q37.5 21 38.6 18.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
       <path d="M39.5 25.5 Q41.6 21.5 42.8 19.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
       {/* Ground */}
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
   seattle: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="23.2" y="4" width="1.6" height="8" fill={color} rx="0.5" />
+      <rect x="23.2" y="4" width="1.6" height="8" fill={color} />
       <ellipse cx="24" cy="15" rx="9" ry="3.5" fill={color} />
       <path d="M20 13 L22 20 L26 20 L28 13 Z" fill={color} />
-      <rect x="22.5" y="20" width="3" height="16" fill={color} rx="0.5" />
+      <rect x="22.5" y="20" width="3" height="16" fill={color} />
       <path d="M24 36 L13 43" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />
       <path d="M24 36 L24 43" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
       <path d="M24 36 L35 43" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <rect x="4" y="43" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="43" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -242,11 +242,11 @@ const CITY_ICONS = {
       <rect x="8" y="24" width="3" height="12" fill={color} />
       <rect x="33" y="24" width="3" height="12" fill={color} />
       <circle cx="39" cy="13" r="4" fill={color} />
-      <rect x="37" y="32" width="2" height="8" fill={color} rx="0.5" />
+      <rect x="37" y="32" width="2" height="8" fill={color} />
       <path d="M38 32 Q33 27 29 29" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
       <path d="M38 32 Q43 28 45 32" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
       <path d="M38 32 Q37 26 38 23" stroke={color} strokeWidth="1.4" fill="none" strokeLinecap="round" />
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -262,7 +262,7 @@ const CITY_ICONS = {
       <rect x="20" y="7" width="2" height="3" fill={color} />
       <rect x="23" y="7" width="2" height="3" fill={color} />
       <rect x="26" y="7" width="2" height="3" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -274,7 +274,7 @@ const CITY_ICONS = {
       <rect x="20" y="6" width="8" height="10" fill={color} />
       <rect x="9" y="28" width="9" height="14" fill={color} />
       <rect x="30" y="32" width="9" height="10" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -289,8 +289,8 @@ const CITY_ICONS = {
       <rect x="34.3" y="8" width="2.7" height="5" fill="var(--navy)" opacity="0.6" />
       <rect x="31.6" y="13" width="2.7" height="5" fill="var(--navy)" opacity="0.6" />
       <rect x="36.9" y="13" width="2.7" height="5" fill="var(--navy)" opacity="0.6" />
-      <rect x="39.5" y="4" width="1.5" height="16" fill={color} rx="0.5" />
-      <rect x="4" y="43" width="22" height="2" fill={color} rx="0.5" />
+      <rect x="39.5" y="4" width="1.5" height="16" fill={color} />
+      <rect x="4" y="43" width="22" height="2" fill={color} />
     </svg>
   ),
 
@@ -308,7 +308,7 @@ const CITY_ICONS = {
       <line x1="26" y1="25" x2="26" y2="28" stroke={color} strokeWidth="1.2" />
       <line x1="30" y1="19" x2="30" y2="28" stroke={color} strokeWidth="1.2" />
       <rect x="6" y="28" width="36" height="3" fill={color} />
-      <rect x="4" y="38" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="38" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -320,13 +320,13 @@ const CITY_ICONS = {
       <polygon points="3,34 7,23 11,34" fill={color} />
       <polygon points="36,40 41,26 46,40" fill={color} />
       <polygon points="37,34 41,23 45,34" fill={color} />
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
   memphis: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="22" y="2" width="6" height="4" fill={color} rx="0.5" />
+      <rect x="22" y="2" width="6" height="4" fill={color} />
       <rect x="23" y="4" width="4" height="5" fill={color} />
       <path d="M27 8 L30 8 Q36 8 36 16 L36 32 Q36 42 26 42 L20 42 Q12 42 12 36 Q12 30 18 30 L21 30"
             stroke={color} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
@@ -348,7 +348,7 @@ const CITY_ICONS = {
       <rect x="20" y="26" width="8" height="5" fill={color} />
       <circle cx="24" cy="34" r="3.5" fill="var(--navy)" opacity="0.4" />
       <rect x="22.5" y="7" width="3" height="17" fill={color} />
-      <rect x="20" y="3" width="8" height="5" fill={color} rx="1" />
+      <rect x="20" y="3" width="8" height="5" fill={color} />
       <circle cx="19" cy="5" r="1.5" fill={color} />
       <circle cx="29" cy="5" r="1.5" fill={color} />
     </svg>
@@ -362,7 +362,7 @@ const CITY_ICONS = {
       <polygon points="30,40 40,16 48,40" fill={color} opacity="0.8" />
       <polygon points="37,22 40,16 43,22" fill="var(--navy)" opacity="0.4" />
       <circle cx="8" cy="10" r="4" fill={color} />
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -376,14 +376,14 @@ const CITY_ICONS = {
       <line x1="22" y1="8" x2="34" y2="28" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
       <line x1="22" y1="8" x2="42" y2="28" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
       <rect x="4" y="28" width="40" height="3" fill={color} />
-      <rect x="4" y="38" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="38" width="40" height="2" fill={color} />
     </svg>
   ),
 
   stlouis: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       <path d="M10 42 C10 20 17 6 24 4 C31 6 38 20 38 42 L34 42 C34 22 29 9 24 7 C19 9 14 22 14 42 Z" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -395,7 +395,7 @@ const CITY_ICONS = {
       <polygon points="23,10 23,28 11,24" fill={color} opacity="0.75" />
       <polygon points="25,6 25,14 33,11" fill={color} opacity="0.85" />
       <line x1="23" y1="26" x2="10" y2="32" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -409,7 +409,7 @@ const CITY_ICONS = {
       <path d="M18 36 Q30 30 42 36 L40 40 Q30 35 20 40 Z" fill={color} />
       <line x1="30" y1="32" x2="26" y2="42" stroke={color} strokeWidth="2" strokeLinecap="round" />
       <ellipse cx="25.5" cy="42.5" rx="2.5" ry="1.2" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -441,7 +441,7 @@ const CITY_ICONS = {
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       <circle cx="24" cy="30" r="16" fill={color} />
       <path d="M24 14 Q20 22 24 30 Q28 22 24 14" fill="var(--navy)" opacity="0.3" />
-      <rect x="23" y="10" width="2" height="5" fill={color} rx="0.5" />
+      <rect x="23" y="10" width="2" height="5" fill={color} />
       <path d="M24 13 Q31 7 36 11 Q31 16 24 13 Z" fill={color} />
       <path d="M24 13 Q17 7 12 11 Q17 16 24 13 Z" fill={color} opacity="0.85" />
     </svg>
@@ -457,7 +457,7 @@ const CITY_ICONS = {
       <circle cx="12" cy="33" r="2.5" fill="var(--navy)" opacity="0.5" />
       <circle cx="36" cy="33" r="5" fill={color} />
       <circle cx="36" cy="33" r="2.5" fill="var(--navy)" opacity="0.5" />
-      <rect x="4" y="38" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="38" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -473,7 +473,7 @@ const CITY_ICONS = {
       <line x1="28" y1="27" x2="28" y2="28" stroke={color} strokeWidth="1.2" />
       <line x1="32" y1="22" x2="32" y2="28" stroke={color} strokeWidth="1.2" />
       <rect x="4" y="28" width="40" height="3" fill={color} />
-      <rect x="4" y="38" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="38" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -483,9 +483,9 @@ const CITY_ICONS = {
       <polygon points="22,4 26,4 24,8" fill={color} />
       <polygon points="20,22 13,34 20,34" fill={color} />
       <polygon points="28,22 35,34 28,34" fill={color} />
-      <rect x="21" y="24" width="6" height="12" fill={color} rx="0.5" />
-      <rect x="14" y="26" width="4" height="10" fill={color} rx="0.5" />
-      <rect x="30" y="26" width="4" height="10" fill={color} rx="0.5" />
+      <rect x="21" y="24" width="6" height="12" fill={color} />
+      <rect x="14" y="26" width="4" height="10" fill={color} />
+      <rect x="30" y="26" width="4" height="10" fill={color} />
       <rect x="16" y="36" width="16" height="3" fill={color} />
       <rect x="12" y="39" width="24" height="2" fill={color} />
       <path d="M17 36 Q15 41 13 44" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7" />
@@ -496,29 +496,29 @@ const CITY_ICONS = {
 
   phoenix: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="20" y="10" width="8" height="32" fill={color} rx="4" />
-      <rect x="10" y="22" width="12" height="6" fill={color} rx="3" />
-      <rect x="10" y="16" width="6" height="12" fill={color} rx="3" />
-      <rect x="26" y="26" width="12" height="6" fill={color} rx="3" />
-      <rect x="32" y="20" width="6" height="12" fill={color} rx="3" />
+      <rect x="20" y="10" width="8" height="32" fill={color} />
+      <rect x="10" y="22" width="12" height="6" fill={color} />
+      <rect x="10" y="16" width="6" height="12" fill={color} />
+      <rect x="26" y="26" width="12" height="6" fill={color} />
+      <rect x="32" y="20" width="6" height="12" fill={color} />
       <ellipse cx="24" cy="10" rx="4" ry="4" fill={color} />
       <ellipse cx="13" cy="16" rx="3" ry="3" fill={color} />
       <ellipse cx="35" cy="20" rx="3" ry="3" fill={color} />
       <circle cx="40" cy="10" r="5" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
   philadelphia: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="18" y="4" width="12" height="5" fill={color} rx="1" />
+      <rect x="18" y="4" width="12" height="5" fill={color} />
       <rect x="22" y="8" width="4" height="4" fill={color} />
       <path d="M14 12 Q14 28 10 36 L38 36 Q34 28 34 12 Z" fill={color} />
       <path d="M8 36 Q8 40 24 40 Q40 40 40 36 Z" fill={color} />
       <path d="M22 14 L20 26 L23 30" stroke="var(--navy)" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.55" />
       <line x1="24" y1="34" x2="24" y2="40" stroke={color} strokeWidth="2" />
       <circle cx="24" cy="41" r="2" fill={color} />
-      <rect x="10" y="42" width="28" height="2" fill={color} rx="0.5" />
+      <rect x="10" y="42" width="28" height="2" fill={color} />
     </svg>
   ),
 
@@ -527,11 +527,11 @@ const CITY_ICONS = {
       <rect x="8" y="20" width="32" height="22" fill={color} />
       <path d="M8 20 L8 11 Q24 4 40 11 L40 20 Z" fill={color} />
       <path d="M18 42 L18 31 Q24 25 30 31 L30 42" fill="var(--navy)" opacity="0.55" />
-      <rect x="10" y="25" width="6" height="8" fill="var(--navy)" opacity="0.45" rx="0.5" />
-      <rect x="32" y="25" width="6" height="8" fill="var(--navy)" opacity="0.45" rx="0.5" />
-      <rect x="14" y="13" width="4" height="5" fill="var(--navy)" opacity="0.4" rx="0.5" />
-      <rect x="30" y="13" width="4" height="5" fill="var(--navy)" opacity="0.4" rx="0.5" />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="10" y="25" width="6" height="8" fill="var(--navy)" opacity="0.45" />
+      <rect x="32" y="25" width="6" height="8" fill="var(--navy)" opacity="0.45" />
+      <rect x="14" y="13" width="4" height="5" fill="var(--navy)" opacity="0.4" />
+      <rect x="30" y="13" width="4" height="5" fill="var(--navy)" opacity="0.4" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -550,22 +550,22 @@ const CITY_ICONS = {
       <polygon points="8,22 11,22 9.5,16" fill={color} />
       <rect x="37" y="22" width="3" height="10" fill={color} />
       <polygon points="37,22 40,22 38.5,16" fill={color} />
-      <rect x="4" y="42" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
     </svg>
   ),
 
   santafe: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="4" y="30" width="40" height="12" fill={color} rx="2" />
-      <rect x="10" y="20" width="28" height="12" fill={color} rx="2" />
-      <rect x="16" y="12" width="18" height="10" fill={color} rx="2" />
-      <rect x="20" y="5" width="10" height="9" fill={color} rx="2" />
-      <rect x="2" y="33" width="4" height="2" fill={color} rx="0.5" />
-      <rect x="2" y="37" width="4" height="2" fill={color} rx="0.5" />
-      <rect x="42" y="33" width="4" height="2" fill={color} rx="0.5" />
-      <rect x="42" y="37" width="4" height="2" fill={color} rx="0.5" />
-      <rect x="8" y="23" width="4" height="2" fill={color} rx="0.5" />
-      <rect x="36" y="23" width="4" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="30" width="40" height="12" fill={color} />
+      <rect x="10" y="20" width="28" height="12" fill={color} />
+      <rect x="16" y="12" width="18" height="10" fill={color} />
+      <rect x="20" y="5" width="10" height="9" fill={color} />
+      <rect x="2" y="33" width="4" height="2" fill={color} />
+      <rect x="2" y="37" width="4" height="2" fill={color} />
+      <rect x="42" y="33" width="4" height="2" fill={color} />
+      <rect x="42" y="37" width="4" height="2" fill={color} />
+      <rect x="8" y="23" width="4" height="2" fill={color} />
+      <rect x="36" y="23" width="4" height="2" fill={color} />
       <path d="M20 42 L20 36 Q24 31 28 36 L28 42" fill="var(--navy)" opacity="0.5" />
     </svg>
   ),
@@ -577,7 +577,7 @@ const CITY_ICONS = {
       <path d="M4 38 Q10 33 16 38 Q22 43 28 38 Q34 33 40 36 L44 38 L4 38 Z" fill={color} />
       <path d="M4 38 Q10 34 16 38" stroke="var(--navy)" strokeWidth="1.5" fill="none" opacity="0.4" strokeLinecap="round" />
       <path d="M28 38 Q34 33 40 36" stroke="var(--navy)" strokeWidth="1.5" fill="none" opacity="0.4" strokeLinecap="round" />
-      <rect x="4" y="40" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="40" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -607,7 +607,7 @@ const CITY_ICONS = {
       <rect x="8" y="31" width="2" height="8" fill={color} />
       <rect x="21" y="31" width="2" height="8" fill={color} />
       <rect x="34" y="31" width="2" height="8" fill={color} />
-      <rect x="4" y="38" width="40" height="2" fill={color} rx="0.5" opacity="0.6" />
+      <rect x="4" y="38" width="40" height="2" fill={color} opacity="0.6" />
       <path d="M15 20 Q13 16 12 18 Q13 18 15 16 Q17 18 19 18 Q17 16 15 20 Z" fill={color} />
       <path d="M27 14 Q25 10 24 12 Q25 12 27 10 Q29 12 31 12 Q29 10 27 14 Z" fill={color} />
       <path d="M36 22 Q34 18 33 20 Q34 20 36 18 Q38 20 40 20 Q38 18 36 22 Z" fill={color} />
@@ -624,7 +624,7 @@ const CITY_ICONS = {
       <polygon points="23,14 23,28 10,25" fill={color} opacity="0.75" />
       <path d="M10 30 L14 36 L34 36 L38 30 Q30 32 24 32 Q18 32 10 30 Z" fill={color} />
       <path d="M4 34 Q12 32 20 34 Q28 36 36 34 Q42 32 44 34" stroke={color} strokeWidth="1" fill="none" opacity="0.5" />
-      <rect x="4" y="36" width="40" height="2" fill={color} rx="0.5" />
+      <rect x="4" y="36" width="40" height="2" fill={color} />
     </svg>
   ),
 
@@ -654,12 +654,12 @@ export function getCityIcon(name) {
 function SkylineFallback({ color }) {
   return (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
-      <rect x="8"  y="28" width="6"  height="14" fill={color} rx="0.5" />
-      <rect x="16" y="20" width="8"  height="22" fill={color} rx="0.5" />
-      <rect x="26" y="24" width="6"  height="18" fill={color} rx="0.5" />
-      <rect x="34" y="30" width="6"  height="12" fill={color} rx="0.5" />
-      <rect x="20" y="16" width="2"  height="5"  fill={color} rx="0.5" />
-      <rect x="6"  y="42" width="36" height="2"  fill={color} rx="0.5" />
+      <rect x="8"  y="28" width="6"  height="14" fill={color} />
+      <rect x="16" y="20" width="8"  height="22" fill={color} />
+      <rect x="26" y="24" width="6"  height="18" fill={color} />
+      <rect x="34" y="30" width="6"  height="12" fill={color} />
+      <rect x="20" y="16" width="2"  height="5"  fill={color} />
+      <rect x="6"  y="42" width="36" height="2"  fill={color} />
     </svg>
   );
 }
@@ -673,18 +673,18 @@ export function CityBadge({
 }) {
   const featured = size >= 72;
   /* §8: locked = ink silhouette + amber outline (a lead not yet confirmed) */
-  const iconColor = locked ? 'var(--ink-600)' : 'var(--manila)';
+  const iconColor = locked ? 'var(--grid-line)' : 'var(--phosphor-dim)';
   const iconSize = size * 0.62;
   const CityIcon = getCityIcon(name);
-  const ring = locked ? 'var(--amber-40)' : QUALITY_RING[quality];
+  const ring = locked ? 'var(--phosphor-40)' : QUALITY_RING[quality];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: size + 24, ...style }}>
       <div style={{
         position: 'relative', display: 'grid', placeItems: 'center',
-        width: size, height: size, borderRadius: '50%',
-        background: locked ? 'var(--ink-800)' : 'var(--ink-600)',
-        border: locked ? '2px dashed var(--amber-40)' : `3px solid ${ring}`,
+        width: size, height: size, borderRadius: 'var(--r-full)',
+        background: locked ? 'var(--screen-700)' : 'var(--screen-600)',
+        border: locked ? '2px dashed var(--phosphor-40)' : `3px solid ${ring}`,
         boxShadow: locked
           ? 'var(--screen-inset-shadow)'
           : (quality === 'gold' ? 'var(--glow-live)' : 'var(--shadow-card)'),
@@ -701,8 +701,8 @@ export function CityBadge({
           <span style={{
             position: 'absolute', bottom: -2, right: -2,
             display: 'grid', placeItems: 'center', width: size * 0.34, height: size * 0.34,
-            borderRadius: '50%', background: ring, color: 'var(--ink-900)',
-            border: '2px solid var(--ink-900)',
+            borderRadius: 'var(--r-full)', background: ring, color: 'var(--case-900)',
+            border: '2px solid var(--screen-base)',
           }}>
             <Icon name="check" size={size * 0.2} strokeWidth={3} />
           </span>
@@ -711,7 +711,7 @@ export function CityBadge({
       <span style={{
         fontFamily: 'var(--font-display)', fontWeight: 600,
         fontSize: featured ? 14 : 11, textTransform: 'uppercase', letterSpacing: '0.08em',
-        color: locked ? 'var(--bone-dim)' : 'var(--bone)', textAlign: 'center', lineHeight: 1.25,
+        color: locked ? 'var(--phosphor-dim)' : 'var(--phosphor)', textAlign: 'center', lineHeight: 1.25,
       }}>{locked ? '???' : name}</span>
     </div>
   );

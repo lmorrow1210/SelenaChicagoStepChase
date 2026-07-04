@@ -30,17 +30,19 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
       style={{
         width: expanded ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)',
         height: '100%', flex: 'none',
-        background: 'var(--ink-700)',
-        borderRight: '1px solid var(--hairline-paper)',
+        /* Molded tan-plastic chassis — the field-terminal casing */
+        background: 'var(--tan-400)',
+        borderRight: '1px solid var(--case-shadow)',
         boxShadow: 'var(--bevel-raised-shadow)',
         display: 'flex', flexDirection: 'column',
         padding: '12px 8px', gap: 10,
         transition: 'width var(--dur-base) var(--ease-out)',
         overflow: 'hidden',
         zIndex: 'var(--z-nav)',
+        textShadow: 'none', /* chrome text is matte; only the CRT well glows */
       }}
     >
-      {/* ── Bureau nameplate — stamped label on the chassis ── */}
+      {/* ── Bureau nameplate — molded label + a mini CRT chip ── */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '2px 6px', minHeight: 34, flex: 'none', overflow: 'hidden',
@@ -49,18 +51,19 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
           display: 'grid', placeItems: 'center',
           width: 28, height: 28, flex: 'none',
           borderRadius: 'var(--r-tight)',
-          background: 'var(--amber)', color: 'var(--ink-900)',
+          background: 'var(--screen-base)', color: 'var(--phosphor)',
+          boxShadow: 'var(--screen-inset)', textShadow: 'var(--text-glow)',
           fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18,
         }}>1</span>
         <span style={{
           fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
           letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: 'var(--bone)', whiteSpace: 'nowrap',
+          color: 'var(--case-900)', whiteSpace: 'nowrap',
           opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
         }}>One Step Ahead</span>
       </div>
 
-      {/* ── Phosphor screen — inset telemetry well with nav lines ── */}
+      {/* ── Phosphor screen — inset CRT well with nav lines (glows) ── */}
       <div style={{
         flex: 1,
         background: 'var(--crt-bg)',
@@ -70,6 +73,7 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
         padding: '10px 6px',
         display: 'flex', flexDirection: 'column', gap: 2,
         overflow: 'hidden', position: 'relative',
+        textShadow: 'var(--text-glow)',
       }}>
         {/* Stamped screen header */}
         <div style={{
@@ -77,7 +81,7 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
           color: 'var(--crt-dim)', letterSpacing: 'var(--ls-label)',
           textTransform: 'uppercase',
           marginBottom: 6, paddingBottom: 6, paddingLeft: 4,
-          borderBottom: '1px solid rgba(255, 176, 32, 0.14)',
+          borderBottom: '1px solid rgba(var(--phosphor-glow), 0.14)',
           whiteSpace: 'nowrap', overflow: 'hidden',
         }}>
           {expanded ? '[ LOOP BUREAU ]' : '[ · ]'}
@@ -97,12 +101,12 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
                 border: 'none', cursor: 'pointer',
                 borderRadius: 'var(--r-tight)',
                 background: on ? 'var(--crt-row)' : 'transparent',
-                boxShadow: on ? 'inset 0 0 10px 0 rgba(255,176,32,0.10)' : 'none',
+                boxShadow: on ? 'inset 0 0 10px 0 rgba(var(--phosphor-glow),0.10)' : 'none',
                 color: on ? 'var(--crt-hi)' : 'var(--crt-dim)',
                 textAlign: 'left',
                 transition: 'color var(--dur-fast), background var(--dur-fast)',
               }}
-              onMouseEnter={(e) => { if (!on) e.currentTarget.style.color = 'var(--amber)'; }}
+              onMouseEnter={(e) => { if (!on) e.currentTarget.style.color = 'var(--phosphor)'; }}
               onMouseLeave={(e) => { if (!on) e.currentTarget.style.color = 'var(--crt-dim)'; }}
             >
               {/* Terminal cursor marks the live line */}
@@ -140,17 +144,17 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
           display: 'flex', alignItems: 'center', gap: 10,
           height: 52, padding: '0 4px', width: '100%',
           border: 'none', background: 'transparent', cursor: 'pointer',
-          borderTop: '1px solid var(--hairline-paper)',
+          borderTop: '1px solid var(--case-shadow)',
           overflow: 'hidden',
         }}
       >
         <span style={{ flex: 'none', display: 'grid', placeItems: 'center' }}>
-          {avatar || <span style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--ink-600)' }} />}
+          {avatar || <span style={{ width: 36, height: 36, borderRadius: 'var(--r-avatar)', background: 'var(--case-800)' }} />}
         </span>
         <span style={{
           fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
           letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
-          color: 'var(--bone-dim)', whiteSpace: 'nowrap',
+          color: 'var(--case-700)', whiteSpace: 'nowrap',
           opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
         }}>Operative file</span>
       </button>

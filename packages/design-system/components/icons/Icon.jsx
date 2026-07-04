@@ -28,7 +28,7 @@ const P = {
   ),
   bingo: (
     <>
-      <rect x="3.5" y="3.5" width="17" height="17" rx="2" />
+      <rect x="3.5" y="3.5" width="17" height="17" />
       <path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17" />
     </>
   ),
@@ -50,8 +50,8 @@ const P = {
   workout: (
     <>
       <path d="M5 9v6M19 9v6M3 11v2M21 11v2M5 12h14" />
-      <rect x="5" y="8.5" width="3" height="7" rx="1" />
-      <rect x="16" y="8.5" width="3" height="7" rx="1" />
+      <rect x="5" y="8.5" width="3" height="7" />
+      <rect x="16" y="8.5" width="3" height="7" />
     </>
   ),
   sleep: (
@@ -98,7 +98,7 @@ const P = {
   /* ---- Misc UI ---- */
   lock: (
     <>
-      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <rect x="5" y="11" width="14" height="9" />
       <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </>
   ),

@@ -8,7 +8,7 @@ import { honorCompleteSchema, giftTileSchema, type BingoTile } from "@one-step-a
 
 /* ============================================================
    M10 Field Ops (addendum §1) — one screen, two linked panels:
-   the Ops Board (bingo matrix, the cause) and the Trail (recon
+   the Ops Board (bingo matrix, the cause) and Intel (recon
    landmark dossiers for the city ONE AHEAD, the effect).
    ============================================================ */
 
@@ -39,7 +39,7 @@ async function currentWeekAndGroup(userId: string) {
   return { groupId, weekId: week.rows[0].id as string, today: week.rows[0].today as string };
 }
 
-/** Merged Field Ops payload: ops board + recon trail + scout state. */
+/** Merged Field Ops payload: ops board + recon intel + scout state. */
 fieldopsRouter.get("/", async (req, res, next) => {
   try {
     const { groupId, weekId, today } = await currentWeekAndGroup(req.userId!);
@@ -70,16 +70,17 @@ fieldopsRouter.get("/", async (req, res, next) => {
       };
     });
 
-    // Scout state + recon trail — strictly read-only (unlocks only happen
+    // Scout state + recon intel — strictly read-only (unlocks only happen
     // in the sync/honor/gift paths where a scout gets credited).
     const snapshot = await getScoutState(pool, weekId, groupId, today);
     const scout = snapshot.state;
-    const trail = snapshot.reconId
+    const intel = snapshot.reconId
       ? (
           await pool.query(
-            `SELECT l.id, l.day, l.name, l.fun_fact,
+            `SELECT l.id, l.day, l.name, l.fun_fact, l.image,
                     COALESCE(cu.unlocked, FALSE) AS unlocked,
                     to_char(cu.unlock_date, 'YYYY-MM-DD') AS unlock_date,
+                    u.id AS scouted_by_id,
                     u.display_name AS scouted_by
              FROM landmarks l
              LEFT JOIN city_unlocks cu ON cu.landmark_id = l.id AND cu.week_id = $2
@@ -117,7 +118,7 @@ fieldopsRouter.get("/", async (req, res, next) => {
       },
       scout,
       reconCity: scout.reconCity,
-      trail,
+      intel,
       assists: { remaining: Math.max(0, 2 - Number(spent.rows[0].n)) },
       teammates: teammates.rows,
     });
@@ -164,21 +165,49 @@ fieldopsRouter.post("/gift", async (req, res, next) => {
   }
 });
 
-/** Personal Intel Wallet — season-long case-file collection (§7A). */
-fieldopsRouter.get("/wallet", async (req, res, next) => {
+/** Personal Dossier — season-long case-file collection (§7A). */
+fieldopsRouter.get("/dossier", async (req, res, next) => {
   try {
+    const targetUserId = typeof req.query.user_id === "string" ? req.query.user_id : req.userId!;
+    const access = await pool.query(
+      `SELECT viewer.group_id AS viewer_group_id,
+              target.group_id AS target_group_id,
+              target.display_name AS target_name
+       FROM users viewer
+       JOIN users target ON target.id = $2
+       WHERE viewer.id = $1`,
+      [req.userId, targetUserId],
+    );
+    if (!access.rowCount) throw errors.notFound("Dossier not found");
+    if (!access.rows[0].viewer_group_id || access.rows[0].viewer_group_id !== access.rows[0].target_group_id) {
+      throw errors.forbidden("That dossier is outside your group");
+    }
+
     const cards = await pool.query(
       `SELECT ic.id, ic.variant, ic.created_at,
-              l.name AS landmark_name, l.fun_fact,
-              c.id AS city_id, c.name AS city_name
+              l.id AS landmark_id, l.name AS landmark_name, l.fun_fact, l.image,
+              c.id AS city_id, c.name AS city_name, c.country AS city_country
        FROM intel_cards ic
        JOIN landmarks l ON l.id = ic.landmark_id
        JOIN cities c ON c.id = ic.city_id
        WHERE ic.user_id = $1
-       ORDER BY ic.created_at DESC`,
-      [req.userId],
+       ORDER BY c.route_order ASC, l.day ASC, ic.created_at DESC`,
+      [targetUserId],
     );
-    res.json({ cards: cards.rows });
+
+    const cities = await pool.query(
+      `SELECT c.id, c.name, c.country,
+              l.id AS landmark_id, l.day, l.name AS landmark_name, l.fun_fact, l.image
+       FROM cities c
+       JOIN landmarks l ON l.city_id = c.id
+       ORDER BY c.route_order ASC, l.day ASC`,
+    );
+
+    res.json({
+      owner: { id: targetUserId, display_name: access.rows[0].target_name },
+      cards: cards.rows,
+      cities: cities.rows,
+    });
   } catch (e) {
     next(e);
   }

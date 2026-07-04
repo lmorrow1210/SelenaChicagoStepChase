@@ -46,8 +46,9 @@ export function SundayCountdown({ style }: { style?: React.CSSProperties }) {
         fontSize: "var(--fs-caption)",
         letterSpacing: "0.06em",
         textTransform: "uppercase",
-        color: "var(--amber)",
-        background: "var(--ink-800)",
+        /* §6: vanish timer reads in signal-red urgency on a screen face */
+        color: "var(--signal-red)",
+        background: "var(--screen-700)",
         borderRadius: "var(--r-tight)",
         boxShadow: "var(--screen-inset-shadow)",
         padding: "var(--sp-1) var(--sp-2)",
@@ -55,7 +56,7 @@ export function SundayCountdown({ style }: { style?: React.CSSProperties }) {
         ...style,
       }}
     >
-      <span style={{ color: "var(--bone-dim)" }}>She vanishes in</span>
+      <span style={{ color: "var(--phosphor-dim)" }}>She vanishes in</span>
       {text}
     </span>
   );

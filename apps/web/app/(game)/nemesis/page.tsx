@@ -98,7 +98,7 @@ function ScoreBar({
         gap: "var(--sp-2)",
         padding: "var(--sp-4) var(--sp-3)",
         background:
-          "linear-gradient(105deg, var(--amber-08) 0%, var(--ink-700) 42%, var(--ink-700) 58%, var(--slate-08) 100%)",
+          "linear-gradient(105deg, var(--phosphor-08) 0%, var(--screen-700) 42%, var(--screen-700) 58%, var(--slate-08) 100%)",
         borderRadius: "var(--r-card)",
         border: "1px solid var(--hairline)",
         boxShadow: "var(--bevel-raised-shadow), var(--shadow-card)",
@@ -114,11 +114,11 @@ function ScoreBar({
         }}
       />
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <Avatar size={52} colorway={colorwayFrom(you.avatar_colorway)} ring="var(--amber)" />
+        <Avatar size={52} colorway={colorwayFrom(you.avatar_colorway)} ring="var(--phosphor)" />
         <span
           style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20,
-            textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--amber)",
+            textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--phosphor)",
           }}
         >
           You
@@ -128,7 +128,7 @@ function ScoreBar({
         <div
           style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15,
-            letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--bone-dim)",
+            letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--phosphor-dim)",
           }}
         >
           vs
@@ -139,7 +139,7 @@ function ScoreBar({
             fontVariantNumeric: "tabular-nums",
             fontSize: 34,
             lineHeight: 1,
-            color: "var(--bone)",
+            color: "var(--phosphor)",
             letterSpacing: "0.05em",
           }}
         >
@@ -148,7 +148,7 @@ function ScoreBar({
         <div
           style={{
             fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 10,
-            textTransform: "uppercase", letterSpacing: "var(--ls-label)", color: "var(--bone-dim)",
+            textTransform: "uppercase", letterSpacing: "var(--ls-label)", color: "var(--phosphor-dim)",
             marginTop: 2,
           }}
         >
@@ -232,12 +232,12 @@ function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerI
         alignItems: "center",
         gap: "var(--sp-3)",
         padding: "var(--sp-2) var(--sp-3)",
-        background: "var(--ink-800)",
+        background: "var(--screen-700)",
         borderRadius: "var(--r-tight)",
         boxShadow: "var(--screen-inset-shadow)",
       }}
     >
-      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--amber)" }}>
+      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--phosphor)" }}>
         You {you.steps_today.toLocaleString()}
       </span>
       <span
@@ -248,19 +248,146 @@ function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerI
           textAlign: "center",
           textTransform: "uppercase",
           letterSpacing: "0.06em",
-          color: delta === 0 ? "var(--bone-dim)" : behind ? "var(--signal-red)" : "var(--amber-hot)",
+          color: delta === 0 ? "var(--phosphor-dim)" : behind ? "var(--signal-red)" : "var(--phosphor-hot)",
           textShadow: behind ? "0 0 10px rgba(255,59,48,0.30)" : "none",
         }}
       >
         {delta === 0
           ? "Dead even"
           : behind
-            ? `${Math.abs(delta).toLocaleString()} behind today`
-            : `${delta.toLocaleString()} ahead today`}
+            ? `▼ ${Math.abs(delta).toLocaleString()} behind today`
+            : `▲ ${delta.toLocaleString()} ahead today`}
       </span>
       <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--slate-light)" }}>
         {nemesis.steps_today.toLocaleString()} {nemesis.display_name}
       </span>
+    </div>
+  );
+}
+
+interface LedgerDay {
+  label: string;
+  date: string;
+  youSteps: number;
+  nemSteps: number;
+  outcome: "you" | "nemesis" | "tie" | "progress";
+  kind: "done" | "today" | "future";
+}
+
+/* Compact Mon–Fri ledger — one row per day: steps, delta (teal ahead / red
+   behind), and the day's result. Today gets the amber live rule. */
+function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: string }) {
+  const mono: React.CSSProperties = {
+    fontFamily: "var(--font-mono)",
+    fontVariantNumeric: "tabular-nums",
+    fontSize: 12,
+  };
+  const headCell: React.CSSProperties = {
+    fontFamily: "var(--font-display)",
+    fontWeight: 600,
+    fontSize: 10,
+    letterSpacing: "var(--ls-label)",
+    textTransform: "uppercase",
+    color: "var(--phosphor-dim)",
+  };
+  const grid = "minmax(64px, auto) 1fr 1fr 1fr auto";
+  return (
+    <div
+      style={{
+        border: "1px solid var(--hairline)",
+        background: "var(--screen-700)",
+        boxShadow: "var(--bevel-raised-shadow), var(--shadow-card)",
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: grid,
+          gap: "var(--sp-2)",
+          alignItems: "baseline",
+          padding: "var(--sp-2) var(--sp-3)",
+          borderBottom: "1px solid var(--hairline)",
+        }}
+      >
+        <span style={headCell}>Day</span>
+        <span style={{ ...headCell, textAlign: "right" }}>You</span>
+        <span style={{ ...headCell, textAlign: "right" }}>{nemesisName}</span>
+        <span style={{ ...headCell, textAlign: "right" }}>Delta</span>
+        <span style={{ ...headCell, width: 28, textAlign: "center" }}>W/L</span>
+      </div>
+      {days.map((day) => {
+        const delta = day.youSteps - day.nemSteps;
+        const isFuture = day.kind === "future";
+        const isToday = day.kind === "today";
+        const mark =
+          isFuture ? "—" :
+          isToday ? "live" :
+          day.outcome === "you" ? "W" :
+          day.outcome === "nemesis" ? "L" : "T";
+        // §5 red discipline: historical W/L is routine — win = bright green,
+        // loss = muted green. Red stays reserved for live urgency/threat.
+        const markColor =
+          mark === "W" ? "var(--phosphor-hot)" :
+          mark === "L" ? "var(--phosphor-dim)" :
+          mark === "live" ? "var(--phosphor)" :
+          "var(--phosphor-dim)";
+        return (
+          <div
+            key={day.date}
+            style={{
+              display: "grid",
+              gridTemplateColumns: grid,
+              gap: "var(--sp-2)",
+              alignItems: "baseline",
+              padding: "var(--sp-2) var(--sp-3)",
+              opacity: isFuture ? 0.45 : 1,
+              background: isToday ? "var(--phosphor-08)" : "transparent",
+              borderLeft: isToday ? "2px solid var(--phosphor)" : "2px solid transparent",
+              borderBottom: "1px solid var(--phosphor-08)",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 600,
+                fontSize: 11,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: isToday ? "var(--phosphor)" : "var(--phosphor)",
+              }}
+            >
+              {day.label.slice(0, 3)}
+            </span>
+            <span style={{ ...mono, textAlign: "right", color: "var(--phosphor)" }}>
+              {isFuture ? "·" : day.youSteps.toLocaleString()}
+            </span>
+            <span style={{ ...mono, textAlign: "right", color: "var(--phosphor-dim)" }}>
+              {isFuture ? "·" : day.nemSteps.toLocaleString()}
+            </span>
+            <span
+              style={{
+                ...mono,
+                textAlign: "right",
+                color: isFuture || delta === 0 ? "var(--phosphor-dim)" : delta > 0 ? "var(--phosphor-hot)" : "var(--phosphor-dim)",
+              }}
+            >
+              {isFuture ? "·" : delta === 0 ? "even" : `${delta > 0 ? "▲" : "▼"} ${Math.abs(delta).toLocaleString()}`}
+            </span>
+            <span
+              style={{
+                ...mono,
+                width: 28,
+                textAlign: "center",
+                textTransform: "uppercase",
+                fontSize: mark === "live" ? 9 : 12,
+                color: markColor,
+              }}
+            >
+              {mark}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -378,15 +505,19 @@ export default function NemesisPage() {
     return { label, date, youSteps: 0, nemSteps: 0, outcome: "progress" as const, kind: "future" as const };
   });
 
+  // Today is the hero; once the week's over, the last played day stands in.
+  const heroDay =
+    days.find((d) => d.kind === "today") ?? [...days].reverse().find((d) => d.kind === "done") ?? null;
+
   return (
     <div
       style={{
-        padding: "var(--sp-4) var(--sp-4) var(--sp-8)",
-        maxWidth: 480,
+        padding: "var(--space-md) var(--space-lg) var(--space-2xl)",
+        maxWidth: 560,
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        gap: "var(--sp-4)",
+        gap: "var(--space-md)",
       }}
     >
       <div>
@@ -397,7 +528,7 @@ export default function NemesisPage() {
             fontSize: "var(--fs-label)",
             letterSpacing: "var(--ls-label)",
             textTransform: "uppercase",
-            color: "var(--bone-dim)",
+            color: "var(--phosphor-dim)",
             margin: 0,
           }}
         >
@@ -410,7 +541,7 @@ export default function NemesisPage() {
             fontSize: 30,
             textTransform: "uppercase",
             letterSpacing: "0.03em",
-            color: "var(--bone)",
+            color: "var(--phosphor)",
             margin: "2px 0 0",
           }}
         >
@@ -420,7 +551,7 @@ export default function NemesisPage() {
           style={{
             fontFamily: "var(--font-body)",
             fontSize: 13,
-            color: "var(--bone-dim)",
+            color: "var(--phosphor-dim)",
             margin: "var(--sp-1) 0 0",
           }}
         >
@@ -454,46 +585,45 @@ export default function NemesisPage() {
 
       {matchup.status !== "complete" && <TodayContextStrip you={you} nemesis={nemesis} />}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
-        {days.map((day) => (
-          <div key={day.date} style={{ opacity: day.kind === "future" ? 0.45 : 1 }}>
-            <div
+      {/* Hero matchup — today's duel as the one big skyline */}
+      {heroDay && (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              marginBottom: "var(--sp-1)",
+            }}
+          >
+            <span
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                marginBottom: "var(--sp-1)",
+                fontFamily: "var(--font-display)",
+                fontWeight: 600,
+                fontSize: "var(--fs-label)",
+                letterSpacing: "var(--ls-label)",
+                textTransform: "uppercase",
+                color: "var(--phosphor)",
               }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: day.kind === "today" ? "var(--gold)" : "var(--muted)",
-                }}
-              >
-                {day.label}
-                {day.kind === "today" ? " · Today" : ""}
-              </span>
-              {day.kind !== "future" && (
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--muted)" }}>
-                  {day.youSteps.toLocaleString()} · {day.nemSteps.toLocaleString()}
-                </span>
-              )}
-            </div>
-            <SkyscraperPair
-              you={{ label: "You", steps: day.youSteps }}
-              nemesis={{ label: nemesis.display_name, steps: day.nemSteps }}
-              outcome={day.outcome}
-              max={weekMax}
-              animate={day.kind === "today"}
-            />
+              [ {heroDay.kind === "today" ? `${heroDay.label} · Today` : heroDay.label} ]
+            </span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--muted)" }}>
+              {heroDay.youSteps.toLocaleString()} · {heroDay.nemSteps.toLocaleString()}
+            </span>
           </div>
-        ))}
-      </div>
+          <SkyscraperPair
+            you={{ label: "You", steps: heroDay.youSteps }}
+            nemesis={{ label: nemesis.display_name, steps: heroDay.nemSteps }}
+            outcome={heroDay.outcome}
+            max={weekMax}
+            animate={heroDay.kind === "today"}
+          />
+        </div>
+      )}
+
+      {/* Compact Mon–Fri ledger — every day on one card */}
+      <WeekLedger days={days} nemesisName={nemesis.display_name} />
 
       {matchup.status === "active" && !matchup.rerolled && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>

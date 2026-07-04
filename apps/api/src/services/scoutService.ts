@@ -8,12 +8,12 @@ import type { BingoTile } from "@one-step-ahead/shared";
    BINGO lines are Scout Tokens. Tokens send a drone ONE CITY
    AHEAD and decrypt that city's recon landmarks (5 per city) as
    a TEAM effort:
-     · one landmark unlock per calendar day, max (paced trail)
-     · per-player unlock cap so no one solves the trail alone
+     · one landmark unlock per calendar day, max (paced intel)
+     · per-player unlock cap so no one solves the intel alone
        (cap 2 for groups ≥3; 3 for pairs; uncapped solo)
      · the player whose line pops a landmark keeps it as a
        personal Intel Card ('confirmed' holo variant when the
-       landmark was already in their wallet from a prior visit)
+       landmark was already in their dossier from a prior visit)
      · tokens beyond the 5 landmarks are overflow → bonus
    ============================================================ */
 
@@ -44,7 +44,7 @@ export async function getReconCity(
 }
 
 function perPlayerCap(groupSize: number): number {
-  if (groupSize <= 1) return 5; // solo groups shouldn't brick the trail
+  if (groupSize <= 1) return 5; // solo groups shouldn't brick the intel
   if (groupSize === 2) return 3;
   return 2;
 }
@@ -114,7 +114,7 @@ export async function getScoutState(
 }
 
 /**
- * Advance the team trail after a player's card changed. Idempotent —
+ * Advance the team intel after a player's card changed. Idempotent —
  * computes team tokens from all cards and unlocks at most one landmark
  * (today, respecting the per-player cap). The unlocking player gets the
  * Intel Card. Returns the current scout state for the group's week.

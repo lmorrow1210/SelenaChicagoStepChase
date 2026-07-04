@@ -13,7 +13,7 @@ export function EmptyState({ icon = 'globe', title, body, action, accent = 'var(
       gap: 14, padding: '40px 28px', maxWidth: 380, margin: '0 auto', ...style,
     }}>
       <div style={{
-        display: 'grid', placeItems: 'center', width: 72, height: 72, borderRadius: '50%',
+        display: 'grid', placeItems: 'center', width: 72, height: 72, borderRadius: 'var(--r-full)',
         background: 'var(--card)', border: `1.5px dashed ${accent}`, color: accent,
       }}>
         <Icon name={icon} size={34} strokeWidth={1.8} />

@@ -13,7 +13,7 @@ export function SelenaMark({ size = 32, mono = false, style }) {
   /* mono=true renders single-color (currentColor) for stamps/redactions */
   const sky = mono ? 'currentColor' : '#41B6E6';
   const band = mono ? 'currentColor' : 'var(--signal-red, #FF3B30)';
-  const coat = mono ? 'currentColor' : 'var(--bone, #F3ECD9)';
+  const coat = mono ? 'currentColor' : 'var(--phosphor, #F3ECD9)';
   return (
     <svg
       viewBox="0 0 48 48"
@@ -30,12 +30,12 @@ export function SelenaMark({ size = 32, mono = false, style }) {
       {/* Red band */}
       <path d="M15.4 14.2 Q24 17.4 32.6 14.2 L32.9 16.2 Q24 19.2 15.1 16.2 Z" fill={band} />
       {/* Face shadow under the brim */}
-      <path d="M18 21.5 Q24 24 30 21.5 L29 26 Q24 28 19 26 Z" fill="var(--ink-900, #0C0F14)" opacity="0.9" />
+      <path d="M18 21.5 Q24 24 30 21.5 L29 26 Q24 28 19 26 Z" fill="var(--case-900, #2E2216)" opacity="0.9" />
       {/* Popped trench collar + shoulders */}
       <path d="M10 42 Q11 30 19 27.5 L24 31 L29 27.5 Q37 30 38 42 Z" fill={coat} />
       {/* Collar notches */}
-      <path d="M19 27.5 L24 31 L21 34 L17.5 29.5 Z" fill={coat} stroke="var(--ink-900, #0C0F14)" strokeWidth="0.6" />
-      <path d="M29 27.5 L24 31 L27 34 L30.5 29.5 Z" fill={coat} stroke="var(--ink-900, #0C0F14)" strokeWidth="0.6" />
+      <path d="M19 27.5 L24 31 L21 34 L17.5 29.5 Z" fill={coat} stroke="var(--case-900, #2E2216)" strokeWidth="0.6" />
+      <path d="M29 27.5 L24 31 L27 34 L30.5 29.5 Z" fill={coat} stroke="var(--case-900, #2E2216)" strokeWidth="0.6" />
       {/* Star-Stitch — four red points down the spine */}
       {!mono && [34.5, 37.2, 39.9, 42.6].map((y, i) => (
         <path

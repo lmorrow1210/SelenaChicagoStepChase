@@ -96,7 +96,7 @@ export async function weekRollover(
         [weekId],
       );
       const unlocks = Number(unlockRow.rows[0].n);
-      // M10: each city has 5 recon landmarks - full trail = gold.
+      // M10: each city has 5 recon landmarks - full intel = gold.
       const quality = unlocks >= 5 ? "gold" : unlocks >= 3 ? "silver" : "bronze";
       await awardBadge(client, leaderId, "city", weekId, week.city_id, quality);
 

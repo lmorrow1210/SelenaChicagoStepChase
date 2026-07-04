@@ -2,12 +2,15 @@ import * as React from 'react';
 import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
-   SkyscraperPair — Nemesis duel. Building height = steps.
-   Left = you, right = nemesis. Taller gets a gold crown.
+   SkyscraperPair v4 — Nemesis duel. Building height = steps.
+   YOU = a phosphor-green tower; the rival = a tan-500 tower —
+   distinct by hue, both inside the field-terminal palette.
+   Windows are punched dark (case-shadow). The winner takes the
+   crown, a phosphor-hot edge, and the live glow. Square corners.
    Outcomes: you / nemesis / tie / progress (animates up).
    ============================================================ */
 
-function Tower({ side, label, pct, win, color, animate }) {
+function Tower({ label, pct, win, animate, kind }) {
   // reduced-motion skips the rise (M6 acceptance); inline animation can't be
   // overridden from a stylesheet, so gate it here (SSR-safe)
   const reducedMotion =
@@ -15,47 +18,54 @@ function Tower({ side, label, pct, win, color, animate }) {
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rise = animate && !reducedMotion;
+  const height = Math.max(8, Math.min(100, pct));
+  const you = kind === 'you';
+  const barBg = you ? 'var(--phosphor)' : 'var(--tan-500)';
+  const idleEdge = you ? 'var(--phosphor-dim)' : 'var(--case-700)';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-      {win && (
-        <span style={{ color: 'var(--gold)', filter: 'drop-shadow(var(--glow-gold))' }}>
+      {win ? (
+        <span style={{ color: 'var(--phosphor-hot)', filter: 'drop-shadow(var(--glow-live))' }}>
           <Icon name="crown" size={26} />
         </span>
+      ) : (
+        <span style={{ height: 26 }} />
       )}
-      {!win && <span style={{ height: 26 }} />}
       <div style={{ position: 'relative', width: '100%', maxWidth: 88, height: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
         <div style={{
           width: '100%',
-          height: `${Math.max(8, Math.min(100, pct))}%`,
-          background: color,
-          border: `2px solid ${win ? 'var(--gold)' : 'color-mix(in srgb, ' + color + ' 70%, var(--navy))'}`,
-          borderRadius: '4px 4px 0 0',
-          boxShadow: win ? 'var(--glow-gold)' : 'none',
+          height: `${height}%`,
+          background: barBg,
+          border: `2px solid ${win ? 'var(--phosphor-hot)' : idleEdge}`,
+          boxShadow: win ? 'var(--glow-live)' : 'var(--bevel-raised-shadow)',
           transformOrigin: 'bottom',
           animation: rise ? `sc-bounce-up var(--dur-skyline) var(--ease-spring) both` : 'none',
           position: 'relative',
           display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center',
           paddingTop: 8, gap: 6, overflow: 'hidden',
         }}>
-          {/* windows */}
+          {/* windows — punched dark on the lit facade */}
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} style={{ display: 'flex', gap: 6 }}>
-              <span style={{ width: 8, height: 8, background: 'var(--gold)', opacity: 0.55, borderRadius: 1 }} />
-              <span style={{ width: 8, height: 8, background: 'var(--gold)', opacity: 0.35, borderRadius: 1 }} />
+              <span style={{ width: 8, height: 8, background: 'var(--case-shadow)', opacity: 0.7 }} />
+              <span style={{ width: 8, height: 8, background: 'var(--case-shadow)', opacity: 0.5 }} />
             </div>
           ))}
         </div>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, textTransform: 'uppercase', color: 'var(--cream)' }}>{label}</div>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontSize: 14, textTransform: 'uppercase',
+          color: win ? 'var(--phosphor-hot)' : 'var(--phosphor)',
+          maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>{label}</div>
       </div>
-      <style>{`@keyframes sc-bounce-up{0%{height:0}70%{height:calc(${Math.max(8, Math.min(100, pct))}% + 10px)}100%{height:${Math.max(8, Math.min(100, pct))}%}}`}</style>
     </div>
   );
 }
 
 export function SkyscraperPair({
-  you = { label: 'You', steps: 8200, colorway: 'chicago' },
+  you = { label: 'You', steps: 8200 },
   nemesis = { label: 'Nemesis', steps: 7400 },
   outcome,             // 'you' | 'nemesis' | 'tie' | 'progress' (auto if omitted)
   max: maxProp,        // normalize heights to this (e.g. week max) instead of the pair max
@@ -70,15 +80,18 @@ export function SkyscraperPair({
   return (
     <div style={{
       display: 'flex', alignItems: 'flex-end', gap: 18, padding: '18px 20px',
-      background: 'var(--card)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-card)', ...style,
+      background: 'var(--screen-700)', border: '1px solid var(--hairline-paper)',
+      borderRadius: 'var(--r-card)',
+      boxShadow: 'var(--bevel-raised-shadow), var(--shadow-card)',
+      ...style,
     }}>
-      <Tower side="you" label={you.label} pct={youPct}
-        win={result === 'you' || result === 'tie'} color="var(--blue)" animate={animate} />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 90, color: 'var(--muted)' }}>
+      <Tower label={you.label} pct={youPct} kind="you"
+        win={result === 'you' || result === 'tie'} animate={animate} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 90, color: 'var(--phosphor-dim)' }}>
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>VS</span>
       </div>
-      <Tower side="nemesis" label={nemesis.label} pct={nemPct}
-        win={result === 'nemesis' || result === 'tie'} color="var(--slate-light)" animate={animate} />
+      <Tower label={nemesis.label} pct={nemPct} kind="rival"
+        win={result === 'nemesis' || result === 'tie'} animate={animate} />
     </div>
   );
 }

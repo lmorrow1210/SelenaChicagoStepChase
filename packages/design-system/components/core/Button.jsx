@@ -109,8 +109,8 @@ export function Button({
           style={{
             width: s.fontSize,
             height: s.fontSize,
-            borderRadius: '50%',
-            border: `2px solid ${variant === 'primary' ? 'rgba(10,22,40,0.35)' : 'rgba(240,232,220,0.3)'}`,
+            borderRadius: 'var(--r-full)',
+            border: `2px solid ${variant === 'primary' ? 'rgba(28,20,11,0.35)' : 'rgba(88,224,106,0.3)'}`,
             borderTopColor: 'currentColor',
             animation: 'sc-spin 0.7s linear infinite',
           }}

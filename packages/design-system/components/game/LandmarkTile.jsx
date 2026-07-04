@@ -23,11 +23,13 @@ export function LandmarkTile({
     <div style={{
       position: 'relative', display: 'flex', flexDirection: 'column',
       borderRadius: 'var(--r-card)', overflow: 'hidden',
-      background: isUnlocked ? 'var(--manila)' : 'var(--ink-800)',
-      border: `1px solid ${isToday ? 'var(--amber)' : 'var(--hairline-paper)'}`,
+      /* Unlocked = warm tan printout; locked/today = green screen file */
+      background: isUnlocked ? 'var(--tan-200)' : 'var(--screen-700)',
+      border: `1px solid ${isToday ? 'var(--phosphor)' : isUnlocked ? 'var(--case-600)' : 'var(--grid-line)'}`,
       boxShadow: isToday
         ? 'var(--bevel-raised-shadow), var(--glow-live)'
         : 'var(--bevel-raised-shadow), var(--shadow-card)',
+      textShadow: isUnlocked ? 'none' : 'var(--text-glow)',
       animation: isToday ? 'sc-pulse-amber 1.8s var(--ease-in-out) infinite' : 'none',
       minHeight: 128, ...style,
     }}>
@@ -36,9 +38,9 @@ export function LandmarkTile({
         flex: 1, display: 'grid', placeItems: 'center', minHeight: 74,
         position: 'relative',
         background: isUnlocked
-          ? 'radial-gradient(circle at 50% 30%, var(--ink-600) 0%, var(--ink-800) 78%, var(--ink-900) 100%)'
-          : 'var(--ink-900)',
-        color: isUnlocked ? 'var(--manila)' : 'var(--ink-600)',
+          ? 'radial-gradient(circle at 50% 30%, var(--case-700) 0%, var(--case-800) 78%, var(--case-900) 100%)'
+          : 'var(--screen-base)',
+        color: isUnlocked ? 'var(--phosphor-dim)' : 'var(--grid-line)',
       }}>
         <Icon
           name={icon}
@@ -46,7 +48,7 @@ export function LandmarkTile({
           strokeWidth={1.8}
           style={{
             opacity: isUnlocked ? 1 : 0.6,
-            filter: isUnlocked ? 'drop-shadow(0 0 6px rgba(255,176,32,0.30))' : 'none',
+            filter: isUnlocked ? 'drop-shadow(0 0 6px rgba(var(--phosphor-glow),0.30))' : 'none',
           }}
         />
         {/* Locked: red [REDACTED] stamp across the photo */}
@@ -58,7 +60,7 @@ export function LandmarkTile({
             letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--signal-red)',
             border: '2px solid var(--signal-red)',
-            borderRadius: 2,
+            borderRadius: 'var(--r-tight)',
             padding: '1px 8px',
             opacity: 0.85,
             whiteSpace: 'nowrap',
@@ -68,7 +70,7 @@ export function LandmarkTile({
         <span aria-hidden="true" style={{
           position: 'absolute', top: 0, right: 0,
           width: 0, height: 0,
-          borderTop: `14px solid ${isUnlocked ? 'var(--manila)' : 'var(--ink-800)'}`,
+          borderTop: `14px solid ${isUnlocked ? 'var(--tan-300)' : 'var(--screen-700)'}`,
           borderLeft: '14px solid transparent',
         }} />
       </div>
@@ -76,31 +78,31 @@ export function LandmarkTile({
       {/* Label strip — manila field note when unlocked */}
       <div style={{
         padding: '8px 10px',
-        background: isUnlocked ? 'var(--manila)' : 'transparent',
-        borderTop: isUnlocked ? '1px solid rgba(12,15,20,0.18)' : '1px solid var(--hairline-paper)',
+        background: isUnlocked ? 'var(--tan-200)' : 'transparent',
+        borderTop: isUnlocked ? '1px solid var(--case-600)' : '1px solid var(--grid-line)',
       }}>
         {isUnlocked ? (
           <>
             <div style={{
               fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
               textTransform: 'uppercase', letterSpacing: '0.04em',
-              color: 'var(--ink-900)', lineHeight: 1.15,
+              color: 'var(--case-900)', lineHeight: 1.15,
             }}>{name}</div>
             {fact && (
               <div style={{
                 fontFamily: 'var(--font-body)', fontSize: 12,
-                color: 'rgba(12,15,20,0.72)', marginTop: 2, lineHeight: 1.45,
+                color: 'var(--case-700)', marginTop: 2, lineHeight: 1.45,
               }}>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em',
-                  color: 'var(--stamp-red)', textTransform: 'uppercase', marginRight: 5,
+                  color: 'var(--red-deep)', textTransform: 'uppercase', marginRight: 5,
                 }}>Field note:</span>
                 {fact}
               </div>
             )}
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--bone-dim)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--phosphor-dim)' }}>
             <Icon name="lock" size={13} />
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 500 }}>
               {isToday ? "Today's coordinate — sync to unlock" : 'Clearance pending'}

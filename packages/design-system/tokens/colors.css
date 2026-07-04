@@ -1,157 +1,162 @@
 /* ============================================================
-   One Step Ahead — Color Tokens v3 "Midnight Dossier"
-   A nighttime intelligence terminal that opens manila case files.
-   Ink base (never pure black). Manila/bone paper (never pure white).
-   Amber phosphor = workhorse telemetry. Signal red = Selena ONLY.
+   One Step Ahead — Color Tokens v4 "Field Terminal"
+   A 1980s tan/brown field terminal (molded plastic chrome)
+   housing a phosphor-green CRT screen. Chrome & containers =
+   browns/tans. Screen backgrounds & readouts = electronic green.
+   Red is reserved for stamps, Selena/threat, and critical
+   highlights. No greys. No amber. No teal.
    ============================================================ */
 
 :root {
-  /* ---- BASE — terminal at night ---- */
-  --ink-900: #0C0F14;  /* deepest background */
-  --ink-800: #12161D;  /* recessed panels, inset screens */
-  --ink-700: #1A2029;  /* card / panel face */
-  --ink-600: #242C38;  /* bevel top-left light, elevated surfaces */
+  /* ---- CASE / CHROME — browns & tans (hardware, frames, containers) ---- */
+  --case-shadow: #1C140B;   /* deepest groove/bevel shadow */
+  --case-900:    #2E2216;   /* darkest casing */
+  --case-800:    #43321F;
+  --case-700:    #5C462C;
+  --case-600:    #7A5F3C;
+  --tan-500:     #A0824F;
+  --tan-400:     #B89A66;   /* MAIN bezel / chrome face */
+  --tan-300:     #CDB488;   /* raised top-left highlight edge */
+  --tan-200:     #E0CDA1;   /* manila card / dossier "printout" surface */
+  --tan-100:     #F1E7CC;   /* lightest label cream / paper */
 
-  /* ---- PAPER — the case file ---- */
-  --manila:   #E7D3A1;  /* case-file paper, postcard duotone light end */
-  --bone:     #F3ECD9;  /* primary type + hairline borders */
-  --bone-dim: #A99F86;  /* secondary / stamped labels / captions */
+  /* ---- SCREEN — electronic green (on-screen backgrounds + telemetry) ---- */
+  --screen-base: #08120A;   /* CRT black-green — the darkest background */
+  --screen-700:  #0C1A0E;   /* screen panel */
+  --screen-600:  #10240F;   /* raised panel / active-nav fill */
+  --grid-line:   #17351A;   /* hairlines / grid on screen */
 
-  /* ---- HERO ACCENT — amber phosphor ---- */
-  --amber:     #FFB020;  /* telemetry, active states, rewards */
-  --amber-hot: #FFD166;  /* hover, emissive, rank #1 */
-  --amber-08:  rgba(255, 176, 32, 0.08);
-  --amber-12:  rgba(255, 176, 32, 0.12);
-  --amber-20:  rgba(255, 176, 32, 0.20);
-  --amber-40:  rgba(255, 176, 32, 0.40);
+  --phosphor:      #58E06A; /* primary green: body text, icons, nav, telemetry */
+  --phosphor-dim:  #3B8F4E; /* secondary/muted green text */
+  --phosphor-hot:  #9DFCA6; /* highlight / hover / active / win glow / team movement */
+  --phosphor-glow: 88,224,106; /* rgb for glows: rgba(var(--phosphor-glow),.35) */
 
-  /* ---- SIGNAL — Selena & danger ONLY ---- */
-  --signal-red:    #FF3B30;
+  /* Phosphor alphas (tints, hairlines-on-glass) */
+  --phosphor-08:  rgba(88, 224, 106, 0.08);
+  --phosphor-12:  rgba(88, 224, 106, 0.12);
+  --phosphor-20:  rgba(88, 224, 106, 0.20);
+  --phosphor-40:  rgba(88, 224, 106, 0.40);
+
+  /* ---- RED — stamps & critical highlights ONLY ---- */
+  --signal-red:    #FF3B30; /* stamps, Selena/threat, urgency, city kickers */
+  --red-deep:      #B4231C; /* stamp ink shadow / pressed red */
   --signal-red-12: rgba(255, 59, 48, 0.12);
   --signal-red-20: rgba(255, 59, 48, 0.20);
-  --stamp-red:     #A82118;  /* Selena red for marks ON paper (stamps, [REDACTED]) — ≥4.5:1 on manila */
 
-  /* ---- MOVEMENT — the team's own trail ---- */
-  --vector:    #37D3C4;
-  --vector-12: rgba(55, 211, 196, 0.12);
-
-  /* ---- Paper alphas (hairlines, tints on ink) ---- */
-  --bone-08: rgba(243, 236, 217, 0.08);
-  --bone-12: rgba(243, 236, 217, 0.12);
-  --hairline-paper: rgba(243, 236, 217, 0.14); /* thin bone hairline on ink */
-
-  /* ---- Badge quality rings ---- */
+  /* ---- Badge quality rings (inside the three families) ---- */
   --bronze: #C07830;
-  --silver: #A8A9AD;
-  /* gold quality = amber */
+  --silver: var(--tan-300);
+  /* gold quality = phosphor-hot */
 
-  /* ---- Map / duotone field palette (ink → manila recipe) ---- */
-  --map-ocean:      #10141C;  /* ink ocean, slightly deeper than card */
-  --map-ocean-2:    #161C26;  /* lighter ocean band for gradients */
-  --map-land-green: #3A3A2C;  /* duotone landmass — ink→manila midtones */
-  --map-land-teal:  #33392F;
-  --map-land-tan:   #6B5E3E;
-  --map-land-warm:  #57503A;
-  --map-land-sage:  #4A4A38;
-  --map-route:      var(--amber); /* dashed intel trail */
+  /* ---- Map / duotone field palette (screen-green recipe) ---- */
+  --map-ocean:      var(--screen-base);
+  --map-ocean-2:    var(--screen-700);
+  --map-land-green: #14301A;
+  --map-land-teal:  #123421;
+  --map-land-tan:   #2E3D1C;
+  --map-land-warm:  #263818;
+  --map-land-sage:  #1C3A20;
+  --map-route:      var(--phosphor-hot); /* dashed intel vector */
 
-  /* ---- Sidebar / amber phosphor terminal ---- */
-  --crt-bg:  #0A0C10;  /* screen behind the phosphor */
-  --crt-hi:  #FFD166;  /* active phosphor line (amber-hot) */
-  --crt-dim: #B08334;  /* inactive phosphor — ≥4.5:1 on crt-bg (a11y gate) */
-  --crt-row: #1E1A10;  /* selected row highlight, warm ink */
-
-  /* Legacy casing tokens (v2 putty shell) — retuned to manila paper so any
-     straggler reference stays coherent with the dossier look. */
-  --casing:     var(--manila);
-  --casing-hi:  #F2E4BE;
-  --casing-lo:  #8A7C56;
-  --casing-mid: #C9B888;
+  /* ---- CRT nav well (sidebar/tabbar screens) ---- */
+  --crt-bg:  var(--screen-base);
+  --crt-hi:  var(--phosphor-hot);   /* active phosphor line */
+  --crt-dim: var(--phosphor-dim);   /* inactive phosphor */
+  --crt-row: var(--screen-600);     /* selected row highlight */
 
   /* ---- Semantic aliases ---- */
-  --bg:              var(--ink-900);
-  --bg-elevated:     var(--ink-800);
-  --surface-card:    var(--ink-700);
-  --surface-modal:   var(--ink-600);
-  --text-primary:    var(--bone);
-  --text-secondary:  var(--manila);
-  --text-muted:      var(--bone-dim);
-  --border:          var(--hairline-paper);
-  --focus-ring:      var(--amber);
-  --accent:          var(--amber);
+  --bg:              var(--screen-base);
+  --bg-elevated:     var(--screen-700);
+  --surface-card:    var(--screen-700);
+  --surface-modal:   var(--screen-600);
+  --text-primary:    var(--phosphor);
+  --text-secondary:  var(--phosphor);
+  --text-muted:      var(--phosphor-dim);
+  --border:          var(--grid-line);
+  --focus-ring:      var(--phosphor);
+  --accent:          var(--phosphor);
   --danger:          var(--signal-red);
-  --reward:          var(--amber);
+  --reward:          var(--phosphor-hot);
 
-  /* ---- Legacy aliases — backward compat (v1 + v2 names) ----
-     These let every not-yet-reworked component re-skin automatically.
-     Do not remove until no component references them. */
-  --navy:            var(--ink-900);
-  --navy-deep:       #080A0E;
-  --card:            var(--ink-700);
-  --card-elevated:   var(--ink-600);
-  --card-hover:      #1F2631;
-  --hairline:        var(--hairline-paper);
-  --skeleton:        var(--ink-800);
+  /* ---- Legacy aliases — backward compat (v1–v3 names) ----
+     These let every not-yet-reworked component re-skin into the
+     field-terminal palette automatically. All resolve to the three
+     families above; none introduce grey. Do not remove until no
+     component references them. */
+  --navy:            var(--screen-base);
+  --navy-deep:       var(--screen-base);
+  --card:            var(--screen-700);
+  --card-elevated:   var(--screen-600);
+  --card-hover:      var(--screen-600);
+  --hairline:        var(--grid-line);
+  --hairline-paper:  var(--grid-line);
+  --skeleton:        var(--screen-700);
 
-  --tobacco:         var(--ink-900);
-  --felt:            var(--ink-700);
-  --mahogany:        var(--ink-600);
-  --walnut:          #2A3240;   /* ink divider (was wood border) */
-  --tan:             var(--bone-dim);
+  --tobacco:         var(--case-900);
+  --felt:            var(--screen-700);
+  --mahogany:        var(--case-700);
+  --walnut:          var(--case-700);
+  --tan:             var(--tan-400);
 
-  --parchment:       var(--bone);
-  --linen:           var(--manila);
-  --dust:            var(--bone-dim);
-  --cream:           var(--bone);
-  --muted:           var(--bone-dim);
-  --cream-08:        var(--bone-08);
-  --cream-12:        var(--bone-12);
+  --parchment:       var(--tan-100);
+  --linen:           var(--tan-200);
+  --dust:            var(--phosphor-dim);
+  --cream:           var(--phosphor);
+  --muted:           var(--phosphor-dim);
+  --cream-08:        var(--phosphor-08);
+  --cream-12:        var(--phosphor-12);
 
-  /* v1 --blue / v2 --selena were "primary accent + active" → amber. Selena
-     herself is signal-red; components apply that explicitly. */
-  --blue:            var(--amber);
-  --blue-hover:      var(--amber-hot);
-  --blue-press:      #D89418;
-  --blue-08:         var(--amber-08);
-  --blue-12:         var(--amber-12);
-  --blue-20:         var(--amber-20);
-  --blue-40:         var(--amber-40);
-  --selena:          var(--amber);
-  --selena-dark:     #D89418;
-  --selena-deep:     #A87212;
-  --selena-08:       var(--amber-08);
-  --selena-12:       var(--amber-12);
-  --selena-20:       var(--amber-20);
-  --selena-40:       var(--amber-40);
+  /* v1 --blue / v2 --selena were "primary accent + active" → phosphor.
+     Selena herself is signal-red; components apply that explicitly. */
+  --blue:            var(--phosphor);
+  --blue-hover:      var(--phosphor-hot);
+  --blue-press:      var(--phosphor-dim);
+  --blue-08:         var(--phosphor-08);
+  --blue-12:         var(--phosphor-12);
+  --blue-20:         var(--phosphor-20);
+  --blue-40:         var(--phosphor-40);
+  --selena:          var(--phosphor);
+  --selena-dark:     var(--phosphor-dim);
+  --selena-deep:     var(--phosphor-dim);
+  --selena-08:       var(--phosphor-08);
+  --selena-12:       var(--phosphor-12);
+  --selena-20:       var(--phosphor-20);
+  --selena-40:       var(--phosphor-40);
 
   --red:             var(--signal-red);
   --red-hover:       #FF564C;
-  --red-press:       #E02D24;
+  --red-press:       var(--red-deep);
   --red-12:          var(--signal-red-12);
   --brick:           var(--signal-red);
   --brick-light:     #FF564C;
   --brick-12:        var(--signal-red-12);
 
-  --gold:            var(--amber);
-  --gold-light:      var(--amber-hot);
-  --gold-hover:      var(--amber-hot);
-  --gold-12:         var(--amber-12);
-  --gold-20:         var(--amber-20);
+  --gold:            var(--phosphor-hot);
+  --gold-light:      var(--phosphor-hot);
+  --gold-hover:      var(--phosphor-hot);
+  --gold-12:         var(--phosphor-12);
+  --gold-20:         var(--phosphor-20);
 
-  --slate:           #3E4A5C;   /* ink-blue secondary interactive */
-  --slate-light:     #58687E;
-  --slate-08:        rgba(62, 74, 92, 0.08);
+  /* v2 "slate" secondary interactive → rival/hardware tans (§6) */
+  --slate:           var(--case-600);
+  --slate-light:     var(--tan-500);
+  --slate-08:        rgba(160, 130, 79, 0.10);
 
-  /* v2 bevel border-color names → ink bevel pair (phase-out: prefer the
-     box-shadow bevels in effects.css) */
-  --bevel-hi:        var(--ink-600);
-  --bevel-lo:        #05080C;
+  /* v2 casing names → the real chrome */
+  --casing:          var(--tan-400);
+  --casing-hi:       var(--tan-300);
+  --casing-lo:       var(--case-700);
+  --casing-mid:      var(--tan-500);
+
+  /* v2 bevel border-color names → tan bevel pair */
+  --bevel-hi:        var(--tan-300);
+  --bevel-lo:        var(--case-shadow);
 
   /* One emissive glow marks what's live; red glow only for Selena moments */
-  --glow-blue:       0 0 16px rgba(255, 176, 32, 0.35);
-  --glow-gold:       0 0 16px rgba(255, 176, 32, 0.35);
+  --glow-blue:       0 0 16px rgba(var(--phosphor-glow), 0.35);
+  --glow-gold:       0 0 16px rgba(var(--phosphor-glow), 0.35);
   --glow-red:        0 0 14px rgba(255, 59, 48, 0.35);
 
-  --text-on-blue:    var(--ink-900);
-  --text-on-red:     var(--ink-900);
+  --text-on-blue:    var(--case-900);
+  --text-on-red:     var(--tan-100);
 }

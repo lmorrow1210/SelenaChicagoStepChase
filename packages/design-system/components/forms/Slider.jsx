@@ -1,7 +1,9 @@
 import * as React from 'react';
 
 /* ============================================================
-   Slider — step-target range input. Blue track fill, blue thumb.
+   Slider v3 — "Midnight Dossier" range input. Square amber
+   thumb riding an inset ink channel; amber fill = dialed value.
+   Sharp 90° corners throughout.
    ============================================================ */
 
 export function Slider({
@@ -22,22 +24,25 @@ export function Slider({
       {label && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <span style={{
-            fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 500,
-            letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)',
+            fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600,
+            letterSpacing: 'var(--ls-label)', textTransform: 'uppercase', color: 'var(--phosphor-dim)',
           }}>{label}</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 500, color: 'var(--blue)' }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums',
+            fontSize: 18, color: 'var(--phosphor)',
+          }}>
             {format(value)}
           </span>
         </div>
       )}
-      <div style={{ position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
+      <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
         <div style={{
-          position: 'absolute', left: 0, right: 0, height: 6, borderRadius: 3,
-          background: 'var(--hairline)',
+          position: 'absolute', left: 0, right: 0, height: 8,
+          background: 'var(--screen-700)', boxShadow: 'var(--screen-inset-shadow)',
         }} />
         <div style={{
-          position: 'absolute', left: 0, width: `${pct}%`, height: 6, borderRadius: 3,
-          background: 'var(--blue)',
+          position: 'absolute', left: 0, width: `${pct}%`, height: 8,
+          background: 'var(--phosphor)',
         }} />
         <input
           type="range"
@@ -47,20 +52,20 @@ export function Slider({
           style={{
             position: 'absolute', left: 0, right: 0, width: '100%',
             margin: 0, appearance: 'none', WebkitAppearance: 'none',
-            background: 'transparent', height: 24, cursor: disabled ? 'not-allowed' : 'pointer',
+            background: 'transparent', height: 28, cursor: disabled ? 'not-allowed' : 'pointer',
           }}
           className="sc-slider"
         />
       </div>
       <style>{`
         .sc-slider::-webkit-slider-thumb{
-          -webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;
-          background:var(--blue);border:3px solid var(--navy);
-          box-shadow:0 0 0 1px var(--blue), var(--glow-blue);cursor:pointer;
+          -webkit-appearance:none;appearance:none;width:20px;height:26px;border-radius:var(--r-tight);
+          background:var(--phosphor);border:2px solid var(--screen-base);
+          box-shadow:var(--bevel-raised), var(--glow-live);cursor:pointer;
         }
         .sc-slider::-moz-range-thumb{
-          width:22px;height:22px;border-radius:50%;background:var(--blue);
-          border:3px solid var(--navy);box-shadow:0 0 0 1px var(--blue);cursor:pointer;
+          width:20px;height:26px;border-radius:var(--r-tight);background:var(--phosphor);
+          border:2px solid var(--screen-base);box-shadow:var(--bevel-raised);cursor:pointer;
         }
       `}</style>
     </div>

@@ -69,7 +69,7 @@ export function Avatar({
     <span style={{
       position: 'relative', display: 'inline-grid', placeItems: 'center',
       width: size, height: size, flex: 'none',
-      borderRadius: '50%',
+      borderRadius: 'var(--r-avatar)',
       background: 'var(--navy)',
       boxShadow: ringColor ? `0 0 0 2px ${ringColor}` : 'inset 0 0 0 1px var(--hairline)',
       overflow: 'hidden',
@@ -87,8 +87,8 @@ export function Avatar({
         <path d="M18 32 L24 39 L20 33 Z" fill={shade(cw.coat, 18)} />
         <path d="M30 32 L24 39 L28 33 Z" fill={shade(cw.coat, 18)} />
         {/* boots */}
-        <rect x="13.5" y="52" width="8" height="4" rx="1" fill={cw.boots} />
-        <rect x="26.5" y="52" width="8" height="4" rx="1" fill={bootDark} />
+        <rect x="13.5" y="52" width="8" height="4" fill={cw.boots} />
+        <rect x="26.5" y="52" width="8" height="4" fill={bootDark} />
 
         {/* ── Neck & head ── */}
         <rect x="21" y="27" width="6" height="7" fill={skinTone} />
@@ -116,7 +116,7 @@ export function Avatar({
         {/* Brim */}
         <ellipse cx="24" cy="14" rx="12.5" ry="2.8" fill={hatC} />
         {/* Band / ribbon */}
-        <rect x="17" y="12" width="14" height="2.2" rx="0.4" fill={hatBand} />
+        <rect x="17" y="12" width="14" height="2.2" fill={hatBand} />
         {/* Crown sheen */}
         <path d="M18.5 13.5 C18.5 7 20.5 3.5 24 2.5" stroke={shade(hatC, 30)} strokeWidth="1.1" fill="none" opacity="0.35" />
 

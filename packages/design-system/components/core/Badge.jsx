@@ -9,9 +9,9 @@ import { Icon } from '../icons/Icon.jsx';
 const TONES = {
   blue:   { bg: 'var(--blue-12)',  fg: 'var(--blue)',   bd: 'var(--blue-40)' },
   gold:   { bg: 'var(--gold-12)',  fg: 'var(--gold)',   bd: 'var(--gold-20)' },
-  red:    { bg: 'var(--red-12)',   fg: '#FF6B6B',       bd: 'rgba(204,0,0,0.4)' },
-  bronze: { bg: 'rgba(205,127,50,0.14)', fg: 'var(--bronze)', bd: 'rgba(205,127,50,0.4)' },
-  silver: { bg: 'rgba(168,169,173,0.14)', fg: 'var(--silver)', bd: 'rgba(168,169,173,0.4)' },
+  red:    { bg: 'var(--red-12)',   fg: 'var(--signal-red)', bd: 'var(--signal-red-20)' },
+  bronze: { bg: 'rgba(192,120,48,0.14)', fg: 'var(--bronze)', bd: 'rgba(192,120,48,0.4)' },
+  silver: { bg: 'rgba(205,180,136,0.14)', fg: 'var(--silver)', bd: 'rgba(205,180,136,0.4)' },
   muted:  { bg: 'var(--cream-08)', fg: 'var(--muted)',  bd: 'var(--hairline)' },
 };
 

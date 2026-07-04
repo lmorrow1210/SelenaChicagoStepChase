@@ -155,7 +155,7 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
             style={{
               width: 32,
               height: 32,
-              borderRadius: "50%",
+              borderRadius: "var(--r-full)",
               background: color,
               border:
                 selected === i + 1 ? "2.5px solid var(--blue)" : "2px solid var(--hairline)",
@@ -211,7 +211,7 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: "50%",
+                    borderRadius: "var(--r-full)",
                     background: COLORWAYS[id].coat,
                     border:
                       colorway === i + 1
@@ -467,15 +467,15 @@ export default function ProfilePage() {
           </div>
 
           <a
-            href={withBase("/wallet")}
+            href={withBase("/dossier")}
             style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               gap: "var(--sp-2)", padding: "10px 0",
               borderTop: "1px solid var(--hairline)",
-              fontFamily: "var(--font-body)", fontSize: 14, color: "var(--amber)",
+              fontFamily: "var(--font-body)", fontSize: 14, color: "var(--phosphor)",
             }}
           >
-            Intel wallet
+            The Dossier
             <Icon name="chevronRight" size={16} />
           </a>
 
@@ -539,12 +539,12 @@ function AdminCategoryToggles() {
     <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: "var(--sp-3)" }}>
       <div style={{
         fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "var(--fs-label)",
-        letterSpacing: "var(--ls-label)", textTransform: "uppercase", color: "var(--bone-dim)",
+        letterSpacing: "var(--ls-label)", textTransform: "uppercase", color: "var(--phosphor-dim)",
         marginBottom: "var(--sp-2)",
       }}>
         [ Squad categories — admin ]
       </div>
-      <p style={{ margin: "0 0 10px", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--bone-dim)" }}>
+      <p style={{ margin: "0 0 10px", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--phosphor-dim)" }}>
         Toggle a category off to keep it off everyone&apos;s card from next week.
         {saved ? " Saved." : ""}
       </p>
@@ -558,9 +558,9 @@ function AdminCategoryToggles() {
               aria-pressed={!off}
               style={{
                 padding: "6px 10px", borderRadius: "var(--r-tight)",
-                border: `1px solid ${off ? "var(--hairline)" : "var(--amber-40)"}`,
-                background: off ? "var(--ink-800)" : "var(--amber-08)",
-                color: off ? "var(--bone-dim)" : "var(--bone)",
+                border: `1px solid ${off ? "var(--hairline)" : "var(--phosphor-40)"}`,
+                background: off ? "var(--screen-700)" : "var(--phosphor-08)",
+                color: off ? "var(--phosphor-dim)" : "var(--phosphor)",
                 fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600,
                 cursor: "pointer",
                 textDecoration: off ? "line-through" : "none",

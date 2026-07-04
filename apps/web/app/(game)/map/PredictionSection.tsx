@@ -4,7 +4,7 @@ import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
 import PredictionCard from "@one-step-ahead/design-system/components/game/PredictionCard";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { api, ApiError } from "../../../lib/api";
 
 type PredictionState = "pending" | "partial" | "revealed" | "final";
@@ -44,35 +44,30 @@ function formatNumber(value: number): string {
   return numberFormat.format(value);
 }
 
-function parseSteps(value: string): number {
-  return Number(value.replace(/[^\d]/g, ""));
-}
-
-function revealLabel(value: string): string {
-  return new Date(value).toLocaleString([], {
-    weekday: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+/** Slider bounds — generous room above the live pace, rounded to clean 10k. */
+function sliderMax(liveTotal: number): number {
+  const base = Math.max(250_000, liveTotal * 1.5);
+  return Math.ceil(base / 10_000) * 10_000;
 }
 
 /**
- * The weekly prediction, embedded on the Map so the whole chase lives on
- * one screen (was its own tab).
+ * The weekly prediction console — a large slider with a synced numeric
+ * input files the forecast; once everyone's calls unseal they render on
+ * a horizontal range track with the live group total as the amber
+ * `current` marker.
  */
 export function PredictionSection() {
   const prediction = useQuery({
     queryKey: ["predictions", "current"],
     queryFn: () => api<PredictionPayload>("/api/predictions/current"),
   });
-  const [value, setValue] = useState("");
+  const [steps, setSteps] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  async function submitPrediction() {
-    const predicted_steps = parseSteps(value);
+  async function submitPrediction(predicted_steps: number) {
     if (!predicted_steps) {
-      setError("Enter a number first");
+      setError("Dial in a forecast first");
       return;
     }
 
@@ -91,20 +86,18 @@ export function PredictionSection() {
     }
   }
 
-  function changeValue(event: ChangeEvent<HTMLInputElement>) {
-    const next = event.target.value.replace(/[^\d]/g, "");
-    setValue(next ? formatNumber(Number(next)) : "");
-  }
-
   // No week / no group: the map's own empty states cover it.
   if (prediction.isLoading || prediction.isError || !prediction.data) return null;
 
   const data = prediction.data;
   const submitted = Boolean(data.myPrediction);
+  const max = sliderMax(data.liveGroupTotal);
+  const value = steps ?? Math.max(data.liveGroupTotal, Math.round(max / 2 / 1000) * 1000);
   const revealedRows =
     data.others === "hidden"
       ? []
       : [data.myPrediction, ...data.others].filter((row): row is PredictionRow => Boolean(row));
+  const filedTeammates = data.others === "hidden" ? [] : data.others;
 
   return (
     <section className="predictionPanel" aria-label="Weekly prediction">
@@ -113,9 +106,6 @@ export function PredictionSection() {
           <p className="eyebrow">[ Call her next move ]</p>
           <h2>How far does the team get this week?</h2>
         </div>
-        <span className="predictionCountdown" title="Predictions reveal">
-          Resets {revealLabel(data.revealAt)}
-        </span>
       </div>
 
       <div className="predictionBody">
@@ -123,12 +113,29 @@ export function PredictionSection() {
           <PredictionCard
             city={data.city.name}
             value={value}
+            min={0}
+            max={max}
+            step={1000}
             submitted={submitted}
-            prediction={data.myPrediction ? formatNumber(data.myPrediction.predicted_steps) : value}
-            onChange={changeValue}
+            prediction={data.myPrediction ? formatNumber(data.myPrediction.predicted_steps) : formatNumber(value)}
+            onChange={(next: number) => setSteps(next)}
             onSubmit={() => {
-              if (!submitting) void submitPrediction();
+              if (!submitting) void submitPrediction(value);
             }}
+            stakeNote="Stake: the closest call takes Oracle honors when the board seals Sunday 11:59 PM."
+            teammates={
+              filedTeammates.length > 0 ? (
+                <div className="teammatePreview">
+                  <span className="teammatePreviewLabel">Already filed:</span>
+                  {filedTeammates.map((row) => (
+                    <span className="teammatePreviewChip" key={row.user_id} title={row.display_name}>
+                      <Avatar size={20} colorway={colorwayFrom(row.avatar_colorway)} />
+                      {row.display_name}
+                    </span>
+                  ))}
+                </div>
+              ) : undefined
+            }
           />
           {error && <p className="predictionError">{error}</p>}
           {!data.submissionOpen && !submitted && (
@@ -141,7 +148,7 @@ export function PredictionSection() {
             <h3>The team&apos;s calls</h3>
           </div>
           {data.others === "hidden" ? (
-            <p className="predictionNote">Sealed until {revealLabel(data.revealAt)}</p>
+            <p className="predictionNote">Sealed until Sunday 11:59 PM</p>
           ) : (
             <RangeChart rows={revealedRows} liveTotal={data.liveGroupTotal} colorwayFrom={colorwayFrom} />
           )}
@@ -152,12 +159,12 @@ export function PredictionSection() {
         .predictionPanel {
           border: 1px solid var(--hairline);
           border-radius: var(--r-card);
-          background: var(--ink-700);
+          background: var(--screen-700);
           box-shadow: var(--bevel-raised-shadow), var(--shadow-card);
-          padding: var(--sp-4);
+          padding: var(--space-md);
           display: flex;
           flex-direction: column;
-          gap: var(--sp-3);
+          gap: var(--space-sm);
         }
 
         .predictionPanel .eyebrow {
@@ -167,78 +174,103 @@ export function PredictionSection() {
           font-size: var(--fs-label);
           letter-spacing: var(--ls-label);
           text-transform: uppercase;
-          color: var(--bone-dim);
+          color: var(--phosphor-dim);
         }
 
         .predictionHeader {
           display: flex;
           justify-content: space-between;
           align-items: start;
-          gap: var(--sp-3);
+          gap: var(--space-sm);
         }
 
         .predictionHeader h2 {
-          margin: var(--sp-1) var(--sp-0) var(--sp-0);
+          margin: var(--space-2xs) 0 0;
           font-family: var(--font-display);
           font-weight: var(--fw-bold);
           font-size: var(--fs-h3);
           line-height: var(--lh-heading);
           text-transform: uppercase;
-          color: var(--bone);
-        }
-
-        /* Visible reveal countdown — amber mono pill */
-        .predictionCountdown {
-          flex: none;
-          font-family: var(--font-mono);
-          font-variant-numeric: tabular-nums;
-          font-size: var(--fs-caption);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--amber);
-          background: var(--ink-800);
-          border-radius: var(--r-tight);
-          box-shadow: var(--screen-inset-shadow);
-          padding: var(--sp-1) var(--sp-2);
-          white-space: nowrap;
+          color: var(--phosphor);
         }
 
         .predictionBody {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 300px;
-          gap: var(--sp-4);
+          grid-template-columns: minmax(0, 1fr) 320px;
+          gap: var(--space-md);
           align-items: start;
         }
 
-        .guessPanel {
-          border: 1px solid var(--hairline);
-          border-radius: var(--r-card);
-          padding: var(--sp-3);
+        .teammatePreview {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: var(--space-xs);
         }
-
-        .guessHeader h3 {
-          margin: var(--sp-0) var(--sp-0) var(--sp-3);
+        .teammatePreviewLabel {
           font-family: var(--font-display);
           font-weight: var(--fw-semibold);
           font-size: var(--fs-label);
           letter-spacing: var(--ls-label);
           text-transform: uppercase;
-          color: var(--bone-dim);
+          color: var(--phosphor-dim);
+        }
+        .teammatePreviewChip {
+          display: inline-flex;
+          align-items: center;
+          gap: var(--space-2xs);
+          padding: var(--space-2xs) var(--space-xs);
+          border: 1px solid var(--hairline);
+          background: var(--screen-700);
+          font-family: var(--font-body);
+          font-size: var(--fs-caption);
+          color: var(--phosphor);
         }
 
-        /* Mini range chart — calls as ticks on one axis */
+        .guessPanel {
+          border: 1px solid var(--hairline);
+          border-radius: var(--r-card);
+          padding: var(--space-sm);
+        }
+
+        .guessHeader h3 {
+          margin: 0 0 var(--space-sm);
+          font-family: var(--font-display);
+          font-weight: var(--fw-semibold);
+          font-size: var(--fs-label);
+          letter-spacing: var(--ls-label);
+          text-transform: uppercase;
+          color: var(--phosphor-dim);
+        }
+
+        /* Range chart — calls as ticks on one horizontal track */
         .rangeChart {
           position: relative;
-          padding: var(--sp-4) var(--sp-2) var(--sp-2);
-          background: var(--ink-800);
+          padding: var(--space-xl) var(--space-xs) var(--space-xs);
+          background: var(--screen-700);
           border-radius: var(--r-tight);
           box-shadow: var(--screen-inset-shadow);
         }
         .rangeAxis {
           position: relative;
           height: 2px;
-          margin: 34px 10px 40px;
+          margin: 34px 10px 56px;
           background: var(--hairline);
+        }
+        .rangeBound {
+          position: absolute;
+          bottom: -20px;
+          font-family: var(--font-mono);
+          font-variant-numeric: tabular-nums;
+          font-size: 9px;
+          color: var(--phosphor-dim);
+          white-space: nowrap;
+        }
+        .rangeBound[data-edge="min"] {
+          left: 0;
+        }
+        .rangeBound[data-edge="max"] {
+          right: 0;
         }
         .rangeTick {
           position: absolute;
@@ -254,15 +286,14 @@ export function PredictionSection() {
         }
         .rangeTick .tickValue {
           position: absolute;
-          top: 12px;
           font-family: var(--font-mono);
           font-variant-numeric: tabular-nums;
           font-size: 10px;
-          color: var(--manila);
+          color: var(--phosphor-dim);
           white-space: nowrap;
         }
         .rangeTick[data-winner="true"] .tickValue {
-          color: var(--amber-hot);
+          color: var(--phosphor-hot);
         }
         .rangeLive {
           position: absolute;
@@ -270,7 +301,7 @@ export function PredictionSection() {
           bottom: -12px;
           width: 2px;
           transform: translateX(-50%);
-          background: var(--amber);
+          background: var(--phosphor);
           box-shadow: var(--glow-live);
         }
         .rangeLiveLabel {
@@ -281,19 +312,58 @@ export function PredictionSection() {
           font-size: 9px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: var(--amber);
+          color: var(--phosphor);
           white-space: nowrap;
         }
 
+        /* Compact legend fallback — used when ticks would collide */
+        .rangeLegend {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-2xs);
+          margin: 0;
+          padding: var(--space-xs);
+          list-style: none;
+          background: var(--screen-700);
+          box-shadow: var(--screen-inset-shadow);
+        }
+        .rangeLegendRow {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: var(--space-xs);
+        }
+        .rangeLegendRow .legendName {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-family: var(--font-body);
+          font-size: var(--fs-caption);
+          color: var(--phosphor);
+        }
+        .rangeLegendRow .legendValue {
+          font-family: var(--font-mono);
+          font-variant-numeric: tabular-nums;
+          font-size: var(--fs-caption);
+          color: var(--phosphor-dim);
+        }
+        .rangeLegendRow[data-winner="true"] .legendValue {
+          color: var(--phosphor-hot);
+        }
+        .rangeLegendRow[data-live="true"] .legendName,
+        .rangeLegendRow[data-live="true"] .legendValue {
+          color: var(--phosphor);
+        }
+
         .predictionError {
-          margin: var(--sp-3) var(--sp-0) var(--sp-0);
+          margin: var(--space-sm) 0 0;
           color: var(--signal-red);
         }
 
         .predictionNote {
-          margin: var(--sp-0);
+          margin: 0;
           font-size: var(--fs-body-sm);
-          color: var(--bone-dim);
+          color: var(--phosphor-dim);
         }
 
         @media (max-width: 767px) {
@@ -306,8 +376,9 @@ export function PredictionSection() {
   );
 }
 
-/** The team's calls as a mini range chart (§9B) — each call is a tick on a
-    shared axis; the live group total is an amber marker line. */
+/** The team's calls on one horizontal range track — each call is a tick with
+    a staggered label row; the live group total is the amber `current` marker.
+    When ticks would collide, falls back to a compact legend list. */
 function RangeChart({
   rows,
   liveTotal,
@@ -325,17 +396,43 @@ function RangeChart({
   const span = max - min || 1;
   const pos = (v: number) => 8 + ((v - min) / span) * 84; // keep ticks inside the axis
 
-  // Sort by value and alternate label rows so clustered calls stay legible.
   const sorted = [...rows].sort((a, b) => a.predicted_steps - b.predicted_steps);
+  const positions = sorted.map((row) => pos(row.predicted_steps));
+
+  // Pins closer than ~9% collide even with staggered labels — fall back to
+  // the compact legend so every call stays readable.
+  const tooClose = positions.some((p, i) => i > 0 && p - positions[i - 1] < 9);
+  if (tooClose) {
+    return (
+      <ul className="rangeLegend" aria-label="The team's step calls">
+        {liveTotal > 0 && (
+          <li className="rangeLegendRow" data-live="true">
+            <span aria-hidden="true" style={{ width: 20 }} />
+            <span className="legendName">current</span>
+            <span className="legendValue">{formatNumber(liveTotal)}</span>
+          </li>
+        )}
+        {sorted.map((row) => (
+          <li className="rangeLegendRow" data-winner={row.is_winner ? "true" : "false"} key={row.user_id}>
+            <Avatar size={20} colorway={colorwayFrom(row.avatar_colorway)} ring={row.is_winner ? "var(--phosphor-hot)" : undefined} />
+            <span className="legendName">{row.display_name}</span>
+            <span className="legendValue">{formatNumber(row.predicted_steps)}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   return (
     <div className="rangeChart" role="img" aria-label="Range of the team's step calls">
       <div className="rangeAxis">
+        <span className="rangeBound" data-edge="min">{formatNumber(min)}</span>
+        <span className="rangeBound" data-edge="max">{formatNumber(max)}</span>
         {liveTotal > 0 && (
           <>
             <span className="rangeLive" style={{ left: `${pos(liveTotal)}%` }} />
             <span className="rangeLiveLabel" style={{ left: `${pos(liveTotal)}%` }}>
-              live {formatNumber(liveTotal)}
+              current {formatNumber(liveTotal)}
             </span>
           </>
         )}
@@ -348,9 +445,10 @@ function RangeChart({
             title={`${row.display_name}: ${formatNumber(row.predicted_steps)}`}
           >
             <span className="tickAvatar">
-              <Avatar size={24} colorway={colorwayFrom(row.avatar_colorway)} ring={row.is_winner ? "var(--amber-hot)" : undefined} />
+              <Avatar size={24} colorway={colorwayFrom(row.avatar_colorway)} ring={row.is_winner ? "var(--phosphor-hot)" : undefined} />
             </span>
-            <span className="tickValue" style={{ top: i % 2 === 0 ? 12 : 26 }}>
+            {/* Staggered label rows keep neighbouring calls legible */}
+            <span className="tickValue" style={{ top: i % 2 === 0 ? 12 : 28 }}>
               {formatNumber(row.predicted_steps)}
             </span>
           </span>

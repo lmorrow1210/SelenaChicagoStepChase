@@ -135,6 +135,62 @@ Sandiego / vintage-detective aesthetic). Source export lives in `SelenaDesign/`.
   (#1A7A1A→#229F22); BingoTile free space is Selena-blue with a tobacco glyph.
   Re-added the M9 reduced-motion global kill block that the v2 export had dropped.
 
+### Design-system v3 — UX/density pass + sharp corners (July 2026)
+A consistency/density pass over every game screen. See git log for the commit.
+- **Spacing**: added `--space-2xs … --space-2xl` in `tokens/spacing.css` (kept `--sp-*`).
+  Shared page pattern (`max-width: var(--content-max)` = 1120px, centered,
+  `padding-inline: var(--space-lg)`, content-height) applied to Map, Field Ops,
+  Prediction, Nemesis, Trophy. `min-height: 100dvh` kept only on login/onboarding
+  (centered wizard gates).
+- **Sharp 90° corners everywhere**: all radius tokens `0`; global
+  `*{border-radius:0 !important}` safety rule in `base.css`; every raw px radius,
+  `50%`, and SVG `<rect rx>` stripped from components.
+- **One reset clock**: `SundayCountdown` is the single source ("She vanishes in …",
+  Sunday 11:59 PM). Removed "Resets …", "She moves in", "Arriving now"; "Sealed
+  until Sunday" → "…Sunday 11:59 PM".
+- **Prediction** rebuilt: unfiled state = big slider + synced numeric input +
+  amber DM-Mono readout + teammate-preview chips + `FILE FORECAST` + stake copy;
+  filed chart = horizontal range track with staggered labels, a `current`
+  live-total marker, and a compact legend fallback when pins collide.
+- **Field Ops**: `BingoTile` has 4 states (available/complete/free/gifted); assist
+  is a corner badge only; objective-family icons keyed off `category`; board uses
+  `minmax(0,1fr)` tracks + `min-width:0` panels (fixes mobile overflow).
+- **Nemesis**: one hero `SkyscraperPair` for today + a compact Mon–Fri `WeekLedger`
+  (replaces five stacked cards).
+- **Map**: postcard carries the city name; small `[ LAST CONFIRMED SIGHTING ]`
+  line; dashed intel `RouteVector` with a pulsing leading dot + legend;
+  `sentence()` helper fixes "D.C..". Leaderboard: pressed-bevel + accent left-rule
+  for the current user; ▲/▼ deltas.
+
+### Design-system v4 — "Field Terminal" palette (July 2026)
+Full palette overhaul away from grey. **Tan/brown molded-plastic chrome housing a
+phosphor-green CRT screen; red reserved for stamps/threat/urgency/city-kickers.**
+- **Three token families** in `tokens/colors.css`: `--case-*`/`--tan-*` (chrome,
+  frames, paper cards), `--screen-*`/`--phosphor*` (on-screen bg + telemetry),
+  `--signal-red`/`--red-deep` (stamps + critical). `--phosphor-glow` is an rgb
+  triplet for `rgba(var(--phosphor-glow), …)` glows. **The legacy alias block
+  remaps every v1/v2/v3 name into these three families — do not remove it**; that's
+  why unported components re-skinned for free.
+- **Effects** (`tokens/effects.css`): tan bevels (`--tan-300` highlight +
+  `--case-shadow` groove), `--screen-inset` (recessed CRT), `--text-glow`.
+- **Glow rule**: `base.css` gives body a phosphor `text-shadow`; **paper/tan
+  surfaces set `text-shadow: none`** (LandmarkCard, LandmarkTile, CallingCard, Map
+  postcard). If you add a tan "printout", set `textShadow: 'none'` on it.
+- **Chrome**: Sidebar/TabBar are `--tan-400` chassis with an inset green CRT well;
+  active nav = `--screen-600` fill + glowing `--phosphor-hot`. Scanline+vignette
+  overlay `.sc-screenFx` in the game layout is scoped to the screen area and gated
+  off for `prefers-reduced-motion`/`prefers-contrast: more`.
+- **Red discipline (§5)**: routine leaderboard/ledger deltas are `--phosphor-dim`
+  (neg) / `--phosphor-hot` (pos); red only on stamps, Selena/threat, live urgency
+  ("BEHIND TODAY", vanish timer), and landmark city kickers.
+- **Nemesis towers**: YOU = `--phosphor`, rival = `--tan-500`, windows
+  `--case-shadow`; winner gets crown + `--phosphor-hot` edge + glow.
+- Grep gates (all pass): zero `--ink-*/--amber*/--vector/--bone/--manila`, zero old
+  greys (`#0C0F14` `#FFB020` `#37D3C4` `#05080C` …), no `border-style: outset/inset`,
+  no raw px radii.
+- **Preview**: set `NEXT_PUBLIC_DEMO=1` in `apps/web/.env.local` (gitignored) to
+  click through every screen without the API; delete after.
+
 ### Map + Leaderboard (M2)
 - `GET /api/weeks/current` — full composed payload: week, current/next city, route, progress strip, leaderboard (with delta vs last week), countdown, lastSyncedAt, state (in_progress / closing_soon / arrival).
 - `POST /api/sync/run` — rate-limited 1/10min, mock Fitbit client, runs unlock + bingo detection.

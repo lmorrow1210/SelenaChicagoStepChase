@@ -10,8 +10,8 @@ import { Icon } from '../icons/Icon.jsx';
    ============================================================ */
 
 const TYPES = {
-  achievement: { accent: 'var(--amber)',      icon: 'badge',   tag: 'UNLOCK' },
-  social:      { accent: 'var(--vector)',     icon: 'nemesis', tag: 'BUREAU' },
+  achievement: { accent: 'var(--phosphor)',      icon: 'badge',   tag: 'UNLOCK' },
+  social:      { accent: 'var(--phosphor-hot)',     icon: 'nemesis', tag: 'BUREAU' },
   alert:       { accent: 'var(--signal-red)', icon: 'sync',    tag: 'ALERT' },
 };
 
@@ -23,7 +23,7 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
         width: '100%', maxWidth: 460,
-        background: 'var(--ink-600)',
+        background: 'var(--screen-600)',
         borderRadius: 'var(--r-tight)',
         border: '1px solid var(--hairline-paper)',
         borderLeft: `3px solid ${t.accent}`,
@@ -48,20 +48,20 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
             }}>[{t.tag}]</span>
             <span style={{
               fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13,
-              color: 'var(--bone)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              color: 'var(--phosphor)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>{title}</span>
           </div>
         )}
         {message && (
           <div style={{
-            fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--bone-dim)',
+            fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--phosphor-dim)',
             marginTop: 1, lineHeight: 1.4,
           }}>{message}</div>
         )}
       </div>
       {onClose && (
         <button onClick={onClose} aria-label="Dismiss" style={{
-          background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--bone-dim)',
+          background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--phosphor-dim)',
           display: 'grid', placeItems: 'center', padding: 4, borderRadius: 'var(--r-tight)',
           flex: 'none',
         }}>

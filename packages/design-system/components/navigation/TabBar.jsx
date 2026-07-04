@@ -25,10 +25,12 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
         width: '100%',
         height: 'var(--tabbar-height)',
         paddingBottom: 'var(--safe-bottom)',
-        background: 'var(--ink-700)',
-        borderTop: '1px solid var(--hairline-paper)',
+        /* Molded tan-plastic command rail */
+        background: 'var(--tan-400)',
+        borderTop: '1px solid var(--case-shadow)',
         boxShadow: 'var(--bevel-raised-shadow)',
         zIndex: 'var(--z-nav)',
+        textShadow: 'none', /* chrome text is matte; only the lit tab glows */
         ...style,
       }}
     >
@@ -45,12 +47,14 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
               alignItems: 'center', justifyContent: 'center',
               gap: 3,
               minWidth: 'var(--touch-min)',
-              background: on ? 'var(--ink-800)' : 'transparent',
-              boxShadow: on ? 'var(--bevel-pressed-shadow)' : 'none',
+              /* Active tab lights up as an inset CRT chip */
+              background: on ? 'var(--screen-600)' : 'transparent',
+              boxShadow: on ? 'var(--screen-inset)' : 'none',
               border: 'none',
-              borderRight: idx < items.length - 1 ? '1px solid rgba(243,236,217,0.07)' : 'none',
+              borderRight: idx < items.length - 1 ? '1px solid var(--case-shadow)' : 'none',
               borderRadius: 0,
-              color: on ? 'var(--amber)' : 'var(--bone-dim)',
+              color: on ? 'var(--phosphor-hot)' : 'var(--case-900)',
+              textShadow: on ? 'var(--text-glow)' : 'none',
               cursor: 'pointer',
               transition: 'background var(--dur-fast) var(--ease-out), color var(--dur-fast)',
               WebkitTapHighlightColor: 'transparent',

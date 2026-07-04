@@ -13,7 +13,7 @@ export default function PredictionPage() {
         <p className="stamped">[ Intercept forecast ]</p>
         <h1>Prediction</h1>
         <p className="predictionPageSub">
-          Call how far the team gets this week. Every landmark the squad decodes on the trail
+          Call how far the team gets this week. Every landmark the squad decodes in Intel
           sharpens the read on her next move.
         </p>
         <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
@@ -23,12 +23,11 @@ export default function PredictionPage() {
 
       <style jsx global>{`
         .predictionPage {
-          min-height: 100dvh;
-          padding: var(--sp-4);
+          padding: var(--space-md) var(--space-lg) var(--space-2xl);
           display: flex;
           flex-direction: column;
-          gap: var(--sp-4);
-          max-width: 900px;
+          gap: var(--space-md);
+          max-width: var(--content-max);
           margin: 0 auto;
           width: 100%;
         }
@@ -39,7 +38,7 @@ export default function PredictionPage() {
           font-size: var(--fs-label);
           letter-spacing: var(--ls-label);
           text-transform: uppercase;
-          color: var(--bone-dim);
+          color: var(--phosphor-dim);
         }
         .predictionPage h1 {
           margin: 2px 0 0;
@@ -48,13 +47,13 @@ export default function PredictionPage() {
           font-size: 30px;
           text-transform: uppercase;
           letter-spacing: 0.03em;
-          color: var(--bone);
+          color: var(--phosphor);
         }
         .predictionPageSub {
           margin: var(--sp-1) 0 0;
           font-family: var(--font-body);
           font-size: var(--fs-body-sm);
-          color: var(--manila);
+          color: var(--phosphor-dim);
           max-width: 52ch;
         }
       `}</style>
