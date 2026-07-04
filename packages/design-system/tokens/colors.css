@@ -27,7 +27,7 @@
   --grid-line:   #17351A;   /* hairlines / grid on screen */
 
   --phosphor:      #58E06A; /* primary green: body text, icons, nav, telemetry */
-  --phosphor-dim:  #3B8F4E; /* secondary/muted green text */
+  --phosphor-dim:  #429A57; /* secondary/muted green text — AA on screen panels */
   --phosphor-hot:  #9DFCA6; /* highlight / hover / active / win glow / team movement */
   --phosphor-glow: 88,224,106; /* rgb for glows: rgba(var(--phosphor-glow),.35) */
 
@@ -38,8 +38,8 @@
   --phosphor-40:  rgba(88, 224, 106, 0.40);
 
   /* ---- RED — stamps & critical highlights ONLY ---- */
-  --signal-red:    #FF3B30; /* stamps, Selena/threat, urgency, city kickers */
-  --red-deep:      #B4231C; /* stamp ink shadow / pressed red */
+  --signal-red:    #FF3B30; /* threat/urgency on the dark screen; stamp fills */
+  --red-deep:      #A11F18; /* red marks ON tan paper (stamps, city kickers) — AA on tan */
   --signal-red-12: rgba(255, 59, 48, 0.12);
   --signal-red-20: rgba(255, 59, 48, 0.20);
 

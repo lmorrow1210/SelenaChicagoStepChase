@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * contrast-audit.mjs — "Midnight Dossier" palette gate
+ * contrast-audit.mjs — "Field Terminal" palette gate
  *
  * Parses packages/design-system/tokens/colors.css, resolves every token to a
  * concrete hex value (following var() aliases), then computes WCAG 2.1 contrast
@@ -69,54 +69,49 @@ function ratio(fg, bg) {
 }
 
 // ── Pairs the UI renders (fg token, bg token, role, large?) ──────────────────
+// "Field Terminal" palette: phosphor-green telemetry on the CRT screen; warm
+// case-brown text on tan "printout" paper; red reserved for stamps/threat.
 const PAIRS = [
-  // Primary type on every ink surface
-  ['bone', 'ink-900', 'primary text on base bg', false],
-  ['bone', 'ink-800', 'primary text on recessed panel', false],
-  ['bone', 'ink-700', 'primary text on card face', false],
-  ['bone', 'ink-600', 'primary text on elevated', false],
-  // Secondary paper text
-  ['manila', 'ink-900', 'secondary text on bg', false],
-  ['manila', 'ink-700', 'secondary text on card', false],
-  // Muted / stamped labels / captions
-  ['bone-dim', 'ink-900', 'stamped label on bg', false],
-  ['bone-dim', 'ink-700', 'stamped label on card', false],
-  ['bone-dim', 'ink-600', 'caption on elevated', false],
-  // Amber telemetry (workhorse)
-  ['amber', 'ink-900', 'telemetry on bg', false],
-  ['amber', 'ink-800', 'odometer on inset screen', false],
-  ['amber', 'ink-700', 'active state on card', false],
-  ['amber-hot', 'ink-700', 'hover/emissive on card', false],
-  // Buttons / fills
-  ['ink-900', 'amber', 'text on amber (primary button)', false],
-  ['ink-900', 'amber-hot', 'text on amber-hot', false],
-  ['ink-900', 'signal-red', 'text on red (danger/stamp fill)', true],
-  // Signal red — Selena's gap stat is a huge odometer (large ok), plus
-  // red stamped text on manila paper
-  ['signal-red', 'ink-900', 'Selena gap stat on bg (display size)', true],
-  ['signal-red', 'ink-800', 'Selena stat on inset screen (display)', true],
-  ['stamp-red', 'manila', 'confidential stamp on manila paper', false],
-  // Manila paper cards (postcards, case files) with ink text
-  ['ink-900', 'manila', 'ink text on manila paper', false],
-  ['ink-900', 'bone', 'ink text on bone paper', false],
-  // Team movement vector
-  ['vector', 'ink-900', 'team trail on bg', false],
-  ['vector', 'ink-700', 'team trail on card', false],
-  // Amber phosphor terminal (sidebar)
+  // Phosphor telemetry / body on every screen surface
+  ['phosphor', 'screen-base', 'phosphor text on base screen', false],
+  ['phosphor', 'screen-700', 'phosphor text on screen panel', false],
+  ['phosphor', 'screen-600', 'phosphor text on raised panel', false],
+  // Muted phosphor — labels / captions / muted deltas
+  ['phosphor-dim', 'screen-base', 'muted label on base screen', false],
+  ['phosphor-dim', 'screen-700', 'muted label on screen panel', false],
+  // Bright phosphor — hover / active / wins / positive deltas
+  ['phosphor-hot', 'screen-700', 'active/win on screen panel', false],
+  ['phosphor-hot', 'screen-600', 'active tab text on lit chip', false],
+  // Fills — dark case text on bright phosphor keys/buttons
+  ['case-900', 'phosphor', 'text on phosphor (button / complete tile)', false],
+  ['case-900', 'phosphor-hot', 'text on phosphor-hot (free tile)', false],
+  // Signal red — Selena's gap odometer (display size), vanish timer (small)
+  ['signal-red', 'screen-base', 'threat odometer on base (display)', true],
+  ['signal-red', 'screen-700', 'vanish timer on screen chip', false],
+  ['case-900', 'signal-red', 'text on red fill (danger)', true],
+  // Tan "printout" paper cards with case-brown text
+  ['case-900', 'tan-200', 'landmark title on tan paper', false],
+  ['case-800', 'tan-200', 'fun-fact body on tan paper', false],
+  ['case-700', 'tan-200', 'caption/attribution on tan paper', false],
+  ['red-deep', 'tan-200', 'CONFIRMED stamp / city kicker on tan paper', false],
+  // Chrome — inactive nav labels are dark case on tan bezel
+  ['case-900', 'tan-400', 'nav label on tan chrome', false],
+  ['case-800', 'tan-400', 'muted chrome label', false],
+  // CRT nav well (sidebar)
   ['crt-hi', 'crt-bg', 'terminal active line', false],
   ['crt-dim', 'crt-bg', 'terminal inactive line', false],
   ['crt-hi', 'crt-row', 'terminal active on selected row', false],
   // Badge quality rings (glyph-scale)
-  ['bronze', 'ink-700', 'bronze ring on card', true],
-  ['silver', 'ink-700', 'silver ring on card', true],
+  ['bronze', 'screen-700', 'bronze ring on screen', true],
+  ['silver', 'screen-700', 'silver ring on screen', true],
 ];
 
 const AA_NORMAL = 4.5;
 const AA_LARGE = 3.0;
 
-console.log('\n=== Midnight Dossier palette resolved ===');
-for (const t of ['ink-900', 'ink-800', 'ink-700', 'ink-600', 'manila', 'bone', 'bone-dim', 'amber', 'amber-hot', 'signal-red', 'vector', 'crt-hi', 'crt-dim']) {
-  console.log(`  --${t.padEnd(11)} ${hex(t)}`);
+console.log('\n=== Field Terminal palette resolved ===');
+for (const t of ['screen-base', 'screen-700', 'screen-600', 'phosphor', 'phosphor-dim', 'phosphor-hot', 'signal-red', 'red-deep', 'tan-200', 'case-900', 'case-800', 'case-700', 'case-600', 'crt-hi', 'crt-dim']) {
+  console.log(`  --${t.padEnd(12)} ${hex(t)}`);
 }
 
 console.log('\n=== Contrast results (WCAG 2.1) ===');

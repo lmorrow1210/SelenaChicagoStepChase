@@ -148,7 +148,8 @@ export function LandmarkCard({
           fontSize: 11,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: 'var(--signal-red)',
+          /* red-on-paper uses the darker red-deep for AA on tan */
+          color: 'var(--red-deep)',
         }}
       >
         {cityName}
@@ -188,7 +189,7 @@ export function LandmarkCard({
           fontSize: 11,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
-          color: 'var(--case-600)',
+          color: 'var(--case-700)',
         }}
       >
         {scoutedByHref ? (

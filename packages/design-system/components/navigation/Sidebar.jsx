@@ -154,7 +154,7 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
         <span style={{
           fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 11,
           letterSpacing: 'var(--ls-label)', textTransform: 'uppercase',
-          color: 'var(--case-700)', whiteSpace: 'nowrap',
+          color: 'var(--case-800)', whiteSpace: 'nowrap',
           opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
         }}>Operative file</span>
       </button>
