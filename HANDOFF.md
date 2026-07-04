@@ -305,20 +305,29 @@ The One Step Ahead master brief + addendum landed a full rebrand, the
   per-player accessibility substitutions (users.objective_prefs +
   groups.disabled_categories; onboarding "objectives" step + profile
   admin toggles).
-- **Intel Wallet** (/wallet, GET /api/fieldops/wallet): the scout who
-  pops a landmark keeps the card; revisits mint a CONFIRMED holo
-  variant. **Gift-a-Tile** (POST /api/fieldops/gift): 2 assists/week,
-  giver must have completed the tile. **Honor tiles** (POST
-  /api/fieldops/honor): dashed-ring mark, tap to self-report.
-- Tests: 56 green incl. test/scout.integration.test.ts (pacing, caps,
-  shared cards, substitutions, gifts, honor, intel cards).
-- **Known gaps**: openapi.yaml doesn't yet describe the /api/fieldops
-  routes (the CI drift gate only checks generated types vs the spec,
-  so it passes — add them before deploy). New auto detectors
+- **The Dossier** (renamed from "Intel Wallet", July 2026 — /dossier,
+  GET /api/fieldops/dossier, teammate view via ?user_id= gated to the
+  same group with 403 otherwise): the scout who pops a landmark keeps
+  the card; revisits mint a CONFIRMED holo variant. **Gift-a-Tile**
+  (POST /api/fieldops/gift): 2 assists/week, giver must have completed
+  the tile. **Honor tiles** (POST /api/fieldops/honor): dashed-ring
+  mark, tap to self-report.
+- **Spoiler rule** (July 2026): `fun_fact` is the decode reward — the
+  API ships it as NULL for locked intel nodes and un-carded dossier
+  catalogue slots (was leaking to any authenticated client). Also
+  fixed: /api/fieldops 500'd on every call against a real DB
+  (ambiguous bare `id` in the weeks JOIN groups query — caught by the
+  first HTTP-level integration run).
+- Tests: 59 green incl. test/scout.integration.test.ts (pacing, caps,
+  shared cards, substitutions, gifts, honor, intel cards) and
+  test/fieldops.integration.test.ts (HTTP payloads, fun_fact
+  encryption, dossier access control).
+- All four /api/fieldops routes are documented in openapi.yaml with
+  ScoutState/IntelNode/DossierCard schemas; types regenerated.
+- **Known gaps**: new auto detectors
   steps_before/steps_after/workout_day_streak/sleep_nights stay
   incomplete until the Health API intraday context is wired
-  (documented in services/bingo.ts). Prediction range-chart labels
-  can still overlap when three calls sit within a few px.
+  (documented in services/bingo.ts).
 
 ## What is NOT done — next tasks in priority order
 
