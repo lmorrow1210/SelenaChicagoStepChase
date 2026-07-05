@@ -293,6 +293,8 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
   const grid = "minmax(64px, auto) 1fr 1fr 1fr auto";
   return (
     <div
+      role="table"
+      aria-label="Monday to Friday duel ledger"
       style={{
         border: "1px solid var(--hairline)",
         background: "var(--screen-700)",
@@ -300,6 +302,7 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
       }}
     >
       <div
+        role="row"
         style={{
           display: "grid",
           gridTemplateColumns: grid,
@@ -309,11 +312,11 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
           borderBottom: "1px solid var(--hairline)",
         }}
       >
-        <span style={headCell}>Day</span>
-        <span style={{ ...headCell, textAlign: "right" }}>You</span>
-        <span style={{ ...headCell, textAlign: "right" }}>{nemesisName}</span>
-        <span style={{ ...headCell, textAlign: "right" }}>Delta</span>
-        <span style={{ ...headCell, width: 28, textAlign: "center" }}>W/L</span>
+        <span role="columnheader" style={headCell}>Day</span>
+        <span role="columnheader" style={{ ...headCell, textAlign: "right" }}>You</span>
+        <span role="columnheader" style={{ ...headCell, textAlign: "right" }}>{nemesisName}</span>
+        <span role="columnheader" style={{ ...headCell, textAlign: "right" }}>Delta</span>
+        <span role="columnheader" style={{ ...headCell, width: 28, textAlign: "center" }}>W/L</span>
       </div>
       {days.map((day) => {
         const delta = day.youSteps - day.nemSteps;
@@ -334,6 +337,7 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
         return (
           <div
             key={day.date}
+            role="row"
             style={{
               display: "grid",
               gridTemplateColumns: grid,
@@ -347,24 +351,26 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
             }}
           >
             <span
+              role="rowheader"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 600,
                 fontSize: 11,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: isToday ? "var(--phosphor)" : "var(--phosphor)",
+                color: "var(--phosphor)",
               }}
             >
               {day.label.slice(0, 3)}
             </span>
-            <span style={{ ...mono, textAlign: "right", color: "var(--phosphor)" }}>
+            <span role="cell" style={{ ...mono, textAlign: "right", color: "var(--phosphor)" }}>
               {isFuture ? "·" : day.youSteps.toLocaleString()}
             </span>
-            <span style={{ ...mono, textAlign: "right", color: "var(--phosphor-dim)" }}>
+            <span role="cell" style={{ ...mono, textAlign: "right", color: "var(--phosphor-dim)" }}>
               {isFuture ? "·" : day.nemSteps.toLocaleString()}
             </span>
             <span
+              role="cell"
               style={{
                 ...mono,
                 textAlign: "right",
@@ -374,6 +380,8 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
               {isFuture ? "·" : delta === 0 ? "even" : `${delta > 0 ? "▲" : "▼"} ${Math.abs(delta).toLocaleString()}`}
             </span>
             <span
+              role="cell"
+              aria-label={mark === "W" ? "won" : mark === "L" ? "lost" : mark === "T" ? "tie" : mark === "live" ? "in progress" : "not played"}
               style={{
                 ...mono,
                 width: 28,
