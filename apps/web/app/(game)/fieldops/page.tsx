@@ -253,17 +253,35 @@ export default function FieldOpsPage() {
                 !card.frozen &&
                 ((giftMode && tile.state === "complete" && !tile.free) ||
                   (!giftMode && isHonor && tile.state !== "complete"));
+              const act = () => {
+                if (!clickable) return;
+                if (giftMode && giftTarget && tile.challenge_id != null) {
+                  gift.mutate({ to_user_id: giftTarget, challenge_id: tile.challenge_id });
+                } else if (!giftMode && tile.challenge_id != null) {
+                  honor.mutate(tile.challenge_id);
+                }
+              };
               return (
+                // Keyboard path for the honor/gift actions — actionable tiles
+                // become real buttons, not click-only divs.
                 <div
                   key={tile.free ? "free" : (tile.challenge_id ?? idx)}
                   className="tileWrap"
                   data-clickable={clickable ? "true" : "false"}
-                  onClick={() => {
-                    if (!clickable) return;
-                    if (giftMode && giftTarget && tile.challenge_id != null) {
-                      gift.mutate({ to_user_id: giftTarget, challenge_id: tile.challenge_id });
-                    } else if (!giftMode && tile.challenge_id != null) {
-                      honor.mutate(tile.challenge_id);
+                  role={clickable ? "button" : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  aria-label={
+                    clickable
+                      ? giftMode
+                        ? `Cover "${tile.label}" for your teammate`
+                        : `Mark "${tile.label}" complete (honor system)`
+                      : undefined
+                  }
+                  onClick={act}
+                  onKeyDown={(e) => {
+                    if (clickable && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault();
+                      act();
                     }
                   }}
                 >
