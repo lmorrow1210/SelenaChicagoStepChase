@@ -10,7 +10,7 @@ import Icon from '../icons/Icon.jsx';
    Unknown cities fall back to a generic skyline icon.
    ============================================================ */
 
-/* v3 quality rings — gold quality = amber (the reward hue) */
+/* v3 quality rings — gold quality = phosphor-hot (the reward hue) */
 const QUALITY_RING = {
   gold:   'var(--phosphor)',
   silver: 'var(--silver)',
@@ -672,7 +672,7 @@ export function CityBadge({
   style,
 }) {
   const featured = size >= 72;
-  /* §8: locked = ink silhouette + amber outline (a lead not yet confirmed) */
+  /* §8: locked = screen silhouette + phosphor outline (a lead not yet confirmed) */
   const iconColor = locked ? 'var(--grid-line)' : 'var(--phosphor-dim)';
   const iconSize = size * 0.62;
   const CityIcon = getCityIcon(name);

@@ -2,9 +2,9 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   TabBar v3 — "Midnight Dossier" command rail.
+   TabBar v4 — "Field Terminal" command rail.
    The chunky command row of the two-pane console. Ink face with
-   a 2-tone bevel; the active command is pressed in with an amber
+   tan chrome; the active command lights up as an inset CRT chip with a phosphor
    inner glow and stamped label. Red never appears here.
    NAV per addendum §1: Map · Field Ops · Prediction · Nemesis.
    ============================================================ */

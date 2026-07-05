@@ -8,7 +8,7 @@ export interface TowerData {
 }
 
 export interface SkyscraperPairProps {
-  /** Left tower (blue). */
+  /** Left tower (you — phosphor). */
   you?: TowerData;
   /** Right tower (red). */
   nemesis?: TowerData;
@@ -23,7 +23,7 @@ export interface SkyscraperPairProps {
 
 /**
  * Nemesis duel: two buildings whose height is normalized step count.
- * Left = you (blue), right = nemesis (red). Taller gets a gold crown.
+ * Left = you (phosphor), right = rival (tan). The winner takes the crown.
  */
 export function SkyscraperPair(props: SkyscraperPairProps): JSX.Element;
 export default SkyscraperPair;

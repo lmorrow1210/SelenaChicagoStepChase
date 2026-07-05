@@ -5,10 +5,10 @@ import { getCityIcon } from './CityBadge.jsx';
 /* ============================================================
    MapPin v3 — "Midnight Dossier" world-map marker.
    Variants:
-     current  — amber live pulse (Selena's last confirmed sighting)
+     current  — phosphor live pulse (Selena's last confirmed sighting)
      next     — where she's heading; with selena=true this is HER
                 red calling-card pin (the only red on the trail)
-     visited  — dimmed manila with a ✓ notch (already investigated)
+     visited  — dimmed with a ✓ notch (already investigated)
      upcoming — ghost outline (on the route, not reached)
    Pass `cityName` to render that city's landmark silhouette
    instead of the generic glyph.
@@ -80,7 +80,7 @@ export function MapPin({
           'var(--shadow-pin)',
         color: glyphColor,
       }}>
-        {/* Live pulse — amber for the sighting, red for Selena herself */}
+        {/* Live pulse — phosphor for the sighting, red for Selena herself */}
         {(isCurrent || isSelena) && (
           <span style={{
             position: 'absolute', inset: -4, borderRadius: 'var(--r-full)',

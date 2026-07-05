@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 /* ============================================================
-   Slider v3 — "Midnight Dossier" range input. Square amber
-   thumb riding an inset ink channel; amber fill = dialed value.
+   Slider v4 — "Field Terminal" range input. Square phosphor
+   thumb riding an inset CRT channel; phosphor fill = dialed value.
    Sharp 90° corners throughout.
    ============================================================ */
 

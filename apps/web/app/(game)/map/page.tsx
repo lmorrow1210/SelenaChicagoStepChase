@@ -123,7 +123,7 @@ function LoadingMap() {
 }
 
 /* City postcard — the intercepted intel vignette (§7/§8): duotone landmark
-   on an ink field inside a manila file frame, with a day/time stamp. */
+   on a case-brown field inside a tan printout frame, with a day/time stamp. */
 function CityPostcard({ city, stamp }: { city: string; stamp: string }) {
   const CityIcon = getCityIcon(city);
   return (
@@ -264,7 +264,7 @@ export default function MapPage() {
       <section className="routeSection" aria-label="Route cities">
         <p className="stamped routeLabel">[ Bureau vector active ]</p>
         <div className="pinRoute">
-          {/* Dashed amber intel vector behind the pins, pulsing dot at the leading edge */}
+          {/* Dashed phosphor intel vector behind the pins, pulsing dot at the leading edge */}
           <RouteVector
             count={data.route.length}
             currentIndex={Math.max(0, data.route.findIndex((city) => city.city_id === data.city?.id))}
@@ -348,8 +348,8 @@ export default function MapPage() {
   );
 }
 
-/* Dashed amber intel vector drawn behind the route pins. The covered leg is
-   bright amber; the leg ahead is dimmed. A pulsing dot rides the leading
+/* Dashed phosphor intel vector drawn behind the route pins. The covered leg is
+   bright phosphor; the leg ahead is dimmed. A pulsing dot rides the leading
    edge (the current city). Pin centers sit at (i + 0.5) / count. */
 function RouteVector({ count, currentIndex }: { count: number; currentIndex: number }) {
   if (count < 2) return null;
@@ -377,7 +377,7 @@ function RouteVector({ count, currentIndex }: { count: number; currentIndex: num
   );
 }
 
-/* Arrival — she slipped out as the team closed in. Amber celebration with
+/* Arrival — she slipped out as the team closed in. Phosphor celebration with
    one red Selena accent (her escape). */
 const CONFETTI_COLORS = ["var(--phosphor)", "var(--phosphor-hot)", "var(--phosphor)", "var(--phosphor-hot)"];
 
@@ -604,7 +604,7 @@ function MapStyles() {
         color: var(--phosphor-dim);
       }
 
-      /* Hero gap stat — red odometer on an inset ink screen */
+      /* Hero gap stat — red odometer on an inset CRT screen */
       .gapWell {
         display: flex;
         align-items: baseline;

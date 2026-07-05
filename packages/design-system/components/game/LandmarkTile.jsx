@@ -2,10 +2,10 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   LandmarkTile v3 — manila photo case-card (Landmark Hunt Desk).
-   Unlocked = duotone landmark vignette on manila paper with a
+   LandmarkTile v4 — tan photo case-card (Landmark Hunt Desk).
+   Unlocked = duotone landmark vignette on tan paper with a
    field note. Locked = ink overlay + red [REDACTED] stamp.
-   Today = locked but live: amber edge pulse marks the active file.
+   Today = locked but live: phosphor edge pulse marks the active file.
    ============================================================ */
 
 export function LandmarkTile({
@@ -33,7 +33,7 @@ export function LandmarkTile({
       animation: isToday ? 'sc-pulse-amber 1.8s var(--ease-in-out) infinite' : 'none',
       minHeight: 128, ...style,
     }}>
-      {/* Photo area — duotone vignette (ink → manila, amber rim) */}
+      {/* Photo area — duotone vignette (case brown well, phosphor rim) */}
       <div style={{
         flex: 1, display: 'grid', placeItems: 'center', minHeight: 74,
         position: 'relative',
@@ -75,7 +75,7 @@ export function LandmarkTile({
         }} />
       </div>
 
-      {/* Label strip — manila field note when unlocked */}
+      {/* Label strip — tan field note when unlocked */}
       <div style={{
         padding: '8px 10px',
         background: isUnlocked ? 'var(--tan-200)' : 'transparent',

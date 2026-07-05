@@ -6,18 +6,18 @@ export interface BingoTileProps {
   icon?: IconName;
   /** Tile state. 'free' is the always-complete Selena center square. */
   state?: 'incomplete' | 'progress' | 'complete' | 'free';
-  /** Amber pulse + glow when part of a line one tile from completion. */
+  /** Phosphor pulse + glow when part of a line one tile from completion. */
   highlight?: boolean;
-  /** Assist-covered by a teammate — teal corner badge (the only teal on the board). */
+  /** Assist-covered by a teammate — phosphor-hot corner badge. */
   gifted?: boolean;
   style?: React.CSSProperties;
 }
 
 /**
  * Operational-matrix tile for the 5×5 card. Four states: available (raised
- * ink, muted), complete (pressed inset + amber fill + stamped ✓), free
- * (Selena silhouette on amber), gifted (complete face + teal assist badge).
- * 'progress' renders as available with an amber working edge.
+ * screen, muted), complete (solid phosphor key + stamped ✓), free
+ * (Selena silhouette on phosphor-hot), gifted (complete face + assist badge).
+ * 'progress' renders as available with a phosphor working edge.
  */
 export function BingoTile(props: BingoTileProps): JSX.Element;
 export default BingoTile;

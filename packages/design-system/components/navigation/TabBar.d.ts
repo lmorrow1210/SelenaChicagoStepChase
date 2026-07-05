@@ -11,7 +11,7 @@ export interface TabBarProps {
 }
 
 /**
- * Mobile bottom tab bar. Five icons with labels, active state (blue +
+ * Mobile bottom tab bar. Five icons with labels, active state (lit CRT chip +
  * top indicator), and safe-area inset handling. Touch targets ≥44px.
  */
 export function TabBar(props: TabBarProps): JSX.Element;

@@ -10,7 +10,7 @@ export interface SelenaMarkProps {
 
 /**
  * Selena Chicago's compact silhouette glyph — sky-blue fedora with red
- * band over a bone Star-Stitch trench. The only place the Chicago-flag
+ * band over a Star-Stitch trench. The only place the Chicago-flag
  * palette appears. Use sparingly (§11).
  */
 export function SelenaMark(props: SelenaMarkProps): JSX.Element;

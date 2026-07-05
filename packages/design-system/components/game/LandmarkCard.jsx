@@ -3,7 +3,7 @@ import { getCityIcon } from './CityBadge.jsx';
 
 /* ============================================================
    LandmarkCard — shared Field Ops Intel + Dossier card.
-   Decoded cards show the manila case-card with a duotone thumbnail.
+   Decoded cards are tan printouts with a duotone thumbnail.
    Locked cards stay compact and subordinate.
    ============================================================ */
 

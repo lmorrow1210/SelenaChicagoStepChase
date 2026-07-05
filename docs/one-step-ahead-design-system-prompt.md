@@ -1,5 +1,12 @@
 # Design System Brief: One Step Ahead
 
+> **⚠️ Palette superseded (July 2026).** The visual system below predates the
+> **"Field Terminal"** palette now shipped in `packages/design-system/tokens/`:
+> tan/brown molded-plastic chrome + phosphor-green CRT screen, red reserved for
+> stamps/threat/urgency. See the *Design-system v4* section of `HANDOFF.md` for
+> the current rules. Layout, components, and interaction guidance here still apply.
+
+
 ## What you're designing
 
 A complete design system for **One Step Ahead** — a web-first (mobile-responsive) fitness social game. Players connect their Fitbit data and chase a globe-trotting villain named Selena Chicago around the world, competing on weekly step counts and unlocking cities together.

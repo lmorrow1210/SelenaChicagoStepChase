@@ -75,8 +75,8 @@ function useNemesisData(enabled: boolean) {
   });
 }
 
-/* VS cabinet (§9E) — split-screen dueling panel: your amber corner vs their
-   slate corner, big condensed VS plate, best-of-5 score in mono. */
+/* VS cabinet (§9E) — split-screen dueling panel: your phosphor corner vs their
+   tan corner, big condensed VS plate, best-of-5 score in mono. */
 function ScoreBar({
   you,
   nemesis,
@@ -220,7 +220,7 @@ function Banner({
 }
 
 /* Live pacing readout — the delta is a red odometer when you're behind
-   (time pressure), amber when you're ahead. */
+   (time pressure), phosphor when you're ahead. */
 function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerInfo }) {
   const delta = you.steps_today - nemesis.steps_today;
   const behind = delta < 0;
@@ -274,8 +274,8 @@ interface LedgerDay {
   kind: "done" | "today" | "future";
 }
 
-/* Compact Mon–Fri ledger — one row per day: steps, delta (teal ahead / red
-   behind), and the day's result. Today gets the amber live rule. */
+/* Compact Mon–Fri ledger — one row per day: steps, delta (phosphor-hot ahead / muted
+   behind), and the day's result. Today gets the phosphor live rule. */
 function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: string }) {
   const mono: React.CSSProperties = {
     fontFamily: "var(--font-mono)",

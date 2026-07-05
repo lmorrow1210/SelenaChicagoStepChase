@@ -5,10 +5,10 @@ import { Icon } from '../icons/Icon.jsx';
    BingoTile v3 — "Midnight Dossier" operational matrix tile.
    Exactly four visual states:
      available — raised ink face, dim glyph
-     complete  — pressed inset + amber tint + stamped ✓
-     free      — Selena silhouette on amber (the one she gave)
-     gifted    — complete face, teal assist badge (the ONLY teal)
-   `progress` renders as available with an amber working edge.
+     complete  — solid phosphor key, dark case text + stamped ✓
+     free      — Selena silhouette on phosphor-hot (the one she gave)
+     gifted    — complete face, phosphor-hot assist badge
+   `progress` renders as available with a phosphor working edge.
    Never red — red is Selena's.
    ============================================================ */
 

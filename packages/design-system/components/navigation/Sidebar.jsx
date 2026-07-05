@@ -2,8 +2,8 @@ import * as React from 'react';
 import Icon from '../icons/Icon.jsx';
 
 /* ============================================================
-   Sidebar v3 — "Midnight Dossier" amber phosphor terminal.
-   A nighttime intelligence terminal: ink chassis, inset amber
+   Sidebar v4 — "Field Terminal" tracker console.
+   A molded tan-plastic chassis housing an inset green
    phosphor screen listing tracker commands, stamped bureau
    header. Collapsed 60px → expanded 200px on hover (§10).
    NAV per addendum §1: Map · Field Ops · Prediction · Nemesis.

@@ -18,7 +18,7 @@ export interface InputProps {
 }
 
 /**
- * Dark-fill input with blue focus ring. Numeric variant is the large
+ * Dark-fill input with phosphor focus ring. Numeric variant is the large
  * centered monospaced field used on the Prediction screen.
  */
 export function Input(props: InputProps): JSX.Element;

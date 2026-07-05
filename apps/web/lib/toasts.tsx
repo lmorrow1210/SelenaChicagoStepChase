@@ -7,7 +7,7 @@ import { api } from "./api";
 import { useSession } from "./session";
 
 // In-app notification toasts (M9): unread notifications surface as a stack
-// of Toast bars (achievement gold / social blue / alert red), auto-marked
+// of Toast bars (achievement / social / alert tones), auto-marked
 // read after a few seconds on screen or on dismiss.
 
 interface AppNotification {

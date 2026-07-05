@@ -46,7 +46,7 @@ export function Avatar({
   colorway = 'chicago',
   skinTone = SKIN_TONES[1],
   hairColor = HAIR_COLORS[0],
-  ring = false,        // ring color (string) or true for blue
+  ring = false,        // ring color (string) or true for the accent
   badge,               // node rendered top-right (e.g. crown)
   style,
   ...rest

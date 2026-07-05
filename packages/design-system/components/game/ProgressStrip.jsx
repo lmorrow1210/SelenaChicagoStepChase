@@ -5,9 +5,9 @@ import Icon from '../icons/Icon.jsx';
 /* ============================================================
    ProgressStrip v3 — "Midnight Dossier" trail tracker.
    A dashed intel flight-path from the last confirmed sighting to
-   Selena's next silhouette. The leading edge glows amber; Selena
+   Selena's next silhouette. The leading edge glows phosphor; Selena
    waits at the far end as a red calling-card node. Team tokens
-   sit proportionally along the channel (teal = team movement);
+   sit proportionally along the channel (phosphor-hot = team movement);
    near-overlapping tokens stagger vertically so the pack stays
    legible instead of cramming into one spot.
    ============================================================ */

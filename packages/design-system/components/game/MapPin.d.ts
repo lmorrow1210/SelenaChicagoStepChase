@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface MapPinProps {
-  /** 'current' blue glow, 'next' red (Selena ahead), 'visited' gold-tinted, 'upcoming' ghost. */
+  /** 'current' phosphor pulse, 'next' red when Selena, 'visited' checked, 'upcoming' ghost. */
   variant?: 'current' | 'next' | 'visited' | 'upcoming';
   /** Optional city name pill under the pin. */
   label?: string;
@@ -14,7 +14,7 @@ export interface MapPinProps {
 }
 
 /**
- * World-map city marker. Current city glows blue with an active pulse;
+ * World-map city marker. Current city glows phosphor with an active pulse;
  * the next city / Selena's position is a dimmer red accent.
  */
 export function MapPin(props: MapPinProps): JSX.Element;

@@ -7,7 +7,7 @@ import Icon from '../icons/Icon.jsx';
 /* ============================================================
    PredictionCard v3 — Intercept Forecast (§9B).
    Open state: ink console card, condensed-caps headline, a big
-   amber DM Mono readout driven by a large slider with a synced
+   phosphor DM Mono readout driven by a large slider with a synced
    numeric input, FILE FORECAST command, stake reminder copy,
    and an optional teammate-preview strip.
    Locked state: the card presses IN (inset bevel) and a red
@@ -72,7 +72,7 @@ export function PredictionCard({
               textTransform: 'uppercase', color: 'var(--phosphor)',
             }}>{headline}</h2>
 
-            {/* Big amber readout — the dialed forecast */}
+            {/* Big phosphor readout — the dialed forecast */}
             <div style={{
               padding: '10px 14px',
               background: 'var(--screen-700)',

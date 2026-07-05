@@ -53,7 +53,7 @@ function sliderMax(liveTotal: number): number {
 /**
  * The weekly prediction console — a large slider with a synced numeric
  * input files the forecast; once everyone's calls unseal they render on
- * a horizontal range track with the live group total as the amber
+ * a horizontal range track with the live group total as the phosphor
  * `current` marker.
  */
 export function PredictionSection() {
@@ -377,7 +377,7 @@ export function PredictionSection() {
 }
 
 /** The team's calls on one horizontal range track — each call is a tick with
-    a staggered label row; the live group total is the amber `current` marker.
+    a staggered label row; the live group total is the phosphor `current` marker.
     When ticks would collide, falls back to a compact legend list. */
 function RangeChart({
   rows,

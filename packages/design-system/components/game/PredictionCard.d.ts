@@ -24,7 +24,7 @@ export interface PredictionCardProps {
 }
 
 /**
- * Intercept Forecast console card. Open state: headline + big amber DM Mono
+ * Intercept Forecast console card. Open state: headline + big phosphor DM Mono
  * readout + large slider + synced numeric input + FILE FORECAST. Locked
  * state: pressed bevel with a red stamp.
  */

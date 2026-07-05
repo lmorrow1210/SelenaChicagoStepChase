@@ -5,7 +5,7 @@ export interface LandmarkTileProps {
   name?: string;
   /** One-line fun fact shown when unlocked. */
   fact?: string;
-  /** 'locked' silhouette, 'unlocked' full color, 'today' pulsing blue. */
+  /** 'locked' silhouette, 'unlocked' full color, 'today' pulsing phosphor. */
   state?: 'locked' | 'unlocked' | 'today';
   /** Illustration base color when unlocked. */
   color?: string;
@@ -16,7 +16,7 @@ export interface LandmarkTileProps {
 /**
  * City-screen landmark tile. Locked = dark muted silhouette; unlocked =
  * full-color illustration + name + fun fact; today = locked with a
- * glowing blue border pulse.
+ * glowing phosphor border pulse.
  */
 export function LandmarkTile(props: LandmarkTileProps): JSX.Element;
 export default LandmarkTile;

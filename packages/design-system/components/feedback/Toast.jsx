@@ -3,7 +3,7 @@ import { Icon } from '../icons/Icon.jsx';
 
 /* ============================================================
    Toast v3 — intercepted transmission strip.
-   Types: achievement (amber — rewards), social (vector — the
+   Types: achievement (phosphor-hot — rewards), social (phosphor — the
    team's own channel), alert (signal-red — Selena/danger only).
    Rendered inside the stacked toast region above the TabBar
    (never over the header). Slides up on entry.
