@@ -27,7 +27,8 @@
   --grid-line:   #17351A;   /* hairlines / grid on screen */
 
   --phosphor:      #58E06A; /* primary green: body text, icons, nav, telemetry */
-  --phosphor-dim:  #429A57; /* secondary/muted green text — AA on screen panels */
+  --phosphor-dim:  #4AAB61; /* secondary/muted green text — AA even on raised
+                               faces where axe blends the tan bevel edge in */
   --phosphor-hot:  #9DFCA6; /* highlight / hover / active / win glow / team movement */
   --phosphor-glow: 88,224,106; /* rgb for glows: rgba(var(--phosphor-glow),.35) */
 

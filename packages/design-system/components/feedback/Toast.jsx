@@ -54,7 +54,10 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
         )}
         {message && (
           <div style={{
-            fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--phosphor-dim)',
+            /* Primary phosphor, not dim — the message IS the toast, and dim
+               green misses AA once axe blends the tan bevel edge into the
+               raised face. */
+            fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--phosphor)',
             marginTop: 1, lineHeight: 1.4,
           }}>{message}</div>
         )}
