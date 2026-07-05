@@ -1153,7 +1153,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Cards the owner has earned plus the full city/landmark catalogue for grouping. Catalogue `fun_fact` is null unless the owner holds a card for that landmark (spoiler rule). */
+                /** @description Cards the owner has earned plus the city/landmark catalogue for grouping. The catalogue covers only the chase so far — cities the group has had a week in, the current recon city, and cities the owner holds cards from — never the whole route. Catalogue `fun_fact` is null unless the owner holds a card for that landmark (spoiler rule). */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1612,7 +1612,7 @@ export interface components {
             city_name?: string;
             city_country?: string;
         };
-        /** @description Catalogue slot for grouping the dossier by city. fun_fact ships only for landmarks the dossier owner holds a card for. */
+        /** @description Catalogue slot for grouping the dossier by city. Limited to cities the chase has reached (group weeks + recon + owner's cards); fun_fact ships only for landmarks the dossier owner holds a card for. */
         DossierCitySlot: {
             id?: number;
             name?: string;

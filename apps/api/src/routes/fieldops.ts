@@ -198,10 +198,29 @@ fieldopsRouter.get("/dossier", async (req, res, next) => {
       [targetUserId],
     );
 
-    // Same spoiler rule as Field Ops intel: fun_fact only ships for landmarks
+    // Catalogue scope: only cities the chase has actually reached — every
+    // city this group has had a week in, plus the current recon city (one
+    // ahead of the active week), plus any city the owner holds cards from
+    // (season-long cards survive a group switch). Listing the whole route
+    // would spoil pacing and render dozens of empty locked sections.
+    // Spoiler rule as in Field Ops intel: fun_fact only ships for landmarks
     // this dossier actually holds a card for — locked slots stay encrypted.
+    const groupId = access.rows[0].target_group_id as string;
     const cities = await pool.query(
-      `SELECT c.id, c.name, c.country,
+      `WITH reachable AS (
+         SELECT w.city_id AS id FROM weeks w WHERE w.group_id = $2
+         UNION
+         SELECT next_c.id
+         FROM weeks w
+         JOIN cities cur ON cur.id = w.city_id
+         JOIN cities next_c ON next_c.route_order = CASE
+           WHEN cur.route_order >= (SELECT MAX(route_order) FROM cities) THEN 1
+           ELSE cur.route_order + 1 END
+         WHERE w.group_id = $2 AND w.status = 'active'
+         UNION
+         SELECT ic3.city_id FROM intel_cards ic3 WHERE ic3.user_id = $1
+       )
+       SELECT c.id, c.name, c.country,
               l.id AS landmark_id, l.day, l.name AS landmark_name, l.image,
               CASE WHEN EXISTS (
                 SELECT 1 FROM intel_cards ic2
@@ -209,8 +228,9 @@ fieldopsRouter.get("/dossier", async (req, res, next) => {
               ) THEN l.fun_fact END AS fun_fact
        FROM cities c
        JOIN landmarks l ON l.city_id = c.id
+       WHERE c.id IN (SELECT id FROM reachable)
        ORDER BY c.route_order ASC, l.day ASC`,
-      [targetUserId],
+      [targetUserId, groupId],
     );
 
     res.json({

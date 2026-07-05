@@ -142,7 +142,7 @@ describeDb("M10 fieldops routes integration", () => {
     const ownBody = (await own.json()) as {
       owner: { id: string };
       cards: { landmark_id: number; fun_fact: string | null }[];
-      cities: { landmark_id: number; fun_fact: string | null }[];
+      cities: { id: number; landmark_id: number; fun_fact: string | null }[];
     };
     expect(ownBody.owner.id).toBe(users[0]);
     expect(ownBody.cards).toHaveLength(1);
@@ -154,6 +154,17 @@ describeDb("M10 fieldops routes integration", () => {
       if (cardedIds.has(slot.landmark_id)) expect(slot.fun_fact).toBeTruthy();
       else expect(slot.fun_fact).toBeNull();
     }
+
+    // Catalogue scope: only the chase so far — the seeded week's city plus
+    // the recon city one ahead. The rest of the route stays off the page.
+    const seededWeekCity = await pool.query(`SELECT id FROM cities WHERE route_order = 1`);
+    const reconCity = await pool.query(`SELECT id FROM cities WHERE route_order = 2`);
+    const totalCities = await pool.query(`SELECT COUNT(*)::int AS n FROM cities`);
+    const catalogueCityIds = [...new Set(ownBody.cities.map((slot) => slot.id))].sort();
+    expect(catalogueCityIds).toEqual(
+      [seededWeekCity.rows[0].id, reconCity.rows[0].id].sort(),
+    );
+    expect(totalCities.rows[0].n).toBeGreaterThan(2); // scope actually filtered
 
     // A teammate in the same group can read it via ?user_id=.
     const teammate = await request(users[1], `/api/fieldops/dossier?user_id=${users[0]}`);
