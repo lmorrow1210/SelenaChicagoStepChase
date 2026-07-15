@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, DM_Mono, DM_Sans } from "next/font/google";
+import { SCREEN_BASE } from "../lib/brand";
 import "@one-step-ahead/design-system/styles.css";
 import { Providers } from "./providers";
 
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#08120A",
+  themeColor: SCREEN_BASE,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -198,7 +198,7 @@ phosphor-green CRT screen; red reserved for stamps/threat/urgency/city-kickers.*
 
 ### City + Landmarks (M3)
 - `GET /api/cities/current` — city + 7 landmarks with states (locked/unlocked/today) + group workout status.
-- `services/unlocks.ts: detectUnlocks(db, groupId, date, triggeringUserId)` — when all group members have ≥1 workout for date D, the day-N landmark unlocks. Idempotent upsert on `city_unlocks`.
+- ~~`services/unlocks.ts: detectUnlocks(...)`~~ — the M3 all-members-worked-out unlock rule was retired by M10 (scout economy drives unlocks) and the dead file was deleted July 2026.
 - City screen: landmark grid (3-2-2), group workout status with avatars, unlock logic wired.
 
 ### Prediction (M4 — complete)
@@ -365,7 +365,6 @@ apps/api/src/
     weekClose.ts    closeWeekPredictions (DB-backed)
     weekRollover.ts weekRollover — full Monday transaction (nothing calls it yet)
     sync.ts         syncUserDay, syncUserToday
-    unlocks.ts      detectUnlocks
     week.ts         weekMonday, weekSunday, createFirstWeek
     fitbitClient.ts FitbitClient interface + MockFitbitClient
   db/migrations/

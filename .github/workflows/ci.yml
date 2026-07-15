@@ -47,9 +47,11 @@ jobs:
           npm run gen:api-types -w apps/web
           git diff --exit-code apps/web/lib/api-types.d.ts
       - name: Design-token adherence (no raw hex in app code)
+        # lib/brand.ts is the ONE sanctioned hex location — web manifests and
+        # theme-color meta cannot resolve CSS custom properties.
         run: |
-          if grep -rEn '#[0-9a-fA-F]{3,8}\b' apps/web/app apps/web/lib --include='*.tsx' --include='*.ts'; then
-            echo '::error::Raw hex color in app code — use a design-system token via var(--…)'
+          if grep -rEn '#[0-9a-fA-F]{3,8}\b' apps/web/app apps/web/lib --include='*.tsx' --include='*.ts' --exclude=brand.ts; then
+            echo '::error::Raw hex color in app code — use a design-system token via var(--…) or lib/brand.ts'
             exit 1
           fi
       - name: WCAG contrast audit (v2 palette)
