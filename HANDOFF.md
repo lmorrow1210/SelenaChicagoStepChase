@@ -1,4 +1,8 @@
-# One Step Ahead — Handoff (Claude Code → Fable, June 2026)
+# One Step Ahead — Handoff (deep history & file map)
+
+> **Agents start with [`AGENTS.md`](AGENTS.md)** — the compact working guide
+> (rules, gates, commands, current state). This file is the detailed
+> per-milestone record it links into.
 
 Repo: `/Users/lindseymorrow/SelenaChicagoStepChase`
 Branch: `main` — clean, all work committed, all tests green.
@@ -30,11 +34,11 @@ Owner: lmorrow1210@gmail.com
 
 ```bash
 npm run test -w apps/api
-# Expected: 33 passed, 12 skipped (integration tests skip without TEST_DATABASE_URL)
+# Expected: 37 passed, 22 skipped (integration tests skip without TEST_DATABASE_URL)
 
 # With local Postgres (see "Local Postgres" below) ALL tests run:
 TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" npm run test -w apps/api
-# Expected: 45 passed, 0 skipped
+# Expected: 59 passed, 0 skipped (July 2026)
 
 npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
