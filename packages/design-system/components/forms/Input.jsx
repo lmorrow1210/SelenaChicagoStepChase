@@ -52,7 +52,7 @@ export function Input({
     outline: 'none',
     color: 'var(--cream)',
     fontFamily: isNumeric ? 'var(--font-mono)' : 'var(--font-body)',
-    fontSize: isNumeric ? 40 : 15,
+    fontSize: isNumeric ? 40 : 16, // ≥16px — iOS Safari auto-zooms smaller inputs on focus
     fontWeight: isNumeric ? 500 : 400,
     textAlign: isNumeric ? 'center' : 'left',
     letterSpacing: isNumeric ? '0.02em' : '0',

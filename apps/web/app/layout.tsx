@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, DM_Mono, DM_Sans } from "next/font/google";
 import "@one-step-ahead/design-system/styles.css";
 import { Providers } from "./providers";
@@ -28,11 +28,20 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   title: "One Step Ahead — The Search for Selena Chicago",
   description: "She's always one step ahead.",
+  applicationName: "One Step Ahead",
+  appleWebApp: { capable: true, title: "One Step Ahead", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "One Step Ahead",
     description: "The Search for Selena Chicago — she's always one step ahead.",
     siteName: "One Step Ahead",
   },
+};
+
+// Mobile browser chrome matches the CRT screen; user zoom stays enabled.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#08120A",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

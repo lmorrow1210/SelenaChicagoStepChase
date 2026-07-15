@@ -15,7 +15,7 @@ import Icon from "@one-step-ahead/design-system/components/icons/Icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { withBase } from "../../../lib/links";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
 
@@ -120,6 +120,25 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
   const [skin, setSkin] = useState(user?.avatar_skin ?? 1);
   const [hair, setHair] = useState(user?.avatar_hair ?? 1);
   const [colorway, setColorway] = useState(user?.avatar_colorway ?? 1);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Dialog keyboard contract: Escape closes; focus moves into the dialog on
+  // open and returns to the trigger on close.
+  useEffect(() => {
+    const trigger = document.activeElement as HTMLElement | null;
+    dialogRef.current?.querySelector<HTMLElement>("button")?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      trigger?.focus?.();
+    };
+  }, [onClose]);
 
   const save = useMutation({
     mutationFn: () =>
@@ -169,6 +188,7 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Edit avatar"

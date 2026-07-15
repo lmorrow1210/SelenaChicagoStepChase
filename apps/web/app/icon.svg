@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>One Step Ahead</title>
+  <!-- CRT screen face -->
+  <rect width="32" height="32" fill="#08120A"/>
+  <rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="#17351A" stroke-width="1"/>
+  <!-- phosphor "1" nameplate, mirrors the sidebar mark -->
+  <text x="16" y="24" text-anchor="middle" font-family="'DejaVu Sans','Arial',sans-serif"
+        font-size="24" font-weight="700" fill="#58E06A">1</text>
+  <!-- faint scanline -->
+  <g fill="#000000" opacity="0.16">
+    <rect x="0" y="6" width="32" height="1"/>
+    <rect x="0" y="12" width="32" height="1"/>
+    <rect x="0" y="18" width="32" height="1"/>
+    <rect x="0" y="24" width="32" height="1"/>
+  </g>
+</svg>

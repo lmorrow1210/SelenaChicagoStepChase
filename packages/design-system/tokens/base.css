@@ -33,6 +33,17 @@ body {
 
 a { color: var(--phosphor); text-decoration: none; }
 
+/* ---- Mobile browser hygiene ---- */
+/* iOS Safari zooms the page when a focused field is under 16px. */
+input, select, textarea {
+  font-size: max(16px, 1em);
+}
+/* Stop landscape-rotation text inflation without disabling user zoom. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 /* ---- Shared keyframes ---- */
 /* Phosphor pulse — the "live" marker (current pin, active telemetry) */
 @keyframes sc-pulse-amber {
