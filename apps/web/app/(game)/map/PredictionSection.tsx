@@ -100,7 +100,7 @@ export function PredictionSection() {
   const filedTeammates = data.others === "hidden" ? [] : data.others;
 
   return (
-    <section className="predictionPanel" aria-label="Weekly prediction">
+    <section className="predictionPanel sc-corners" aria-label="Weekly prediction">
       <div className="predictionHeader">
         <div>
           <p className="eyebrow">[ Call her next move ]</p>

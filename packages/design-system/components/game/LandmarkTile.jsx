@@ -23,8 +23,9 @@ export function LandmarkTile({
     <div style={{
       position: 'relative', display: 'flex', flexDirection: 'column',
       borderRadius: 'var(--r-card)', overflow: 'hidden',
-      /* Unlocked = warm tan printout; locked/today = green screen file */
-      background: isUnlocked ? 'var(--tan-200)' : 'var(--screen-700)',
+      /* Unlocked = warm tan printout (with paper-grain tooth);
+         locked/today = green screen file */
+      background: isUnlocked ? 'var(--paper-grain) var(--tan-200)' : 'var(--screen-700)',
       border: `1px solid ${isToday ? 'var(--phosphor)' : isUnlocked ? 'var(--case-600)' : 'var(--grid-line)'}`,
       boxShadow: isToday
         ? 'var(--bevel-raised-shadow), var(--glow-live)'
@@ -78,7 +79,7 @@ export function LandmarkTile({
       {/* Label strip — tan field note when unlocked */}
       <div style={{
         padding: '8px 10px',
-        background: isUnlocked ? 'var(--tan-200)' : 'transparent',
+        background: isUnlocked ? 'var(--paper-grain) var(--tan-200)' : 'transparent',
         borderTop: isUnlocked ? '1px solid var(--case-600)' : '1px solid var(--grid-line)',
       }}>
         {isUnlocked ? (

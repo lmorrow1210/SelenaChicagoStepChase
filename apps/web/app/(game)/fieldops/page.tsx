@@ -238,7 +238,7 @@ export default function FieldOpsPage() {
 
       <div className="opsPanels">
         {/* ── Panel 1: The Ops Board (cause) ── */}
-        <section className="board" aria-label="Ops board">
+        <section className="board sc-corners" aria-label="Ops board">
           <div className="panelHeader">
             <h2>[ The ops board ]</h2>
             <span className="panelMeta">
@@ -351,7 +351,7 @@ export default function FieldOpsPage() {
         </div>
 
         {/* ── Panel 2: Intel (effect) ── */}
-        <section className="intelPanel" aria-label="Recon intel">
+        <section className="intelPanel sc-corners" aria-label="Recon intel">
           <div className="panelHeader">
             <h2>[ Intel — {recon} ]</h2>
             <span className="panelMeta">effect</span>

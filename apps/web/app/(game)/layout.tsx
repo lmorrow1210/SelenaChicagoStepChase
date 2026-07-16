@@ -4,6 +4,7 @@ import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import Sidebar from "@one-step-ahead/design-system/components/navigation/Sidebar";
 import TabBar from "@one-step-ahead/design-system/components/navigation/TabBar";
 import { usePathname, useRouter } from "next/navigation";
+import { CaseStatusStrip } from "../../lib/CaseStatusStrip";
 
 const GAME_SECTIONS = ["map", "fieldops", "prediction", "nemesis", "profile"] as const;
 
@@ -34,6 +35,8 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
       <span className="sc-caseEngraving" aria-hidden="true">
         ONE STEP AHEAD · MODEL OSA/86 · LOOP BUREAU FIELD EQUIPMENT
       </span>
+      {/* Live readout on the left of the same lip: operative / week / signal */}
+      <CaseStatusStrip />
       <div className="sc-tabbarHost">
         <TabBar active={active} onNavigate={onNavigate} />
       </div>

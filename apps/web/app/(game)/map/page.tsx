@@ -216,7 +216,7 @@ export default function MapPage() {
       )}
 
       {/* ── Tracking Vector Terminal — two-pane console (§9A) ── */}
-      <section className="console" aria-label="Tracking vector terminal">
+      <section className="console sc-corners" aria-label="Tracking vector terminal">
         {/* Left pane: intercepted city postcard */}
         <CityPostcard city={data.city?.name ?? "Unknown"} stamp={fileStamp()} />
 
@@ -262,7 +262,7 @@ export default function MapPage() {
       </section>
 
       {/* ── Route — dashed intel trail with city pins ── */}
-      <section className="routeSection" aria-label="Route cities">
+      <section className="routeSection sc-corners" aria-label="Route cities">
         <p className="stamped routeLabel">[ Bureau vector active ]</p>
         <div className="pinRoute">
           {/* Dashed phosphor intel vector behind the pins, pulsing dot at the leading edge */}
@@ -316,7 +316,7 @@ export default function MapPage() {
         state={progressPlayers.length ? (progressPlayers.some((player) => player.pct >= 100) ? "end" : "default") : "empty"}
       />
 
-      <section className="leaderboard" aria-label="Leaderboard">
+      <section className="leaderboard sc-corners" aria-label="Leaderboard">
         <div className="leaderboardHeader">
           <h2>[ Bureau leaderboard ]</h2>
           <span className="stamped">This week</span>
@@ -523,7 +523,7 @@ function MapStyles() {
         display: flex;
         flex-direction: column;
         border-radius: var(--r-tight);
-        background: var(--tan-200);
+        background: var(--paper-grain) var(--tan-200);
         padding: var(--sp-2);
         box-shadow: var(--shadow-elevated);
         min-height: 220px;

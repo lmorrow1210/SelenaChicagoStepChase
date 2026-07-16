@@ -170,7 +170,7 @@ export default function PastCityPage() {
       </section>
 
       {data.champion && (
-        <section className="championPanel" aria-label="City champion">
+        <section className="championPanel sc-corners" aria-label="City champion">
           <Avatar size={56} colorway={colorwayFrom(data.champion.avatar_colorway)} ring />
           <div>
             <p className="eyebrow">Lead detective</p>

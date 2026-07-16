@@ -63,7 +63,7 @@ export function CallingCard({
           gap: var(--sp-3);
           align-items: center;
           padding: var(--sp-3) var(--sp-4);
-          background: var(--tan-200);
+          background: var(--paper-grain) var(--tan-200);
           border-radius: var(--r-card);
           box-shadow: var(--shadow-elevated);
           overflow: hidden;

@@ -44,6 +44,37 @@ html {
   text-size-adjust: 100%;
 }
 
+/* ---- Corner-bracket registration ticks (design cut-list, July 2026) ----
+   Drafting-style crop marks just inside a panel's frame. Add
+   className="sc-corners" to any bordered screen panel; the panel gains
+   position: relative. Pure chrome: no hit area, hidden for
+   prefers-contrast users (it reads as extra border noise there). */
+.sc-corners {
+  position: relative;
+}
+.sc-corners::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  --bracket-ink: rgba(var(--phosphor-glow), 0.32);
+  background:
+    linear-gradient(var(--bracket-ink) 0 0) top left / 9px 1px,
+    linear-gradient(var(--bracket-ink) 0 0) top left / 1px 9px,
+    linear-gradient(var(--bracket-ink) 0 0) top right / 9px 1px,
+    linear-gradient(var(--bracket-ink) 0 0) top right / 1px 9px,
+    linear-gradient(var(--bracket-ink) 0 0) bottom left / 9px 1px,
+    linear-gradient(var(--bracket-ink) 0 0) bottom left / 1px 9px,
+    linear-gradient(var(--bracket-ink) 0 0) bottom right / 9px 1px,
+    linear-gradient(var(--bracket-ink) 0 0) bottom right / 1px 9px;
+  background-repeat: no-repeat;
+}
+@media (prefers-contrast: more) {
+  .sc-corners::after {
+    display: none;
+  }
+}
+
 /* ---- Shared keyframes ---- */
 /* Phosphor pulse — the "live" marker (current pin, active telemetry) */
 @keyframes sc-pulse-amber {

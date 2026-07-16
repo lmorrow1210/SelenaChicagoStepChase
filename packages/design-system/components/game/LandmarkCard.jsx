@@ -104,10 +104,11 @@ export function LandmarkCard({
       style={{
         position: 'relative',
         padding: 'var(--space-sm)',
-        /* Warm tan "printout" paper — a matte case-file, not a glowing screen */
+        /* Warm tan "printout" paper — a matte case-file, not a glowing screen.
+           --paper-grain layers a faint feTurbulence tooth over the tan fill. */
         background: confirmed
-          ? 'linear-gradient(var(--tan-200), var(--tan-200)) padding-box, linear-gradient(120deg, var(--phosphor), var(--phosphor-hot), var(--phosphor-hot), var(--phosphor)) border-box'
-          : 'var(--tan-200)',
+          ? 'var(--paper-grain) padding-box, linear-gradient(var(--tan-200), var(--tan-200)) padding-box, linear-gradient(120deg, var(--phosphor), var(--phosphor-hot), var(--phosphor-hot), var(--phosphor)) border-box'
+          : 'var(--paper-grain) var(--tan-200)',
         border: confirmed ? '2px solid transparent' : '1px solid var(--case-600)',
         boxShadow: confirmed ? 'var(--bevel-raised), var(--glow-live)' : 'var(--bevel-raised)',
         display: 'flex',
