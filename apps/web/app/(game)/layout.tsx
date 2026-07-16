@@ -4,9 +4,18 @@ import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import Sidebar from "@one-step-ahead/design-system/components/navigation/Sidebar";
 import TabBar from "@one-step-ahead/design-system/components/navigation/TabBar";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { CaseStatusStrip } from "../../lib/CaseStatusStrip";
 
 const GAME_SECTIONS = ["map", "fieldops", "prediction", "nemesis", "profile"] as const;
+
+const SECTION_TITLES: Record<string, string> = {
+  map: "Map",
+  fieldops: "Field Ops",
+  prediction: "Prediction",
+  nemesis: "Nemesis",
+  profile: "Operative File",
+};
 
 export default function GameLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +25,12 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
       ? "fieldops"
       : GAME_SECTIONS.find((section) => pathname.startsWith(`/${section}`)) ?? "map";
   const onNavigate = (id: string) => router.push(`/${id}`);
+
+  // Per-screen tab titles — history and tab bars read like a real app.
+  useEffect(() => {
+    const section = pathname.startsWith("/dossier") ? "The Dossier" : SECTION_TITLES[active];
+    if (section) document.title = `${section} · One Step Ahead`;
+  }, [pathname, active]);
 
   return (
     <div className="sc-shell">

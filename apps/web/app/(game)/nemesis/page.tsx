@@ -237,14 +237,17 @@ function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerI
         boxShadow: "var(--screen-inset-shadow)",
       }}
     >
-      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--phosphor)" }}>
+      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "clamp(11px, 3vw, 13px)", color: "var(--phosphor)" }}>
         You {you.steps_today.toLocaleString()}
       </span>
       <span
         style={{
           fontFamily: "var(--font-mono)",
           fontVariantNumeric: "tabular-nums",
-          fontSize: 16,
+          /* fluid: stays on one line on phones for typical deltas */
+          fontSize: "clamp(12px, 3vw, 16px)",
+          lineHeight: 1.25,
+          whiteSpace: "nowrap",
           textAlign: "center",
           textTransform: "uppercase",
           letterSpacing: "0.06em",
@@ -258,7 +261,7 @@ function TodayContextStrip({ you, nemesis }: { you: PlayerInfo; nemesis: PlayerI
             ? `▼ ${Math.abs(delta).toLocaleString()} behind today`
             : `▲ ${delta.toLocaleString()} ahead today`}
       </span>
-      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: 13, color: "var(--slate-light)" }}>
+      <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "clamp(11px, 3vw, 13px)", color: "var(--slate-light)" }}>
         {nemesis.steps_today.toLocaleString()} {nemesis.display_name}
       </span>
     </div>
