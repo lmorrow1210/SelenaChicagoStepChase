@@ -23,7 +23,7 @@ npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
 npm run test -w apps/api            # integration suites skip without a DB
 TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" \
-  npm run test -w apps/api          # full suite: 59/59 (start postgresql@16 first)
+  npm run test -w apps/api          # full suite: 67/67 (start postgresql@16 first)
 npm run build -w apps/web           # needs network (next/font Google Fonts)
 node scripts/contrast-audit.mjs     # WCAG AA gate, 23/23
 ```
@@ -79,6 +79,13 @@ A 1980s tan/brown molded-plastic field terminal housing a phosphor-green CRT.
   enforces `border-radius: 0 !important`. No raw px radii, no `rx=` on rects.
 - **Glow rule** — body text glows (`--text-glow`); tan/paper surfaces set
   `text-shadow: none` (they're matte printouts).
+- **Paper grain** — tan printout fills take `background: var(--paper-grain)
+  var(--tan-200)` (feTurbulence tooth, ≤7% alpha; auto-`none` under
+  `prefers-contrast: more`). **Corner brackets** — add `className="sc-corners"`
+  to a bordered screen panel for drafting-style crop marks (base.css utility).
+  **Case status strip** — `lib/CaseStatusStrip.tsx` is the live
+  operative/week/signal readout on the desktop case lip; it reads
+  `useSession()` only, keep it query-free.
 - **Contrast gotcha** — Lighthouse/axe blends the 1px `--tan-300` bevel edge
   into raised faces; muted text can fail there even when the static audit
   passes. `--phosphor-dim` (#4AAB61) is tuned for this; check Lighthouse
@@ -109,7 +116,7 @@ route changes (e.g. locked intel ships `fun_fact: null`).
 
 ## Current state (July 2026)
 
-`main` is green: CI + Pages deploy passing, 59/59 API tests, Lighthouse 100
+`main` is green: CI + Pages deploy passing, 67/67 API tests, Lighthouse 100
 (a11y/BP/SEO) on all screens, WCAG audit 23/23. Live demo:
 https://lmorrow1210.github.io/SelenaChicagoStepChase/
 
@@ -122,12 +129,11 @@ https://lmorrow1210.github.io/SelenaChicagoStepChase/
    vs the green/red palette.
 
 **Agent-workable backlog:**
-- Intraday auto-detectors
-  (`steps_before/steps_after/workout_day_streak/sleep_nights`) are stubbed
-  pending Health API intraday context (documented in
-  `apps/api/src/services/bingo.ts`).
-- Design cut-list from the July 2026 "terminal case" polish pass (see
-  HANDOFF §Design-system v4 for the shipped case/bezel/lit-key work):
-  paper-grain texture on the tan printout cards, corner-bracket ticks on
-  panel frames, a live status-strip footer (operative / week / signal) on
-  the bottom case lip.
+- ~~Intraday auto-detectors~~ + ~~design cut-list (paper-grain, corner
+  brackets, status strip)~~ — **both shipped July 2026 (M11)**, see
+  HANDOFF §M11. What remains of them:
+  - `RealFitbitClient.steps_by_hour` returns `null` on purpose — wire the
+    hourly rollup once the owner's sandbox smoke test confirms the
+    intraday endpoint shape (comment in `realFitbitClient.ts`).
+  - `bedtime_before` detector still stubbed — needs a product call on
+    late bedtimes (is 1 A.M. "before 11 P.M."?).

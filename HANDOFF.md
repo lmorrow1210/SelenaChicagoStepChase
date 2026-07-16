@@ -34,11 +34,11 @@ Owner: lmorrow1210@gmail.com
 
 ```bash
 npm run test -w apps/api
-# Expected: 37 passed, 22 skipped (integration tests skip without TEST_DATABASE_URL)
+# Expected: 42 passed, 25 skipped (integration tests skip without TEST_DATABASE_URL)
 
 # With local Postgres (see "Local Postgres" below) ALL tests run:
 TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" npm run test -w apps/api
-# Expected: 59 passed, 0 skipped (July 2026)
+# Expected: 67 passed, 0 skipped (July 2026, M11)
 
 npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
@@ -336,10 +336,55 @@ The One Step Ahead master brief + addendum landed a full rebrand, the
   encryption, dossier access control).
 - All four /api/fieldops routes are documented in openapi.yaml with
   ScoutState/IntelNode/DossierCard schemas; types regenerated.
-- **Known gaps**: new auto detectors
+- ~~**Known gaps**: new auto detectors
   steps_before/steps_after/workout_day_streak/sleep_nights stay
-  incomplete until the Health API intraday context is wired
-  (documented in services/bingo.ts).
+  incomplete until the Health API intraday context is wired~~ — **done
+  July 2026 (M11), see below.**
+
+### M11 — intraday detectors + design cut-list (July 2026, overnight session)
+
+**Intraday bingo auto-detectors are live** (67 tests, up from 59):
+- Migration `005_intraday_steps.sql`: `step_logs.steps_by_hour JSONB` —
+  a 24-int array (index = local hour), NULL = no intraday data that day.
+- `DayMetrics.steps_by_hour`: `MockFitbitClient` buckets its day total
+  through a fixed waking-day profile (`hourlySplit`, exported + tested —
+  sums exactly, deterministic, quiet 00:00–05:00); **`RealFitbitClient`
+  returns `null` deliberately** — the v4 docs only confirm the daily
+  rollup surface, so wire the hourly rollup after the sandbox smoke test.
+  Null buckets mean intraday tiles stay incomplete, never false-fire.
+- `evaluateDetector` implements `steps_before` / `steps_after` (sum of
+  hourly buckets before/after `detector.hour`), `workout_day_streak`
+  (ctx from a SQL streak query in `updateBingoCard`, same rows-present
+  semantics as `daily_target_streak`), and `sleep_nights` (N nights this
+  week ≥ `detector.hours`, ctx = the week's `sleep_minutes` rows).
+- **Bug fixed in passing**: `sleep_minutes` with `window:"weekend_day"`
+  ('8+ hours on a weekend night') used to fire on ANY day; it now
+  requires the log's weekday to be Sat/Sun (a night belongs to its
+  wake-up morning). Unit + integration covered.
+- Still stubbed (returns false): `bedtime_before` — needs a product call
+  on what counts as "before 11 P.M." when the bedtime is 1 A.M.
+- New suite `test/bingoIntraday.integration.test.ts`: sync persistence of
+  the buckets (incl. NULL), end-to-end tile completion through the real
+  SQL context, and the no-intraday negative case.
+
+**Design cut-list shipped** (all three items from the July polish pass):
+- Paper-grain: `--paper-grain` token (tokens/effects.css) — an inline-SVG
+  feTurbulence tint at ≤7% alpha, layered as the background-image over
+  tan fills on LandmarkCard (both variants incl. the confirmed
+  gradient-border trick), LandmarkTile, CallingCard, map postcard.
+  Collapses to `none` under `prefers-contrast: more`.
+- Corner brackets: `.sc-corners` utility (tokens/base.css) — 8-layer
+  gradient crop marks inset 3px on the panel's ::after; applied to map
+  console/routeSection/leaderboard, fieldops board/intelPanel,
+  predictionPanel, championPanel. Hidden under `prefers-contrast: more`.
+- Live status strip: `apps/web/lib/CaseStatusStrip.tsx` on the bottom
+  case lip (desktop only), left of the model engraving:
+  `OPERATIVE: <name> · WK OF <mm.dd> · SIGNAL: LOCK <hh:mm>` (or
+  SEARCHING / NO CARRIER) with a phosphor signal dot. Data from
+  `useSession()` only — no new queries. `aria-hidden` like the rest of
+  the chassis fiction (every fact is announced properly in-screen).
+- Verified: Lighthouse a11y 100 (map/fieldops/dossier), contrast 23/23,
+  no overflow at 390, strip hidden on mobile, tsc + both builds green.
 
 ## What is NOT done — next tasks in priority order
 
