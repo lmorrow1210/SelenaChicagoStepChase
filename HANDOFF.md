@@ -386,6 +386,32 @@ The One Step Ahead master brief + addendum landed a full rebrand, the
 - Verified: Lighthouse a11y 100 (map/fieldops/dossier), contrast 23/23,
   no overflow at 390, strip hidden on mobile, tsc + both builds green.
 
+**Professional-UX pass (same overnight session, second wave):**
+- **Demo toast bug fixed**: `demoMutation` now takes (path, body) and
+  flips `read` on the notifications fixture — before this the public
+  demo showed the same two "unread" toasts forever on every screen.
+  Fixtures stay in-memory: a fresh visit gets its toasts back once.
+- **Sidebar flyout**: the rail owns a fixed 60px of layout and the
+  hover/focus-expanded panel overlays the screen instead of reflowing
+  the entire page. Gotcha for later: `position: sticky` creates a
+  stacking context, so the host (`.sc-sidebarHost`) carries
+  `z-index: var(--z-nav)` — the nav's own z-index cannot rise above
+  later siblings. Sidebar also expands on keyboard focus now.
+- **Login rebuilt** as a mini field terminal (tan case, CRT well with
+  scanlines + tube vignette, Selena mugshot with AT LARGE stamp,
+  mission brief, lit-key button with hover/pressed states) — it was the
+  last v1-styled screen and the demo's front door.
+- **Terminal scrollbars** (base.css): `scrollbar-color` + webkit rules
+  so Windows/Linux scrollbars match the CRT.
+- **Per-screen document titles** (game layout effect) and a
+  **route-change CRT settle** ((game)/template.tsx, fade + phosphor
+  flare, killed under reduced motion).
+- **Nemesis pacing strip** cells use fluid clamp() type so the red
+  "BEHIND TODAY" line holds one line on phones (copy unchanged).
+- Build gotcha hit tonight: running `npm run build` while `next dev`
+  is serving corrupts `.next` (dev 500s afterwards) — stop the dev
+  server or delete `.next` before rebuilding dev.
+
 ## What is NOT done — next tasks in priority order
 
 1. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
