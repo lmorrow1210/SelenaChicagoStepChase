@@ -275,7 +275,19 @@ export function demoResponse<T>(path: string): T | null {
   return null;
 }
 
-/** POST/PATCH/DELETE in demo mode: succeed without doing anything. */
-export function demoMutation<T>(): T {
+/** POST/PATCH/DELETE in demo mode: succeed, with just enough in-memory
+    state that the UI behaves like production. Resets on reload — a fresh
+    demo visit gets its toasts back. */
+export function demoMutation<T>(path?: string, body?: BodyInit | null): T {
+  // Notification toasts auto-mark read after 5s; without this the demo
+  // showed the same two "unread" toasts forever, covering every screen.
+  if (path?.split("?")[0] === "/api/notifications/read" && typeof body === "string") {
+    try {
+      const ids: number[] = JSON.parse(body).ids ?? [];
+      for (const n of NOTIFICATIONS) if (ids.includes(n.id)) n.read = true;
+    } catch {
+      // malformed body — demo mutations still succeed silently
+    }
+  }
   return { ok: true } as T;
 }

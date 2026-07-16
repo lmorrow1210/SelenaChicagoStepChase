@@ -20,7 +20,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   // Static demo build (GitHub Pages): no backend — resolve baked fixtures.
   if (DEMO) {
     const method = (init?.method ?? "GET").toUpperCase();
-    if (method !== "GET") return demoMutation<T>();
+    if (method !== "GET") return demoMutation<T>(path, init?.body);
     const fixture = demoResponse<T>(path);
     if (fixture !== null) return fixture;
     throw new ApiError(404, "DEMO_MISS", `No demo fixture for ${path}`);

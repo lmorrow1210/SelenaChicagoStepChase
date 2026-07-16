@@ -27,6 +27,8 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
     <nav
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setHover(false); }}
       style={{
         width: expanded ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)',
         height: '100%', flex: 'none',

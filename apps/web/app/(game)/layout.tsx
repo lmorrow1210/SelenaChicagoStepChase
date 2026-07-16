@@ -51,6 +51,19 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
           min-height: 100dvh;
           position: sticky;
           top: var(--sp-0);
+          /* The rail owns a fixed 60px of layout; the hover-expanded panel
+             flies out OVER the screen instead of reflowing the whole page.
+             The z-index must live HERE: sticky creates a stacking context,
+             so the nav's own z-index can't rise above later siblings. */
+          width: var(--sidebar-collapsed);
+          flex: none;
+          z-index: var(--z-nav);
+        }
+        .sc-sidebarHost > :global(nav) {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
         }
         .sc-main {
           position: relative;

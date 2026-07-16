@@ -33,6 +33,28 @@ body {
 
 a { color: var(--phosphor); text-decoration: none; }
 
+/* ---- Scrollbars — part of the terminal, not the OS ----
+   Matters on Windows/Linux where scrollbars are opaque; macOS overlay
+   scrollbars are unaffected. Dim phosphor track/thumb, square corners. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--grid-line) var(--screen-base);
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--screen-base);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--grid-line);
+  border: 2px solid var(--screen-base);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--phosphor-dim);
+}
+
 /* ---- Mobile browser hygiene ---- */
 /* iOS Safari zooms the page when a focused field is under 16px. */
 input, select, textarea {
