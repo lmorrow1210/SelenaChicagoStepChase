@@ -285,6 +285,19 @@ export class RealFitbitClient implements FitbitClient {
       // partial sync: missing sleep is fine
     }
 
-    return { steps, workouts, sleep_minutes, bedtime, active_zone_minutes: azm, hr_zones };
+    // Intraday steps: the v4 docs only confirm the daily rollup surface; the
+    // hourly window shape is unverified until the sandbox smoke test. Null
+    // keeps intraday bingo detectors (steps_before/steps_after) incomplete
+    // on real data rather than false-firing — wire the hourly rollup here
+    // once the smoke test confirms the endpoint.
+    return {
+      steps,
+      workouts,
+      sleep_minutes,
+      bedtime,
+      active_zone_minutes: azm,
+      hr_zones,
+      steps_by_hour: null,
+    };
   }
 }

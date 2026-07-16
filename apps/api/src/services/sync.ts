@@ -15,8 +15,8 @@ export async function syncUserDay(
   await db.query(
     `INSERT INTO step_logs
        (user_id, log_date, steps, workouts, sleep_minutes, bedtime,
-        active_zone_minutes, hr_zones, synced_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+        active_zone_minutes, hr_zones, steps_by_hour, synced_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
      ON CONFLICT (user_id, log_date) DO UPDATE SET
        steps = EXCLUDED.steps,
        workouts = EXCLUDED.workouts,
@@ -24,6 +24,7 @@ export async function syncUserDay(
        bedtime = EXCLUDED.bedtime,
        active_zone_minutes = EXCLUDED.active_zone_minutes,
        hr_zones = EXCLUDED.hr_zones,
+       steps_by_hour = EXCLUDED.steps_by_hour,
        synced_at = now()`,
     [
       userId,
@@ -34,6 +35,7 @@ export async function syncUserDay(
       m.bedtime,
       m.active_zone_minutes,
       m.hr_zones ? JSON.stringify(m.hr_zones) : null,
+      m.steps_by_hour ? JSON.stringify(m.steps_by_hour) : null,
     ],
   );
 

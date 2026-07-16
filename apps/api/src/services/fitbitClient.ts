@@ -16,6 +16,10 @@ export interface DayMetrics {
   bedtime: string | null; // ISO datetime
   active_zone_minutes: number | null;
   hr_zones: Record<string, number> | null; // e.g. {fat_burn: 22, cardio: 9, peak: 0}
+  /** Hour-bucketed steps for the local day (24 ints summing to `steps`), or
+      null when the client has no intraday data — intraday bingo detectors
+      then stay incomplete rather than false-fire. */
+  steps_by_hour: number[] | null;
 }
 
 export interface FitbitClient {
@@ -54,6 +58,29 @@ export class MockFitbitClient implements FitbitClient {
       bedtime: `${date}T0${3 + r(3)}:1${r(9)}:00Z`,
       active_zone_minutes: workedOut ? 10 + r(50) : r(10),
       hr_zones: { fat_burn: r(40), cardio: r(15), peak: r(5) },
+      steps_by_hour: hourlySplit(steps, h),
     };
   }
+}
+
+/**
+ * Deterministically bucket a day total into 24 hourly counts that sum to
+ * exactly `total`: a fixed waking-day profile (commute / lunch / evening
+ * bumps, quiet nights), with the rounding remainder dropped round-robin
+ * starting at a seeded hour so different users differ slightly.
+ */
+export function hourlySplit(total: number, seed: number): number[] {
+  const profile = [0, 0, 0, 0, 0, 1, 2, 4, 6, 5, 4, 5, 6, 5, 4, 4, 5, 7, 8, 6, 4, 3, 2, 1];
+  const weight = profile.reduce((a, b) => a + b, 0);
+  const out = profile.map((w) => Math.floor((total * w) / weight));
+  let rem = total - out.reduce((a, b) => a + b, 0);
+  let i = Math.abs(seed) % 24;
+  while (rem > 0) {
+    if (profile[i] > 0) {
+      out[i]++;
+      rem--;
+    }
+    i = (i + 1) % 24;
+  }
+  return out;
 }

@@ -102,6 +102,9 @@ describe("RealFitbitClient against the verified Google Health API surface", () =
       bedtime: "2026-06-09T23:10:00Z",
       active_zone_minutes: 32,
       hr_zones: { fat_burn: 22, cardio: 9, peak: 1 },
+      // intraday stays null until the sandbox smoke test confirms the
+      // hourly rollup surface (intraday bingo detectors stay incomplete)
+      steps_by_hour: null,
     });
 
     const stepsCall = calls.find((c) => c.url.includes("steps/dataPoints:dailyRollUp"));

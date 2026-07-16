@@ -107,7 +107,50 @@ describe("evaluateDetector", () => {
   });
   it("unknown/un-evaluable metrics stay incomplete (false)", () => {
     expect(evaluateDetector({ metric: "nemesis_day_win" }, base)).toBe(false);
+    // no intraday buckets in ctx — steps_before must not false-fire
     expect(evaluateDetector({ metric: "steps_before", hour: 12, value: 7000 }, base)).toBe(false);
+    expect(evaluateDetector({ metric: "bedtime_before", hour: 23, nights: 2 }, base)).toBe(false);
+  });
+
+  it("M11 intraday: steps_before / steps_after over hourly buckets", () => {
+    // 500/hour from 06:00–17:59, zero elsewhere → 3,000 before noon, 3,000 after noon
+    const steps_by_hour = Array.from({ length: 24 }, (_, h) => (h >= 6 && h < 18 ? 500 : 0));
+    const ctx = { ...base, steps_by_hour };
+    expect(evaluateDetector({ metric: "steps_before", hour: 12, value: 3000 }, ctx)).toBe(true);
+    expect(evaluateDetector({ metric: "steps_before", hour: 12, value: 3001 }, ctx)).toBe(false);
+    expect(evaluateDetector({ metric: "steps_before", hour: 10, value: 2000 }, ctx)).toBe(true);
+    expect(evaluateDetector({ metric: "steps_after", hour: 18, value: 1 }, ctx)).toBe(false);
+    expect(evaluateDetector({ metric: "steps_after", hour: 12, value: 3000 }, ctx)).toBe(true);
+    // null buckets (real client without intraday) stay incomplete
+    expect(
+      evaluateDetector({ metric: "steps_before", hour: 12, value: 1 }, { ...base, steps_by_hour: null }),
+    ).toBe(false);
+  });
+
+  it("M11 multi-day: workout_day_streak and sleep_nights", () => {
+    expect(
+      evaluateDetector({ metric: "workout_day_streak", op: ">=", value: 2 }, { ...base, workout_day_streak: 2 }),
+    ).toBe(true);
+    expect(
+      evaluateDetector({ metric: "workout_day_streak", op: ">=", value: 3 }, { ...base, workout_day_streak: 2 }),
+    ).toBe(false);
+    expect(evaluateDetector({ metric: "workout_day_streak", op: ">=", value: 1 }, base)).toBe(false);
+
+    const week = { ...base, week_sleep_minutes: [430, 425, null, 300, 480] };
+    expect(evaluateDetector({ metric: "sleep_nights", hours: 7, op: ">=", value: 3 }, week)).toBe(true);
+    expect(evaluateDetector({ metric: "sleep_nights", hours: 7, op: ">=", value: 4 }, week)).toBe(false);
+    expect(evaluateDetector({ metric: "sleep_nights", hours: 8, op: ">=", value: 1 }, week)).toBe(true);
+    expect(evaluateDetector({ metric: "sleep_nights", hours: 7, op: ">=", value: 1 }, base)).toBe(false);
+  });
+
+  it("weekend sleep variant only fires on weekend logs", () => {
+    const det = { metric: "sleep_minutes", window: "weekend_day", op: ">=", value: 480 };
+    const slept = { ...base, sleep_minutes: 500 };
+    expect(evaluateDetector(det, { ...slept, weekday: 2 })).toBe(false); // Tuesday
+    expect(evaluateDetector(det, { ...slept, weekday: 6 })).toBe(true); // Saturday
+    expect(evaluateDetector(det, { ...slept, weekday: 7 })).toBe(true); // Sunday
+    // plain sleep_minutes (no window) is unaffected by weekday
+    expect(evaluateDetector({ metric: "sleep_minutes", op: ">=", value: 480 }, { ...slept, weekday: 2 })).toBe(true);
   });
 });
 

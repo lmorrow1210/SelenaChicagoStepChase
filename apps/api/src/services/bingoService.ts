@@ -84,7 +84,7 @@ export async function updateBingoCard(
 
   // Day-scoped step_log for context
   const logRow = await db.query(
-    `SELECT steps, workouts, sleep_minutes, active_zone_minutes, hr_zones
+    `SELECT steps, workouts, sleep_minutes, active_zone_minutes, hr_zones, steps_by_hour
      FROM step_logs WHERE user_id = $1 AND log_date = $2`,
     [userId, date],
   );
@@ -151,6 +151,31 @@ export async function updateBingoCard(
     [userId, date],
   );
 
+  // workout_day_streak: consecutive synced days ending at `date` with ≥1
+  // workout (same "rows present" semantics as daily_target_streak — an
+  // unsynced day neither breaks nor extends the streak).
+  const workoutStreakRow = await db.query(
+    `WITH ordered AS (
+       SELECT COALESCE(jsonb_array_length(workouts), 0) > 0 AS worked,
+              ROW_NUMBER() OVER (ORDER BY log_date DESC) AS rn
+       FROM step_logs
+       WHERE user_id = $1 AND log_date <= $2::date
+     )
+     SELECT COUNT(*)::int AS streak
+     FROM ordered
+     WHERE worked
+       AND rn < COALESCE((SELECT MIN(rn) FROM ordered WHERE NOT worked), 2147483647)`,
+    [userId, date],
+  );
+
+  // sleep_nights: this week's synced nights (sleep_minutes per night)
+  const weekSleepRows = await db.query(
+    `SELECT sleep_minutes FROM step_logs
+     WHERE user_id = $1 AND log_date BETWEEN $2::date AND $3::date
+     ORDER BY log_date`,
+    [userId, starts_on, ends_on],
+  );
+
   const log = logRow.rows[0];
   const ctx: DetectorContext = {
     steps: log ? Number(log.steps) : 0,
@@ -165,6 +190,11 @@ export async function updateBingoCard(
       ? Number(log?.steps ?? 0) >= Number(targetRow.rows[0].weekly_step_target) / 7
       : false,
     weekday: new Date(`${date}T00:00:00Z`).getUTCDay() || 7, // 1=Mon…7=Sun
+    steps_by_hour: log?.steps_by_hour ?? null,
+    workout_day_streak: workoutStreakRow.rows[0] ? Number(workoutStreakRow.rows[0].streak) : 0,
+    week_sleep_minutes: weekSleepRows.rows.map((r) =>
+      r.sleep_minutes == null ? null : Number(r.sleep_minutes),
+    ),
     // hot_pursuit: all group members worked out today
   };
 

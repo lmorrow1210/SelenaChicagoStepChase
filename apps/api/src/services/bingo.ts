@@ -134,6 +134,10 @@ export interface DetectorContext {
   hot_pursuit?: boolean;
   weekday?: number; // 1 = Monday … 7 = Sunday (ISO)
   hit_daily_target?: boolean;
+  // intraday + multi-night context (M11)
+  steps_by_hour?: number[] | null; // 24 hourly buckets; null = no intraday data
+  workout_day_streak?: number; // consecutive days ending today with ≥1 workout
+  week_sleep_minutes?: (number | null)[]; // sleep_minutes per synced night this week
 }
 
 function cmp(op: string, a: number, b: number): boolean {
@@ -167,6 +171,11 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
     case "active_zone_minutes":
       return ctx.active_zone_minutes != null && cmp(op, ctx.active_zone_minutes, value);
     case "sleep_minutes":
+      // weekend variant: a night belongs to the day it ends on (wake-up
+      // morning), so "a weekend night" = the log for Saturday or Sunday.
+      if (detector.window === "weekend_day" && ctx.weekday !== 6 && ctx.weekday !== 7) {
+        return false;
+      }
       return ctx.sleep_minutes != null && cmp(op, ctx.sleep_minutes, value);
     case "hr_zone_minutes":
       return ctx.hr_zones != null && cmp(op, ctx.hr_zones[detector.zone] ?? 0, value);
@@ -191,16 +200,37 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
     case "workout_duration":
       // M10 fine variant: any single workout of at least N minutes
       return ctx.workouts.some((w) => cmp(op, w.duration_min, value));
+    case "steps_before": {
+      // M11 intraday: steps logged in local hours [0, detector.hour).
+      // Null buckets = intraday unavailable — stay incomplete, never false-fire.
+      if (!ctx.steps_by_hour) return false;
+      const sum = ctx.steps_by_hour.slice(0, detector.hour).reduce((a, b) => a + b, 0);
+      return cmp(op, sum, value);
+    }
+    case "steps_after": {
+      // M11 intraday: steps logged in local hours [detector.hour, 24).
+      if (!ctx.steps_by_hour) return false;
+      const sum = ctx.steps_by_hour.slice(detector.hour).reduce((a, b) => a + b, 0);
+      return cmp(op, sum, value);
+    }
+    case "workout_day_streak":
+      // consecutive days (ending today) with at least one workout
+      return ctx.workout_day_streak != null && cmp(op, ctx.workout_day_streak, value);
+    case "sleep_nights": {
+      // N nights this week with at least `hours` of sleep
+      if (!ctx.week_sleep_minutes) return false;
+      const need = (detector.hours ?? 7) * 60;
+      const nights = ctx.week_sleep_minutes.filter((m) => m != null && m >= need).length;
+      return cmp(op, nights, value);
+    }
     case "honor":
       // Honor-system tiles never auto-complete — only the explicit
       // self-report endpoint (scoutService.honorComplete) marks them.
       return false;
     default:
-      // steps_before/steps_after, workout_day_streak, sleep_nights, and
-      // bedtime/weekend variants need intraday or multi-night context the
-      // sync pipeline doesn't carry yet — they stay incomplete rather than
-      // false-fire (documented in HANDOFF; wire when the Health API
-      // exposes intraday series).
+      // bedtime_before still needs a bedtime-vs-local-midnight product call
+      // (is a 1 A.M. bedtime "before 11 P.M."?) — it stays incomplete rather
+      // than false-fire.
       return false;
   }
 }
