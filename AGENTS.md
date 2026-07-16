@@ -121,7 +121,13 @@ https://lmorrow1210.github.io/SelenaChicagoStepChase/
 4. Product call: Saturday sudden-death tiebreak; Selena's blue-fedora costume
    vs the green/red palette.
 
-**Agent-workable backlog:** intraday auto-detectors
-(`steps_before/steps_after/workout_day_streak/sleep_nights`) are stubbed
-pending Health API intraday context (documented in
-`apps/api/src/services/bingo.ts`).
+**Agent-workable backlog:**
+- Intraday auto-detectors
+  (`steps_before/steps_after/workout_day_streak/sleep_nights`) are stubbed
+  pending Health API intraday context (documented in
+  `apps/api/src/services/bingo.ts`).
+- Design cut-list from the July 2026 "terminal case" polish pass (see
+  HANDOFF §Design-system v4 for the shipped case/bezel/lit-key work):
+  paper-grain texture on the tan printout cards, corner-bracket ticks on
+  panel frames, a live status-strip footer (operative / week / signal) on
+  the bottom case lip.
