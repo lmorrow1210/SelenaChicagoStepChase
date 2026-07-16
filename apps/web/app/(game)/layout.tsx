@@ -28,6 +28,12 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
             and high-contrast users. */}
         <div className="sc-screenFx" aria-hidden="true" />
       </main>
+      {/* Desktop chassis: a fixed tan bezel frame the screen scrolls under,
+          plus an engraved model line on the case lip. Pure fiction, no hit area. */}
+      <div className="sc-caseFrame" aria-hidden="true" />
+      <span className="sc-caseEngraving" aria-hidden="true">
+        ONE STEP AHEAD · MODEL OSA/86 · LOOP BUREAU FIELD EQUIPMENT
+      </span>
       <div className="sc-tabbarHost">
         <TabBar active={active} onNavigate={onNavigate} />
       </div>
@@ -48,6 +54,14 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
           flex: 1;
           min-width: var(--sp-0);
           padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
+          /* Phosphor ambience — the tube is warmer at center-top, never flat */
+          background:
+            radial-gradient(120% 80% at 50% 0%, rgba(var(--phosphor-glow), 0.045), transparent 62%),
+            var(--screen-base);
+        }
+        .sc-caseFrame,
+        .sc-caseEngraving {
+          display: none;
         }
         .sc-screenFx {
           position: absolute;
@@ -85,6 +99,42 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
           }
           .sc-main {
             padding-bottom: var(--sp-0);
+            /* clear the fixed bezel frame so nothing hides under the lip */
+            padding-top: 10px;
+            padding-right: 12px;
+          }
+          /* The screen sits recessed INTO the molded tan case: a fixed bezel
+             frame the content scrolls under (a monitor's bezel doesn't
+             scroll), with a case-shadow groove and deep inner lip shadow.
+             The sidebar chassis is the fourth side. */
+          .sc-caseFrame {
+            display: block;
+            position: fixed;
+            inset: 0;
+            left: var(--sidebar-collapsed);
+            pointer-events: none;
+            z-index: 50; /* over content, under nav chrome + toasts */
+            border-top: 10px solid var(--tan-300);
+            border-right: 12px solid var(--tan-400);
+            border-bottom: 24px solid var(--tan-500);
+            border-left: 0;
+            box-shadow:
+              inset 0 0 0 1px var(--case-shadow),
+              inset 0 2px 14px rgba(0, 0, 0, 0.6);
+          }
+          .sc-caseEngraving {
+            display: block;
+            position: fixed;
+            right: 20px;
+            bottom: 7px;
+            z-index: 51;
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            white-space: nowrap;
+            /* letterpress into the plastic */
+            color: var(--case-700);
+            text-shadow: 0 1px 0 rgba(241, 231, 204, 0.45);
           }
         }
       `}</style>

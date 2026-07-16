@@ -253,7 +253,8 @@ export default function MapPage() {
               <span className="telemetryNumber">{formatNumber(groupSteps)}</span>
             </div>
             {/* One reset clock everywhere — Sunday 11:59 PM */}
-            <SundayCountdown style={{ alignSelf: "center", justifySelf: "start" }} />
+            {/* stretch to match the group-steps well so the row reads as one rack */}
+            <SundayCountdown style={{ alignSelf: "stretch", alignItems: "center" }} />
           </div>
 
           <p className="syncCaption">Last sync {lastSyncedLabel(data.lastSyncedAt)}</p>
@@ -704,6 +705,14 @@ function MapStyles() {
         height: 12px;
         overflow: visible;
         pointer-events: none;
+      }
+      /* The vector assumes one row of pins; when the grid wraps (narrow
+         screens) the line would cut through the wrong row — pins + legend
+         carry the story alone there. */
+      @media (max-width: 767px) {
+        .routeVector {
+          display: none;
+        }
       }
       .routeLegend {
         display: flex;

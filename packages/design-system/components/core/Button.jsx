@@ -9,9 +9,12 @@ import Icon from '../icons/Icon.jsx';
 const VARIANTS = {
   primary: {
     background: 'var(--blue)',
-    color: 'var(--navy)',
+    color: 'var(--text-on-blue)',
     border: '1px solid transparent',
     fontWeight: 700,
+    /* a lit key: bright top lip + dark seat, matte face (no phosphor glow) */
+    boxShadow: 'inset 0 1px 0 var(--blue-hover), inset 0 -1px 0 rgba(0, 0, 0, 0.35)',
+    textShadow: 'none',
   },
   secondary: {
     background: 'transparent',
@@ -21,9 +24,11 @@ const VARIANTS = {
   },
   danger: {
     background: 'var(--red)',
-    color: 'var(--cream)',
+    color: 'var(--text-on-red)',
     border: '1px solid transparent',
     fontWeight: 700,
+    boxShadow: 'inset 0 1px 0 var(--red-hover), inset 0 -1px 0 rgba(0, 0, 0, 0.35)',
+    textShadow: 'none',
   },
   ghost: {
     background: 'transparent',
@@ -83,6 +88,8 @@ export function Button({
     background: hover && !isDisabled ? hoverBg : v.background,
     color: v.color,
     border: v.border,
+    boxShadow: press && !isDisabled ? 'inset 0 1px 3px rgba(0, 0, 0, 0.4)' : v.boxShadow,
+    textShadow: v.textShadow,
     width: fullWidth ? '100%' : undefined,
     opacity: isDisabled ? 0.45 : 1,
     transform: press && !isDisabled ? 'scale(0.97)' : 'scale(1)',

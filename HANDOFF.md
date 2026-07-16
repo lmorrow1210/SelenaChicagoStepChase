@@ -180,10 +180,18 @@ phosphor-green CRT screen; red reserved for stamps/threat/urgency/city-kickers.*
 - **Glow rule**: `base.css` gives body a phosphor `text-shadow`; **paper/tan
   surfaces set `text-shadow: none`** (LandmarkCard, LandmarkTile, CallingCard, Map
   postcard). If you add a tan "printout", set `textShadow: 'none'` on it.
-- **Chrome**: Sidebar/TabBar are `--tan-400` chassis with an inset green CRT well;
-  active nav = `--screen-600` fill + glowing `--phosphor-hot`. Scanline+vignette
-  overlay `.sc-screenFx` in the game layout is scoped to the screen area and gated
-  off for `prefers-reduced-motion`/`prefers-contrast: more`.
+- **Chrome**: Sidebar/TabBar are molded tan chassis (top-lit `--tan-300→--tan-500`
+  vertical gradients) with an inset green CRT well; active nav = `--screen-600`
+  fill + glowing `--phosphor-hot`. Scanline+vignette overlay `.sc-screenFx` in the
+  game layout is scoped to the screen area and gated off for
+  `prefers-reduced-motion`/`prefers-contrast: more`.
+- **The case (July 2026 polish pass)**: on desktop the screen sits recessed in a
+  fixed tan bezel frame (`.sc-caseFrame`, content scrolls under it) with an
+  engraved `MODEL OSA/86` line on the lip; the sidebar carries a matching
+  engraved model plate + fasteners. The screen background has a faint phosphor
+  radial ambience. All chassis fiction is `aria-hidden`. Mobile stays full-bleed
+  (the phone is the bezel). Primary/danger Buttons render as lit keys (bright
+  top lip, dark seat, matte text, pressed-in click state).
 - **Red discipline (§5)**: routine leaderboard/ledger deltas are `--phosphor-dim`
   (neg) / `--phosphor-hot` (pos); red only on stamps, Selena/threat, live urgency
   ("BEHIND TODAY", vanish timer), and landmark city kickers.

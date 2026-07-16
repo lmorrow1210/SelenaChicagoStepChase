@@ -30,12 +30,14 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
       style={{
         width: expanded ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)',
         height: '100%', flex: 'none',
-        /* Molded tan-plastic chassis — the field-terminal casing */
-        background: 'var(--tan-400)',
+        /* Molded tan-plastic chassis — light falls from above, so the case
+           runs light→dark down its height like a real injection molding. */
+        background:
+          'linear-gradient(180deg, var(--tan-300) 0%, var(--tan-400) 9%, var(--tan-400) 72%, var(--tan-500) 100%)',
         borderRight: '1px solid var(--case-shadow)',
         boxShadow: 'var(--bevel-raised-shadow)',
         display: 'flex', flexDirection: 'column',
-        padding: '12px 8px', gap: 10,
+        padding: '12px 8px 8px', gap: 10,
         transition: 'width var(--dur-base) var(--ease-out)',
         overflow: 'hidden',
         zIndex: 'var(--z-nav)',
@@ -158,7 +160,34 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
           opacity: expanded ? 1 : 0, transition: 'opacity var(--dur-fast)',
         }}>Operative file</span>
       </button>
+
+      {/* ── Engraved model plate + case fasteners (pure chassis fiction) ── */}
+      <div aria-hidden="true" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 6, padding: '2px 2px 0', flex: 'none', overflow: 'hidden',
+      }}>
+        <Fastener />
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 8, letterSpacing: '0.22em',
+          whiteSpace: 'nowrap',
+          /* letterpress: dark ink with a light lip below = engraved in plastic */
+          color: 'var(--case-700)',
+          textShadow: '0 1px 0 rgba(241, 231, 204, 0.45)',
+        }}>{expanded ? 'OSA/86 · FIELD TRACKER' : '86'}</span>
+        <Fastener />
+      </div>
     </nav>
+  );
+}
+
+/* A tiny recessed fastener — square (house corner rule), pressed into the case. */
+function Fastener() {
+  return (
+    <span style={{
+      width: 5, height: 5, flex: 'none',
+      background: 'var(--tan-500)',
+      boxShadow: 'inset 0.5px 0.5px 1px var(--case-shadow), 0 1px 0 rgba(241, 231, 204, 0.4)',
+    }} />
   );
 }
 

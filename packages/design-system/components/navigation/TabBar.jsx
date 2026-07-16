@@ -25,8 +25,9 @@ export function TabBar({ active = 'map', onNavigate, items = NAV, style }) {
         width: '100%',
         height: 'var(--tabbar-height)',
         paddingBottom: 'var(--safe-bottom)',
-        /* Molded tan-plastic command rail */
-        background: 'var(--tan-400)',
+        /* Molded tan-plastic command rail — top-lit like the sidebar chassis */
+        background:
+          'linear-gradient(180deg, var(--tan-300) 0%, var(--tan-400) 22%, var(--tan-400) 74%, var(--tan-500) 100%)',
         borderTop: '1px solid var(--case-shadow)',
         boxShadow: 'var(--bevel-raised-shadow)',
         zIndex: 'var(--z-nav)',
