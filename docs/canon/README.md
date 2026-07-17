@@ -37,23 +37,20 @@ repo is the memory.
 
 ## Open reconciliation items (for the narrative/copy audit)
 
-1. **Week 2 Detroit naming.** Shipped code + draft pack use chapter *"The Machine
-   Restarted"* / complication *"Assembly Line"*. The route table follows that.
-   The older bible proposed *"The Assembly Line"* / *"Moving Parts"* (a concrete
-   3-Field-Ops-category mechanic). Pick one; align the Detroit pack, the route
-   table, and `seasonOne.ts`. **(Still open — owner call.)**
-2. ~~**Week 11 chapter title** "The Missing Meridian" names parked lore.~~
-   **RESOLVED 2026-07-17:** renamed to **"True North"** in the route table and
-   `seasonOne.ts`.
-3. **Detroit landmarks mismatch.** The Detroit content pack lists 5 landmarks
-   (DIA, Belle Isle, Guardian Building, Eastern Market, Michigan Central); the
-   demo fixture (`apps/web/lib/demo.ts`, already shipped by Codex) uses a
-   different set (Michigan Central, Guardian, RiverWalk, Fisher Building, Belle
-   Isle Conservatory). Reconcile when Detroit is implemented.
-4. Weeks 3–13 closing lines are cleaned targets — finalize exact wording.
+1. Weeks 3–13 closing lines are cleaned targets — finalize exact wording when
+   each week's content pack is authored.
 
 ### Resolved in the 2026-07-17 audit
 
+- **Week 2 Detroit naming:** chapter *"The Machine Restarted"* / complication
+  *"Assembly Line"* (owner decision). Detroit pack, route table, and
+  `seasonOne.ts` all aligned.
+- **Detroit landmarks:** resolved to the five most well-known sites — Michigan
+  Central Station, Detroit Institute of Arts, Guardian Building, Motown Museum,
+  Renaissance Center. Content pack and demo fixture (`apps/web/lib/demo.ts`) now
+  match.
+- **Week 11 chapter title:** "The Missing Meridian" → **"True North"** in the
+  route table and `seasonOne.ts`.
 - Synced all 12 structural stubs (weeks 2–13) in `seasonOne.ts` to the route
   table's chapter titles + complication labels; stripped parked lore.
 - Removed player-facing "Meridian" from the map evidence card and the structural

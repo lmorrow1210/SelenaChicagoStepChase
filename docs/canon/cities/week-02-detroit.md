@@ -1,15 +1,13 @@
 # Week 2 — Detroit: The Machine Restarted
 
-**Status:** DRAFT — awaiting owner review + **audit reconciliation (item #1)**  
+**Status:** DRAFT — awaiting owner review of copy  
 **Implements:** `structuralWeek(2, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
 **Prerequisite:** Week 1 (Chicago) closes and hands off via the "machine restarted" teaser.
 
-> ⚠ **Naming reconciliation pending.** This pack uses chapter *"The Machine
-> Restarted"* / complication *"Assembly Line"* (matching shipped `seasonOne.ts`).
-> The older bible proposed *"The Assembly Line"* / *"Moving Parts"*. See
-> [`../season-one-route.md`](../season-one-route.md) note † and
-> [`../README.md`](../README.md) reconciliation item #1. Resolve in the copy audit
-> before this pack is implemented.
+> ✅ **Naming resolved (2026-07-17):** chapter *"The Machine Restarted"* /
+> complication *"Assembly Line"* (matches shipped `seasonOne.ts` and the route
+> table). Landmarks resolved to the five most well-known Detroit sites, synced
+> with the demo fixture.
 
 ---
 
@@ -65,13 +63,17 @@
 These are the five city intel tiles that unlock as the group earns scout tokens.
 Fun facts are the decode reward — they ship `null` until unlocked (spoiler rule).
 
+The five most well-known Detroit landmarks (owner decision, 2026-07-17). These
+match the shipped demo fixture (`apps/web/lib/demo.ts` `DETROIT_LANDMARKS`)
+exactly — keep them in sync.
+
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
-| 1 | Detroit Institute of Arts | The museum's Rivera Court murals depict auto workers at the Ford River Rouge plant — Detroit's industrial identity painted at full scale on the walls of a civic building. |
-| 2 | Belle Isle | An island park in the middle of the Detroit River, accessible by bridge. It contains a lighthouse, an aquarium, and a nature center — a working ecosystem inside a working city. |
-| 3 | Guardian Building | A 1929 skyscraper whose lobby is tiled in Pewabic pottery. The building's nickname is "Cathedral of Finance," though it was designed by an architect who thought buildings should feel alive. |
-| 4 | Eastern Market | One of the largest historic public markets in the country. On Saturday mornings it draws tens of thousands of people. Selena has been seen near the shed entrances twice. |
-| 5 | Michigan Central Station | Abandoned for thirty years, then restored. The main hall's windows were intact through the entire vacancy. Someone had been maintaining them. |
+| 1 | Michigan Central Station | Abandoned for nearly thirty years, it reopened in 2024 after a landmark restoration led by Ford. |
+| 2 | Detroit Institute of Arts | Diego Rivera's Detroit Industry Murals wrap an entire courtyard with scenes of the auto assembly line. |
+| 3 | Guardian Building | Its Art Deco lobby, tiled in Pewabic pottery, earned it the nickname 'Cathedral of Finance.' |
+| 4 | Motown Museum | The Motown sound was recorded in the converted house that Berry Gordy called Hitsville U.S.A. |
+| 5 | Renaissance Center | The riverfront towers of GM's headquarters are the tallest in Michigan and define Detroit's skyline. |
 
 ---
 
