@@ -1,7 +1,9 @@
 # AGENTS.md — One Step Ahead (The Search for Selena Chicago)
 
 Working guide for coding agents (Codex, Claude, etc.). **Read this first;
-`HANDOFF.md` holds the deep per-milestone history and file map.**
+`HANDOFF.md` holds the deep per-milestone history and file map.
+`CODEX-HANDOFF.md` (2026-07-16) holds the current queued work + the full
+Narrative DNA spec — read it before starting new feature work.**
 
 ## What this is
 
