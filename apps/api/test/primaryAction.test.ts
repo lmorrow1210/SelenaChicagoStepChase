@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectPrimaryAction, type PrimaryActionInput } from "../src/services/primaryAction.js";
+import { selectPrimaryAction, type PrimaryActionInput } from "@one-step-ahead/shared/season-one/primaryAction";
 
 const baseInput = (): PrimaryActionInput => ({
   dataConfidence: "verified",

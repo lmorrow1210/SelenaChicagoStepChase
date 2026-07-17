@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
-import { SEASON_ONE_CONFIG, getSeasonWeek } from "../config/seasonOne.js";
+import { SEASON_ONE_CONFIG, getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
-import { calculateChase } from "../services/chase.js";
-import { calculateDataConfidence } from "../services/dataConfidence.js";
-import { selectPrimaryAction } from "../services/primaryAction.js";
-import { calculateWeeklyPhase } from "../services/weeklyPhase.js";
+import { calculateChase } from "@one-step-ahead/shared/season-one/chase";
+import { calculateDataConfidence } from "@one-step-ahead/shared/season-one/dataConfidence";
+import { selectPrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
+import { calculateWeeklyPhase } from "@one-step-ahead/shared/season-one/weeklyPhase";
 
 export const weeksRouter = Router();
 weeksRouter.use(requireAuth);

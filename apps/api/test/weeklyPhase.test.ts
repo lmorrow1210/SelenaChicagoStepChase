@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateWeeklyPhase, type WeeklyPhaseInput } from "../src/services/weeklyPhase.js";
+import { calculateWeeklyPhase, type WeeklyPhaseInput } from "@one-step-ahead/shared/season-one/weeklyPhase";
 
 const baseInput = (): WeeklyPhaseInput => ({
   startsOn: "2026-06-08",

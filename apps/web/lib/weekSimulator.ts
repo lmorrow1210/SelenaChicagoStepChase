@@ -1,12 +1,12 @@
 import type { DataConfidence, WeekPhase, WeeklyOutcome } from "@one-step-ahead/shared";
-import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO } from "../../api/src/config/seasonOne";
-import { calculateChase } from "../../api/src/services/chase";
-import type { ChaseCalculationResult } from "../../api/src/services/chase";
-import { calculateDataConfidenceFromFreshness } from "../../api/src/services/dataConfidence";
-import type { TrackerSyncState } from "../../api/src/services/dataConfidence";
-import { selectPrimaryAction } from "../../api/src/services/primaryAction";
-import type { PrimaryAction } from "../../api/src/services/primaryAction";
-import { calculateWeeklyPhase } from "../../api/src/services/weeklyPhase";
+import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO } from "@one-step-ahead/shared/season-one/seasonOne";
+import { calculateChase, type ChaseCalculationResult } from "@one-step-ahead/shared/season-one/chase";
+import {
+  calculateDataConfidenceFromFreshness,
+  type TrackerSyncState,
+} from "@one-step-ahead/shared/season-one/dataConfidence";
+import { calculateWeeklyPhase } from "@one-step-ahead/shared/season-one/weeklyPhase";
+import { selectPrimaryAction, type PrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
 
 export const WEEK_SIMULATOR_PHASES: WeekPhase[] = [
   "briefing",

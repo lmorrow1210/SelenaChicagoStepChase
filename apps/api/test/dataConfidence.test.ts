@@ -3,7 +3,7 @@ import {
   calculateDataConfidence,
   calculateDataConfidenceFromFreshness,
   classifyTrackerFreshness,
-} from "../src/services/dataConfidence.js";
+} from "@one-step-ahead/shared/season-one/dataConfidence";
 
 const now = new Date("2026-06-10T18:00:00Z");
 

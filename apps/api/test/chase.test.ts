@@ -7,7 +7,7 @@ import {
   calculateSpecialOperationBonus,
   classifyWeeklyOutcome,
   type ChaseCalculationInput,
-} from "../src/services/chase.js";
+} from "@one-step-ahead/shared/season-one/chase";
 
 const baseInput = (): ChaseCalculationInput => ({
   activePlayers: [

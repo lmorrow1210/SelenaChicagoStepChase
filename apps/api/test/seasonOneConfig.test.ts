@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence, getSeasonWeek } from "../src/config/seasonOne.js";
+import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence, getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
 
 describe("Season One config", () => {
   it("contains all 13 config entries in route order", () => {
