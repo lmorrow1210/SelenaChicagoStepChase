@@ -377,7 +377,7 @@ describeDb("Week 1 case close integration", () => {
       cityName: "Chicago",
       outcome: "interception",
       standardEvidence: { unlocked: true, title: "THE BRASS DIAL" },
-      interceptClue: { unlocked: true, title: "ACCESS BEFORE ENTRY" },
+      interceptClue: { unlocked: true, title: "THE CALLING CARD" },
     });
     expect(board.interceptionCount).toBe(1);
     expect(board.weeks[1].standardEvidence.unlocked).toBe(false);

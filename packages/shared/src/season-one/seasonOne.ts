@@ -308,7 +308,7 @@ const structuralWeek = (
   nextCityTeaser: {
     cityName: nextCityName,
     header: nextCityName ? `NEXT: ${nextCityName.toUpperCase()}` : "SEASON FINALE",
-    body: nextCityName ? `The next Meridian signal points to ${nextCityName}.` : "The Season One file is ready for final review.",
+    body: nextCityName ? `The trail continues to ${nextCityName}.` : "The Season One file is ready for final review.",
     selena: nextCityName ? "Bring what you found." : "Now you understand the shape of it.",
     cta: nextCityName ? "Continue the pursuit" : "Review the season file",
   },
@@ -337,7 +337,7 @@ export const SEASON_ONE_CONFIG = {
         title: "CASE 01: THE LAKEFRONT JOB",
         body: [
           "At 4:18 AM, Selena Chicago entered a sealed infrastructure chamber beneath the city.",
-          "Eleven minutes later, a Meridian component was missing.",
+          "Eleven minutes later, a sealed brass component was missing.",
           "She was last seen moving toward the elevated lines. Your unit has been assigned to recover the component before she leaves Chicago.",
         ],
         supportingCards: [
@@ -380,8 +380,8 @@ export const SEASON_ONE_CONFIG = {
         interception: {
           headline: "SELENA INTERCEPTED",
           story: "{{groupName}} reached Selena before the train cleared the platform. For seventeen seconds, the pursuit was over.\n\nThe lights failed. When power returned, Selena was gone.",
-          selena: "Someone opened the Chicago node before I did. Ask your Bureau why.",
-          nextLead: "Access Before Entry was recovered with the Brass Dial.",
+          selena: "Seventeen seconds. That is the closest anyone has come to me. Remember the feeling — it does not repeat often.",
+          nextLead: "A calling card was recovered with the Brass Dial.",
         },
       },
       nextCityTeaser: {
@@ -392,18 +392,23 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(2, "Detroit", "The Machine Restarted", "Assembly Line", "Dormant Gear", "Unauthorized Restart", "Pittsburgh"),
-    structuralWeek(3, "Pittsburgh", "Steel Signal", "Bridge Pressure", "Steel Key", "Pressure Record", "Washington, D.C."),
-    structuralWeek(4, "Washington, D.C.", "The Redacted Mile", "Redaction", "Redacted Map", "Witness Timestamp", "Philadelphia"),
-    structuralWeek(5, "Philadelphia", "The First Ledger", "Ledger Gap", "Founding Ledger", "Altered Seal", "New York City"),
-    structuralWeek(6, "New York City", "Vertical Hold", "Signal Stack", "Stacked Relay", "Access Echo", "Boston"),
-    structuralWeek(7, "Boston", "Old Current", "Harbor Drift", "Harbor Key", "Archive Wake", "Savannah"),
-    structuralWeek(8, "Savannah", "The Missing Square", "Grid Shift", "Custodian Fragment", "Community List", "New Orleans"),
-    structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "Rhythmic Key", "Synthetic Pattern", "Austin"),
-    structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "Override Frequency", "Early Override", "Santa Fe"),
-    structuralWeek(11, "Santa Fe", "The Missing Meridian", "Alignment", "The Continental Overlay", "Fourteenth Pulse", "Los Angeles"),
-    structuralWeek(12, "Los Angeles", "Backlot System", "False Front", "Stage Door Key", "Scripted Pursuit", "San Francisco"),
-    structuralWeek(13, "San Francisco", "The Meridian Opens", "Final Layer", "Regional Map", "Global Meridian", ""),
+    // Weeks 2-13 are structural stubs; chapter title + complication label are
+    // synced to docs/canon/season-one-route.md (the authoritative roadmap) and
+    // stripped of parked Meridian lore. The 5th/6th args (evidence/intercept
+    // titles) are currently unused by structuralWeek; kept as cleaned
+    // placeholders. Each week is fully replaced when its content pack ships.
+    structuralWeek(2, "Detroit", "The Machine Restarted", "Assembly Line", "The Routing Diagram", "", "Pittsburgh"),
+    structuralWeek(3, "Pittsburgh", "Three Rivers, Two Trails", "Split Trail", "The Convergence Map", "", "Washington, D.C."),
+    structuralWeek(4, "Washington, D.C.", "The Monument Cipher", "Redacted Orders", "The Redacted Charter", "", "Philadelphia"),
+    structuralWeek(5, "Philadelphia", "The Liberty Exchange", "Shared Custody", "The Custodian Ledger", "", "New York City"),
+    structuralWeek(6, "New York City", "Five Borough Decoy", "False Positives", "The Identity Cascade", "", "Boston"),
+    structuralWeek(7, "Boston", "The Midnight Signal", "Signal Window", "The Continuity Protocol", "", "Savannah"),
+    structuralWeek(8, "Savannah", "The Garden of Shadows", "Unwritten Route", "The Missing Square", "", "New Orleans"),
+    structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "The Rhythmic Key", "", "Austin"),
+    structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "The Override Frequency", "", "Santa Fe"),
+    structuralWeek(11, "Santa Fe", "True North", "Alignment", "The Alignment Chart", "", "Los Angeles"),
+    structuralWeek(12, "Los Angeles", "The Moving Picture", "Edited Reality", "The Composite Record", "", "San Francisco"),
+    structuralWeek(13, "San Francisco", "One Step Ahead", "Final Convergence", "The Final Record", "", ""),
   ],
   evidence: [
     {
@@ -414,7 +419,7 @@ export const SEASON_ONE_CONFIG = {
       cityName: "Chicago",
       title: "THE BRASS DIAL",
       body: "A mechanical dial marked with thirteen positions. One position is engraved with Chicago's coordinates.",
-      basicBody: "A mechanical dial marked with thirteen positions was recovered near the Chicago node.",
+      basicBody: "A mechanical dial marked with thirteen positions was recovered near the sealed chamber beneath the city.",
       enhancedBody: "The Brass Dial shows recent use, fresh tool marks, and one position engraved with Chicago's coordinates.",
       iconKey: "dial",
     },
@@ -424,10 +429,10 @@ export const SEASON_ONE_CONFIG = {
       seasonId,
       weekNumber: 1,
       cityName: "Chicago",
-      title: "ACCESS BEFORE ENTRY",
-      body: "A surveillance photograph shows a credentialed Bureau figure entering the Chicago node before Selena arrived. The identity is obscured, but the timestamp is intact.",
-      highlightedFragment: "before Selena arrived",
-      iconKey: "credential",
+      title: "THE CALLING CARD",
+      body: "Left at the chamber entrance: a card showing one footprint set ahead of another. On the back, one handwritten line — 'You are faster than they told me.'",
+      highlightedFragment: "You are faster than they told me.",
+      iconKey: "card",
     },
     ...Array.from({ length: 12 }, (_, index) => {
       const week = index + 2;
