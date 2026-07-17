@@ -609,6 +609,7 @@ export interface paths {
                             countdown?: string | null;
                             /** Format: date-time */
                             lastSyncedAt?: string | null;
+                            seasonState?: components["schemas"]["CurrentWeekSeasonState"] | null;
                             /** @enum {string} */
                             state?: "in_progress" | "closing_soon" | "arrival" | "no_group";
                         };
@@ -1515,6 +1516,57 @@ export interface components {
             status?: "scheduled" | "active" | "closed";
             group_total_steps?: number | null;
             target_hit?: boolean | null;
+        };
+        /** @enum {string} */
+        WeeklyOutcome: "trail_lost" | "pursuit_maintained" | "close_encounter" | "interception";
+        /** @enum {string} */
+        WeekPhase: "briefing" | "active" | "midweek_update" | "final_push" | "sudden_death" | "case_closing" | "case_closed";
+        /** @enum {string} */
+        DataConfidence: "verified" | "estimated" | "incomplete" | "recalculating";
+        /** @enum {string} */
+        PrimaryActionId: "fix_sync" | "view_briefing" | "view_case_result" | "sudden_death" | "special_operation" | "submit_prediction" | "field_ops_near_reward" | "nemesis_close" | "daily_target" | "continue_pursuit";
+        CurrentWeekSeasonState: {
+            season: {
+                id: string;
+                title: string;
+                weekNumber: number;
+                totalWeeks: number;
+            };
+            chapter: {
+                city: string;
+                title: string;
+                complication?: string | null;
+                nextCity?: string | null;
+            };
+            phase: components["schemas"]["WeekPhase"];
+            dataConfidence: components["schemas"]["DataConfidence"];
+            chase: {
+                verifiedGroupSteps: number;
+                snapshottedTarget: number;
+                baseProgress: number;
+                fieldOpsBonus: number;
+                specialOperationBonus: number;
+                nemesisParticipationBonus: number;
+                predictionParticipationBonus: number;
+                totalNonStepBonus: number;
+                finalProgress: number;
+                remainingLead: number;
+                projectedOutcome: components["schemas"]["WeeklyOutcome"] | null;
+                finalOutcome: components["schemas"]["WeeklyOutcome"] | null;
+            };
+            primaryAction: {
+                id: components["schemas"]["PrimaryActionId"];
+                title: string;
+                body?: string;
+                href?: string;
+                priority: number;
+            };
+            sync: {
+                /** Format: date-time */
+                lastUpdatedAt: string | null;
+                incompletePlayerCount: number;
+                stalePlayerCount: number;
+            };
         };
         City: {
             id?: number;

@@ -342,6 +342,9 @@ paths:
                     type: string
                     format: date-time
                     nullable: true
+                  seasonState:
+                    allOf: [{ $ref: "#/components/schemas/CurrentWeekSeasonState" }]
+                    nullable: true
                   state:
                     type: string
                     enum: [in_progress, closing_soon, arrival, no_group]
@@ -953,6 +956,109 @@ components:
         status: { type: string, enum: [scheduled, active, closed] }
         group_total_steps: { type: integer, nullable: true }
         target_hit: { type: boolean, nullable: true }
+
+    WeeklyOutcome:
+      type: string
+      enum: [trail_lost, pursuit_maintained, close_encounter, interception]
+
+    WeekPhase:
+      type: string
+      enum: [briefing, active, midweek_update, final_push, sudden_death, case_closing, case_closed]
+
+    DataConfidence:
+      type: string
+      enum: [verified, estimated, incomplete, recalculating]
+
+    PrimaryActionId:
+      type: string
+      enum:
+        - fix_sync
+        - view_briefing
+        - view_case_result
+        - sudden_death
+        - special_operation
+        - submit_prediction
+        - field_ops_near_reward
+        - nemesis_close
+        - daily_target
+        - continue_pursuit
+
+    CurrentWeekSeasonState:
+      type: object
+      required: [season, chapter, phase, dataConfidence, chase, primaryAction, sync]
+      properties:
+        season:
+          type: object
+          required: [id, title, weekNumber, totalWeeks]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            weekNumber: { type: integer }
+            totalWeeks: { type: integer }
+        chapter:
+          type: object
+          required: [city, title]
+          properties:
+            city: { type: string }
+            title: { type: string }
+            complication: { type: string, nullable: true }
+            nextCity: { type: string, nullable: true }
+        phase:
+          $ref: "#/components/schemas/WeekPhase"
+        dataConfidence:
+          $ref: "#/components/schemas/DataConfidence"
+        chase:
+          type: object
+          required:
+            - verifiedGroupSteps
+            - snapshottedTarget
+            - baseProgress
+            - fieldOpsBonus
+            - specialOperationBonus
+            - nemesisParticipationBonus
+            - predictionParticipationBonus
+            - totalNonStepBonus
+            - finalProgress
+            - remainingLead
+            - projectedOutcome
+            - finalOutcome
+          properties:
+            verifiedGroupSteps: { type: integer }
+            snapshottedTarget: { type: integer }
+            baseProgress: { type: number }
+            fieldOpsBonus: { type: number }
+            specialOperationBonus: { type: number }
+            nemesisParticipationBonus: { type: number }
+            predictionParticipationBonus: { type: number }
+            totalNonStepBonus: { type: number }
+            finalProgress: { type: number }
+            remainingLead: { type: integer }
+            projectedOutcome:
+              allOf: [{ $ref: "#/components/schemas/WeeklyOutcome" }]
+              nullable: true
+            finalOutcome:
+              allOf: [{ $ref: "#/components/schemas/WeeklyOutcome" }]
+              nullable: true
+        primaryAction:
+          type: object
+          required: [id, title, priority]
+          properties:
+            id:
+              $ref: "#/components/schemas/PrimaryActionId"
+            title: { type: string }
+            body: { type: string }
+            href: { type: string }
+            priority: { type: integer }
+        sync:
+          type: object
+          required: [lastUpdatedAt, incompletePlayerCount, stalePlayerCount]
+          properties:
+            lastUpdatedAt:
+              type: string
+              format: date-time
+              nullable: true
+            incompletePlayerCount: { type: integer }
+            stalePlayerCount: { type: integer }
 
     City:
       type: object

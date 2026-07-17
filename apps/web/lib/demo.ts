@@ -24,10 +24,11 @@ const MEMBERS = [
   { user_id: "demo-jess", display_name: "Jess", avatar_skin: 4, avatar_hair: 6, avatar_colorway: 5 },
 ];
 
-const NY = { id: 2, name: "New York", country: "USA", route_order: 2, background_image: null, lat: 40.7128, lng: -74.006 };
 const CHICAGO = { id: 1, name: "Chicago", country: "USA", route_order: 1, background_image: null, lat: 41.8781, lng: -87.6298 };
-const DC = { id: 3, name: "Washington, D.C.", country: "USA", route_order: 3, background_image: null, lat: 38.9072, lng: -77.0369 };
-const LA = { id: 4, name: "Los Angeles", country: "USA", route_order: 4, background_image: null, lat: 34.0522, lng: -118.2437 };
+const DETROIT = { id: 2, name: "Detroit", country: "USA", route_order: 2, background_image: null, lat: 42.3314, lng: -83.0458 };
+const PITTSBURGH = { id: 3, name: "Pittsburgh", country: "USA", route_order: 3, background_image: null, lat: 40.4406, lng: -79.9959 };
+const DC = { id: 4, name: "Washington, D.C.", country: "USA", route_order: 4, background_image: null, lat: 38.9072, lng: -77.0369 };
+const NY = { id: 6, name: "New York City", country: "USA", route_order: 6, background_image: null, lat: 40.7128, lng: -74.006 };
 
 const NY_LANDMARKS = [
   { id: 11, day: 1, name: "Brooklyn Bridge", fun_fact: "When it opened in 1883 it was the longest suspension bridge in the world." },
@@ -105,7 +106,7 @@ function progressStrip() {
 }
 
 const WEEK = {
-  id: "demo-week-ny",
+  id: "demo-week-chicago",
   starts_on: "2026-06-08",
   ends_on: "2026-06-14",
   group_target_steps: 210000,
@@ -132,31 +133,73 @@ const FIXTURES: Record<string, unknown> = {
   },
   "/api/weeks/current": {
     week: WEEK,
-    city: NY,
-    nextCity: DC,
-    selenaLeadSteps: 13035,
+    city: CHICAGO,
+    nextCity: DETROIT,
+    selenaLeadSteps: 9885,
     route: [
-      { city_id: 1, name: "Chicago", visited: true },
-      { city_id: 2, name: "New York", visited: false },
-      { city_id: 3, name: "Washington, D.C.", visited: false },
-      { city_id: 4, name: "Los Angeles", visited: false },
+      { city_id: 1, name: "Chicago", visited: false },
+      { city_id: 2, name: "Detroit", visited: false },
+      { city_id: 3, name: "Pittsburgh", visited: false },
+      { city_id: 4, name: "Washington, D.C.", visited: false },
     ],
     progressStrip: progressStrip(),
     leaderboard: leaderboard(),
     countdown: "2026-06-15T05:00:00Z",
     lastSyncedAt: "2026-06-12T18:50:00Z",
+    seasonState: {
+      season: {
+        id: "season_one",
+        title: "The Lakefront Job",
+        weekNumber: 1,
+        totalWeeks: 13,
+      },
+      chapter: {
+        city: "Chicago",
+        title: "The Lakefront Job",
+        complication: "Cold Start",
+        nextCity: "Detroit",
+      },
+      phase: "final_push",
+      dataConfidence: "verified",
+      chase: {
+        verifiedGroupSteps: 196965,
+        snapshottedTarget: 210000,
+        baseProgress: 0.9379285714285714,
+        fieldOpsBonus: 0,
+        specialOperationBonus: 0,
+        nemesisParticipationBonus: 0.005,
+        predictionParticipationBonus: 0.01,
+        totalNonStepBonus: 0.015,
+        finalProgress: 0.9529285714285715,
+        remainingLead: 9885,
+        projectedOutcome: "close_encounter",
+        finalOutcome: null,
+      },
+      primaryAction: {
+        id: "continue_pursuit",
+        title: "Continue the pursuit",
+        body: "Every verified step closes the distance.",
+        href: "/map",
+        priority: 10,
+      },
+      sync: {
+        lastUpdatedAt: "2026-06-12T18:50:00Z",
+        incompletePlayerCount: 0,
+        stalePlayerCount: 0,
+      },
+    },
     state: "in_progress",
   },
   "/api/cities/current": {
-    city: NY,
-    landmarks: NY_LANDMARKS.map((l, i) => ({ ...l, image: null, state: NY_STATE[i] })),
+    city: CHICAGO,
+    landmarks: CHICAGO_LANDMARKS.map((l, i) => ({ ...l, image: null, state: NY_STATE[i] })),
     groupWorkout: {
       total_members: 3,
       worked_out_today: 2,
       members: MEMBERS.map((m, i) => ({ ...m, worked_out: i !== 0 })),
     },
   },
-  // Chicago is the completed trophy view.
+  // Historical trophy view retained for existing routes.
   "/api/cities/1": {
     city: CHICAGO,
     week: { starts_on: "2026-06-01", ends_on: "2026-06-07", group_target_steps: 210000, group_total_steps: 234500, target_hit: true },
@@ -166,7 +209,7 @@ const FIXTURES: Record<string, unknown> = {
   },
   "/api/predictions/current": {
     week: WEEK,
-    city: { name: "New York" },
+    city: { name: "Chicago" },
     myPrediction: {
       user_id: "demo-me", predicted_steps: 102000, submitted_at: "2026-06-08T14:00:00Z",
       actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
@@ -191,13 +234,13 @@ const FIXTURES: Record<string, unknown> = {
   "/api/fieldops": {
     card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
     scout: {
-      reconCity: { id: 3, name: "Washington, D.C.", country: "USA" },
+      reconCity: { id: 2, name: "Detroit", country: "USA" },
       teamTokens: 6,
       unlockedCount: 3,
       overflowBonus: 1,
       unlockedToday: true,
     },
-    reconCity: { id: 3, name: "Washington, D.C.", country: "USA" },
+    reconCity: { id: 2, name: "Detroit", country: "USA" },
     intel: [
       { id: 31, day: 1, name: "The Capitol Dome", fun_fact: "Her comm intercepts reference 'the iron dome that grew twice.'", image: null, unlocked: true, unlock_date: "2026-06-10", scouted_by_id: "demo-jess", scouted_by: "Jess" },
       { id: 32, day: 2, name: "Lincoln Memorial", fun_fact: "A courier saw a sky-blue fedora on the marble steps at dawn.", image: null, unlocked: true, unlock_date: "2026-06-11", scouted_by_id: "demo-me", scouted_by: "You" },

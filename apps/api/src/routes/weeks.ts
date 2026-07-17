@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
+import { SEASON_ONE_CONFIG, getSeasonWeek } from "../config/seasonOne.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
+import { calculateChase } from "../services/chase.js";
+import { calculateDataConfidence } from "../services/dataConfidence.js";
+import { selectPrimaryAction } from "../services/primaryAction.js";
+import { calculateWeeklyPhase } from "../services/weeklyPhase.js";
 
 export const weeksRouter = Router();
 weeksRouter.use(requireAuth);
@@ -24,7 +29,7 @@ interface WeekRow {
   starts_on: string;
   ends_on: string;
   group_target_steps: number;
-  status: "active" | "closed";
+  status: "scheduled" | "active" | "closed";
   city_id: number;
 }
 
@@ -89,6 +94,24 @@ function cityPayload(city: CityRow | null) {
   };
 }
 
+function seasonWeekForCity(city: CityRow | null) {
+  if (!city) return null;
+  const seasonWeek = getSeasonWeek(city.route_order);
+  return seasonWeek?.cityName === city.name ? seasonWeek : null;
+}
+
+function localDate(now: Date, timeZone: string): string {
+  const parts = localDateTimeParts(now, timeZone);
+  return `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+}
+
+function elapsedFractionOfWeek(week: WeekRow, timezone: string, now: Date): number {
+  const start = new Date(zonedMidnightToUtcIso(week.starts_on, timezone)).getTime();
+  const end = new Date(zonedMidnightToUtcIso(addDays(week.ends_on, 1), timezone)).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+  return Math.min(1, Math.max(0, (now.getTime() - start) / (end - start)));
+}
+
 function weekPayload(week: WeekRow) {
   return {
     id: week.id,
@@ -121,6 +144,7 @@ weeksRouter.get("/current", async (req, res, next) => {
         leaderboard: [],
         countdown: null,
         lastSyncedAt: null,
+        seasonState: null,
         state: "no_group",
       });
       return;
@@ -157,13 +181,14 @@ weeksRouter.get("/current", async (req, res, next) => {
         leaderboard: [],
         countdown: null,
         lastSyncedAt: null,
+        seasonState: null,
         state: "no_group",
       });
       return;
     }
 
     const week = weekResult.rows[0] as WeekRow;
-    const [cities, members, lastSync] = await Promise.all([
+    const [cities, members, lastSync, fieldOps, prediction, nemesis] = await Promise.all([
       pool.query<CityRow>(
         `SELECT id, name, country, route_order, lat, lng
          FROM cities
@@ -176,6 +201,8 @@ weeksRouter.get("/current", async (req, res, next) => {
                 u.avatar_hair,
                 u.avatar_colorway,
                 u.weekly_step_target AS target,
+                u.fitbit_connected,
+                u.last_synced_at,
                 COALESCE(cur.steps, 0)::int AS steps,
                 COALESCE(prev.steps, 0)::int AS previous_steps
          FROM users u
@@ -199,6 +226,28 @@ weeksRouter.get("/current", async (req, res, next) => {
       pool.query("SELECT MAX(last_synced_at) AS last_synced_at FROM users WHERE group_id = $1", [
         groupId,
       ]),
+      pool.query(
+        `SELECT COALESCE(SUM(bingo_lines), 0)::int AS total_qualifying_lines
+         FROM bingo_cards
+         WHERE week_id = $1`,
+        [week.id],
+      ),
+      pool.query(
+        `SELECT COUNT(*)::int AS submitted_count,
+                BOOL_OR(user_id = $2) AS submitted_by_viewer
+         FROM predictions
+         WHERE week_id = $1`,
+        [week.id, req.userId],
+      ),
+      pool.query(
+        `SELECT
+           COUNT(*)::int AS matchup_count,
+           COUNT(*) FILTER (WHERE status = 'tiebreak')::int AS tiebreak_count,
+           COUNT(*) FILTER (WHERE status IN ('active', 'tiebreak'))::int AS unresolved_count
+         FROM nemesis_matchups
+         WHERE week_id = $1`,
+        [week.id],
+      ),
     ]);
 
     const currentCity = cities.rows.find((city) => city.id === week.city_id) ?? null;
@@ -206,14 +255,127 @@ weeksRouter.get("/current", async (req, res, next) => {
       cities.rows.find((city) => city.route_order === (currentCity?.route_order ?? 0) + 1) ??
       null;
     const groupSteps = members.rows.reduce((sum, member) => sum + Number(member.steps), 0);
+    const now = new Date();
     const countdown = zonedMidnightToUtcIso(addDays(week.ends_on, 1), timezone);
-    const msUntilEnd = new Date(countdown).getTime() - Date.now();
+    const msUntilEnd = new Date(countdown).getTime() - now.getTime();
     const state =
       week.status === "closed" && msUntilEnd <= 0 && Math.abs(msUntilEnd) <= ONE_HOUR_MS
         ? "arrival"
         : week.status === "active" && msUntilEnd > 0 && msUntilEnd < ONE_DAY_MS
           ? "closing_soon"
           : "in_progress";
+    const dataConfidence = calculateDataConfidence({
+      now,
+      trackers: members.rows.map((member) => ({
+        userId: member.user_id as string,
+        fitbitConnected: Boolean(member.fitbit_connected),
+        lastSyncedAt: member.last_synced_at ?? null,
+      })),
+    });
+    const totalQualifyingLines = Number(fieldOps.rows[0]?.total_qualifying_lines ?? 0);
+    const submittedCount = Number(prediction.rows[0]?.submitted_count ?? 0);
+    const activePlayerCount = members.rowCount ?? members.rows.length;
+    const viewerSubmittedPrediction = Boolean(prediction.rows[0]?.submitted_by_viewer);
+    const suddenDeathActive = Number(nemesis.rows[0]?.tiebreak_count ?? 0) > 0;
+    const matchupCount = Number(nemesis.rows[0]?.matchup_count ?? 0);
+    const unresolvedNemesisCount = Number(nemesis.rows[0]?.unresolved_count ?? 0);
+    const membersWithActivity = members.rows.filter((member) => Number(member.steps) > 0).length;
+    const chase = calculateChase({
+      activePlayers: members.rows.map((member) => ({
+        userId: member.user_id as string,
+        weeklyTarget: Number(member.target),
+        stepsThisWeek: Number(member.steps),
+        lastSyncedAt: member.last_synced_at ?? null,
+        fitbitConnected: Boolean(member.fitbit_connected),
+      })),
+      fieldOps: { activePlayerCount, totalQualifyingLines },
+      // Platform Sweep is not implemented yet, so the special-operation bonus
+      // remains a truthful zero until that read-only service exists.
+      specialOperation: { maxBonus: 0.03, earnedBonus: 0, contributors: 0, eligiblePlayers: activePlayerCount },
+      nemesis: {
+        activePlayerCount,
+        participantsWithActivity: membersWithActivity,
+        allMatchupsResolved: matchupCount > 0 && unresolvedNemesisCount === 0,
+      },
+      prediction: { activePlayerCount, submittedCount },
+      trackerSync: dataConfidence.trackers,
+      elapsedFractionOfWeek: elapsedFractionOfWeek(week, timezone, now),
+      now,
+      groupWeeklyTargetSnapshot: Number(week.group_target_steps),
+      dataConfidence: dataConfidence.dataConfidence,
+      final: week.status === "closed",
+    });
+    const phaseResult = calculateWeeklyPhase({
+      startsOn: week.starts_on,
+      endsOn: week.ends_on,
+      timezone,
+      weekStatus: week.status,
+      finalOutcome: chase.finalOutcome,
+      finalizedAt: null,
+      dataConfidence: dataConfidence.dataConfidence,
+      briefingViewed: true,
+      midweekViewed: true,
+      finalPushViewed: true,
+      caseClosedViewed: true,
+      suddenDeathActive,
+      now,
+    });
+    const incompletePlayerCount =
+      dataConfidence.counts.stale + dataConfidence.counts.missing + dataConfidence.counts.disconnected;
+    const stalePlayerCount = dataConfidence.counts.stale;
+    const seasonWeek = seasonWeekForCity(currentCity);
+    const seasonState = seasonWeek
+      ? {
+          season: {
+            id: SEASON_ONE_CONFIG.id,
+            title: SEASON_ONE_CONFIG.title,
+            weekNumber: seasonWeek.weekNumber,
+            totalWeeks: SEASON_ONE_CONFIG.route.length,
+          },
+          chapter: {
+            city: seasonWeek.cityName,
+            title: seasonWeek.chapterTitle,
+            complication: seasonWeek.complication.label,
+            nextCity: seasonWeek.nextCityTeaser.cityName || null,
+          },
+          phase: phaseResult.phase,
+          dataConfidence: dataConfidence.dataConfidence,
+          chase: {
+            verifiedGroupSteps: chase.verifiedGroupSteps,
+            snapshottedTarget: chase.groupWeeklyTarget,
+            baseProgress: chase.baseProgress,
+            fieldOpsBonus: chase.bonuses.fieldOps,
+            specialOperationBonus: chase.bonuses.specialOperation,
+            nemesisParticipationBonus: chase.bonuses.nemesisParticipation,
+            predictionParticipationBonus: chase.bonuses.predictionParticipation,
+            totalNonStepBonus: chase.bonuses.total,
+            finalProgress: chase.finalProgress,
+            remainingLead: chase.remainingLead,
+            projectedOutcome: chase.projectedOutcome,
+            finalOutcome: chase.finalOutcome,
+          },
+          primaryAction: selectPrimaryAction({
+            dataConfidence: dataConfidence.dataConfidence,
+            incompletePlayerCount,
+            // No ritual persistence exists in this phase, so do not invent
+            // briefing-view state for the selector.
+            briefingAvailable: false,
+            caseResultAvailable: false,
+            phase: phaseResult.phase,
+            suddenDeathActive,
+            specialOperationActive: false,
+            predictionActionAvailable: localDate(now, timezone) === week.starts_on && !viewerSubmittedPrediction,
+            fieldOpsNearReward: false,
+            nemesisClose: false,
+            dailyTargetWithinReach: false,
+          }),
+          sync: {
+            lastUpdatedAt: lastSync.rows[0]?.last_synced_at?.toISOString?.() ?? null,
+            incompletePlayerCount,
+            stalePlayerCount,
+          },
+        }
+      : null;
 
     const progressStrip = members.rows.map((member) => {
       const steps = Number(member.steps);
@@ -245,7 +407,7 @@ weeksRouter.get("/current", async (req, res, next) => {
       week: weekPayload(week),
       city: cityPayload(currentCity),
       nextCity: cityPayload(nextCity),
-      selenaLeadSteps: Math.max(week.group_target_steps - groupSteps, SELENA_MIN_LEAD_STEPS),
+      selenaLeadSteps: seasonState ? seasonState.chase.remainingLead : Math.max(week.group_target_steps - groupSteps, SELENA_MIN_LEAD_STEPS),
       route: cities.rows.map((city) => ({
         city_id: city.id,
         name: city.name,
@@ -255,6 +417,7 @@ weeksRouter.get("/current", async (req, res, next) => {
       leaderboard,
       countdown,
       lastSyncedAt: lastSync.rows[0]?.last_synced_at?.toISOString?.() ?? null,
+      seasonState,
       state,
     });
   } catch (e) {
