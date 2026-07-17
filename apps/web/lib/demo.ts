@@ -4,6 +4,8 @@
 // build so friends can click through every screen. No real data, no tokens.
 
 import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence } from "@one-step-ahead/shared/season-one/seasonOne";
+import { calculateChase } from "@one-step-ahead/shared/season-one/chase";
+import { calculateParticipationThreshold } from "@one-step-ahead/shared/season-one/specialOperations";
 import type { WeeklyOutcome } from "@one-step-ahead/shared";
 
 export const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
@@ -30,18 +32,9 @@ const MEMBERS = [
 const CHICAGO = { id: 1, name: "Chicago", country: "USA", route_order: 1, background_image: null, lat: 41.8781, lng: -87.6298 };
 const DETROIT = { id: 2, name: "Detroit", country: "USA", route_order: 2, background_image: null, lat: 42.3314, lng: -83.0458 };
 const PITTSBURGH = { id: 3, name: "Pittsburgh", country: "USA", route_order: 3, background_image: null, lat: 40.4406, lng: -79.9959 };
-const DC = { id: 4, name: "Washington, D.C.", country: "USA", route_order: 4, background_image: null, lat: 38.9072, lng: -77.0369 };
-const NY = { id: 6, name: "New York City", country: "USA", route_order: 6, background_image: null, lat: 40.7128, lng: -74.006 };
 
-const NY_LANDMARKS = [
-  { id: 11, day: 1, name: "Brooklyn Bridge", fun_fact: "When it opened in 1883 it was the longest suspension bridge in the world." },
-  { id: 12, day: 2, name: "Central Park", fun_fact: "It's entirely man-made — every pond, hill, and meadow was designed." },
-  { id: 13, day: 3, name: "Times Square", fun_fact: "Named for The New York Times, which moved there in 1904." },
-  { id: 14, day: 4, name: "Statue of Liberty", fun_fact: "Her full name is 'Liberty Enlightening the World.'" },
-  { id: 15, day: 5, name: "Empire State Building", fun_fact: "It has its own ZIP code: 10118." },
-  { id: 16, day: 6, name: "High Line", fun_fact: "Built on an abandoned elevated freight rail line." },
-  { id: 17, day: 7, name: "Grand Central", fun_fact: "The ceiling's constellations are painted backwards." },
-];
+const MEMBER_WEEK_STEPS = [50058, 67845, 79062];
+const DEMO_GROUP_STEPS = MEMBER_WEEK_STEPS.reduce((sum, steps) => sum + steps, 0);
 
 const CHICAGO_LANDMARKS = [
   { id: 1, day: 1, name: "Cloud Gate", fun_fact: "Locals call it 'The Bean.' It has no visible seams." },
@@ -53,7 +46,15 @@ const CHICAGO_LANDMARKS = [
   { id: 7, day: 7, name: "Buckingham Fountain", fun_fact: "One of the largest fountains in the world." },
 ];
 
-const NY_STATE = ["unlocked", "unlocked", "unlocked", "unlocked", "today", "locked", "locked"];
+const DETROIT_LANDMARKS = [
+  { id: 21, day: 1, name: "Michigan Central Station", fun_fact: "The restored station reopened as a mobility innovation hub after decades of silence." },
+  { id: 22, day: 2, name: "Guardian Building", fun_fact: "Its Art Deco tilework earned it the nickname Cathedral of Finance." },
+  { id: 23, day: 3, name: "RiverWalk", fun_fact: "The riverfront path traces old industrial edges now turned into public lookout points." },
+  { id: 24, day: 4, name: "Fisher Building", fun_fact: "Its lobby glows with marble, mosaics, and one of Detroit's grandest theatrical entrances." },
+  { id: 25, day: 5, name: "Belle Isle Conservatory", fun_fact: "The island greenhouse has watched over the Detroit River for more than a century." },
+];
+
+const CHICAGO_LANDMARK_STATE = ["unlocked", "unlocked", "unlocked", "unlocked", "today", "locked", "locked"];
 
 // The fixed Week 1 Chicago board (migration 008 definitions): 24 configured
 // tiles + the free space, in the shared deterministic layout's spirit.
@@ -100,7 +101,7 @@ function bingoTiles() {
 
 const NOTIFICATIONS = [
   { id: 1, kind: "beat", message: "Every operative in motion. She's checking over her shoulder.", read: false, created_at: "2026-06-12T18:15:00Z" },
-  { id: 2, kind: "achievement", message: "You unlocked the Statue of Liberty!", read: false, created_at: "2026-06-12T18:00:00Z" },
+  { id: 2, kind: "achievement", message: "Field Ops confirmed a Detroit lead.", read: false, created_at: "2026-06-12T18:00:00Z" },
   { id: 3, kind: "social", message: "Maya just passed you on the leaderboard.", read: false, created_at: "2026-06-12T15:30:00Z" },
 ];
 
@@ -114,7 +115,7 @@ function leaderboard() {
 
 function progressStrip() {
   return MEMBERS.map((m, i) => {
-    const steps = [50058, 67845, 79062][i];
+    const steps = MEMBER_WEEK_STEPS[i];
     return { ...m, steps, target: 70000, pct: Math.min(100, Math.round((steps / 70000) * 100)) };
   });
 }
@@ -127,7 +128,38 @@ const WEEK = {
   status: "active" as const,
 };
 
-const DEMO_OUTCOME: WeeklyOutcome = "close_encounter";
+const DEMO_PLATFORM_SWEEP = calculateParticipationThreshold(WEEK_ONE_CHICAGO.specialOperation, {
+  contributors: 2,
+  eligiblePlayers: MEMBERS.length,
+  active: true,
+});
+
+const DEMO_CHASE = calculateChase({
+  activePlayers: MEMBERS.map((member, index) => ({
+    userId: member.user_id,
+    weeklyTarget: 70000,
+    stepsThisWeek: MEMBER_WEEK_STEPS[index],
+    lastSyncedAt: new Date(ME.last_synced_at),
+    fitbitConnected: true,
+  })),
+  fieldOps: { activePlayerCount: MEMBERS.length, totalQualifyingLines: 6 },
+  specialOperation: {
+    maxBonus: DEMO_PLATFORM_SWEEP.maxBonus,
+    earnedBonus: DEMO_PLATFORM_SWEEP.earnedBonus,
+    contributors: DEMO_PLATFORM_SWEEP.contributors,
+    eligiblePlayers: DEMO_PLATFORM_SWEEP.eligiblePlayers,
+  },
+  nemesis: { activePlayerCount: MEMBERS.length, participantsWithActivity: MEMBERS.length, allMatchupsResolved: false },
+  prediction: { activePlayerCount: MEMBERS.length, submittedCount: 1 },
+  trackerSync: MEMBERS.map((member) => ({ userId: member.user_id, freshness: "current" as const })),
+  elapsedFractionOfWeek: 1,
+  now: new Date("2026-06-12T18:50:00.000Z"),
+  groupWeeklyTargetSnapshot: WEEK.group_target_steps,
+  dataConfidence: "verified",
+  final: false,
+});
+
+const DEMO_OUTCOME: WeeklyOutcome | null = null;
 
 function evidenceSlot(evidenceId: string, kind: "standard" | "intercept", unlocked: boolean) {
   const evidence = getEvidence(evidenceId);
@@ -159,7 +191,7 @@ function evidenceBoard() {
         cityName: week.cityName,
         chapterTitle: week.chapterTitle,
         outcome: weekOne ? DEMO_OUTCOME : null,
-        standardEvidence: evidenceSlot(week.evidence.standardEvidenceId, "standard", weekOne),
+        standardEvidence: evidenceSlot(week.evidence.standardEvidenceId, "standard", false),
         interceptClue: evidenceSlot(week.evidence.interceptClueId, "intercept", false),
       };
     }),
@@ -188,7 +220,7 @@ const FIXTURES: Record<string, unknown> = {
     week: WEEK,
     city: CHICAGO,
     nextCity: DETROIT,
-    selenaLeadSteps: 9885,
+    selenaLeadSteps: DEMO_CHASE.remainingLead,
     route: [
       { city_id: 1, name: "Chicago", visited: false },
       { city_id: 2, name: "Detroit", visited: false },
@@ -215,17 +247,17 @@ const FIXTURES: Record<string, unknown> = {
       phase: "final_push",
       dataConfidence: "verified",
       chase: {
-        verifiedGroupSteps: 196965,
-        snapshottedTarget: 210000,
-        baseProgress: 0.9379285714285714,
-        fieldOpsBonus: 0,
-        specialOperationBonus: 0,
-        nemesisParticipationBonus: 0.005,
-        predictionParticipationBonus: 0.01,
-        totalNonStepBonus: 0.015,
-        finalProgress: 0.9529285714285715,
-        remainingLead: 9885,
-        projectedOutcome: "close_encounter",
+        verifiedGroupSteps: DEMO_CHASE.verifiedGroupSteps,
+        snapshottedTarget: DEMO_CHASE.groupWeeklyTarget,
+        baseProgress: DEMO_CHASE.baseProgress,
+        fieldOpsBonus: DEMO_CHASE.bonuses.fieldOps,
+        specialOperationBonus: DEMO_CHASE.bonuses.specialOperation,
+        nemesisParticipationBonus: DEMO_CHASE.bonuses.nemesisParticipation,
+        predictionParticipationBonus: DEMO_CHASE.bonuses.predictionParticipation,
+        totalNonStepBonus: DEMO_CHASE.bonuses.total,
+        finalProgress: DEMO_CHASE.finalProgress,
+        remainingLead: DEMO_CHASE.remainingLead,
+        projectedOutcome: DEMO_CHASE.projectedOutcome,
         finalOutcome: null,
       },
       primaryAction: {
@@ -246,15 +278,7 @@ const FIXTURES: Record<string, unknown> = {
         dataConfidence: "verified",
       },
       platformSweep: {
-        id: WEEK_ONE_CHICAGO.specialOperation.id,
-        label: WEEK_ONE_CHICAGO.specialOperation.label,
-        active: true,
-        contributors: 2,
-        eligiblePlayers: 3,
-        minimumVerifiedStepsPerPlayer: WEEK_ONE_CHICAGO.specialOperation.minimumVerifiedStepsPerPlayer,
-        earnedBonus: 0.02,
-        maxBonus: 0.03,
-        nextThresholdCount: 3,
+        ...DEMO_PLATFORM_SWEEP,
       },
       evidencePreview: {
         standardEvidenceId: WEEK_ONE_CHICAGO.evidence.standardEvidenceId,
@@ -279,7 +303,7 @@ const FIXTURES: Record<string, unknown> = {
   },
   "/api/cities/current": {
     city: CHICAGO,
-    landmarks: CHICAGO_LANDMARKS.map((l, i) => ({ ...l, image: null, state: NY_STATE[i] })),
+    landmarks: CHICAGO_LANDMARKS.map((l, i) => ({ ...l, image: null, state: CHICAGO_LANDMARK_STATE[i] })),
     groupWorkout: {
       total_members: 3,
       worked_out_today: 2,
@@ -298,17 +322,14 @@ const FIXTURES: Record<string, unknown> = {
     week: WEEK,
     city: { name: "Chicago" },
     myPrediction: {
-      user_id: "demo-me", predicted_steps: 102000, submitted_at: "2026-06-08T14:00:00Z",
+      user_id: "demo-me", predicted_steps: 205000, submitted_at: "2026-06-08T14:00:00Z",
       actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
     },
-    others: [
-      { user_id: "demo-maya", predicted_steps: 109000, submitted_at: "2026-06-08T15:00:00Z", actual_delta: null, is_winner: false, display_name: "Maya", avatar_skin: 2, avatar_hair: 3, avatar_colorway: 2 },
-      { user_id: "demo-jess", predicted_steps: 116000, submitted_at: "2026-06-08T16:00:00Z", actual_delta: null, is_winner: false, display_name: "Jess", avatar_skin: 4, avatar_hair: 6, avatar_colorway: 5 },
-    ],
-    allSubmitted: true,
-    liveGroupTotal: 196965,
-    revealAt: "2026-06-08T17:00:00Z",
-    state: "revealed",
+    others: "hidden",
+    allSubmitted: false,
+    liveGroupTotal: DEMO_GROUP_STEPS,
+    revealAt: "2026-06-15T04:59:00Z",
+    state: "partial",
     submissionOpen: false,
   },
   "/api/bingo/current": {
@@ -329,11 +350,11 @@ const FIXTURES: Record<string, unknown> = {
     },
     reconCity: { id: 2, name: "Detroit", country: "USA" },
     intel: [
-      { id: 31, day: 1, name: "The Capitol Dome", fun_fact: "Her comm intercepts reference 'the iron dome that grew twice.'", image: null, unlocked: true, unlock_date: "2026-06-10", scouted_by_id: "demo-jess", scouted_by: "Jess" },
-      { id: 32, day: 2, name: "Lincoln Memorial", fun_fact: "A courier saw a sky-blue fedora on the marble steps at dawn.", image: null, unlocked: true, unlock_date: "2026-06-11", scouted_by_id: "demo-me", scouted_by: "You" },
-      { id: 33, day: 3, name: "The Washington Monument", fun_fact: "Its shadow marks a dead-drop only at 12 noon.", image: null, unlocked: true, unlock_date: "2026-06-12", scouted_by_id: "demo-maya", scouted_by: "Maya" },
-      { id: 34, day: 4, name: "Smithsonian Castle", fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
-      { id: 35, day: 5, name: "Georgetown Canal", fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
+      { ...DETROIT_LANDMARKS[0], image: null, unlocked: true, unlock_date: "2026-06-10", scouted_by_id: "demo-jess", scouted_by: "Jess" },
+      { ...DETROIT_LANDMARKS[1], image: null, unlocked: true, unlock_date: "2026-06-11", scouted_by_id: "demo-me", scouted_by: "You" },
+      { ...DETROIT_LANDMARKS[2], image: null, unlocked: true, unlock_date: "2026-06-12", scouted_by_id: "demo-maya", scouted_by: "Maya" },
+      { ...DETROIT_LANDMARKS[3], fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
+      { ...DETROIT_LANDMARKS[4], fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
     ],
     assists: { remaining: 1 },
     teammates: [
@@ -344,20 +365,13 @@ const FIXTURES: Record<string, unknown> = {
   "/api/fieldops/dossier": {
     owner: { id: "demo-me", display_name: "You" },
     cards: [
-      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 33, landmark_name: "The Washington Monument", fun_fact: "Its shadow marks a dead-drop only at 12 noon.", image: null, city_id: 3, city_name: "Washington, D.C.", city_country: "USA" },
-      { id: "ic-2", variant: "scouted", created_at: "2026-06-04T09:00:00Z", landmark_id: 11, landmark_name: "Brooklyn Bridge", fun_fact: "When it opened in 1883 it was the longest suspension bridge in the world.", image: null, city_id: 2, city_name: "New York", city_country: "USA" },
+      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 23, landmark_name: "RiverWalk", fun_fact: "The riverfront path traces old industrial edges now turned into public lookout points.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
+      { id: "ic-2", variant: "scouted", created_at: "2026-06-11T09:00:00Z", landmark_id: 22, landmark_name: "Guardian Building", fun_fact: "Its Art Deco tilework earned it the nickname Cathedral of Finance.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
       { id: "ic-1", variant: "confirmed", created_at: "2026-05-28T20:00:00Z", landmark_id: 2, landmark_name: "Willis Tower Skydeck", fun_fact: "The Ledge's glass boxes extend 4.3 feet out on the 103rd floor.", image: null, city_id: 1, city_name: "Chicago", city_country: "USA" },
     ],
     cities: [
       ...CHICAGO_LANDMARKS.slice(0, 5).map((l) => ({ id: CHICAGO.id, name: CHICAGO.name, country: CHICAGO.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.fun_fact, image: null })),
-      ...NY_LANDMARKS.slice(0, 5).map((l) => ({ id: NY.id, name: NY.name, country: NY.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.fun_fact, image: null })),
-      ...[
-        { id: 31, day: 1, name: "The Capitol Dome", fun_fact: "Her comm intercepts reference 'the iron dome that grew twice.'" },
-        { id: 32, day: 2, name: "Lincoln Memorial", fun_fact: "A courier saw a sky-blue fedora on the marble steps at dawn." },
-        { id: 33, day: 3, name: "The Washington Monument", fun_fact: "Its shadow marks a dead-drop only at 12 noon." },
-        { id: 34, day: 4, name: "Smithsonian Castle", fun_fact: null },
-        { id: 35, day: 5, name: "Georgetown Canal", fun_fact: null },
-      ].map((l) => ({ id: DC.id, name: DC.name, country: DC.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.fun_fact, image: null })),
+      ...DETROIT_LANDMARKS.map((l) => ({ id: DETROIT.id, name: DETROIT.name, country: DETROIT.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.day <= 3 ? l.fun_fact : null, image: null })),
     ],
   },
   "/api/bingo/friends": {
@@ -368,18 +382,23 @@ const FIXTURES: Record<string, unknown> = {
   },
   "/api/nemesis/current": {
     matchup: {
-      id: "demo-matchup", week_id: "demo-week-dc", player_a: "demo-me", player_b: "demo-maya",
-      status: "active", score_a: 0, score_b: 0, tiebreaker_date: null,
+      id: "demo-matchup", week_id: "demo-week-chicago", player_a: "demo-me", player_b: "demo-maya",
+      status: "active", score_a: 2, score_b: 1, tiebreaker_date: null,
       rerolled: false, winner_id: null,
-      daily_results: [],
+      daily_results: [
+        { date: "2026-06-08", a_steps: 9500, b_steps: 8100, winner: "a" },
+        { date: "2026-06-09", a_steps: 12000, b_steps: 13000, winner: "b" },
+        { date: "2026-06-10", a_steps: 7800, b_steps: 7800, winner: "tie" },
+        { date: "2026-06-11", a_steps: 11300, b_steps: 9700, winner: "a" },
+      ],
     },
-    you: { ...MEMBERS[0], steps_today: 0, steps_this_week: 0 },
-    nemesis: { ...MEMBERS[1], steps_today: 0, steps_this_week: 0 },
-    week: { starts_on: "2026-06-15", ends_on: "2026-06-21" },
-    today: "2026-06-14",
-    weekMax: 0,
+    you: { ...MEMBERS[0], steps_today: 7200, steps_this_week: 47800 },
+    nemesis: { ...MEMBERS[1], steps_today: 6800, steps_this_week: 45400 },
+    week: { starts_on: "2026-06-08", ends_on: "2026-06-14" },
+    today: "2026-06-12",
+    weekMax: 13000,
     outcome: null,
-    state: "scheduled",
+    state: "active",
   },
   "/api/badges": {
     badges: [

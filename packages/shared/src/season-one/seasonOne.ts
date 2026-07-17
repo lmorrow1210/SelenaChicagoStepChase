@@ -187,7 +187,7 @@ const defaultRituals = (cityName: string): WeekRitualCopy => ({
   midweek: {
     strongPace: {
       headline: "THE GAP IS CLOSING",
-      body: "The {{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.",
       selena: "You are moving quickly. I have corrected my estimate.",
       cta: "Review the new lead",
     },
@@ -232,7 +232,7 @@ const WEEK_ONE_RITUALS: WeekRitualCopy = {
   midweek: {
     strongPace: {
       headline: "THE GAP IS CLOSING",
-      body: "The {{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nSurveillance now places her near the elevated lines.",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nSurveillance now places her near the elevated lines.",
       selena: "You are moving quickly. I wonder whether you are watching the right train.",
       cta: "Review the new lead",
     },
@@ -367,7 +367,7 @@ export const SEASON_ONE_CONFIG = {
         },
         pursuit_maintained: {
           headline: "PURSUIT MAINTAINED",
-          story: "The {{groupName}} confirmed Selena's departure route and kept her within operational range. She left Chicago before the unit reached the platform.",
+          story: "{{groupName}} confirmed Selena's departure route and kept her within operational range. She left Chicago before the unit reached the platform.",
           selena: "You found the route. Not the reason.",
           nextLead: "A mechanical dial marked with thirteen positions. One position is engraved with Chicago's coordinates.",
         },
@@ -379,7 +379,7 @@ export const SEASON_ONE_CONFIG = {
         },
         interception: {
           headline: "SELENA INTERCEPTED",
-          story: "The {{groupName}} reached Selena before the train cleared the platform. For seventeen seconds, the pursuit was over.\n\nThe lights failed. When power returned, Selena was gone.",
+          story: "{{groupName}} reached Selena before the train cleared the platform. For seventeen seconds, the pursuit was over.\n\nThe lights failed. When power returned, Selena was gone.",
           selena: "Someone opened the Chicago node before I did. Ask your Bureau why.",
           nextLead: "Access Before Entry was recovered with the Brass Dial.",
         },
