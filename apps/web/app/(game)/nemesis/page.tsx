@@ -57,7 +57,7 @@ interface NemesisPayload {
   today: string;
   weekMax: number;
   outcome: "a" | "b" | "tiebreak" | null;
-  state: "active" | "tiebreak" | "complete" | "bye" | "no_matchup";
+  state: "scheduled" | "active" | "tiebreak" | "complete" | "bye" | "no_matchup";
 }
 
 function addDays(date: string, days: number): string {
@@ -566,11 +566,21 @@ export default function NemesisPage() {
             margin: "var(--sp-1) 0 0",
           }}
         >
-          Best of 5, Monday to Friday. Most steps wins the day.
+          {data.state === "scheduled"
+            ? "Next week's opponent is on file. The duel opens Monday."
+            : "Best of 5, Monday to Friday. Most steps wins the day."}
         </p>
         <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </div>
 
+      {data.state === "scheduled" && (
+        <Banner
+          tone="gold"
+          icon="nemesis"
+          title="Next nemesis revealed"
+          body={`${nemesis.display_name} is waiting in Monday's file. Rest up; the board opens at midnight.`}
+        />
+      )}
       {matchup.status === "complete" && (
         <Banner
           tone="gold"
@@ -594,7 +604,9 @@ export default function NemesisPage() {
 
       <ScoreBar you={you} nemesis={nemesis} youScore={youScore} nemesisScore={nemScore} />
 
-      {matchup.status !== "complete" && <TodayContextStrip you={you} nemesis={nemesis} />}
+      {matchup.status !== "complete" && data.state !== "scheduled" && (
+        <TodayContextStrip you={you} nemesis={nemesis} />
+      )}
 
       {/* Hero matchup — today's duel as the one big skyline */}
       {heroDay && (
@@ -636,7 +648,7 @@ export default function NemesisPage() {
       {/* Compact Mon–Fri ledger — every day on one card */}
       <WeekLedger days={days} nemesisName={nemesis.display_name} />
 
-      {matchup.status === "active" && !matchup.rerolled && (
+      {data.state !== "scheduled" && matchup.status === "active" && !matchup.rerolled && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
           <Button
             variant="secondary"

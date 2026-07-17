@@ -7,16 +7,16 @@ import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 import { reassignNemesisOnDeparture } from "../services/nemesisService.js";
 
-async function activeWeekId(
+async function openWeekIds(
   db: { query: typeof pool.query },
   groupId: string,
-): Promise<string | null> {
-  const week = await db.query(
-    `SELECT id FROM weeks WHERE group_id = $1 AND status = 'active'
-     ORDER BY starts_on DESC LIMIT 1`,
+): Promise<string[]> {
+  const weeks = await db.query(
+    `SELECT id FROM weeks WHERE group_id = $1 AND status IN ('active', 'scheduled')
+     ORDER BY starts_on ASC`,
     [groupId],
   );
-  return week.rowCount ? week.rows[0].id : null;
+  return weeks.rows.map((week) => week.id as string);
 }
 
 export const groupsRouter = Router();
@@ -120,8 +120,9 @@ groupsRouter.post("/me/leave", async (req, res, next) => {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
-      const weekId = await activeWeekId(client, groupId);
-      if (weekId) await reassignNemesisOnDeparture(client, weekId, req.userId!);
+      for (const weekId of await openWeekIds(client, groupId)) {
+        await reassignNemesisOnDeparture(client, weekId, req.userId!);
+      }
       await client.query("UPDATE users SET group_id = NULL WHERE id = $1", [req.userId]);
       const g = await client.query("SELECT admin_id FROM groups WHERE id = $1 FOR UPDATE", [
         groupId,
@@ -201,8 +202,9 @@ groupsRouter.delete("/me/members/:userId", async (req, res, next) => {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
-      const weekId = await activeWeekId(client, groupId);
-      if (weekId) await reassignNemesisOnDeparture(client, weekId, targetId);
+      for (const weekId of await openWeekIds(client, groupId)) {
+        await reassignNemesisOnDeparture(client, weekId, targetId);
+      }
       await client.query("UPDATE users SET group_id = NULL WHERE id = $1", [targetId]);
       await client.query("COMMIT");
       res.json({ ok: true });

@@ -237,23 +237,18 @@ const FIXTURES: Record<string, unknown> = {
   },
   "/api/nemesis/current": {
     matchup: {
-      id: "demo-matchup", week_id: "demo-week-ny", player_a: "demo-me", player_b: "demo-maya",
-      status: "active", score_a: 2, score_b: 1, tiebreaker_date: null,
+      id: "demo-matchup", week_id: "demo-week-dc", player_a: "demo-me", player_b: "demo-maya",
+      status: "active", score_a: 0, score_b: 0, tiebreaker_date: null,
       rerolled: false, winner_id: null,
-      daily_results: [
-        { date: "2026-06-08", a_steps: 9200, b_steps: 8100, winner: "a" },
-        { date: "2026-06-09", a_steps: 7400, b_steps: 11200, winner: "b" },
-        { date: "2026-06-10", a_steps: 12800, b_steps: 9050, winner: "a" },
-        { date: "2026-06-11", a_steps: 8600, b_steps: 8600, winner: "tie" },
-      ],
+      daily_results: [],
     },
-    you: { ...MEMBERS[0], steps_today: 6240, steps_this_week: 50058 },
-    nemesis: { ...MEMBERS[1], steps_today: 8900, steps_this_week: 67845 },
-    week: { starts_on: "2026-06-08", ends_on: "2026-06-14" },
-    today: "2026-06-12",
-    weekMax: 12800,
+    you: { ...MEMBERS[0], steps_today: 0, steps_this_week: 0 },
+    nemesis: { ...MEMBERS[1], steps_today: 0, steps_this_week: 0 },
+    week: { starts_on: "2026-06-15", ends_on: "2026-06-21" },
+    today: "2026-06-14",
+    weekMax: 0,
     outcome: null,
-    state: "active",
+    state: "scheduled",
   },
   "/api/badges": {
     badges: [
