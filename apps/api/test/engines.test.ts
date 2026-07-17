@@ -143,6 +143,36 @@ describe("evaluateDetector", () => {
     expect(evaluateDetector({ metric: "sleep_nights", hours: 7, op: ">=", value: 1 }, base)).toBe(false);
   });
 
+  it("bedtime_before: previous-evening window only, post-midnight never counts", () => {
+    const det = { metric: "bedtime_before", hour: 23, nights: 2 };
+    const nights = (bedtimes: (string | null)[]) => ({
+      ...base,
+      // log dates 2026-06-08, 09, 10… — a night belongs to its wake-up morning
+      week_bedtimes: bedtimes.map((bedtime, i) => ({
+        date: `2026-06-${String(8 + i).padStart(2, "0")}`,
+        bedtime,
+      })),
+    });
+    // two nights in bed 22:xx the previous evening → complete
+    expect(evaluateDetector(det, nights(["2026-06-07T22:15:00Z", "2026-06-08T22:45:00Z"]))).toBe(true);
+    // only one qualifying night → not yet
+    expect(evaluateDetector(det, nights(["2026-06-07T22:15:00Z", "2026-06-08T23:10:00Z"]))).toBe(false);
+    // post-midnight bedtimes (1–2 AM on the wake-up date itself) never count
+    expect(evaluateDetector(det, nights(["2026-06-08T01:00:00Z", "2026-06-09T02:30:00Z"]))).toBe(false);
+    // 23:00 exactly is not "before 11 PM"
+    expect(evaluateDetector(det, nights(["2026-06-07T23:00:00Z", "2026-06-08T22:00:00Z"]))).toBe(false);
+    // an afternoon outlier (nap / bad data) is outside the evening window
+    expect(evaluateDetector(det, nights(["2026-06-07T14:00:00Z", "2026-06-08T22:00:00Z"]))).toBe(false);
+    // a bedtime two days before the wake-up date doesn't belong to that night
+    expect(evaluateDetector(det, nights(["2026-06-06T22:00:00Z", "2026-06-08T22:00:00Z"]))).toBe(false);
+    // null bedtimes (tracker didn't report) stay incomplete
+    expect(evaluateDetector(det, nights([null, null]))).toBe(false);
+    // single-night variant
+    expect(
+      evaluateDetector({ metric: "bedtime_before", hour: 23, nights: 1 }, nights(["2026-06-07T22:15:00Z", null])),
+    ).toBe(true);
+  });
+
   it("weekend sleep variant only fires on weekend logs", () => {
     const det = { metric: "sleep_minutes", window: "weekend_day", op: ">=", value: 480 };
     const slept = { ...base, sleep_minutes: 500 };

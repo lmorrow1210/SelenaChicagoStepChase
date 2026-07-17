@@ -135,5 +135,15 @@ https://lmorrow1210.github.io/SelenaChicagoStepChase/
   - `RealFitbitClient.steps_by_hour` returns `null` on purpose — wire the
     hourly rollup once the owner's sandbox smoke test confirms the
     intraday endpoint shape (comment in `realFitbitClient.ts`).
-  - `bedtime_before` detector still stubbed — needs a product call on
-    late bedtimes (is 1 A.M. "before 11 P.M."?).
+  - ~~`bedtime_before` detector~~ — **shipped July 2026.** Product rule
+    (confirmed 2026-07-16): a night counts only when bedtime falls
+    18:00–23:59 on the calendar day BEFORE the wake-up log date; a
+    post-midnight bedtime (1 A.M., 2 A.M., …) always fails, no exceptions.
+    See `evaluateDetector` in `apps/api/src/services/bingo.ts` +
+    `week_bedtimes` context in `bingoService.ts`.
+- Sunday nemesis reveal — pairing must be revealed Sunday so Monday starts
+  with matchups known. Needs a `'scheduled'` week status (new migration), a
+  Sunday cron step that creates next week's row + runs `pairAndPersist`,
+  and the Monday job flipping `scheduled → active`. Do NOT move the rest of
+  the Monday close-out (predictions/badges/tiebreak fallback use full
+  Mon–Sun data). Touches week-state invariants — go slow.

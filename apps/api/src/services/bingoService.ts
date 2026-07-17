@@ -168,9 +168,10 @@ export async function updateBingoCard(
     [userId, date],
   );
 
-  // sleep_nights: this week's synced nights (sleep_minutes per night)
+  // sleep_nights + bedtime_before: this week's synced nights
   const weekSleepRows = await db.query(
-    `SELECT sleep_minutes FROM step_logs
+    `SELECT to_char(log_date, 'YYYY-MM-DD') AS log_date, sleep_minutes, bedtime
+     FROM step_logs
      WHERE user_id = $1 AND log_date BETWEEN $2::date AND $3::date
      ORDER BY log_date`,
     [userId, starts_on, ends_on],
@@ -195,6 +196,10 @@ export async function updateBingoCard(
     week_sleep_minutes: weekSleepRows.rows.map((r) =>
       r.sleep_minutes == null ? null : Number(r.sleep_minutes),
     ),
+    week_bedtimes: weekSleepRows.rows.map((r) => ({
+      date: r.log_date,
+      bedtime: r.bedtime == null ? null : new Date(r.bedtime).toISOString(),
+    })),
     // hot_pursuit: all group members worked out today
   };
 

@@ -361,8 +361,14 @@ The One Step Ahead master brief + addendum landed a full rebrand, the
   ('8+ hours on a weekend night') used to fire on ANY day; it now
   requires the log's weekday to be Sat/Sun (a night belongs to its
   wake-up morning). Unit + integration covered.
-- Still stubbed (returns false): `bedtime_before` — needs a product call
-  on what counts as "before 11 P.M." when the bedtime is 1 A.M.
+- ~~Still stubbed: `bedtime_before`~~ — **shipped 2026-07-16** after the
+  product call landed: a night qualifies only when bedtime falls
+  18:00–23:59 on the calendar day BEFORE the wake-up log date
+  (post-midnight bedtimes always fail; afternoon outliers are treated as
+  nap/bad data). `detector.nights` = qualifying nights needed this week.
+  Context plumbing: `week_bedtimes` (log_date + bedtime per synced night)
+  built in `updateBingoCard` from the same query as `week_sleep_minutes`.
+  Unit-covered in `test/engines.test.ts` (68 API tests total now).
 - New suite `test/bingoIntraday.integration.test.ts`: sync persistence of
   the buckets (incl. NULL), end-to-end tile completion through the real
   SQL context, and the no-intraday negative case.

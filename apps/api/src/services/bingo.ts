@@ -138,6 +138,9 @@ export interface DetectorContext {
   steps_by_hour?: number[] | null; // 24 hourly buckets; null = no intraday data
   workout_day_streak?: number; // consecutive days ending today with ≥1 workout
   week_sleep_minutes?: (number | null)[]; // sleep_minutes per synced night this week
+  // per synced night this week: wake-up log_date (YYYY-MM-DD) + bedtime
+  // instant (group-local expressed as Z, same convention as workout_before)
+  week_bedtimes?: { date: string; bedtime: string | null }[];
 }
 
 function cmp(op: string, a: number, b: number): boolean {
@@ -223,14 +226,32 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
       const nights = ctx.week_sleep_minutes.filter((m) => m != null && m >= need).length;
       return cmp(op, nights, value);
     }
+    case "bedtime_before": {
+      // Product rule (confirmed 2026-07-16): a night counts as "in bed
+      // before {hour}" ONLY when bedtime falls in the EVENING of the
+      // previous calendar day — 18:00–23:59 on the day before the wake-up
+      // log date. A post-midnight bedtime (1 AM, 2 AM, …) always fails the
+      // night, no exceptions; so does an afternoon outlier (nap/bad data).
+      // detector.nights = how many qualifying nights this week are needed.
+      if (!ctx.week_bedtimes) return false;
+      const cutoff = detector.hour ?? 23;
+      const nights = ctx.week_bedtimes.filter((n) => {
+        if (!n.bedtime) return false;
+        const bed = new Date(n.bedtime);
+        const prevDay = new Date(new Date(`${n.date}T00:00:00Z`).getTime() - 86_400_000)
+          .toISOString()
+          .slice(0, 10);
+        const hour = bed.getUTCHours();
+        return bed.toISOString().slice(0, 10) === prevDay && hour >= 18 && hour < cutoff;
+      }).length;
+      return cmp(op, nights, detector.nights ?? 1);
+    }
     case "honor":
       // Honor-system tiles never auto-complete — only the explicit
       // self-report endpoint (scoutService.honorComplete) marks them.
       return false;
     default:
-      // bedtime_before still needs a bedtime-vs-local-midnight product call
-      // (is a 1 A.M. bedtime "before 11 P.M."?) — it stays incomplete rather
-      // than false-fire.
+      // Unknown metrics stay incomplete rather than false-fire.
       return false;
   }
 }
