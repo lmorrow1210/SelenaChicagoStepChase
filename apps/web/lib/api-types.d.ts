@@ -1401,6 +1401,133 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Group Season Evidence Board
+         * @description The group's 13-slot Season One evidence board — locked/unlocked state, weekly outcome markers, interception count, and finale depth tier. Locked slots never leak evidence content.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Evidence board. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            season: {
+                                id: string;
+                                title: string;
+                                totalWeeks: number;
+                            };
+                            interceptionCount: number;
+                            finaleDepthTier: number;
+                            weeks: {
+                                weekNumber: number;
+                                cityName: string;
+                                chapterTitle: string;
+                                outcome: components["schemas"]["WeeklyOutcome"] | null;
+                                standardEvidence: components["schemas"]["EvidenceSlot"];
+                                interceptClue: components["schemas"]["EvidenceSlot"];
+                            }[];
+                        };
+                    };
+                };
+                401: components["responses"]["Unauthenticated"];
+                /** @description NOT_FOUND — the viewer has no group yet. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rituals/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a weekly ritual view
+         * @description Marks a ritual surface (Monday briefing, midweek update, final push, case-closed report) as seen by the viewer for a week. Idempotent per (week, user, ritual); the product requires persisted briefingViewedAt.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        week_id: string;
+                        /** @enum {string} */
+                        ritual_id: "monday_briefing" | "midweek_update" | "final_push" | "case_closed";
+                    };
+                };
+            };
+            responses: {
+                /** @description Recorded. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            /** Format: date-time */
+                            viewed_at: string;
+                        };
+                    };
+                };
+                401: components["responses"]["Unauthenticated"];
+                /** @description NOT_FOUND — week is not in the viewer's group. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sync/run": {
         parameters: {
             query?: never;
@@ -1561,12 +1688,81 @@ export interface components {
                 href?: string;
                 priority: number;
             };
+            primaryBeat?: components["schemas"]["PrimaryBeat"];
+            platformSweep?: components["schemas"]["SpecialOperationState"];
+            evidencePreview?: {
+                standardEvidenceId: string;
+                standardTitle?: string | null;
+                unlocked: boolean;
+                interceptUnlocked: boolean;
+            };
+            ritualViews?: {
+                mondayBriefing: boolean;
+                midweekUpdate: boolean;
+                finalPush: boolean;
+                caseClosed: boolean;
+            };
+            previousCase?: components["schemas"]["PreviousCase"] | null;
             sync: {
                 /** Format: date-time */
                 lastUpdatedAt: string | null;
                 incompletePlayerCount: number;
                 stalePlayerCount: number;
             };
+        };
+        PrimaryBeat: {
+            id: string;
+            /** @enum {string} */
+            category: "trust" | "ritual" | "pursuit" | "field_ops" | "system";
+            headline: string;
+            body: string;
+            selena?: string;
+            ctaLabel?: string;
+            ctaHref?: string;
+            dataConfidence: components["schemas"]["DataConfidence"];
+        };
+        SpecialOperationState: {
+            id: string;
+            label: string;
+            active: boolean;
+            contributors: number;
+            eligiblePlayers: number;
+            minimumVerifiedStepsPerPlayer: number;
+            earnedBonus: number;
+            maxBonus: number;
+            nextThresholdCount: number | null;
+        };
+        PreviousCase: {
+            /** Format: uuid */
+            weekId: string;
+            weekNumber: number;
+            cityName: string;
+            chapterTitle: string;
+            outcome: components["schemas"]["WeeklyOutcome"];
+            baseProgress?: number | null;
+            finalProgress?: number | null;
+            remainingLead?: number | null;
+            bonuses?: {
+                [key: string]: number;
+            } | null;
+            groupTotalSteps?: number | null;
+            groupTargetSteps?: number;
+            dataConfidence?: string;
+            /** Format: date-time */
+            finalizedAt: string;
+            viewed: boolean;
+        };
+        EvidenceSlot: {
+            id: string;
+            /** @enum {string} */
+            kind: "standard" | "intercept";
+            title: string;
+            body: string | null;
+            highlightedFragment: string | null;
+            iconKey: string | null;
+            unlocked: boolean;
+            /** Format: date-time */
+            unlockedAt: string | null;
         };
         City: {
             id?: number;

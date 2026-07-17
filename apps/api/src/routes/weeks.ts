@@ -1,12 +1,15 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
-import { SEASON_ONE_CONFIG, getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
+import { SEASON_ONE_CONFIG, getSeasonWeek, getEvidence } from "@one-step-ahead/shared/season-one/seasonOne";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
 import { calculateChase } from "@one-step-ahead/shared/season-one/chase";
 import { calculateDataConfidence } from "@one-step-ahead/shared/season-one/dataConfidence";
 import { selectPrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
+import { selectPrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat";
 import { calculateWeeklyPhase } from "@one-step-ahead/shared/season-one/weeklyPhase";
+import { getSpecialOperationState } from "../services/specialOperations.js";
+import type { WeeklyOutcome } from "@one-step-ahead/shared";
 
 export const weeksRouter = Router();
 weeksRouter.use(requireAuth);
@@ -187,8 +190,18 @@ weeksRouter.get("/current", async (req, res, next) => {
       return;
     }
 
-    const week = weekResult.rows[0] as WeekRow;
-    const [cities, members, lastSync, fieldOps, prediction, nemesis] = await Promise.all([
+    const week = weekResult.rows[0] as WeekRow & {
+      final_outcome: WeeklyOutcome | null;
+      finalized_at: Date | null;
+      final_progress: string | null;
+      base_progress: string | null;
+      remaining_lead: number | null;
+      bonus_breakdown: Record<string, number> | null;
+      data_confidence: string | null;
+    };
+    const now = new Date();
+    const localToday = localDate(now, timezone);
+    const [cities, members, lastSync, fieldOps, prediction, nemesis, ritualViews, specialOperation, viewerToday, previousCaseRow] = await Promise.all([
       pool.query<CityRow>(
         `SELECT id, name, country, route_order, lat, lng
          FROM cities
@@ -248,6 +261,33 @@ weeksRouter.get("/current", async (req, res, next) => {
          WHERE week_id = $1`,
         [week.id],
       ),
+      pool.query(
+        `SELECT ritual_id FROM week_ritual_views WHERE week_id = $1 AND user_id = $2`,
+        [week.id, req.userId],
+      ),
+      getSpecialOperationState(pool, week.id, localToday),
+      pool.query(
+        `SELECT COALESCE(sl.steps, 0)::int AS steps, u.weekly_step_target
+         FROM users u
+         LEFT JOIN step_logs sl ON sl.user_id = u.id AND sl.log_date = $2::date
+         WHERE u.id = $1`,
+        [req.userId, localToday],
+      ),
+      pool.query(
+        `SELECT w.id, w.final_outcome, w.finalized_at, w.season_week_number,
+                w.final_progress, w.base_progress, w.remaining_lead, w.bonus_breakdown,
+                w.group_total_steps, w.group_target_steps, w.data_confidence,
+                c.route_order, c.name AS city_name,
+                EXISTS (
+                  SELECT 1 FROM week_ritual_views v
+                  WHERE v.week_id = w.id AND v.user_id = $2 AND v.ritual_id = 'case_closed'
+                ) AS case_closed_viewed
+         FROM weeks w JOIN cities c ON c.id = w.city_id
+         WHERE w.group_id = $1 AND w.status = 'closed' AND w.finalized_at IS NOT NULL
+         ORDER BY w.starts_on DESC
+         LIMIT 1`,
+        [groupId, req.userId],
+      ),
     ]);
 
     const currentCity = cities.rows.find((city) => city.id === week.city_id) ?? null;
@@ -255,7 +295,6 @@ weeksRouter.get("/current", async (req, res, next) => {
       cities.rows.find((city) => city.route_order === (currentCity?.route_order ?? 0) + 1) ??
       null;
     const groupSteps = members.rows.reduce((sum, member) => sum + Number(member.steps), 0);
-    const now = new Date();
     const countdown = zonedMidnightToUtcIso(addDays(week.ends_on, 1), timezone);
     const msUntilEnd = new Date(countdown).getTime() - now.getTime();
     const state =
@@ -280,6 +319,7 @@ weeksRouter.get("/current", async (req, res, next) => {
     const matchupCount = Number(nemesis.rows[0]?.matchup_count ?? 0);
     const unresolvedNemesisCount = Number(nemesis.rows[0]?.unresolved_count ?? 0);
     const membersWithActivity = members.rows.filter((member) => Number(member.steps) > 0).length;
+    const viewedRituals = new Set(ritualViews.rows.map((row) => row.ritual_id as string));
     const chase = calculateChase({
       activePlayers: members.rows.map((member) => ({
         userId: member.user_id as string,
@@ -289,9 +329,12 @@ weeksRouter.get("/current", async (req, res, next) => {
         fitbitConnected: Boolean(member.fitbit_connected),
       })),
       fieldOps: { activePlayerCount, totalQualifyingLines },
-      // Platform Sweep is not implemented yet, so the special-operation bonus
-      // remains a truthful zero until that read-only service exists.
-      specialOperation: { maxBonus: 0.03, earnedBonus: 0, contributors: 0, eligiblePlayers: activePlayerCount },
+      specialOperation: {
+        maxBonus: specialOperation.maxBonus,
+        earnedBonus: specialOperation.earnedBonus,
+        contributors: specialOperation.contributors,
+        eligiblePlayers: specialOperation.eligiblePlayers,
+      },
       nemesis: {
         activePlayerCount,
         participantsWithActivity: membersWithActivity,
@@ -305,18 +348,21 @@ weeksRouter.get("/current", async (req, res, next) => {
       dataConfidence: dataConfidence.dataConfidence,
       final: week.status === "closed",
     });
+    // A finalized week's persisted result is authoritative — the live
+    // recalculation never overrides what rollover reconciled and stored.
+    const finalOutcome: WeeklyOutcome | null = week.final_outcome ?? chase.finalOutcome;
     const phaseResult = calculateWeeklyPhase({
       startsOn: week.starts_on,
       endsOn: week.ends_on,
       timezone,
       weekStatus: week.status,
-      finalOutcome: chase.finalOutcome,
-      finalizedAt: null,
+      finalOutcome,
+      finalizedAt: week.finalized_at ?? null,
       dataConfidence: dataConfidence.dataConfidence,
-      briefingViewed: true,
-      midweekViewed: true,
-      finalPushViewed: true,
-      caseClosedViewed: true,
+      briefingViewed: viewedRituals.has("monday_briefing"),
+      midweekViewed: viewedRituals.has("midweek_update"),
+      finalPushViewed: viewedRituals.has("final_push"),
+      caseClosedViewed: viewedRituals.has("case_closed"),
       suddenDeathActive,
       now,
     });
@@ -324,6 +370,52 @@ weeksRouter.get("/current", async (req, res, next) => {
       dataConfidence.counts.stale + dataConfidence.counts.missing + dataConfidence.counts.disconnected;
     const stalePlayerCount = dataConfidence.counts.stale;
     const seasonWeek = seasonWeekForCity(currentCity);
+
+    // Season Evidence preview for the current chapter (locked until close).
+    const evidenceUnlocks = seasonWeek
+      ? await pool.query(
+          `SELECT evidence_id FROM group_evidence_unlocks
+           WHERE group_id = $1 AND season_id = $2 AND evidence_id = ANY($3)`,
+          [groupId, seasonWeek.seasonId, [
+            seasonWeek.evidence.standardEvidenceId,
+            seasonWeek.evidence.interceptClueId,
+          ]],
+        )
+      : null;
+    const unlockedEvidenceIds = new Set(
+      (evidenceUnlocks?.rows ?? []).map((row) => row.evidence_id as string),
+    );
+
+    // The most recent finalized case — the Case Closed report stays
+    // available after Monday rollover opens the next chapter.
+    const prevRow = previousCaseRow.rows[0] ?? null;
+    const prevSeasonWeek = prevRow ? getSeasonWeek(Number(prevRow.route_order)) : null;
+    const previousCase =
+      prevRow && prevSeasonWeek && prevSeasonWeek.cityName === prevRow.city_name && prevRow.final_outcome
+        ? {
+            weekId: prevRow.id as string,
+            weekNumber: prevSeasonWeek.weekNumber,
+            cityName: prevSeasonWeek.cityName,
+            chapterTitle: prevSeasonWeek.chapterTitle,
+            outcome: prevRow.final_outcome as WeeklyOutcome,
+            baseProgress: prevRow.base_progress != null ? Number(prevRow.base_progress) : null,
+            finalProgress: prevRow.final_progress != null ? Number(prevRow.final_progress) : null,
+            remainingLead: prevRow.remaining_lead != null ? Number(prevRow.remaining_lead) : null,
+            bonuses: prevRow.bonus_breakdown ?? null,
+            groupTotalSteps: prevRow.group_total_steps != null ? Number(prevRow.group_total_steps) : null,
+            groupTargetSteps: Number(prevRow.group_target_steps),
+            dataConfidence: (prevRow.data_confidence ?? "verified") as string,
+            finalizedAt: new Date(prevRow.finalized_at).toISOString(),
+            viewed: Boolean(prevRow.case_closed_viewed),
+          }
+        : null;
+
+    const briefingAvailable = Boolean(seasonWeek) && week.status === "active"
+      && !viewedRituals.has("monday_briefing");
+    const caseResultAvailable = Boolean(previousCase && !previousCase.viewed);
+    const dailyTarget = viewerToday.rows[0] ? Number(viewerToday.rows[0].weekly_step_target) / 7 : 0;
+    const viewerStepsToday = viewerToday.rows[0] ? Number(viewerToday.rows[0].steps) : 0;
+
     const seasonState = seasonWeek
       ? {
           season: {
@@ -352,23 +444,53 @@ weeksRouter.get("/current", async (req, res, next) => {
             finalProgress: chase.finalProgress,
             remainingLead: chase.remainingLead,
             projectedOutcome: chase.projectedOutcome,
-            finalOutcome: chase.finalOutcome,
+            finalOutcome,
           },
           primaryAction: selectPrimaryAction({
             dataConfidence: dataConfidence.dataConfidence,
             incompletePlayerCount,
-            // No ritual persistence exists in this phase, so do not invent
-            // briefing-view state for the selector.
-            briefingAvailable: false,
-            caseResultAvailable: false,
+            briefingAvailable,
+            caseResultAvailable,
             phase: phaseResult.phase,
             suddenDeathActive,
-            specialOperationActive: false,
-            predictionActionAvailable: localDate(now, timezone) === week.starts_on && !viewerSubmittedPrediction,
-            fieldOpsNearReward: false,
+            specialOperationActive:
+              specialOperation.active && specialOperation.earnedBonus < specialOperation.maxBonus,
+            predictionActionAvailable: localToday === week.starts_on && !viewerSubmittedPrediction,
+            fieldOpsNearReward:
+              totalQualifyingLines > 0 && activePlayerCount > 0
+              && totalQualifyingLines / activePlayerCount < 3,
             nemesisClose: false,
-            dailyTargetWithinReach: false,
+            dailyTargetWithinReach:
+              dailyTarget > 0 && viewerStepsToday >= dailyTarget * 0.5 && viewerStepsToday < dailyTarget,
           }),
+          primaryBeat: selectPrimaryBeat({
+            weekConfig: seasonWeek,
+            phase: phaseResult.phase,
+            dataConfidence: dataConfidence.dataConfidence,
+            projectedOutcome: chase.projectedOutcome,
+            finalOutcome,
+            remainingLead: chase.remainingLead,
+            firstLineComplete: totalQualifyingLines >= 1,
+            platformSweepActive: specialOperation.active,
+            platformSweepEarnedBonus: specialOperation.earnedBonus,
+            platformSweepMaxBonus: specialOperation.maxBonus,
+          }),
+          platformSweep: specialOperation,
+          evidencePreview: {
+            standardEvidenceId: seasonWeek.evidence.standardEvidenceId,
+            standardTitle: unlockedEvidenceIds.has(seasonWeek.evidence.standardEvidenceId)
+              ? getEvidence(seasonWeek.evidence.standardEvidenceId)?.title ?? null
+              : null,
+            unlocked: unlockedEvidenceIds.has(seasonWeek.evidence.standardEvidenceId),
+            interceptUnlocked: unlockedEvidenceIds.has(seasonWeek.evidence.interceptClueId),
+          },
+          ritualViews: {
+            mondayBriefing: viewedRituals.has("monday_briefing"),
+            midweekUpdate: viewedRituals.has("midweek_update"),
+            finalPush: viewedRituals.has("final_push"),
+            caseClosed: viewedRituals.has("case_closed"),
+          },
+          previousCase,
           sync: {
             lastUpdatedAt: lastSync.rows[0]?.last_synced_at?.toISOString?.() ?? null,
             incompletePlayerCount,

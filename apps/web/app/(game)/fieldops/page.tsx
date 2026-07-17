@@ -13,6 +13,7 @@ import { api, ApiError } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
+import { useSeasonWeek } from "../../../lib/narrative/useSeasonWeek";
 
 /* ============================================================
    FIELD OPS (M10, addendum §1) — one screen, two linked panels.
@@ -118,6 +119,7 @@ function shortDate(value: string | null): string | null {
 export default function FieldOpsPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const seasonWeek = useSeasonWeek(!!user?.group_id);
   const { data, isLoading, error } = useQuery<FieldOpsPayload>({
     queryKey: ["fieldops"],
     queryFn: () => api<FieldOpsPayload>("/api/fieldops"),
@@ -195,6 +197,19 @@ export default function FieldOpsPage() {
   const unlockedIntel = intel.filter((n) => n.unlocked);
   const lockedIntel = intel.filter((n) => !n.unlocked);
   const nextNode = lockedIntel[0];
+  // Chicago story payoffs (config-driven, tiles stay generic):
+  // two verified movement completions confirm the grid read; the first
+  // full line identifies her departure platform.
+  const movementCompletions = card.tiles.filter(
+    (tile) => !tile.free && tile.state === "complete" && tile.source !== "honor" && tile.category === "steps",
+  ).length;
+  const storyPayoff = seasonWeek
+    ? card.bingo_lines >= 1
+      ? seasonWeek.fieldOps.firstLinePayoff
+      : movementCompletions >= 2
+        ? seasonWeek.fieldOps.firstMovementPayoff
+        : null
+    : null;
 
   return (
     <main className="opsPage">
@@ -206,6 +221,15 @@ export default function FieldOpsPage() {
           <p className="opsSub">
             Lines on the board send a drone one city ahead. She&apos;s heading there — decode it first.
           </p>
+          {seasonWeek && (
+            <p className="opsComplication">
+              <span className="opsComplicationLabel">Weekly complication — {seasonWeek.complication.label}:</span>{" "}
+              {seasonWeek.complication.summary} Qualifying lines also feed the group chase bonus (up to +5%).
+            </p>
+          )}
+          {storyPayoff && (
+            <p className="opsPayoff" role="status">{storyPayoff}</p>
+          )}
           <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
         </div>
         {/* Scout token meter — X/5 landmarks */}
@@ -427,6 +451,30 @@ function OpsStyles() {
         font-size: var(--fs-body-sm);
         color: var(--phosphor-dim);
         max-width: 48ch;
+      }
+      .opsComplication {
+        margin: var(--space-2xs) 0 0;
+        font-family: var(--font-body);
+        font-size: var(--fs-body-sm);
+        color: var(--phosphor);
+        max-width: 52ch;
+      }
+      .opsComplicationLabel {
+        font-family: var(--font-display);
+        font-size: var(--fs-label);
+        letter-spacing: var(--ls-label);
+        text-transform: uppercase;
+        color: var(--phosphor-dim);
+      }
+      .opsPayoff {
+        margin: var(--space-2xs) 0 0;
+        padding: var(--sp-2) var(--sp-3);
+        border: 1px solid var(--phosphor);
+        background: var(--phosphor-08);
+        font-family: var(--font-body);
+        font-size: var(--fs-body-sm);
+        color: var(--phosphor);
+        max-width: 52ch;
       }
       .tokenPanel {
         display: flex;

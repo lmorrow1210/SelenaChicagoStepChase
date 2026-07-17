@@ -1,5 +1,9 @@
 import type { DataConfidence, WeekPhase, WeeklyOutcome } from "@one-step-ahead/shared";
-import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO } from "@one-step-ahead/shared/season-one/seasonOne";
+import {
+  SEASON_ONE_CONFIG,
+  WEEK_ONE_CHICAGO,
+  getEvidence,
+} from "@one-step-ahead/shared/season-one/seasonOne";
 import { calculateChase, type ChaseCalculationResult } from "@one-step-ahead/shared/season-one/chase";
 import {
   calculateDataConfidenceFromFreshness,
@@ -7,6 +11,12 @@ import {
 } from "@one-step-ahead/shared/season-one/dataConfidence";
 import { calculateWeeklyPhase } from "@one-step-ahead/shared/season-one/weeklyPhase";
 import { selectPrimaryAction, type PrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
+import { selectPrimaryBeat, type PrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat";
+import {
+  calculateParticipationThreshold,
+  type ParticipationThresholdState,
+} from "@one-step-ahead/shared/season-one/specialOperations";
+import type { EvidenceBoardData, EvidenceSlot } from "./narrative/EvidenceBoard";
 
 export const WEEK_SIMULATOR_PHASES: WeekPhase[] = [
   "briefing",
@@ -38,12 +48,17 @@ export interface WeekSimulatorControls {
   dataConfidence: DataConfidence;
   baseProgress: number;
   fieldOpsAverageLines: 0 | 1 | 2 | 3;
-  platformSweepBonus: 0 | 0.01 | 0.02 | 0.03;
+  platformSweepContributors: 0 | 1 | 2 | 3 | 4;
+  platformSweepActive: boolean;
   nemesisMode: "none" | "partial" | "complete";
   predictionSubmitted: boolean;
+  briefingViewed: boolean;
+  evidenceUnlocked: boolean;
+  interceptUnlocked: boolean;
 }
 
 export interface WeekSimulatorState {
+  weekConfig: typeof WEEK_ONE_CHICAGO;
   seasonState: {
     season: {
       id: string;
@@ -61,19 +76,27 @@ export interface WeekSimulatorState {
     dataConfidence: DataConfidence;
     chase: ChaseCalculationResult;
     primaryAction: PrimaryAction;
+    primaryBeat: PrimaryBeat;
+    platformSweep: ParticipationThresholdState;
+    evidencePreview: {
+      standardEvidenceId: string;
+      standardTitle: string | null;
+      unlocked: boolean;
+      interceptUnlocked: boolean;
+    };
+    ritualViews: {
+      mondayBriefing: boolean;
+      midweekUpdate: boolean;
+      finalPush: boolean;
+      caseClosed: boolean;
+    };
     sync: {
       lastUpdatedAt: string | null;
       incompletePlayerCount: number;
       stalePlayerCount: number;
     };
   };
-  platformSweep: {
-    label: string;
-    placeholder: true;
-    earnedBonus: number;
-    contributors: number;
-    eligiblePlayers: number;
-  };
+  evidenceBoard: EvidenceBoardData;
   ritualFlags: {
     suddenDeathActive: boolean;
     predictionSubmitted: boolean;
@@ -93,9 +116,13 @@ export const DEFAULT_WEEK_SIMULATOR_CONTROLS: WeekSimulatorControls = {
   dataConfidence: "verified",
   baseProgress: 0.92,
   fieldOpsAverageLines: 0,
-  platformSweepBonus: 0,
+  platformSweepContributors: 0,
+  platformSweepActive: false,
   nemesisMode: "none",
   predictionSubmitted: false,
+  briefingViewed: false,
+  evidenceUnlocked: false,
+  interceptUnlocked: false,
 };
 
 export function progressForOutcome(outcome: WeeklyOutcome): number {
@@ -112,11 +139,16 @@ export function progressForOutcome(outcome: WeeklyOutcome): number {
 }
 
 export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSimulatorState {
-  const phaseFixture = fixtureForPhase(controls.phase, controls.outcome, controls.dataConfidence);
+  const phaseFixture = fixtureForPhase(controls.phase);
   const trackerSync = trackerSyncForConfidence(controls.dataConfidence);
   const confidence = calculateDataConfidenceFromFreshness({
     trackerSync,
     recalculating: controls.dataConfidence === "recalculating",
+  });
+  const platformSweep = calculateParticipationThreshold(WEEK_ONE_CHICAGO.specialOperation, {
+    contributors: controls.platformSweepContributors,
+    eligiblePlayers: ACTIVE_PLAYERS,
+    active: controls.platformSweepActive,
   });
   const verifiedGroupSteps = Math.round(GROUP_TARGET * Math.max(0, controls.baseProgress));
   const chase = calculateChase({
@@ -126,10 +158,10 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
       totalQualifyingLines: controls.fieldOpsAverageLines * ACTIVE_PLAYERS,
     },
     specialOperation: {
-      maxBonus: 0.03,
-      earnedBonus: controls.platformSweepBonus,
-      contributors: controls.platformSweepBonus === 0 ? 0 : Math.ceil(ACTIVE_PLAYERS * 0.6),
-      eligiblePlayers: ACTIVE_PLAYERS,
+      maxBonus: platformSweep.maxBonus,
+      earnedBonus: platformSweep.earnedBonus,
+      contributors: platformSweep.contributors,
+      eligiblePlayers: platformSweep.eligiblePlayers,
     },
     nemesis: nemesisForMode(controls.nemesisMode),
     prediction: {
@@ -151,7 +183,7 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
     finalOutcome: controls.phase === "case_closed" ? chase.finalOutcome : null,
     finalizedAt: controls.phase === "case_closed" ? phaseFixture.now : null,
     dataConfidence: confidence.dataConfidence,
-    briefingViewed: phaseFixture.briefingViewed,
+    briefingViewed: controls.phase === "briefing" ? controls.briefingViewed : phaseFixture.briefingViewed,
     midweekViewed: phaseFixture.midweekViewed,
     finalPushViewed: phaseFixture.finalPushViewed,
     caseClosedViewed: false,
@@ -163,18 +195,31 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
   const primaryAction = selectPrimaryAction({
     dataConfidence: confidence.dataConfidence,
     incompletePlayerCount,
-    briefingAvailable: phaseResult.phase === "briefing",
+    briefingAvailable: !controls.briefingViewed && phaseResult.phase !== "case_closed",
     caseResultAvailable: phaseResult.phase === "case_closed",
     phase: phaseResult.phase,
     suddenDeathActive: phaseFixture.suddenDeathActive,
-    specialOperationActive: controls.platformSweepBonus > 0,
+    specialOperationActive: platformSweep.active && platformSweep.earnedBonus < platformSweep.maxBonus,
     predictionActionAvailable: !controls.predictionSubmitted,
     fieldOpsNearReward: controls.fieldOpsAverageLines > 0 && controls.fieldOpsAverageLines < 3,
     nemesisClose: controls.nemesisMode === "partial",
     dailyTargetWithinReach: controls.baseProgress > 0.75 && controls.baseProgress < 1,
   });
+  const primaryBeat = selectPrimaryBeat({
+    weekConfig: WEEK_ONE_CHICAGO,
+    phase: phaseResult.phase,
+    dataConfidence: confidence.dataConfidence,
+    projectedOutcome: chase.projectedOutcome,
+    finalOutcome: controls.phase === "case_closed" ? chase.finalOutcome : null,
+    remainingLead: chase.remainingLead,
+    firstLineComplete: controls.fieldOpsAverageLines > 0,
+    platformSweepActive: platformSweep.active,
+    platformSweepEarnedBonus: platformSweep.earnedBonus,
+    platformSweepMaxBonus: platformSweep.maxBonus,
+  });
 
   return {
+    weekConfig: WEEK_ONE_CHICAGO,
     seasonState: {
       season: {
         id: SEASON_ONE_CONFIG.id,
@@ -192,24 +237,84 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
       dataConfidence: confidence.dataConfidence,
       chase,
       primaryAction,
+      primaryBeat,
+      platformSweep,
+      evidencePreview: {
+        standardEvidenceId: WEEK_ONE_CHICAGO.evidence.standardEvidenceId,
+        standardTitle: controls.evidenceUnlocked
+          ? getEvidence(WEEK_ONE_CHICAGO.evidence.standardEvidenceId)?.title ?? null
+          : null,
+        unlocked: controls.evidenceUnlocked,
+        interceptUnlocked: controls.interceptUnlocked,
+      },
+      ritualViews: {
+        mondayBriefing: controls.briefingViewed,
+        midweekUpdate: phaseFixture.midweekViewed,
+        finalPush: phaseFixture.finalPushViewed,
+        caseClosed: false,
+      },
       sync: {
         lastUpdatedAt: confidence.dataConfidence === "incomplete" ? null : "2026-06-12T18:50:00.000Z",
         incompletePlayerCount,
         stalePlayerCount: confidence.counts.stale,
       },
     },
-    platformSweep: {
-      label: WEEK_ONE_CHICAGO.specialOperation.label,
-      placeholder: true,
-      earnedBonus: controls.platformSweepBonus,
-      contributors: controls.platformSweepBonus === 0 ? 0 : Math.ceil(ACTIVE_PLAYERS * 0.6),
-      eligiblePlayers: ACTIVE_PLAYERS,
-    },
+    evidenceBoard: buildEvidenceBoard(controls),
     ritualFlags: {
       suddenDeathActive: phaseFixture.suddenDeathActive,
       predictionSubmitted: controls.predictionSubmitted,
-      briefingViewed: phaseFixture.briefingViewed,
+      briefingViewed: controls.briefingViewed,
     },
+  };
+}
+
+function buildEvidenceBoard(controls: WeekSimulatorControls): EvidenceBoardData {
+  const lockedSlot = (id: string, kind: "standard" | "intercept"): EvidenceSlot => ({
+    id,
+    kind,
+    title: kind === "standard" ? "SEALED EVIDENCE" : "INTERCEPT CLUE",
+    body: null,
+    highlightedFragment: null,
+    iconKey: null,
+    unlocked: false,
+    unlockedAt: null,
+  });
+  const unlockedSlot = (id: string, kind: "standard" | "intercept"): EvidenceSlot => {
+    const evidence = getEvidence(id);
+    return {
+      id,
+      kind,
+      title: evidence?.title ?? id,
+      body: controls.outcome === "trail_lost" && kind === "standard"
+        ? evidence?.basicBody ?? evidence?.body ?? null
+        : evidence?.body ?? null,
+      highlightedFragment: evidence?.highlightedFragment ?? null,
+      iconKey: evidence?.iconKey ?? null,
+      unlocked: true,
+      unlockedAt: "2026-06-15T06:00:00.000Z",
+    };
+  };
+
+  return {
+    season: {
+      id: SEASON_ONE_CONFIG.id,
+      title: SEASON_ONE_CONFIG.title,
+      totalWeeks: SEASON_ONE_CONFIG.route.length,
+    },
+    interceptionCount: controls.interceptUnlocked ? 1 : 0,
+    finaleDepthTier: 1,
+    weeks: SEASON_ONE_CONFIG.route.map((week) => ({
+      weekNumber: week.weekNumber,
+      cityName: week.cityName,
+      chapterTitle: week.chapterTitle,
+      outcome: week.weekNumber === 1 && controls.evidenceUnlocked ? controls.outcome : null,
+      standardEvidence: week.weekNumber === 1 && controls.evidenceUnlocked
+        ? unlockedSlot(week.evidence.standardEvidenceId, "standard")
+        : lockedSlot(week.evidence.standardEvidenceId, "standard"),
+      interceptClue: week.weekNumber === 1 && controls.interceptUnlocked
+        ? unlockedSlot(week.evidence.interceptClueId, "intercept")
+        : lockedSlot(week.evidence.interceptClueId, "intercept"),
+    })),
   };
 }
 
@@ -262,7 +367,7 @@ function nemesisForMode(mode: WeekSimulatorControls["nemesisMode"]) {
   return { activePlayerCount: ACTIVE_PLAYERS, participantsWithActivity: 0, allMatchupsResolved: false };
 }
 
-function fixtureForPhase(phase: WeekPhase, outcome: WeeklyOutcome, dataConfidence: DataConfidence) {
+function fixtureForPhase(phase: WeekPhase) {
   switch (phase) {
     case "briefing":
       return phaseFixture("2026-06-08T15:00:00.000Z", 0.08, "active", false, true, true, false);
@@ -277,11 +382,7 @@ function fixtureForPhase(phase: WeekPhase, outcome: WeeklyOutcome, dataConfidenc
     case "case_closing":
       return phaseFixture("2026-06-15T04:59:00.000Z", 1, "active", true, true, true, false);
     case "case_closed":
-      return {
-        ...phaseFixture("2026-06-15T06:00:00.000Z", 1, "closed", true, true, true, false),
-        finalOutcome: outcome,
-        dataConfidence,
-      };
+      return phaseFixture("2026-06-15T06:00:00.000Z", 1, "closed", true, true, true, false);
   }
 }
 

@@ -33,6 +33,18 @@ export const DATA_CONFIDENCE_VALUES = [
 ] as const;
 export const dataConfidenceSchema = z.enum(DATA_CONFIDENCE_VALUES);
 
+export const RITUAL_IDS = [
+  "monday_briefing",
+  "midweek_update",
+  "final_push",
+  "case_closed",
+] as const;
+export const ritualIdSchema = z.enum(RITUAL_IDS);
+export const ritualViewSchema = z.object({
+  week_id: z.string().uuid(),
+  ritual_id: ritualIdSchema,
+});
+
 export const PRIMARY_ACTION_IDS = [
   "fix_sync",
   "view_briefing",
@@ -139,3 +151,4 @@ export type WeeklyOutcome = z.infer<typeof weeklyOutcomeSchema>;
 export type WeekPhase = z.infer<typeof weekPhaseSchema>;
 export type DataConfidence = z.infer<typeof dataConfidenceSchema>;
 export type PrimaryActionId = z.infer<typeof primaryActionIdSchema>;
+export type RitualId = z.infer<typeof ritualIdSchema>;

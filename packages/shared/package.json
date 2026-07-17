@@ -9,7 +9,9 @@
     "./season-one/chase": "./src/season-one/chase.ts",
     "./season-one/dataConfidence": "./src/season-one/dataConfidence.ts",
     "./season-one/weeklyPhase": "./src/season-one/weeklyPhase.ts",
-    "./season-one/primaryAction": "./src/season-one/primaryAction.ts"
+    "./season-one/primaryAction": "./src/season-one/primaryAction.ts",
+    "./season-one/primaryBeat": "./src/season-one/primaryBeat.ts",
+    "./season-one/specialOperations": "./src/season-one/specialOperations.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"

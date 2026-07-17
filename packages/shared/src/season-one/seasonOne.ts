@@ -26,6 +26,30 @@ export interface ParticipationThresholdOperationConfig {
   tiers: Array<{ requiredRatio: number; bonus: number }>;
 }
 
+export interface RitualVariantCopy {
+  headline: string;
+  body: string;
+  selena?: string;
+  cta?: string;
+}
+
+export interface WeekRitualCopy {
+  midweek: {
+    strongPace: RitualVariantCopy;
+    expectedPace: RitualVariantCopy;
+    recoveryNeeded: RitualVariantCopy;
+    incompleteData: RitualVariantCopy;
+    storyReveal: RitualVariantCopy;
+  };
+  finalPush: {
+    label: string;
+    selena: string;
+  };
+  suddenDeath: RitualVariantCopy;
+  caseClosing: RitualVariantCopy & { supporting: string };
+  specialOperationFiction: string;
+}
+
 export interface SeasonWeekConfig {
   id: string;
   seasonId: string;
@@ -37,6 +61,7 @@ export interface SeasonWeekConfig {
     label: string;
     summary: string;
   };
+  rituals: WeekRitualCopy;
   briefing: {
     label: string;
     title: string;
@@ -80,6 +105,11 @@ export interface SeasonConfig {
 
 const seasonId = "season_one";
 
+// Exactly 24 codes — one per non-free board slot. The two Chicago story
+// tiles from the product doc (Trace the Grid, Find the Platform) are story
+// payoffs triggered by board state, not tiles (a "complete a line" tile on
+// the board it completes would be circular). Long Route, Quick Recovery, and
+// Split Shift use the approved V1 substitutions from the technical plan.
 const fieldOpsCodes = [
   "steps_1k_day",
   "steps_5k_day",
@@ -88,12 +118,12 @@ const fieldOpsCodes = [
   "target_100pct_day",
   "steps_2k_two_days",
   "steps_any_three_days",
-  "steps_12k_day",
-  "target_100pct_day_recovery_sub",
+  "steps_12k_day", // Long Route V1 substitution
+  "steps_8k_day", // Quick Recovery V1 substitution
   "weekly_steps_15k",
   "steps_1k_noon",
   "steps_1k_after_6",
-  "morning_after_hours_pair",
+  "split_shift_1k", // Split Shift — needs intraday data; never false-fires without it
   "active_500_five_days",
   "active_nonzero_seven_days",
   "assist_sent",
@@ -104,8 +134,7 @@ const fieldOpsCodes = [
   "eyes_up",
   "walk_with_someone",
   "choose_longer_route",
-  "trace_the_grid",
-  "find_the_platform",
+  "workout_today", // accessible filler — board needs 24, story tiles became payoffs
 ] as const;
 
 const platformSweep: ParticipationThresholdOperationConfig = {
@@ -154,6 +183,83 @@ const defaultCloseCopy: Record<WeeklyOutcome, {
   },
 };
 
+const defaultRituals = (cityName: string): WeekRitualCopy => ({
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "The {{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.",
+      selena: "You are moving quickly. I have corrected my estimate.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "LOCAL LEAD CONFIRMED",
+      body: `The unit's field work has confirmed Selena's movements inside ${cityName}.`,
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You are close enough to become inconvenient.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Today decides the matchup. Most verified steps by midnight wins.",
+  },
+  caseClosing: {
+    headline: "CASE CLOSING",
+    body: "Final field reports are being reconciled.",
+    supporting: "This may update the group's pursuit result, nemesis matchups, and Oracle award.",
+  },
+  specialOperationFiction: `Bureau analysts have narrowed Selena's position inside ${cityName}. The unit must cover the exits before she moves on.`,
+});
+
+const WEEK_ONE_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Chicago"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "The {{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nSurveillance now places her near the elevated lines.",
+      selena: "You are moving quickly. I wonder whether you are watching the right train.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "DEPARTURE ROUTE CONFIRMED",
+      body: "Selena boarded a northbound train—but exited before the next confirmed camera sighting.\n\nInvestigators recovered a partial image of a brass dial marked with thirteen positions.",
+    },
+  },
+  specialOperationFiction:
+    "Bureau analysts have narrowed Selena's route to three elevated platforms. The unit must cover all exits before she changes lines.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -186,6 +292,7 @@ const structuralWeek = (
     label: complicationLabel,
     summary: `${cityName} chapter complication placeholder.`,
   },
+  rituals: defaultRituals(cityName),
   briefing: structuralBriefing(weekNumber, cityName, chapterTitle),
   fieldOps: {
     fixedChallengeCodes: [],
@@ -221,8 +328,10 @@ export const SEASON_ONE_CONFIG = {
       complication: {
         id: "cold_start",
         label: "Cold Start",
-        summary: "Selena's lead begins as the full snapshotted group weekly target.",
+        summary:
+          "The team begins with incomplete surveillance. Completing the first qualifying Field Ops line identifies Selena's real departure route.",
       },
+      rituals: WEEK_ONE_RITUALS,
       briefing: {
         label: "BUREAU FIELD BRIEFING",
         title: "CASE 01: THE LAKEFRONT JOB",

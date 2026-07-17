@@ -51,21 +51,26 @@ describe("Week Simulator", () => {
     }
   });
 
-  it("exposes chase bonuses, sudden death, prediction, and Platform Sweep placeholders", () => {
+  it("exposes chase bonuses, sudden death, prediction, and the real Platform Sweep tiers", () => {
     const state = buildWeekSimulatorState({
       ...DEFAULT_WEEK_SIMULATOR_CONTROLS,
       phase: "sudden_death",
       fieldOpsAverageLines: 3,
-      platformSweepBonus: 0.03,
+      platformSweepContributors: 4,
+      platformSweepActive: true,
       nemesisMode: "complete",
       predictionSubmitted: true,
     });
 
     expect(state.ritualFlags.suddenDeathActive).toBe(true);
     expect(state.ritualFlags.predictionSubmitted).toBe(true);
-    expect(state.platformSweep).toMatchObject({
-      placeholder: true,
+    expect(state.seasonState.platformSweep).toMatchObject({
+      id: "platform_sweep",
+      active: true,
+      contributors: 4,
+      eligiblePlayers: 4,
       earnedBonus: 0.03,
+      nextThresholdCount: null,
     });
     expect(state.seasonState.chase.bonuses).toMatchObject({
       fieldOps: 0.05,
@@ -74,6 +79,39 @@ describe("Week Simulator", () => {
       predictionParticipation: 0.01,
       total: 0.1,
     });
+  });
+
+  it("drives the primary beat, ritual flags, and evidence toggles", () => {
+    const trust = buildWeekSimulatorState({
+      ...DEFAULT_WEEK_SIMULATOR_CONTROLS,
+      phase: "active",
+      dataConfidence: "incomplete",
+    });
+    expect(trust.seasonState.primaryBeat.id).toBe("group_data_incomplete");
+
+    const sweep = buildWeekSimulatorState({
+      ...DEFAULT_WEEK_SIMULATOR_CONTROLS,
+      phase: "active",
+      briefingViewed: true,
+      platformSweepActive: true,
+      platformSweepContributors: 1,
+    });
+    expect(sweep.seasonState.primaryBeat.id).toBe("platform_sweep_started");
+
+    const evidence = buildWeekSimulatorState({
+      ...DEFAULT_WEEK_SIMULATOR_CONTROLS,
+      outcome: "interception",
+      evidenceUnlocked: true,
+      interceptUnlocked: true,
+    });
+    expect(evidence.seasonState.evidencePreview).toMatchObject({
+      unlocked: true,
+      interceptUnlocked: true,
+      standardTitle: "THE BRASS DIAL",
+    });
+    expect(evidence.evidenceBoard.interceptionCount).toBe(1);
+    expect(evidence.evidenceBoard.weeks[0].interceptClue.unlocked).toBe(true);
+    expect(evidence.evidenceBoard.weeks[1].standardEvidence.unlocked).toBe(false);
   });
 
   it("drives the primary action selector from simulator controls", () => {

@@ -13,9 +13,11 @@ let pool: Pool;
 let runGroupSync: typeof runGroupSyncFn;
 
 async function createUser(label: string, groupId: string): Promise<string> {
+  // Trackers connected: Selena performance beats require verified data
+  // (M14 confidence gating), which a disconnected tracker suppresses.
   const r = await pool.query(
-    `INSERT INTO users (google_sub, email, display_name, group_id)
-     VALUES ($1, $2, $3, $4) RETURNING id`,
+    `INSERT INTO users (google_sub, email, display_name, group_id, fitbit_connected)
+     VALUES ($1, $2, $3, $4, TRUE) RETURNING id`,
     [`test-${label}`, `${label}@example.test`, `Player ${label}`, groupId],
   );
   return r.rows[0].id as string;
@@ -85,20 +87,52 @@ describeDb("N1 narrative beats integration", () => {
     await runGroupSync(pool, client, { id: groupId, timezone: "America/Chicago" }, mondayEveningChicago);
     await runGroupSync(pool, client, { id: groupId, timezone: "America/Chicago" }, mondayEveningChicago);
 
+    // Re-running the same date never fires any beat twice.
+    const duplicates = await pool.query(
+      `SELECT beat_id, user_id, fired_on, COUNT(*)::int AS n
+       FROM beat_events GROUP BY beat_id, user_id, fired_on HAVING COUNT(*) > 1`,
+    );
+    expect(duplicates.rowCount).toBe(0);
+
     const events = await pool.query(
       `SELECT be.rendered, bd.slug, be.user_id
-       FROM beat_events be JOIN beat_definitions bd ON bd.id = be.beat_id`,
+       FROM beat_events be JOIN beat_definitions bd ON bd.id = be.beat_id
+       WHERE bd.slug = 'target_blowout'`,
     );
     expect(events.rowCount).toBe(1);
-    expect(events.rows[0].slug).toBe("target_blowout");
     expect(events.rows[0].user_id).toBe(userA);
 
+    // With connected trackers the trust beat has nothing to say.
+    const trust = await pool.query(
+      `SELECT 1 FROM beat_events be JOIN beat_definitions bd ON bd.id = be.beat_id
+       WHERE bd.slug = 'group_data_incomplete'`,
+    );
+    expect(trust.rowCount).toBe(0);
+
     const notifications = await pool.query(
-      `SELECT kind, message FROM notifications WHERE user_id = $1`,
-      [userA],
+      `SELECT kind, message FROM notifications WHERE user_id = $1 AND message = $2`,
+      [userA, events.rows[0].rendered],
     );
     expect(notifications.rowCount).toBe(1);
     expect(notifications.rows[0].kind).toBe("beat");
-    expect(notifications.rows[0].message).toBe(events.rows[0].rendered);
+  });
+
+  it("suppresses Selena performance beats and fires the trust beat when trackers are disconnected", async () => {
+    const { groupId, userA, userB } = await seed();
+    await pool.query(`UPDATE users SET fitbit_connected = FALSE WHERE id IN ($1, $2)`, [userA, userB]);
+    await pool.query(
+      `INSERT INTO step_logs (user_id, log_date, steps) VALUES ($1, '2026-06-08', 16000)`,
+      [userA],
+    );
+    const { evaluateDailyBeats } = await import("../src/services/beats.js");
+    const week = await pool.query(`SELECT id FROM weeks WHERE group_id = $1`, [groupId]);
+    await evaluateDailyBeats(pool, week.rows[0].id, groupId, "2026-06-08");
+
+    const slugs = await pool.query(
+      `SELECT bd.slug FROM beat_events be JOIN beat_definitions bd ON bd.id = be.beat_id`,
+    );
+    const fired = slugs.rows.map((row) => row.slug as string);
+    expect(fired).toContain("group_data_incomplete");
+    expect(fired).not.toContain("target_blowout");
   });
 });

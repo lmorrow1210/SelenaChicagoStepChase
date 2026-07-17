@@ -191,7 +191,13 @@ describeDb("current week route integration", () => {
   it("does not assign Season One config to a legacy city mismatch", async () => {
     const ownerId = await createUser("legacy-owner");
     const group = await createGroup(ownerId);
-    const legacyCity = await pool.query("SELECT id FROM cities WHERE route_order = 2 LIMIT 1");
+    // 009 seeds the full Season One route, so a mismatch now means a city
+    // whose name no longer matches the config at its route position.
+    const legacyCity = await pool.query(
+      `INSERT INTO cities (route_order, name, country, lat, lng)
+       VALUES (99, 'Reykjavik', 'Iceland', 64.14660, -21.94260)
+       RETURNING id`,
+    );
     await pool.query(
       `UPDATE weeks SET city_id = $2 WHERE group_id = $1 AND status = 'active'`,
       [group.id, legacyCity.rows[0].id],
@@ -201,9 +207,12 @@ describeDb("current week route integration", () => {
     expect(response.status).toBe(200);
     const body = await response.json();
 
-    expect(body.city.route_order).toBe(2);
+    expect(body.city.route_order).toBe(99);
     expect(body.seasonState).toBeNull();
     expect(body.week).not.toBeNull();
     expect(body.leaderboard).toEqual(expect.any(Array));
+
+    await pool.query(`DELETE FROM weeks WHERE city_id = $1`, [legacyCity.rows[0].id]);
+    await pool.query(`DELETE FROM cities WHERE id = $1`, [legacyCity.rows[0].id]);
   });
 });

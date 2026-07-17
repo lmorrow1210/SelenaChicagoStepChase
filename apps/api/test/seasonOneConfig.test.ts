@@ -61,7 +61,15 @@ describe("Season One config", () => {
     });
     expect(WEEK_ONE_CHICAGO.briefing.body).toHaveLength(3);
     expect(WEEK_ONE_CHICAGO.briefing.supportingCards.map((card) => card.id)).toEqual(["field_ops", "prediction", "nemesis"]);
-    expect(WEEK_ONE_CHICAGO.fieldOps.fixedChallengeCodes).toHaveLength(25);
+    // Exactly one code per non-free board slot (5×5 minus the free space).
+    // The two Chicago story tiles are payoffs, not tiles.
+    expect(WEEK_ONE_CHICAGO.fieldOps.fixedChallengeCodes).toHaveLength(24);
+    expect(new Set(WEEK_ONE_CHICAGO.fieldOps.fixedChallengeCodes).size).toBe(24);
+    expect(WEEK_ONE_CHICAGO.fieldOps.fixedChallengeCodes).not.toContain("find_the_platform");
+    expect(WEEK_ONE_CHICAGO.fieldOps.firstLinePayoff).toContain("departure platform");
+    expect(WEEK_ONE_CHICAGO.rituals.midweek.storyReveal.headline).toBe("DEPARTURE ROUTE CONFIRMED");
+    expect(WEEK_ONE_CHICAGO.rituals.suddenDeath.headline).toBe("SUDDEN DEATH");
+    expect(WEEK_ONE_CHICAGO.rituals.caseClosing.body).toBe("Final field reports are being reconciled.");
     expect(WEEK_ONE_CHICAGO.specialOperation).toMatchObject({
       id: "platform_sweep",
       type: "participation_threshold",

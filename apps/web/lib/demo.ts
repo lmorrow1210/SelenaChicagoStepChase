@@ -52,34 +52,45 @@ const CHICAGO_LANDMARKS = [
 
 const NY_STATE = ["unlocked", "unlocked", "unlocked", "unlocked", "today", "locked", "locked"];
 
+// The fixed Week 1 Chicago board (migration 008 definitions): 24 configured
+// tiles + the free space, in the shared deterministic layout's spirit.
 function bingoTiles() {
-  const labels = [
-    "10k steps", "Morning walk", "Beat your nemesis", "2 workouts", "8h sleep",
-    "Hit your target", "Stairs day", "Cardio zone", "Step streak ×3", "Lunch walk",
-    "15k steps", "Evening jog", "FREE", "Peak HR zone", "No-elevator day",
-    "Sunrise steps", "30 active min", "Outpace Selena", "Weekend long walk", "12k steps",
-    "Hydrate + move", "Group workout", "5k before noon", "Bedtime by 11", "Hot pursuit",
+  const tiles: Array<{ label: string; icon: string; category: string; source: "auto" | "honor"; state: string; gifted?: boolean }> = [
+    { label: "First Footfall: 1,000 steps in a day", icon: "step", category: "steps", source: "auto", state: "complete" },
+    { label: "Morning Surveillance: 1,000 before noon", icon: "clock", category: "steps", source: "auto", state: "complete" },
+    { label: "Send Backup: gift a tile assist", icon: "nemesis", category: "social", source: "auto", state: "incomplete" },
+    { label: "On the Move: 5,000 steps in a day", icon: "step", category: "steps", source: "auto", state: "complete" },
+    { label: "Full Shift: 100% of daily target", icon: "flame", category: "steps", source: "auto", state: "in_progress" },
+    { label: "Closing Distance: 50% of daily target", icon: "flame", category: "steps", source: "auto", state: "complete" },
+    { label: "Keep the Trail: 2,000 steps two days running", icon: "step", category: "steps", source: "auto", state: "complete" },
+    { label: "Split Shift: 1,000 morning + 1,000 evening", icon: "clock", category: "steps", source: "auto", state: "incomplete" },
+    { label: "Steady Signal: 500 steps on five days", icon: "step", category: "steps", source: "auto", state: "in_progress" },
+    { label: "Take the Long Way: add movement to a trip", icon: "star", category: "steps", source: "honor", state: "incomplete" },
+    { label: "Hot Pursuit: 10,000 steps in a day", icon: "step", category: "steps", source: "auto", state: "complete" },
+    { label: "After-Hours Watch: 1,000 after 6pm", icon: "clock", category: "steps", source: "auto", state: "incomplete" },
+    { label: "FREE", icon: "star", category: "wildcard", source: "auto", state: "complete" },
+    { label: "Unit Mobilized: 3 operatives hit 50% today", icon: "globe", category: "social", source: "auto", state: "complete" },
+    { label: "Eyes Up: notice a new detail around you", icon: "star", category: "wildcard", source: "honor", state: "incomplete" },
+    { label: "City Sweep: 15,000 steps this week", icon: "globe", category: "steps", source: "auto", state: "complete" },
+    { label: "Accept Backup: receive a tile assist", icon: "nemesis", category: "social", source: "auto", state: "complete", gifted: true },
+    { label: "8,000 steps in a day", icon: "step", category: "steps", source: "auto", state: "complete" },
+    { label: "Three-Day Tail: steps three days running", icon: "step", category: "steps", source: "auto", state: "in_progress" },
+    { label: "Walk With Someone: friend, family, or pet", icon: "nemesis", category: "social", source: "honor", state: "incomplete" },
+    { label: "No Cold Trail: steps every day this week", icon: "step", category: "steps", source: "auto", state: "incomplete" },
+    { label: "Full Team Report: everyone syncs in 24h", icon: "globe", category: "social", source: "auto", state: "complete" },
+    { label: "12,000 steps in a day", icon: "step", category: "steps", source: "auto", state: "incomplete" },
+    { label: "Choose the Longer Route when safe", icon: "star", category: "steps", source: "honor", state: "incomplete" },
+    { label: "Log any workout today", icon: "workout", category: "workout", source: "auto", state: "incomplete" },
   ];
-  const done = new Set([0, 1, 2, 5, 6, 9, 12, 13, 16, 19]);
-  const honorIdx = new Set([4, 9, 15, 21, 23]); // self-reported objectives
-  const categoryFor = (label: string): string => {
-    const l = label.toLowerCase();
-    if (/sleep|bedtime/.test(l)) return "sleep";
-    if (/hr |heart|cardio/.test(l)) return "cardio";
-    if (/workout/.test(l)) return "workout";
-    if (/hydrate/.test(l)) return "hydration";
-    if (/nemesis|selena|group|pursuit/.test(l)) return "social";
-    return "steps";
-  };
-  return labels.map((label, i) => ({
+  return tiles.map((tile, i) => ({
     challenge_id: i,
-    label,
-    icon: i % 3 === 0 ? "step" : i % 3 === 1 ? "workout" : "flame",
-    category: i === 12 ? "wildcard" : categoryFor(label),
-    source: honorIdx.has(i) ? "honor" : "auto",
-    state: i === 12 ? "complete" : done.has(i) ? "complete" : i % 4 === 0 ? "in_progress" : "incomplete",
+    label: tile.label,
+    icon: tile.icon,
+    category: tile.category,
+    source: tile.source,
+    state: tile.state,
     free: i === 12 ? true : undefined,
-    gifted_by: i === 9 ? "demo-maya" : undefined,
+    gifted_by: tile.gifted ? "demo-maya" : undefined,
     completed_at: null,
   }));
 }

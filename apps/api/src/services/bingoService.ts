@@ -9,6 +9,7 @@ import {
   type DetectorContext,
 } from "./bingo.js";
 import type { BingoTile } from "@one-step-ahead/shared";
+import { seasonWeekForRouteOrder } from "./evidenceService.js";
 
 /**
  * Persist a new bingo card for a user+week if one doesn't already exist.
@@ -30,11 +31,31 @@ export async function createOrGetBingoCard(
   if (existing.rowCount) return existing.rows[0];
 
   const challenges = await db.query(
-    "SELECT id, category FROM bingo_challenge_definitions ORDER BY id",
+    "SELECT id, code, category FROM bingo_challenge_definitions ORDER BY id",
   );
 
+  // Season One fixed boards: a configured week (Week 1 Chicago) draws its 24
+  // tiles from the chapter's fixed challenge codes instead of the random
+  // pool. Placement stays deterministic per week; accessibility
+  // substitutions below still apply per player.
+  const weekCity = await db.query(
+    `SELECT c.route_order, c.name FROM weeks w JOIN cities c ON c.id = w.city_id WHERE w.id = $1`,
+    [weekId],
+  );
+  const seasonWeek = weekCity.rowCount
+    ? seasonWeekForRouteOrder(Number(weekCity.rows[0].route_order), weekCity.rows[0].name)
+    : null;
+  const fixedCodes = new Set(seasonWeek?.fieldOps.fixedChallengeCodes ?? []);
+  const fixedPool = fixedCodes.size
+    ? challenges.rows.filter((challenge) => fixedCodes.has(challenge.code))
+    : [];
+  // Fall back to the shared random pool if any configured code is missing.
+  const cardPool = fixedPool.length === fixedCodes.size && fixedPool.length >= 24
+    ? fixedPool
+    : challenges.rows;
+
   // Shared weekly base — same 25 tiles, same positions, for the whole squad.
-  let tiles = generateCard(challenges.rows, seededRand(weekId));
+  let tiles = generateCard(cardPool, seededRand(weekId));
 
   // Per-player accessibility substitutions.
   const prefRows = await db.query(
@@ -168,13 +189,41 @@ export async function updateBingoCard(
     [userId, date],
   );
 
-  // sleep_nights + bedtime_before: this week's synced nights
+  // sleep_nights + bedtime_before + consecutive/active-day + weekly-step
+  // detectors: this week's synced days for the user
   const weekSleepRows = await db.query(
-    `SELECT to_char(log_date, 'YYYY-MM-DD') AS log_date, sleep_minutes, bedtime
+    `SELECT to_char(log_date, 'YYYY-MM-DD') AS log_date, steps, sleep_minutes, bedtime
      FROM step_logs
      WHERE user_id = $1 AND log_date BETWEEN $2::date AND $3::date
      ORDER BY log_date`,
     [userId, starts_on, ends_on],
+  );
+
+  // assist_sent / assist_received: Gift-a-Tile activity this week
+  const giftRow = await db.query(
+    `SELECT COUNT(*) FILTER (WHERE from_user = $2)::int AS sent,
+            COUNT(*) FILTER (WHERE to_user = $2)::int AS received
+     FROM tile_gifts WHERE week_id = $1`,
+    [weekId, userId],
+  );
+
+  // group_daily_target_ratio: every member's steps + daily target for `date`
+  const groupDayRows = await db.query(
+    `SELECT COALESCE(sl.steps, 0)::int AS steps,
+            (u.weekly_step_target / 7.0)::float AS daily_target
+     FROM users u
+     LEFT JOIN step_logs sl ON sl.user_id = u.id AND sl.log_date = $2
+     WHERE u.group_id = $1`,
+    [group_id, date],
+  );
+
+  // group_sync_freshness: per-member sync age in hours (null = never)
+  const syncAgeRows = await db.query(
+    `SELECT CASE WHEN last_synced_at IS NULL THEN NULL
+                 ELSE EXTRACT(EPOCH FROM (now() - last_synced_at)) / 3600.0
+            END AS age_hours
+     FROM users WHERE group_id = $1`,
+    [group_id],
   );
 
   const log = logRow.rows[0];
@@ -200,6 +249,18 @@ export async function updateBingoCard(
       date: r.log_date,
       bedtime: r.bedtime == null ? null : new Date(r.bedtime).toISOString(),
     })),
+    daily_target: targetRow.rows[0] ? Number(targetRow.rows[0].weekly_step_target) / 7 : undefined,
+    week_step_days: weekSleepRows.rows.map((r) => ({ date: r.log_date, steps: Number(r.steps) })),
+    week_steps_total: weekSleepRows.rows.reduce((sum, r) => sum + Number(r.steps), 0),
+    assists_sent: Number(giftRow.rows[0]?.sent ?? 0),
+    assists_received: Number(giftRow.rows[0]?.received ?? 0),
+    group_day_progress: groupDayRows.rows.map((r) => ({
+      steps: Number(r.steps),
+      daily_target: Number(r.daily_target),
+    })),
+    group_sync_ages_hours: syncAgeRows.rows.map((r) =>
+      r.age_hours == null ? null : Number(r.age_hours),
+    ),
     // hot_pursuit: all group members worked out today
   };
 
