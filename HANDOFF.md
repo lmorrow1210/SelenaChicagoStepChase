@@ -477,15 +477,88 @@ beat notifications.**
 - Tests: API suite is now **74/74**. Coverage includes pure trigger rules,
   cron idempotency for day beats, and Sunday reveal beat creation.
 
+### M14 — Week 1 Chicago vertical slice stabilized (July 17, 2026)
+
+**Week 1 is implemented and verified on `codex/week-one`; PR #3 still needs
+human review/merge.**
+- Preserved Claude's local vertical-slice WIP in commit
+  `9f5a9ee WIP: implement Week 1 vertical slice`.
+- Finished the remaining demo/OpenAPI cleanup in
+  `d714085 Finish Week 1 demo contract`, pushed to `origin/codex/week-one`.
+- Week 1 architecture now uses shared production logic for chase math,
+  weekly phases, data confidence, primary action, primary beat, and Platform
+  Sweep tiers. The web simulator imports those shared calculators and the
+  production narrative components, not API source files.
+- Migration `008_week_one_narrative.sql` adds Week 1 narrative persistence,
+  ritual views, Season Evidence unlocks, and fixed Week 1 Field Ops challenge
+  definitions. Migration `009_season_one_route.sql` adds the 13-city Season
+  One route.
+- `/api/weeks/current` now returns the full `seasonState` contract:
+  chapter metadata, phase, data confidence, chase calculation, primary action,
+  primary beat, Platform Sweep, evidence preview, ritual views, previous case,
+  and sync confidence.
+- New routes: `/api/evidence` for the Season Evidence Board and
+  `/api/rituals/view` for persisted ritual views.
+- Rollover finalizes Week 1 outcomes, unlocks evidence, and supports late-sync
+  reconciliation without duplicating rewards/evidence. Tests cover rollover
+  idempotency, late-sync correction, Platform Sweep tiers, evidence unlocks,
+  and all four final outcomes.
+- Production surfaces compile: Map/home, Monday Briefing, Midweek Update,
+  Final Push, sudden death treatment, Case Closing, Case Closed report,
+  Evidence Board, Field Ops/Prediction/Nemesis narrative copy, and simulator.
+- Static demo fixtures now include the full Week 1 current-week contract plus
+  `/api/evidence`; `test/demoFixture.test.ts` guards this so Pages cannot drift
+  from the API contract silently.
+- OpenAPI was tightened so required Week 1 fields are required in generated
+  web types; `apps/web/lib/api-types.d.ts` was regenerated.
+- Verification on the finished branch:
+  - `TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" npm run test -w apps/api`
+    → **153/153 passed**.
+  - API and web typechecks passed.
+  - Normal web build passed.
+  - Static Pages export passed with
+    `NEXT_OUTPUT=export NEXT_PUBLIC_DEMO=1 NEXT_PUBLIC_BASE_PATH=/SelenaChicagoStepChase NEXT_PUBLIC_API_URL=https://example.invalid`.
+  - OpenAPI generated types were stable after regeneration.
+  - Raw-hex frontend policy passed.
+  - Contrast audit passed **23/23**.
+
 ## What is NOT done — next tasks in priority order
 
-1. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
-2. **Deploy**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
-3. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026), re-verified July 2026 under the Field Terminal palette**: all screens back at **100** after the palette (fixes: `--phosphor-dim` #429A57→#4AAB61 so muted text clears AA even where axe blends the tan bevel edge into raised faces; Toast message text is primary `--phosphor`). Viewport sweep 390/768/1440: no horizontal overflow on any screen. Original June 2026 detail: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
-4. ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`; `DELETE /api/groups/me/members/:userId` with nemesis re-pair (leave re-pairs too); raw-hex CI gate; global reduced-motion kill rule; **past-city trophy view** (`GET /api/cities/:id` + `/city/[cityId]` page, visited map pins link to it); **OpenAPI 3.0 spec** (`apps/api/openapi.yaml`) + generated web types (`apps/web/lib/api-types.d.ts`, regenerate with `npm run gen:api-types -w apps/web`, CI fails on drift).
-5. **Confirm with Lindsey**: Saturday sudden-death tiebreak (plan §10 flag) before real users.
-6. ~~City icons — 30 SVGs from Gemini in progress~~ **DONE (June 2026)**: 38 city landmark silhouettes hand-authored and integrated (37 US + Reykjavik for the seeded route). Chicago, Tokyo, Cairo, Oslo, Lima, Reykjavik (+ matched US cities): Miami, Orlando, Charlotte, Indianapolis, San Francisco, Portland, Memphis, Nashville, Denver, Oklahoma City, St. Louis, Boston, Minneapolis, Las Vegas, New Orleans, Atlanta, Detroit, Pittsburgh, Houston, Phoenix, Philadelphia, San Antonio, Salt Lake City, Santa Fe, Honolulu, Anchorage, Austin, San Diego, Seattle. Each targets a single landmark silhouette readable at 24–50 px. Slug alias map handles "New York City" → "newyork". All seeded + demo-route cities covered. Demo route: Chicago → New York → Washington D.C. → Los Angeles.
-7. ~~**v2 re-skin — visual polish pass needed (June 2026)**~~ — **RETIRED (July 2026, M11 session)**: the flagged risk was v1 type sizes under the wide v2 pixel font, but v3 (UX/density pass, new type scale) and v4 (Field Terminal fonts) superseded that world entirely. The deferred screenshot-driven pass was finally run against the deployed demo: every screen (login, map, fieldops, dossier, prediction, nemesis, profile, city/[id], onboarding steps) eyeballed at 1440 **and** 390 — no oversized display type, no overflow (scrollWidth == clientWidth on the dense screens), long city names wrap fine. Nothing to fix.
+1. **Review PR #3 — Week 1 vertical slice.** Branch `codex/week-one` is pushed
+   and verified at `d714085`. Let CI finish, review the diff, and do not merge
+   unless Lindsey explicitly asks. The local branch should be clean and aligned
+   with `origin/codex/week-one`.
+2. **Manual Week 1 product smoke before merge.** In demo/export mode, click
+   through `/map`, `/fieldops`, `/prediction`, `/nemesis`, `/evidence`, and
+   `/dev/week-simulator`. Confirm the story reads correctly, all four outcome
+   states are understandable, and no Week 2+ sealed evidence leaks.
+3. **After approval, merge PR #3 and confirm Pages deploy.** The live demo on
+   `main` will not show Week 1 until the PR is merged and `.github/workflows/pages.yml`
+   completes.
+4. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
+5. **Deploy**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
+6. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026), re-verified July 2026 under the Field Terminal palette**: all screens back at **100** after the palette (fixes: `--phosphor-dim` #429A57→#4AAB61 so muted text clears AA even where axe blends the tan bevel edge into raised faces; Toast message text is primary `--phosphor`). Viewport sweep 390/768/1440: no horizontal overflow on any screen. Original June 2026 detail: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
+7. **Confirm with Lindsey before real users**: Saturday sudden-death is now
+   implemented as part of the Week 1 slice, but the final product call on the
+   exact tiebreak rule/treatment is still owner-owned.
+8. **Next agent-workable product milestone after Week 1 merges**: expand
+   Weeks 2-13 from structural config into polished content, one bounded week
+   or act at a time. Reuse the Week 1 shared architecture; do not create
+   custom per-city systems.
+
+Already done, kept here so future agents do not chase ghosts:
+- ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`;
+  `DELETE /api/groups/me/members/:userId` with nemesis re-pair (leave re-pairs
+  too); raw-hex CI gate; global reduced-motion kill rule; **past-city trophy
+  view** (`GET /api/cities/:id` + `/city/[cityId]` page, visited map pins link
+  to it); **OpenAPI 3.0 spec** (`apps/api/openapi.yaml`) + generated web types
+  (`apps/web/lib/api-types.d.ts`, regenerate with
+  `npm run gen:api-types -w apps/web`, CI fails on drift).
+- ~~City icons — 30 SVGs from Gemini in progress~~ **DONE (June 2026)**: 38
+  city landmark silhouettes hand-authored and integrated.
+- ~~v2 re-skin visual polish pass needed~~ — **RETIRED (July 2026, M11
+  session)**: v3/v4 superseded the old risk and the deployed demo was
+  screenshot-checked at desktop/mobile sizes.
 
 ---
 

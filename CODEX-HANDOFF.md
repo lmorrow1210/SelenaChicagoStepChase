@@ -1,6 +1,7 @@
 # CODEX-HANDOFF.md — One Step Ahead: state + the Narrative DNA build
 
-Written 2026-07-16 for a Codex session (or any coding agent). Read
+Written 2026-07-16 for a Codex session (or any coding agent). Updated
+2026-07-17 after the Week 1 vertical-slice branch was stabilized. Read
 **`AGENTS.md` first** — it is the working guide with the CI gates, hard
 rules, and design-system law. `HANDOFF.md` holds deep per-milestone history.
 This document adds two things on top: (1) exact current state and the queued
@@ -11,16 +12,36 @@ engineering work, and (2) the full spec for the **Narrative DNA** initiative
 
 ## 1. Current state
 
-- Repo: `main` contains M12 Sunday nemesis reveal; local branch contains M13
-  Beat Engine changes pending PR.
-- CI + GitHub Pages deploy: **green**. Live demo:
-  https://lmorrow1210.github.io/SelenaChicagoStepChase/
-- API tests: **74/74** against Postgres (`brew services start postgresql@16`;
-  test db `one_step_ahead_test` exists).
-- Just shipped (2026-07-16): Narrative DNA N1 Beat Engine (M13). Migration
-  `007` adds `beat_definitions`/`beat_events` and `notifications.kind='beat'`;
-  cron and rollover evaluate deterministic beats; Sunday reveal sends Selena
-  intercepts naming each nemesis; beat toasts render as paper calling cards.
+- Branch: `codex/week-one`.
+- Latest pushed branch commit: `d714085 Finish Week 1 demo contract`
+  (`origin/codex/week-one`). This sits on top of Claude's preserved WIP
+  commit `9f5a9ee WIP: implement Week 1 vertical slice`.
+- Working tree was clean after push on 2026-07-17.
+- **Do not restart Week 1.** The preserved WIP was inspected and finished;
+  the remaining demo/OpenAPI gaps were patched in `d714085`.
+- PR #3 is still the active Week 1 PR. Do not merge it unless Lindsey
+  explicitly asks.
+- Verification run on the finished branch:
+  - `TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" npm run test -w apps/api`
+    → **153/153 passed**.
+  - `npx tsc --noEmit -p apps/api/tsconfig.json` → passed.
+  - `npx tsc --noEmit -p apps/web/tsconfig.json` → passed.
+  - `npm run build -w apps/web` → passed.
+  - `NEXT_OUTPUT=export NEXT_PUBLIC_DEMO=1 NEXT_PUBLIC_BASE_PATH=/SelenaChicagoStepChase NEXT_PUBLIC_API_URL=https://example.invalid npm run build -w apps/web`
+    → passed.
+  - OpenAPI generated types stable after `npm run gen:api-types -w apps/web`.
+  - Raw-hex frontend policy scan → passed.
+  - `node scripts/contrast-audit.mjs` → **23/23 passed**.
+- The full database suite covers the requested Week 1 risk points:
+  rollover idempotency, late-sync reconciliation, Platform Sweep tiers,
+  evidence unlock/deduplication, and all four final outcomes.
+- Live `main` demo may still reflect the pre-Week-1 state until PR #3 is
+  merged and Pages deploys: https://lmorrow1210.github.io/SelenaChicagoStepChase/
+- Previously shipped (2026-07-16): Narrative DNA N1 Beat Engine (M13).
+  Migration `007` adds `beat_definitions`/`beat_events` and
+  `notifications.kind='beat'`; cron and rollover evaluate deterministic beats;
+  Sunday reveal sends Selena intercepts naming each nemesis; beat toasts
+  render as paper calling cards.
 - Previously shipped (2026-07-16): Sunday nemesis reveal (A1/M12). Migration `006`
   adds `scheduled` weeks and unique active/scheduled partial indexes; Sunday
   cron creates next week's scheduled row + pairings; Monday rollover activates
@@ -195,21 +216,44 @@ for the same date → one `beat_events` row) modeled on
 `test/bingoIntraday.integration.test.ts`. Update `demo.ts` with 2–3 fixture
 beats so the demo deploy shows the feature.
 
-### Phase N2 — ritual events (after N1)
+### Week 1 vertical slice — complete on branch, pending PR review
 
-- **Monday briefing:** a composed screen/section assembling the week-open
-  state (new nemesis, Selena's next city, last week's beats) with the telex
-  print-in treatment. Mostly frontend; data all exists once N1 + A1 land.
-- **Saturday sudden death treatment:** one of the few earned uses of
-  `--signal-red` — a takeover banner on the nemesis screen while a
-  tiebreak is live. Red stays RARE everywhere else (hard rule).
-- **Sunday reveal as fiction:** deliver A1's reveal through a beat.
+The Week 1 Chicago reference implementation is now present on
+`codex/week-one`:
 
-### Phase N3 — seasons & evidence board (needs owner product calls first)
+- Season One config has the locked 13-city route with Week 1 polished and
+  Weeks 2-13 structurally present.
+- Shared package owns chase math, weekly phase selection, data confidence,
+  primary action, primary beat, and Platform Sweep tier math.
+- API migration `008` adds Week 1 narrative persistence and fixed Field Ops
+  definitions; migration `009` adds the Season One route city seed.
+- `/api/weeks/current` returns the enriched `seasonState`.
+- `/api/evidence` returns the Season Evidence Board.
+- `/api/rituals/view` persists ritual views.
+- Rollover finalizes chase outcomes, evidence unlocks, and late-sync
+  reconciliation idempotently.
+- Production Map, ritual overlays, Case Closed report, Evidence Board, and
+  dev simulator compile and use shared production logic.
+- Static demo fixtures now include the full Week 1 current-week contract and
+  `/api/evidence`; guard tests pin the shape.
+- OpenAPI and generated web types are in sync.
 
-Don't build yet. Decisions the owner must make: season length (city count),
-what "catching" Selena means mechanically at a finale, whether progress
-resets. Park it; note it in `HANDOFF.md` when N1/N2 ship.
+### Next steps
+
+1. **Review PR #3 on GitHub.** Confirm the branch head is `d714085` or newer,
+   read the diff, and let CI finish. Do not merge unless Lindsey asks.
+2. **Optional manual smoke before merge:** run the static demo locally from the
+   branch, click `/map`, `/fieldops`, `/prediction`, `/nemesis`, `/evidence`,
+   and `/dev/week-simulator`, and verify the Week 1 story surfaces feel right.
+3. **After Lindsey approves, merge PR #3**, then confirm GitHub Pages deploys
+   the new static demo successfully.
+4. **Owner-only next items:** Health API sandbox smoke test, Railway API
+   deploy, Vercel web deploy, physical-device QA, and final product decisions
+   around Saturday sudden-death and Selena costume/palette.
+5. **Agent-workable after Week 1 is merged:** expand Weeks 2-13 from structural
+   config into polished content, keeping the Week 1 architecture as the
+   template. Do this one bounded milestone at a time; do not build a custom
+   city system.
 
 ---
 
