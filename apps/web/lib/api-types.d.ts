@@ -1191,7 +1191,7 @@ export interface paths {
         };
         /**
          * My nemesis duel this week
-         * @description Lazily creates the week's pairings on first request.
+         * @description Returns the active week's duel. On Sunday, if next week's matchups have been prepared, returns that scheduled reveal instead. Pairing is still lazy as a fallback if no matchup rows exist yet.
          */
         get: {
             parameters: {
@@ -1223,7 +1223,7 @@ export interface paths {
                             weekMax?: number;
                             outcome?: string | null;
                             /** @enum {string} */
-                            state?: "active" | "tiebreak" | "complete" | "bye" | "no_matchup";
+                            state?: "scheduled" | "active" | "tiebreak" | "complete" | "bye" | "no_matchup";
                         };
                     };
                 };
@@ -1512,7 +1512,7 @@ export interface components {
             ends_on?: string;
             group_target_steps?: number;
             /** @enum {string} */
-            status?: "active" | "closed";
+            status?: "scheduled" | "active" | "closed";
             group_total_steps?: number | null;
             target_hit?: boolean | null;
         };

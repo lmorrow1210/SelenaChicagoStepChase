@@ -2,8 +2,11 @@ import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
 import type { pool as appPool } from "../src/db/pool.js";
 import type { weekRollover as weekRolloverFn } from "../src/services/weekRollover.js";
+import type { prepareNextWeekReveal as prepareNextWeekRevealFn } from "../src/services/weekRollover.js";
 import type { pairAndPersist as pairAndPersistFn } from "../src/services/nemesisService.js";
 import type { createOrGetBingoCard as createCardFn } from "../src/services/bingoService.js";
+import type { runGroupSync as runGroupSyncFn } from "../src/services/cron.js";
+import type { MockFitbitClient as MockFitbitClientClass } from "../src/services/fitbitClient.js";
 
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
 const describeDb = TEST_DATABASE_URL ? describe : describe.skip;
@@ -12,8 +15,17 @@ type Pool = typeof appPool;
 
 let pool: Pool;
 let weekRollover: typeof weekRolloverFn;
+let prepareNextWeekReveal: typeof prepareNextWeekRevealFn;
 let pairAndPersist: typeof pairAndPersistFn;
 let createOrGetBingoCard: typeof createCardFn;
+let runGroupSync: typeof runGroupSyncFn;
+let MockFitbitClient: typeof MockFitbitClientClass;
+
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 async function createUser(label: string, groupId: string | null): Promise<string> {
   const r = await pool.query(
@@ -25,7 +37,7 @@ async function createUser(label: string, groupId: string | null): Promise<string
   return r.rows[0].id;
 }
 
-async function seedGroupWeek(): Promise<{
+async function seedGroupWeek(startsOn = "2026-06-01"): Promise<{
   groupId: string;
   weekId: string;
   userA: string;
@@ -42,9 +54,9 @@ async function seedGroupWeek(): Promise<{
   const city = await pool.query(`SELECT id FROM cities WHERE route_order = 1`);
   const w = await pool.query(
     `INSERT INTO weeks (group_id, city_id, starts_on, ends_on, group_target_steps)
-     VALUES ($1, $2, '2026-06-01', '2026-06-07', 140000)
+     VALUES ($1, $2, $3, $4, 140000)
      RETURNING id, to_char(starts_on, 'YYYY-MM-DD') AS starts_on`,
-    [groupId, city.rows[0].id],
+    [groupId, city.rows[0].id, startsOn, addDays(startsOn, 6)],
   );
   return {
     groupId,
@@ -64,9 +76,11 @@ describeDb("weekRollover integration", () => {
     await resetDatabase(TEST_DATABASE_URL!);
 
     ({ pool } = await import("../src/db/pool.js"));
-    ({ weekRollover } = await import("../src/services/weekRollover.js"));
+    ({ weekRollover, prepareNextWeekReveal } = await import("../src/services/weekRollover.js"));
     ({ pairAndPersist } = await import("../src/services/nemesisService.js"));
     ({ createOrGetBingoCard } = await import("../src/services/bingoService.js"));
+    ({ runGroupSync } = await import("../src/services/cron.js"));
+    ({ MockFitbitClient } = await import("../src/services/fitbitClient.js"));
   });
 
   beforeEach(async () => {
@@ -173,6 +187,94 @@ describeDb("weekRollover integration", () => {
       [groupId],
     );
     expect(Number(weekCount.rows[0].n)).toBe(2);
+  });
+
+  it("prepares next week's nemesis reveal as a scheduled week on Sunday", async () => {
+    const { groupId, weekId } = await seedGroupWeek("2026-06-08");
+
+    const first = await prepareNextWeekReveal(pool, weekId);
+    const second = await prepareNextWeekReveal(pool, weekId);
+    expect(second.nextWeekId).toBe(first.nextWeekId);
+
+    const next = await pool.query(
+      `SELECT w.status, to_char(w.starts_on, 'YYYY-MM-DD') AS starts_on, c.route_order
+       FROM weeks w JOIN cities c ON c.id = w.city_id
+       WHERE w.id = $1`,
+      [first.nextWeekId],
+    );
+    expect(next.rows[0].status).toBe("scheduled");
+    expect(next.rows[0].starts_on).toBe("2026-06-15");
+    expect(Number(next.rows[0].route_order)).toBe(2);
+
+    const counts = await pool.query(
+      `SELECT
+         COUNT(*) FILTER (WHERE status = 'active')::int AS active,
+         COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled
+       FROM weeks WHERE group_id = $1`,
+      [groupId],
+    );
+    expect(Number(counts.rows[0].active)).toBe(1);
+    expect(Number(counts.rows[0].scheduled)).toBe(1);
+
+    const matchups = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM nemesis_matchups WHERE week_id = $1`,
+      [first.nextWeekId],
+    );
+    expect(Number(matchups.rows[0].n)).toBe(1);
+  });
+
+  it("the Sunday cron hook prepares the reveal without duplicating it", async () => {
+    const { groupId } = await seedGroupWeek("2026-06-08");
+    const client = new MockFitbitClient();
+    const group = { id: groupId, timezone: "America/Chicago" };
+    const sundayMidnightChicago = new Date("2026-06-14T05:00:00Z");
+
+    await runGroupSync(pool, client, group, sundayMidnightChicago);
+    await runGroupSync(pool, client, group, sundayMidnightChicago);
+
+    const scheduled = await pool.query(
+      `SELECT id FROM weeks WHERE group_id = $1 AND status = 'scheduled'`,
+      [groupId],
+    );
+    expect(scheduled.rowCount).toBe(1);
+
+    const matchups = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM nemesis_matchups WHERE week_id = $1`,
+      [scheduled.rows[0].id],
+    );
+    expect(Number(matchups.rows[0].n)).toBe(1);
+  });
+
+  it("activates the scheduled reveal week during Monday rollover", async () => {
+    const { groupId, weekId, userA } = await seedGroupWeek("2026-06-08");
+    const reveal = await prepareNextWeekReveal(pool, weekId);
+    await pool.query(
+      `INSERT INTO step_logs (user_id, log_date, steps)
+       SELECT $1, d::date, 21000 FROM generate_series('2026-06-08'::date, '2026-06-14'::date, '1 day') d`,
+      [userA],
+    );
+
+    const rollover = await weekRollover(pool, weekId);
+    expect(rollover.nextWeekId).toBe(reveal.nextWeekId);
+
+    const next = await pool.query(`SELECT status FROM weeks WHERE id = $1`, [reveal.nextWeekId]);
+    expect(next.rows[0].status).toBe("active");
+
+    const counts = await pool.query(
+      `SELECT
+         COUNT(*) FILTER (WHERE status = 'active')::int AS active,
+         COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled
+       FROM weeks WHERE group_id = $1`,
+      [groupId],
+    );
+    expect(Number(counts.rows[0].active)).toBe(1);
+    expect(Number(counts.rows[0].scheduled)).toBe(0);
+
+    const nextCards = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM bingo_cards WHERE week_id = $1`,
+      [reveal.nextWeekId],
+    );
+    expect(Number(nextCards.rows[0].n)).toBe(2);
   });
 
   it("wraps the city route after the last city", async () => {

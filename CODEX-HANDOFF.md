@@ -11,12 +11,17 @@ engineering work, and (2) the full spec for the **Narrative DNA** initiative
 
 ## 1. Current state
 
-- Repo: `main` @ `cfd41a2`, tree clean, everything pushed.
+- Repo: `main` plus local M12 changes for Sunday nemesis reveal; push pending.
 - CI + GitHub Pages deploy: **green**. Live demo:
   https://lmorrow1210.github.io/SelenaChicagoStepChase/
-- API tests: **68/68** against Postgres (`brew services start postgresql@16`;
+- API tests: **71/71** against Postgres (`brew services start postgresql@16`;
   test db `one_step_ahead_test` exists).
-- Just shipped (2026-07-16): the `bedtime_before` bingo detector.
+- Just shipped (2026-07-16): Sunday nemesis reveal (A1/M12). Migration `006`
+  adds `scheduled` weeks and unique active/scheduled partial indexes; Sunday
+  cron creates next week's scheduled row + pairings; Monday rollover activates
+  that row while leaving all scoring/close-out on Monday after full Mon–Sun
+  data; `/api/nemesis/current` and the demo show `state: "scheduled"`.
+- Previously shipped (2026-07-16): the `bedtime_before` bingo detector.
   Product rule, now locked: a night qualifies only when bedtime falls
   **18:00–23:59 on the calendar day BEFORE the wake-up log date**;
   post-midnight bedtimes (1 AM, 2 AM) always fail, no exceptions.
@@ -32,7 +37,8 @@ engineering work, and (2) the full spec for the **Narrative DNA** initiative
   `closeElapsedDays` → and at **Monday 00:00 group-local**, `weekRollover`.
 - `weekRollover` (`services/weekRollover.ts`) closes the week in ONE
   transaction: predictions, badges, nemesis Saturday-tiebreak fallback,
-  bingo freeze, creates next week's row, calls `pairAndPersist`.
+  bingo freeze, then activates/creates the next week and ensures cards +
+  pairings. Sunday preparation is split into `prepareNextWeekReveal`.
 - Notifications: plain table `notifications (user_id, kind, message, read,
   created_at)`; `GET /api/notifications` returns latest 20; writes happen
   inline (see `weekRollover.ts:31,267`, `cron.ts:48`).
@@ -45,41 +51,19 @@ engineering work, and (2) the full spec for the **Narrative DNA** initiative
 
 ---
 
-## 2. Track A — queued engineering (do this first or in parallel)
+## 2. Track A — queued engineering
 
-### A1. Sunday nemesis reveal (largest piece; go slow)
+### A1. Sunday nemesis reveal — shipped M12
 
-Requirement: nemesis pairing must be **revealed Sunday**, not Monday, so the
-week "starts" Monday with matchups known.
-
-Design (already agreed — don't re-derive):
-
-- Add a third week status `'scheduled'` via a **new** migration
-  (`006_…`; never edit shipped migrations).
-- Split `weekRollover` into:
-  - **(a) Sunday step** (new cron trigger): create next week's row as
-    `'scheduled'` + run `pairAndPersist` against it. Lightweight; must be
-    idempotent (cron can tick the same Sunday hour more than once across
-    sync hours / retries).
-  - **(b) Monday 00:00 job** (existing): flip `scheduled → active` /
-    `active → closed` and do the rest of the close-out. Predictions,
-    badges, and the nemesis weekly-total tiebreak fallback use **full
-    Mon–Sun data — that logic must NOT move to Sunday.** Only the pairing
-    reveal moves.
-- `nemesis_matchups.week_id` is a NOT NULL FK to `weeks.id` — pairing can't
-  exist before the week row does; that's why the `'scheduled'` row comes
-  first.
-- Many queries assume exactly one `status = 'active'` week per group
-  (`/api/weeks/current`, `/api/nemesis/current`, cron's own week lookup at
-  `cron.ts:103`). Nothing in the DB enforces it. Audit every
-  `status = 'active'` lookup before/after the change; consider adding a
-  unique partial index in the same migration.
-- `/api/nemesis/current` (and its screen) must read the group's
-  revealed-but-not-active matchup on Sunday so the reveal actually shows.
-- **Trap:** do NOT move the whole rollover to Sunday — it would cut off
-  Sunday's step counting for predictions/city-leader badges.
-- Update `apps/web/lib/demo.ts` fixtures + OpenAPI (`apps/api/openapi.yaml`
-  → `npm run gen:api-types -w apps/web`, commit the output; CI diffs it).
+Done:
+- New migration `006_sunday_nemesis_reveal.sql`.
+- `prepareNextWeekReveal` creates scheduled next week + pairings on Sunday.
+- `weekRollover` activates scheduled weeks on Monday and keeps close-out logic
+  Monday-only.
+- `/api/nemesis/current` reads the scheduled reveal on Sunday; other active
+  week routes still read `status = 'active'`.
+- Demo, OpenAPI, generated API types, group departure repair, and tests are
+  updated. See `HANDOFF.md` M12.
 
 ### A2. Owner-only (skip; listed so you don't chase them)
 
@@ -263,11 +247,9 @@ If touching palette/new UI: Lighthouse a11y spot-check (baseline 100 on all
 
 ## 6. Suggested execution order
 
-1. **A1** Sunday nemesis reveal (migration `006`, cron Sunday step,
-   rollover split, read path, fixtures, OpenAPI).
-2. **N1** Beat engine (migration `007`, `beats.ts`, cron + rollover hooks,
+1. **N1** Beat engine (migration `007`, `beats.ts`, cron + rollover hooks,
    starter beat set, CallingCard rendering, fixtures, tests).
-3. **N2** Monday briefing + sudden-death treatment.
-4. Update `AGENTS.md` (backlog) + `HANDOFF.md` (milestone entry) with what
+2. **N2** Monday briefing + sudden-death treatment.
+3. Update `AGENTS.md` (backlog) + `HANDOFF.md` (milestone entry) with what
    shipped, and keep this file's state section current or delete it once
    absorbed into `HANDOFF.md`.

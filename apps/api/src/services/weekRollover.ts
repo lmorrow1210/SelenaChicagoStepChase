@@ -3,10 +3,112 @@ import { closeWeekPredictions } from "./weekClose.js";
 import { closeDayForMatchup, pairAndPersist } from "./nemesisService.js";
 import { createOrGetBingoCard } from "./bingoService.js";
 
+type WeekStatus = "scheduled" | "active" | "closed";
+
 function addDays(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+interface WeekSeed {
+  group_id: string;
+  route_order: number;
+  ends_on: string;
+}
+
+async function ensureNextWeek(
+  client: PoolClient,
+  week: WeekSeed,
+  status: Exclude<WeekStatus, "closed">,
+): Promise<{ nextWeekId: string; created: boolean; activated: boolean }> {
+  const nextCity = await client.query(
+    `SELECT id FROM cities
+     WHERE route_order > $1
+     ORDER BY route_order ASC LIMIT 1`,
+    [week.route_order],
+  );
+  const nextCityId: number = nextCity.rowCount
+    ? nextCity.rows[0].id
+    : (await client.query(`SELECT id FROM cities ORDER BY route_order ASC LIMIT 1`)).rows[0].id;
+
+  const target = await client.query(
+    `SELECT COALESCE(SUM(weekly_step_target), 0)::int AS total
+     FROM users WHERE group_id = $1`,
+    [week.group_id],
+  );
+  const nextMonday = addDays(week.ends_on, 1);
+  const nextSunday = addDays(nextMonday, 6);
+
+  const existing = await client.query(
+    `SELECT id, status FROM weeks
+     WHERE group_id = $1 AND starts_on = $2::date
+     FOR UPDATE`,
+    [week.group_id, nextMonday],
+  );
+
+  if (existing.rowCount) {
+    const current = existing.rows[0];
+    const wasScheduled = current.status === "scheduled";
+    if (wasScheduled) {
+      await client.query(
+        `UPDATE weeks
+         SET status = $2, group_target_steps = $3
+         WHERE id = $1`,
+        [current.id, status, target.rows[0].total],
+      );
+    }
+    return {
+      nextWeekId: current.id,
+      created: false,
+      activated: status === "active" && wasScheduled,
+    };
+  }
+
+  const inserted = await client.query(
+    `INSERT INTO weeks (group_id, city_id, starts_on, ends_on, group_target_steps, status)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING id`,
+    [week.group_id, nextCityId, nextMonday, nextSunday, target.rows[0].total, status],
+  );
+  return {
+    nextWeekId: inserted.rows[0].id,
+    created: true,
+    activated: status === "active",
+  };
+}
+
+/**
+ * Sunday reveal: create next week's row as scheduled and persist nemesis
+ * pairings against it. It intentionally does not close predictions, badges,
+ * bingo, or current-week nemesis results; Sunday still belongs to this week.
+ */
+export async function prepareNextWeekReveal(
+  pool: Pool,
+  weekId: string,
+): Promise<{ nextWeekId: string }> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const weekRow = await client.query(
+      `SELECT w.group_id, to_char(w.ends_on, 'YYYY-MM-DD') AS ends_on, c.route_order
+       FROM weeks w JOIN cities c ON c.id = w.city_id
+       WHERE w.id = $1`,
+      [weekId],
+    );
+    if (!weekRow.rowCount) throw new Error(`Week ${weekId} not found`);
+
+    const prepared = await ensureNextWeek(client, weekRow.rows[0], "scheduled");
+    await pairAndPersist(client, prepared.nextWeekId, weekRow.rows[0].group_id);
+
+    await client.query("COMMIT");
+    return { nextWeekId: prepared.nextWeekId };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 async function awardBadge(
@@ -214,32 +316,10 @@ export async function weekRollover(
       }
     }
 
-    // 8. Create next week: next city on the route (wrap), Σ member targets.
-    const nextCity = await client.query(
-      `SELECT id FROM cities
-       WHERE route_order > $1
-       ORDER BY route_order ASC LIMIT 1`,
-      [week.route_order],
-    );
-    const nextCityId: number = nextCity.rowCount
-      ? nextCity.rows[0].id
-      : (await client.query(`SELECT id FROM cities ORDER BY route_order ASC LIMIT 1`)).rows[0].id;
-
-    const target = await client.query(
-      `SELECT COALESCE(SUM(weekly_step_target), 0)::int AS total
-       FROM users WHERE group_id = $1`,
-      [groupId],
-    );
-    const nextMonday = addDays(endsOn, 1);
-    const nextWeek = await client.query(
-      `INSERT INTO weeks (group_id, city_id, starts_on, ends_on, group_target_steps)
-       VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (group_id, starts_on) DO UPDATE SET group_id = weeks.group_id
-       RETURNING id, (xmax = 0) AS fresh`,
-      [groupId, nextCityId, nextMonday, addDays(nextMonday, 6), target.rows[0].total],
-    );
-    const nextWeekId: string = nextWeek.rows[0].id;
-    const createdNextWeek: boolean = !!nextWeek.rows[0].fresh;
+    // 8. Create or activate next week: Sunday may already have created it as
+    // scheduled so nemesis pairings could be revealed early.
+    const nextWeek = await ensureNextWeek(client, week, "active");
+    const nextWeekId = nextWeek.nextWeekId;
 
     // 9. Fresh bingo cards + nemesis pairings; prediction window opens
     // implicitly with the new active week.
@@ -250,8 +330,8 @@ export async function weekRollover(
     await pairAndPersist(client, nextWeekId, groupId);
 
     // Week-closure summary toast for everyone (only on the run that created
-    // the next week, so reruns don't duplicate).
-    if (createdNextWeek) {
+    // or activated the next week, so reruns don't duplicate).
+    if (nextWeek.created || nextWeek.activated) {
       const summary = await client.query(
         `SELECT w.group_total_steps, w.target_hit, c.name AS next_city
          FROM weeks w, weeks nw JOIN cities c ON c.id = nw.city_id

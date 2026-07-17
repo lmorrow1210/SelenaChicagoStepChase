@@ -4,7 +4,7 @@ import { syncUserDay } from "./sync.js";
 import { processScoutTokens } from "./scoutService.js";
 import { createOrGetBingoCard, updateBingoCard } from "./bingoService.js";
 import { closeElapsedDays } from "./nemesisService.js";
-import { weekRollover } from "./weekRollover.js";
+import { prepareNextWeekReveal, weekRollover } from "./weekRollover.js";
 import { InvalidGrantError, NotConnectedError } from "./realFitbitClient.js";
 
 // Sync schedule (plan §5): noon / 6pm / midnight group-local. Cron ticks
@@ -130,6 +130,25 @@ export async function runGroupSync(
         await closeElapsedDays(pool, m.id, today);
       } catch (err) {
         console.error(`cron: nemesis day-close failed for matchup ${m.id}:`, err);
+      }
+    }
+  }
+
+  // Sunday sync ticks: prepare next week's nemesis pairings so the matchup is
+  // visible before Monday, while all scoring stays on the current week.
+  if (weekday === 7) {
+    const ending = await pool.query(
+      `SELECT id FROM weeks
+       WHERE group_id = $1 AND status = 'active' AND ends_on = $2::date
+       ORDER BY starts_on DESC LIMIT 1`,
+      [group.id, today],
+    );
+    if (ending.rowCount) {
+      try {
+        await prepareNextWeekReveal(pool, ending.rows[0].id);
+        console.log(`cron: Sunday nemesis reveal prepared for group ${group.id}`);
+      } catch (err) {
+        console.error(`cron: Sunday nemesis reveal failed for group ${group.id}:`, err);
       }
     }
   }

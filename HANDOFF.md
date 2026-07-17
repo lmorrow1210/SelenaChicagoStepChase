@@ -418,6 +418,37 @@ The One Step Ahead master brief + addendum landed a full rebrand, the
   is serving corrupts `.next` (dev 500s afterwards) — stop the dev
   server or delete `.next` before rebuilding dev.
 
+### M12 — Sunday nemesis reveal (July 2026)
+
+**A1 shipped: next week's nemesis is revealed on Sunday without moving any
+week-close scoring off Monday.**
+- Migration `006_sunday_nemesis_reveal.sql`: widens `weeks.status` to
+  `scheduled | active | closed`, replaces the active-week index with a unique
+  one-active-per-group partial index, and adds a unique scheduled-week partial
+  index.
+- `prepareNextWeekReveal` in `services/weekRollover.ts`: creates next week's
+  row as `scheduled` and runs `pairAndPersist` against it. It is idempotent, so
+  repeated Sunday cron ticks do not duplicate weeks or matchups.
+- `weekRollover` now activates an existing scheduled week on Monday
+  (`scheduled → active`) after closing the old active week. Predictions, city
+  badges, bingo freeze/badges, nemesis close-out, and weekly-total fallback all
+  still run Monday after full Mon–Sun data.
+- `cron.ts`: every Sunday sync tick checks for the active week ending that day
+  and prepares the reveal. Monday 00:00 still runs the full rollover.
+- `/api/nemesis/current`: on Sunday, if tomorrow's scheduled week exists, it
+  returns that revealed matchup with top-level `state: "scheduled"`. Other
+  active-week routes (Map, Field Ops, Prediction, Sync, Profile) stay anchored
+  to `status = 'active'`.
+- `groups.ts`: leaving/removing a member now repairs both active and scheduled
+  nemesis matchups, so a Sunday preview cannot keep pointing at someone who has
+  left the group.
+- Demo + contract updated: `apps/web/lib/demo.ts` shows the scheduled reveal,
+  OpenAPI includes `scheduled`, and `apps/web/lib/api-types.d.ts` was
+  regenerated.
+- Tests: API suite is now **71/71**. New coverage proves scheduled reveal
+  creation, Sunday cron idempotency, and Monday activation of the scheduled
+  week.
+
 ## What is NOT done — next tasks in priority order
 
 1. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
@@ -519,9 +550,10 @@ In the matching `.d.ts`, add `export default ComponentName;` at the end.
 
 ## Recommended execution order for the next session
 
-All feature modules (M0–M9) are built. See "What is NOT done" above — the
-remaining work is Health-API verification, deployment, and manual QA, none of
-which is automatable from this machine alone.
+Agent-workable next step: **Narrative DNA N1 Beat Engine** (migration
+`007_narrative_beats.sql`, deterministic beat evaluation, notification
+delivery, CallingCard rendering, tests, demo fixtures). Owner-only work remains
+Health-API sandbox smoke, Railway/Vercel deploy, and physical-device QA.
 
 ---
 

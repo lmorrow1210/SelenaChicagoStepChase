@@ -21,12 +21,17 @@ interface MatchupRow {
   winner_id: string | null;
 }
 
+type WeekStatus = "scheduled" | "active" | "closed";
+
 const MATCHUP_COLS = `
   nm.id, nm.player_a, nm.player_b, nm.score_a::int AS score_a, nm.score_b::int AS score_b,
   nm.status, nm.daily_results, nm.rerolled,
   to_char(nm.tiebreaker_date, 'YYYY-MM-DD') AS tiebreaker_date, nm.winner_id`;
 
-async function currentWeekAndGroup(userId: string) {
+async function currentWeekAndGroup(
+  userId: string,
+  options: { revealScheduled?: boolean } = {},
+) {
   const me = await pool.query(
     `SELECT u.group_id, COALESCE(g.timezone, 'America/Chicago') AS timezone
      FROM users u LEFT JOIN groups g ON g.id = u.group_id
@@ -36,20 +41,38 @@ async function currentWeekAndGroup(userId: string) {
   if (!me.rowCount) throw errors.unauthenticated();
   const groupId = me.rows[0].group_id as string | null;
   if (!groupId) throw errors.notFound("You're not in a group");
+  const timezone = me.rows[0].timezone as string;
+  const today = todayLocal(timezone);
 
-  const week = await pool.query(
-    `SELECT id, to_char(starts_on, 'YYYY-MM-DD') AS starts_on,
-            to_char(ends_on, 'YYYY-MM-DD') AS ends_on
-     FROM weeks WHERE group_id = $1 AND status = 'active'
-     ORDER BY starts_on DESC LIMIT 1`,
-    [groupId],
-  );
+  const week = options.revealScheduled
+    ? await pool.query(
+        `SELECT id, status, to_char(starts_on, 'YYYY-MM-DD') AS starts_on,
+                to_char(ends_on, 'YYYY-MM-DD') AS ends_on
+         FROM weeks
+         WHERE group_id = $1
+           AND (
+             status = 'active'
+             OR (status = 'scheduled' AND starts_on = ($2::date + INTERVAL '1 day')::date)
+           )
+         ORDER BY CASE WHEN status = 'scheduled' THEN 0 ELSE 1 END,
+                  starts_on DESC
+         LIMIT 1`,
+        [groupId, today],
+      )
+    : await pool.query(
+        `SELECT id, status, to_char(starts_on, 'YYYY-MM-DD') AS starts_on,
+                to_char(ends_on, 'YYYY-MM-DD') AS ends_on
+         FROM weeks WHERE group_id = $1 AND status = 'active'
+         ORDER BY starts_on DESC LIMIT 1`,
+        [groupId],
+      );
   if (!week.rowCount) throw errors.notFound("No active week");
 
   return {
     groupId,
-    timezone: me.rows[0].timezone as string,
+    timezone,
     weekId: week.rows[0].id as string,
+    weekStatus: week.rows[0].status as WeekStatus,
     startsOn: week.rows[0].starts_on as string,
     endsOn: week.rows[0].ends_on as string,
   };
@@ -62,11 +85,11 @@ function todayLocal(timezone: string): string {
 
 nemesisRouter.get("/current", async (req, res, next) => {
   try {
-    const { groupId, timezone, weekId, startsOn, endsOn } = await currentWeekAndGroup(
-      req.userId!,
-    );
+    const { groupId, timezone, weekId, weekStatus, startsOn, endsOn } =
+      await currentWeekAndGroup(req.userId!, { revealScheduled: true });
 
-    // Lazy Monday pairing: first /current request of the week pairs everyone.
+    // Lazy pairing is kept for robustness: active weeks pair on first visit,
+    // and scheduled weeks should already be paired by the Sunday cron step.
     await pairAndPersist(pool, weekId, groupId);
 
     const matchupRow = await pool.query<MatchupRow>(
@@ -138,7 +161,7 @@ nemesisRouter.get("/current", async (req, res, next) => {
       today,
       weekMax,
       outcome,
-      state: matchup.status,
+      state: weekStatus === "scheduled" ? "scheduled" : matchup.status,
     });
   } catch (e) {
     next(e);

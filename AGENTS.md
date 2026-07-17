@@ -118,7 +118,7 @@ route changes (e.g. locked intel ships `fun_fact: null`).
 
 ## Current state (July 2026)
 
-`main` is green: CI + Pages deploy passing, 67/67 API tests, Lighthouse 100
+`main` is green: CI + Pages deploy passing, 71/71 API tests, Lighthouse 100
 (a11y/BP/SEO) on all screens, WCAG audit 23/23. Live demo:
 https://lmorrow1210.github.io/SelenaChicagoStepChase/
 
@@ -143,9 +143,9 @@ https://lmorrow1210.github.io/SelenaChicagoStepChase/
     post-midnight bedtime (1 A.M., 2 A.M., …) always fails, no exceptions.
     See `evaluateDetector` in `apps/api/src/services/bingo.ts` +
     `week_bedtimes` context in `bingoService.ts`.
-- Sunday nemesis reveal — pairing must be revealed Sunday so Monday starts
-  with matchups known. Needs a `'scheduled'` week status (new migration), a
-  Sunday cron step that creates next week's row + runs `pairAndPersist`,
-  and the Monday job flipping `scheduled → active`. Do NOT move the rest of
-  the Monday close-out (predictions/badges/tiebreak fallback use full
-  Mon–Sun data). Touches week-state invariants — go slow.
+- ~~Sunday nemesis reveal~~ — **shipped July 2026 (M12)**. Migration `006`
+  adds `weeks.status = 'scheduled'` plus one-active/one-scheduled partial
+  indexes; Sunday cron prepares next week's row + nemesis pairings, and Monday
+  rollover flips `scheduled → active` while keeping prediction/badge/tiebreak
+  close-out on Monday after full Mon–Sun data. `/api/nemesis/current` reads the
+  Sunday reveal; Map/Field Ops/Prediction stay on the active week.

@@ -721,7 +721,10 @@ paths:
   /api/nemesis/current:
     get:
       summary: My nemesis duel this week
-      description: Lazily creates the week's pairings on first request.
+      description: >
+        Returns the active week's duel. On Sunday, if next week's matchups
+        have been prepared, returns that scheduled reveal instead. Pairing is
+        still lazy as a fallback if no matchup rows exist yet.
       tags: [nemesis]
       responses:
         "200":
@@ -755,7 +758,7 @@ paths:
                     nullable: true
                   state:
                     type: string
-                    enum: [active, tiebreak, complete, bye, no_matchup]
+                    enum: [scheduled, active, tiebreak, complete, bye, no_matchup]
         "404": { $ref: "#/components/responses/NotFound" }
 
   /api/nemesis/reroll:
@@ -947,7 +950,7 @@ components:
         starts_on: { type: string, format: date }
         ends_on: { type: string, format: date }
         group_target_steps: { type: integer }
-        status: { type: string, enum: [active, closed] }
+        status: { type: string, enum: [scheduled, active, closed] }
         group_total_steps: { type: integer, nullable: true }
         target_hit: { type: boolean, nullable: true }
 
