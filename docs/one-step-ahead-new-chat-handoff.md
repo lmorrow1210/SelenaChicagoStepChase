@@ -1,4 +1,9 @@
-# One Step Ahead — New Chat Handoff
+# One Step Ahead — ChatGPT New-Chat Handoff
+
+Purpose: this file is written for ChatGPT or another conversational planning
+assistant. It is meant to give product context, current branch status, and the
+next safest decisions. Coding agents should still read `AGENTS.md`,
+`CODEX-HANDOFF.md`, and `HANDOFF.md` before changing code.
 
 ## Status Update — July 17, 2026
 
@@ -656,9 +661,9 @@ Preferred workflow:
 
 Use GitHub as the source of truth.
 
-## Recommended First Message in the New Chat
+## Recommended First Message In ChatGPT
 
-> Continue helping me with One Step Ahead. Use the attached handoff as authoritative context. First inspect `lmorrow1210/SelenaChicagoStepChase`, branch `codex/week-one`, and PR #3. Confirm the branch is at `d714085` or newer, check CI/review status, and tell me the safest next step for PR #3. Do not restart Week 1, do not start Week 2, and do not merge unless I explicitly ask.
+> Continue helping me with One Step Ahead. Use this ChatGPT handoff as authoritative product/context briefing. First inspect `lmorrow1210/SelenaChicagoStepChase`, branch `codex/week-one`, and PR #3. Confirm the branch is at `d714085` or newer, check CI/review status, and tell me the safest next step for PR #3. Do not restart Week 1, do not start Week 2, and do not merge unless I explicitly ask.
 
 ## Week 1 Definition of Done
 
