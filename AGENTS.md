@@ -118,7 +118,7 @@ route changes (e.g. locked intel ships `fun_fact: null`).
 
 ## Current state (July 2026)
 
-`main` is green: CI + Pages deploy passing, 71/71 API tests, Lighthouse 100
+`main` is green: CI + Pages deploy passing, 74/74 API tests, Lighthouse 100
 (a11y/BP/SEO) on all screens, WCAG audit 23/23. Live demo:
 https://lmorrow1210.github.io/SelenaChicagoStepChase/
 
@@ -149,3 +149,8 @@ https://lmorrow1210.github.io/SelenaChicagoStepChase/
   rollover flips `scheduled → active` while keeping prediction/badge/tiebreak
   close-out on Monday after full Mon–Sun data. `/api/nemesis/current` reads the
   Sunday reveal; Map/Field Ops/Prediction stay on the active week.
+- ~~Narrative DNA N1 Beat Engine~~ — **shipped July 2026 (M13)**. Migration
+  `007` adds beat definitions/events and `notifications.kind='beat'`; cron
+  evaluates deterministic day beats, week rollover evaluates near-miss week
+  beats, and Sunday nemesis reveal sends Selena intercepts. Beat notifications
+  render as paper calling-card toasts; demo fixtures include a beat.

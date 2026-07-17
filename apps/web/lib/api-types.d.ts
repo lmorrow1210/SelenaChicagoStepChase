@@ -1664,8 +1664,8 @@ export interface components {
         };
         Notification: {
             id?: number;
-            /** @description achievement / social / alert variants. */
-            kind?: string;
+            /** @enum {string} */
+            kind?: "achievement" | "social" | "alert" | "beat";
             message?: string;
             read?: boolean;
             /** Format: date-time */

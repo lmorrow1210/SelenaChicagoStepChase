@@ -3,6 +3,7 @@ import type { BingoTile } from "@one-step-ahead/shared";
 import { scorePredictions } from "../src/services/prediction.js";
 import { countBingoLines, isBlackout, generateCard, evaluateDetector } from "../src/services/bingo.js";
 import { decideDay, weekOutcome, pairPlayers } from "../src/services/nemesis.js";
+import { evaluateBeatTrigger } from "../src/services/beats.js";
 
 describe("scorePredictions", () => {
   const t = (s: string) => new Date(s);
@@ -222,5 +223,56 @@ describe("nemesis", () => {
     expect(odd.bye).not.toBeNull();
     const all = [...odd.pairs.flat(), odd.bye!];
     expect(new Set(all).size).toBe(5);
+  });
+});
+
+describe("narrative beat triggers", () => {
+  const base = {
+    groupId: "group",
+    userId: "user",
+    weekId: "week",
+    date: "2026-06-12",
+    city: "New York",
+  };
+
+  it("fires near-miss week only when the team is short within the configured gap", () => {
+    const trigger = { metric: "near_miss_week", pct: 0.05 };
+    expect(
+      evaluateBeatTrigger(trigger, { ...base, weekTarget: 200000, weekTotal: 192000, weekGap: 8000 }),
+    ).toBe(true);
+    expect(
+      evaluateBeatTrigger(trigger, { ...base, weekTarget: 200000, weekTotal: 180000, weekGap: 20000 }),
+    ).toBe(false);
+    expect(
+      evaluateBeatTrigger(trigger, { ...base, weekTarget: 200000, weekTotal: 201000, weekGap: -1000 }),
+    ).toBe(false);
+  });
+
+  it("fires day-scope user and group beats from real context values", () => {
+    expect(
+      evaluateBeatTrigger(
+        { metric: "target_blowout", multiplier: 1.5 },
+        { ...base, userSteps: 16000, dailyTarget: 10000 },
+      ),
+    ).toBe(true);
+    expect(
+      evaluateBeatTrigger(
+        { metric: "weak_day", ratio: 0.6 },
+        { ...base, groupDaySteps: 5000, trailingGroupDailyAvg: 10000 },
+      ),
+    ).toBe(true);
+    expect(
+      evaluateBeatTrigger(
+        { metric: "streak_broken", min_streak: 3 },
+        { ...base, hitDailyTarget: false, previousTargetStreak: 4 },
+      ),
+    ).toBe(true);
+    expect(evaluateBeatTrigger({ metric: "hot_pursuit_streak" }, { ...base, hotPursuitToday: true })).toBe(false);
+    expect(
+      evaluateBeatTrigger(
+        { metric: "hot_pursuit_streak" },
+        { ...base, hotPursuitToday: true, hotPursuitYesterday: true },
+      ),
+    ).toBe(true);
   });
 });

@@ -11,12 +11,17 @@ engineering work, and (2) the full spec for the **Narrative DNA** initiative
 
 ## 1. Current state
 
-- Repo: `main` plus local M12 changes for Sunday nemesis reveal; push pending.
+- Repo: `main` contains M12 Sunday nemesis reveal; local branch contains M13
+  Beat Engine changes pending PR.
 - CI + GitHub Pages deploy: **green**. Live demo:
   https://lmorrow1210.github.io/SelenaChicagoStepChase/
-- API tests: **71/71** against Postgres (`brew services start postgresql@16`;
+- API tests: **74/74** against Postgres (`brew services start postgresql@16`;
   test db `one_step_ahead_test` exists).
-- Just shipped (2026-07-16): Sunday nemesis reveal (A1/M12). Migration `006`
+- Just shipped (2026-07-16): Narrative DNA N1 Beat Engine (M13). Migration
+  `007` adds `beat_definitions`/`beat_events` and `notifications.kind='beat'`;
+  cron and rollover evaluate deterministic beats; Sunday reveal sends Selena
+  intercepts naming each nemesis; beat toasts render as paper calling cards.
+- Previously shipped (2026-07-16): Sunday nemesis reveal (A1/M12). Migration `006`
   adds `scheduled` weeks and unique active/scheduled partial indexes; Sunday
   cron creates next week's scheduled row + pairings; Monday rollover activates
   that row while leaving all scoring/close-out on Monday after full Mon–Sun
@@ -96,11 +101,11 @@ in priority order:
 5. **Trust is a feature** — the fiction collapses if a number is wrong or
    stale. Sync honesty and a11y stay at the current bar (Lighthouse 100s).
 
-### Phase N1 — the Beat Engine (build this first; highest magic-per-effort)
+### Phase N1 — the Beat Engine — shipped M13
 
-A deterministic, data-driven narrative layer: "beats" are short in-fiction
-messages triggered by real events, delivered through the existing
-notifications pipeline and surfaced as calling cards / briefing lines.
+Done: deterministic, data-driven beats are short in-fiction messages triggered
+by real events, delivered through the existing notifications pipeline and
+surfaced as calling-card toasts.
 
 **Data model** (new migration, e.g. `007_narrative_beats.sql`):
 
@@ -247,9 +252,7 @@ If touching palette/new UI: Lighthouse a11y spot-check (baseline 100 on all
 
 ## 6. Suggested execution order
 
-1. **N1** Beat engine (migration `007`, `beats.ts`, cron + rollover hooks,
-   starter beat set, CallingCard rendering, fixtures, tests).
-2. **N2** Monday briefing + sudden-death treatment.
-3. Update `AGENTS.md` (backlog) + `HANDOFF.md` (milestone entry) with what
+1. **N2** Monday briefing + sudden-death treatment.
+2. Update `AGENTS.md` (backlog) + `HANDOFF.md` (milestone entry) with what
    shipped, and keep this file's state section current or delete it once
    absorbed into `HANDOFF.md`.
