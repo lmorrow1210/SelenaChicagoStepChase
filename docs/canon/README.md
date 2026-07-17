@@ -19,9 +19,24 @@ see `HANDOFF.md` / `AGENTS.md`.)
 
 | Pack | Status |
 |---|---|
-| [`cities/week-01-chicago.md`](cities/week-01-chicago.md) | SHIPPED — reference implementation |
-| [`cities/week-02-detroit.md`](cities/week-02-detroit.md) | DRAFT — pending audit reconciliation (see below) |
-| Weeks 3–13 | Not yet authored. Use `_template.md`, pull from the route table. |
+| [`cities/week-01-chicago.md`](cities/week-01-chicago.md) | SHIPPED — reference implementation (copy in `seasonOne.ts`) |
+| [`cities/week-02-detroit.md`](cities/week-02-detroit.md) | DRAFT — copy complete, awaiting owner review |
+| [`cities/week-03-pittsburgh.md`](cities/week-03-pittsburgh.md) | DRAFT — copy complete |
+| [`cities/week-04-washington-dc.md`](cities/week-04-washington-dc.md) | DRAFT — copy complete |
+| [`cities/week-05-philadelphia.md`](cities/week-05-philadelphia.md) | DRAFT — copy complete |
+| [`cities/week-06-new-york-city.md`](cities/week-06-new-york-city.md) | DRAFT — copy complete |
+| [`cities/week-07-boston.md`](cities/week-07-boston.md) | DRAFT — copy complete |
+| [`cities/week-08-savannah.md`](cities/week-08-savannah.md) | DRAFT — copy complete |
+| [`cities/week-09-new-orleans.md`](cities/week-09-new-orleans.md) | DRAFT — copy complete |
+| [`cities/week-10-austin.md`](cities/week-10-austin.md) | DRAFT — copy complete |
+| [`cities/week-11-santa-fe.md`](cities/week-11-santa-fe.md) | DRAFT — copy complete (⚠️ simplified mechanic) |
+| [`cities/week-12-los-angeles.md`](cities/week-12-los-angeles.md) | DRAFT — copy complete |
+| [`cities/week-13-san-francisco.md`](cities/week-13-san-francisco.md) | DRAFT — copy complete (⚠️ finale, not a special build) |
+
+All 13 narrative packs are drafted (2026-07-17). Weeks 2–13 are still
+`structuralWeek(...)` stubs in `seasonOne.ts` — implementing a pack means
+replacing that week's stub with a full inline config + evidence entries + demo
+fixture, then verifying. Do it one bounded milestone at a time.
 
 ## Workflow
 
