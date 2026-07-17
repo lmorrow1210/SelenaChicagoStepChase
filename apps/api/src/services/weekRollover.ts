@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 import { closeWeekPredictions } from "./weekClose.js";
 import { closeDayForMatchup, pairAndPersist } from "./nemesisService.js";
 import { createOrGetBingoCard } from "./bingoService.js";
+import { evaluateRevealBeats, evaluateWeekBeats } from "./beats.js";
 
 type WeekStatus = "scheduled" | "active" | "closed";
 
@@ -100,6 +101,7 @@ export async function prepareNextWeekReveal(
 
     const prepared = await ensureNextWeek(client, weekRow.rows[0], "scheduled");
     await pairAndPersist(client, prepared.nextWeekId, weekRow.rows[0].group_id);
+    await evaluateRevealBeats(client, prepared.nextWeekId, weekRow.rows[0].ends_on);
 
     await client.query("COMMIT");
     return { nextWeekId: prepared.nextWeekId };
@@ -171,6 +173,7 @@ export async function weekRollover(
     if (predictionWinner) {
       await awardBadge(client, predictionWinner, "prediction_win", weekId, null, null);
     }
+    await evaluateWeekBeats(client, weekId);
 
     const targetHitRow = await client.query(`SELECT target_hit FROM weeks WHERE id = $1`, [
       weekId,

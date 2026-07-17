@@ -5,6 +5,7 @@ import { processScoutTokens } from "./scoutService.js";
 import { createOrGetBingoCard, updateBingoCard } from "./bingoService.js";
 import { closeElapsedDays } from "./nemesisService.js";
 import { prepareNextWeekReveal, weekRollover } from "./weekRollover.js";
+import { evaluateDailyBeats } from "./beats.js";
 import { InvalidGrantError, NotConnectedError } from "./realFitbitClient.js";
 
 // Sync schedule (plan §5): noon / 6pm / midnight group-local. Cron ticks
@@ -130,6 +131,14 @@ export async function runGroupSync(
         await closeElapsedDays(pool, m.id, today);
       } catch (err) {
         console.error(`cron: nemesis day-close failed for matchup ${m.id}:`, err);
+      }
+    }
+
+    for (const date of dates) {
+      try {
+        await evaluateDailyBeats(pool, weekId, group.id, date);
+      } catch (err) {
+        console.error(`cron: beat evaluation failed for group ${group.id}:`, err);
       }
     }
   }

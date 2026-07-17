@@ -84,8 +84,9 @@ function bingoTiles() {
 }
 
 const NOTIFICATIONS = [
-  { id: 1, kind: "achievement", message: "You unlocked the Statue of Liberty!", read: false, created_at: "2026-06-12T18:00:00Z" },
-  { id: 2, kind: "social", message: "Maya just passed you on the leaderboard.", read: false, created_at: "2026-06-12T15:30:00Z" },
+  { id: 1, kind: "beat", message: "Every operative in motion. She's checking over her shoulder.", read: false, created_at: "2026-06-12T18:15:00Z" },
+  { id: 2, kind: "achievement", message: "You unlocked the Statue of Liberty!", read: false, created_at: "2026-06-12T18:00:00Z" },
+  { id: 3, kind: "social", message: "Maya just passed you on the leaderboard.", read: false, created_at: "2026-06-12T15:30:00Z" },
 ];
 
 function leaderboard() {

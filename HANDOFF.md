@@ -449,6 +449,34 @@ week-close scoring off Monday.**
   creation, Sunday cron idempotency, and Monday activation of the scheduled
   week.
 
+### M13 — Narrative DNA N1 Beat Engine (July 2026)
+
+**First deterministic story layer shipped: real events now create in-fiction
+beat notifications.**
+- Migration `007_narrative_beats.sql`: adds `beat_definitions` and
+  `beat_events`; widens `notifications.kind` to include `'beat'`; seeds the
+  starter beat set plus `sunday_nemesis_reveal`.
+- `services/beats.ts`: deterministic trigger evaluation and rendering. Copy
+  variants are chosen with `seededRand(...)`, and every fired beat is recorded
+  in `beat_events` before delivery. The uniqueness constraint uses
+  `UNIQUE NULLS NOT DISTINCT` so group-scope beats with `user_id = NULL` are
+  truly idempotent under Postgres.
+- Daily hook: `cron.ts` evaluates day-scope beats after sync → bingo/scout →
+  nemesis day-close. Priority chooses at most one group beat and one user beat
+  per player per date, with cooldown checks.
+- Weekly hook: `weekRollover.ts` evaluates week-scope beats after
+  `closeWeekPredictions` has stamped `group_total_steps` and `target_hit`.
+- Sunday reveal hook: `prepareNextWeekReveal` now sends user-scope Selena
+  intercepts naming each paired nemesis for the scheduled week.
+- Frontend: `ToastShelf` renders `kind='beat'` as a tan paper calling-card
+  intercept instead of a normal alert/social toast. Demo fixtures include a
+  beat notification.
+- Starter beats implemented: `near_miss_week`, `weak_day`,
+  `target_blowout`, `hot_pursuit_streak`, `nemesis_flip`, `streak_broken`,
+  `sudden_death_eve`, and `sunday_nemesis_reveal`.
+- Tests: API suite is now **74/74**. Coverage includes pure trigger rules,
+  cron idempotency for day beats, and Sunday reveal beat creation.
+
 ## What is NOT done — next tasks in priority order
 
 1. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
@@ -550,10 +578,9 @@ In the matching `.d.ts`, add `export default ComponentName;` at the end.
 
 ## Recommended execution order for the next session
 
-Agent-workable next step: **Narrative DNA N1 Beat Engine** (migration
-`007_narrative_beats.sql`, deterministic beat evaluation, notification
-delivery, CallingCard rendering, tests, demo fixtures). Owner-only work remains
-Health-API sandbox smoke, Railway/Vercel deploy, and physical-device QA.
+Agent-workable next step: **Narrative DNA N2 ritual events** — Monday briefing
+and Saturday sudden-death treatment, now building on A1 + N1. Owner-only work
+remains Health-API sandbox smoke, Railway/Vercel deploy, and physical-device QA.
 
 ---
 

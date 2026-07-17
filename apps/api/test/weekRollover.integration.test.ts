@@ -221,6 +221,14 @@ describeDb("weekRollover integration", () => {
       [first.nextWeekId],
     );
     expect(Number(matchups.rows[0].n)).toBe(1);
+
+    const revealBeats = await pool.query(
+      `SELECT COUNT(*)::int AS n
+       FROM beat_events be JOIN beat_definitions bd ON bd.id = be.beat_id
+       WHERE bd.slug = 'sunday_nemesis_reveal' AND be.week_id = $1`,
+      [first.nextWeekId],
+    );
+    expect(Number(revealBeats.rows[0].n)).toBe(2);
   });
 
   it("the Sunday cron hook prepares the reveal without duplicating it", async () => {

@@ -1125,7 +1125,7 @@ components:
       type: object
       properties:
         id: { type: integer }
-        kind: { type: string, description: achievement / social / alert variants. }
+        kind: { type: string, enum: [achievement, social, alert, beat] }
         message: { type: string }
         read: { type: boolean }
         created_at: { type: string, format: date-time }
