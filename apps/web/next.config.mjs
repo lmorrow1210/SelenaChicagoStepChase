@@ -10,6 +10,13 @@ const nextConfig = {
   assetPrefix: basePath || undefined,
   images: { unoptimized: true },
   trailingSlash: true,
+  webpack(config) {
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias ?? {}),
+      ".js": [".ts", ".tsx", ".js"],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
