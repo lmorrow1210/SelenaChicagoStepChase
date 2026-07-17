@@ -41,10 +41,12 @@ fixture, then verifying. Do it one bounded milestone at a time.
 ## Workflow
 
 1. Owner + Claude author a city's content pack from `_template.md`, guided by the
-   route table and voice guide.
+   route table and voice guide. **(All 13 drafted 2026-07-17.)**
 2. Owner reviews and approves the pack.
 3. Codex implements the approved pack into `packages/shared/src/season-one/seasonOne.ts`
-   (replacing that week's `structuralWeek(...)` stub) plus demo fixtures.
+   (replacing that week's `structuralWeek(...)` stub) plus demo fixtures —
+   following **[`IMPLEMENTING-A-CITY.md`](IMPLEMENTING-A-CITY.md)** (step-by-step +
+   two gotchas: the rollover test coupling, and the per-city bingo-label decision).
 4. Verify (typecheck, API suite, static export build, browser smoke), then it ships.
 
 Narrative decisions live in these files, not in chat. Chats are disposable; the
