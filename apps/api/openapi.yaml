@@ -1073,7 +1073,19 @@ components:
 
     CurrentWeekSeasonState:
       type: object
-      required: [season, chapter, phase, dataConfidence, chase, primaryAction, sync]
+      required:
+        - season
+        - chapter
+        - phase
+        - dataConfidence
+        - chase
+        - primaryAction
+        - primaryBeat
+        - platformSweep
+        - evidencePreview
+        - ritualViews
+        - previousCase
+        - sync
       properties:
         season:
           type: object
@@ -1138,7 +1150,8 @@ components:
             href: { type: string }
             priority: { type: integer }
         primaryBeat:
-          $ref: "#/components/schemas/PrimaryBeat"
+          allOf: [{ $ref: "#/components/schemas/PrimaryBeat" }]
+          nullable: true
         platformSweep:
           $ref: "#/components/schemas/SpecialOperationState"
         evidencePreview:

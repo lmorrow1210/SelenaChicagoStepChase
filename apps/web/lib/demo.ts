@@ -3,6 +3,9 @@
 // provider auto-logs-in a demo detective. Used for the static GitHub Pages
 // build so friends can click through every screen. No real data, no tokens.
 
+import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence } from "@one-step-ahead/shared/season-one/seasonOne";
+import type { WeeklyOutcome } from "@one-step-ahead/shared";
+
 export const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
 
 const ME = {
@@ -124,6 +127,45 @@ const WEEK = {
   status: "active" as const,
 };
 
+const DEMO_OUTCOME: WeeklyOutcome = "close_encounter";
+
+function evidenceSlot(evidenceId: string, kind: "standard" | "intercept", unlocked: boolean) {
+  const evidence = getEvidence(evidenceId);
+  return {
+    id: evidenceId,
+    kind,
+    title: unlocked && evidence ? evidence.title : kind === "standard" ? "SEALED EVIDENCE" : "INTERCEPT CLUE",
+    body: unlocked && evidence ? evidence.enhancedBody ?? evidence.body : null,
+    highlightedFragment: unlocked && evidence ? evidence.highlightedFragment ?? null : null,
+    iconKey: unlocked && evidence ? evidence.iconKey ?? null : null,
+    unlocked,
+    unlockedAt: unlocked ? "2026-06-15T06:05:00.000Z" : null,
+  };
+}
+
+function evidenceBoard() {
+  return {
+    season: {
+      id: SEASON_ONE_CONFIG.id,
+      title: SEASON_ONE_CONFIG.title,
+      totalWeeks: SEASON_ONE_CONFIG.route.length,
+    },
+    interceptionCount: 0,
+    finaleDepthTier: 1,
+    weeks: SEASON_ONE_CONFIG.route.map((week) => {
+      const weekOne = week.weekNumber === 1;
+      return {
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+        chapterTitle: week.chapterTitle,
+        outcome: weekOne ? DEMO_OUTCOME : null,
+        standardEvidence: evidenceSlot(week.evidence.standardEvidenceId, "standard", weekOne),
+        interceptClue: evidenceSlot(week.evidence.interceptClueId, "intercept", false),
+      };
+    }),
+  };
+}
+
 const FIXTURES: Record<string, unknown> = {
   "/api/auth/session": {
     user: ME,
@@ -159,16 +201,16 @@ const FIXTURES: Record<string, unknown> = {
     lastSyncedAt: "2026-06-12T18:50:00Z",
     seasonState: {
       season: {
-        id: "season_one",
-        title: "The Lakefront Job",
+        id: SEASON_ONE_CONFIG.id,
+        title: SEASON_ONE_CONFIG.title,
         weekNumber: 1,
-        totalWeeks: 13,
+        totalWeeks: SEASON_ONE_CONFIG.route.length,
       },
       chapter: {
-        city: "Chicago",
-        title: "The Lakefront Job",
-        complication: "Cold Start",
-        nextCity: "Detroit",
+        city: WEEK_ONE_CHICAGO.cityName,
+        title: WEEK_ONE_CHICAGO.chapterTitle,
+        complication: WEEK_ONE_CHICAGO.complication.label,
+        nextCity: WEEK_ONE_CHICAGO.nextCityTeaser.cityName,
       },
       phase: "final_push",
       dataConfidence: "verified",
@@ -193,6 +235,40 @@ const FIXTURES: Record<string, unknown> = {
         href: "/map",
         priority: 10,
       },
+      primaryBeat: {
+        id: "final_push_close_encounter",
+        category: "ritual",
+        headline: "FINAL PUSH",
+        body: "Selena is close enough to become inconvenient. Field Ops and the Platform Sweep can still close the last gap.",
+        selena: "You are close enough to become inconvenient.",
+        ctaLabel: "Review the pursuit",
+        ctaHref: "/map",
+        dataConfidence: "verified",
+      },
+      platformSweep: {
+        id: WEEK_ONE_CHICAGO.specialOperation.id,
+        label: WEEK_ONE_CHICAGO.specialOperation.label,
+        active: true,
+        contributors: 2,
+        eligiblePlayers: 3,
+        minimumVerifiedStepsPerPlayer: WEEK_ONE_CHICAGO.specialOperation.minimumVerifiedStepsPerPlayer,
+        earnedBonus: 0.02,
+        maxBonus: 0.03,
+        nextThresholdCount: 3,
+      },
+      evidencePreview: {
+        standardEvidenceId: WEEK_ONE_CHICAGO.evidence.standardEvidenceId,
+        standardTitle: null,
+        unlocked: false,
+        interceptUnlocked: false,
+      },
+      ritualViews: {
+        mondayBriefing: true,
+        midweekUpdate: true,
+        finalPush: false,
+        caseClosed: false,
+      },
+      previousCase: null,
       sync: {
         lastUpdatedAt: "2026-06-12T18:50:00Z",
         incompletePlayerCount: 0,
@@ -314,6 +390,7 @@ const FIXTURES: Record<string, unknown> = {
     ],
   },
   "/api/notifications": { notifications: NOTIFICATIONS },
+  "/api/evidence": evidenceBoard(),
 };
 
 /** Resolve a fixture for a GET path, or null if none (caller falls through). */
@@ -339,5 +416,5 @@ export function demoMutation<T>(path?: string, body?: BodyInit | null): T {
       // malformed body — demo mutations still succeed silently
     }
   }
-  return { ok: true } as T;
+  return { ok: true, viewed_at: new Date().toISOString() } as T;
 }

@@ -1688,21 +1688,21 @@ export interface components {
                 href?: string;
                 priority: number;
             };
-            primaryBeat?: components["schemas"]["PrimaryBeat"];
-            platformSweep?: components["schemas"]["SpecialOperationState"];
-            evidencePreview?: {
+            primaryBeat: components["schemas"]["PrimaryBeat"] | null;
+            platformSweep: components["schemas"]["SpecialOperationState"];
+            evidencePreview: {
                 standardEvidenceId: string;
                 standardTitle?: string | null;
                 unlocked: boolean;
                 interceptUnlocked: boolean;
             };
-            ritualViews?: {
+            ritualViews: {
                 mondayBriefing: boolean;
                 midweekUpdate: boolean;
                 finalPush: boolean;
                 caseClosed: boolean;
             };
-            previousCase?: components["schemas"]["PreviousCase"] | null;
+            previousCase: components["schemas"]["PreviousCase"] | null;
             sync: {
                 /** Format: date-time */
                 lastUpdatedAt: string | null;

@@ -263,7 +263,7 @@ const WEEK_ONE_RITUALS: WeekRitualCopy = {
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
-  body: [`The pursuit has reached ${cityName}.`, "Full chapter copy will be supplied when this week is promoted from structural config."],
+  body: [`The pursuit has reached ${cityName}.`, "Local briefing details remain sealed until this chapter opens."],
   supportingCards: [
     { id: "field_ops", title: "FIELD OPS", body: "Complete operations to improve the pursuit and uncover city intel." },
     { id: "prediction", title: "PREDICTION", body: "Estimate how far the team will get before the case closes." },
@@ -290,7 +290,7 @@ const structuralWeek = (
   complication: {
     id: chapterTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""),
     label: complicationLabel,
-    summary: `${cityName} chapter complication placeholder.`,
+    summary: `${cityName} chapter field complication.`,
   },
   rituals: defaultRituals(cityName),
   briefing: structuralBriefing(weekNumber, cityName, chapterTitle),
@@ -448,7 +448,7 @@ export const SEASON_ONE_CONFIG = {
           weekNumber: week,
           cityName: config.cityName,
           title: `WEEK ${String(week).padStart(2, "0")} STANDARD EVIDENCE`,
-          body: "Structural Season One evidence slot.",
+          body: "Evidence details remain sealed until this chapter is fully briefed.",
         },
         {
           id: config.evidence.interceptClueId,
@@ -457,7 +457,7 @@ export const SEASON_ONE_CONFIG = {
           weekNumber: week,
           cityName: config.cityName,
           title: `WEEK ${String(week).padStart(2, "0")} INTERCEPT CLUE`,
-          body: "Structural Season One intercept clue slot.",
+          body: "Intercept details remain sealed until this chapter is fully briefed.",
         },
       ];
     }).flat(),
