@@ -545,7 +545,7 @@ export default function NemesisPage() {
             margin: 0,
           }}
         >
-          [ Pacing console ]
+          [ This week&apos;s duel ]
         </p>
         <h1
           style={{

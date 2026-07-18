@@ -166,7 +166,7 @@ export default function FieldOpsPage() {
   if (!user?.group_id) {
     return (
       <main className="opsPage">
-        <EmptyState icon="globe" title="No group yet" body="Join a squad to open the ops board." />
+        <EmptyState icon="globe" title="No group yet" body="Join a group to open the ops board." />
         <OpsStyles />
       </main>
     );
@@ -219,7 +219,8 @@ export default function FieldOpsPage() {
           <p className="stamped">[ Field ops ]</p>
           <h1>Scouting ahead: {recon}</h1>
           <p className="opsSub">
-            Lines on the board send a drone one city ahead. She&apos;s heading there — decode it first.
+            Complete lines of step goals to scout {recon}, the next city on her trail — each line
+            unlocks a city landmark and adds to your team&apos;s chase bonus.
           </p>
           {seasonWeek && (
             <p className="opsComplication">
@@ -245,7 +246,7 @@ export default function FieldOpsPage() {
             {scout.overflowBonus > 0 && ` · +${scout.overflowBonus} overflow → forecast edge`}
           </span>
           {scout.unlockedToday && nextNode && (
-            <span className="tokenCaption">Next decrypt available tomorrow — intel unspools daily.</span>
+            <span className="tokenCaption">Next landmark unlocks tomorrow — one reveal per day.</span>
           )}
           <a className="dossierLink" href={withBase("/dossier")}>
             The Dossier →
@@ -266,7 +267,7 @@ export default function FieldOpsPage() {
           <div className="panelHeader">
             <h2>[ The ops board ]</h2>
             <span className="panelMeta">
-              {card.bingo_lines} line{card.bingo_lines === 1 ? "" : "s"} · {card.blackout ? "BLACKOUT" : "cause"}
+              {card.bingo_lines} line{card.bingo_lines === 1 ? "" : "s"} · {card.blackout ? "BLACKOUT" : "in play"}
             </span>
           </div>
 
@@ -378,7 +379,7 @@ export default function FieldOpsPage() {
         <section className="intelPanel sc-corners" aria-label="Recon intel">
           <div className="panelHeader">
             <h2>[ Intel — {recon} ]</h2>
-            <span className="panelMeta">effect</span>
+            <span className="panelMeta">rewards</span>
           </div>
           <div className="intelRow">
             {[...unlockedIntel, ...lockedIntel].map((node) => (
