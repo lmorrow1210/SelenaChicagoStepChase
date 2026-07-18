@@ -46,19 +46,28 @@ formal quarter.
 
 ## Selena's closing lines (Case Closed copy, per city)
 
+> ⚑ **SUPERSEDED — planning history only (2026-07-18).** This two-line-per-city
+> table (Fall short / Close) predates the full **four-outcome** buildout that now
+> ships. Every city's real Case Closed copy — four distinct Selena lines
+> (`trail_lost` / `pursuit_maintained` / `close_encounter` / `interception`) —
+> lives in its per-city pack (`cities/week-NN-*.md`) and in `seasonOne.ts`, which
+> are the **source of truth**. This table is kept only as planning history; do
+> not treat it as shippable copy or expand it (a parallel copy table would just
+> drift). Note also that the `— S.C.` sign-off referenced below is **not**
+> currently rendered by the product — see `narrative-qa-findings.md` finding N1.
+
 Two lines per city: **Fall short** (trail lost / pursuit maintained tier) and
 **Close** (close encounter / interception tier). These ship as city flavor on
 top of the mostly-generic Case Closed report.
 
-Lines that carried parked lore have been **replaced with cleaned versions**
-below; the originals are logged in the "Cleaning log" section and preserved in
-[`PARKED-LORE.md`](PARKED-LORE.md). All lines are sign-off `— S.C.` per the
-[voice guide](selena-voice-guide.md).
+Lines that carried parked lore were **replaced with cleaned versions** below; the
+originals are logged in the "Cleaning log" section and preserved in
+[`PARKED-LORE.md`](PARKED-LORE.md).
 
 | Wk | Fall short | Close |
 |----|-----------|-------|
 | 1 | "You searched the streets. You should have searched beneath them." | "You found the route. Not the reason." |
-| 2 | "The machine did not stop. You did." ⚑ | "Every part can be replaced. That includes people." ⚑ |
+| 2 | "The machine did not stop. You did." | "Every part can be replaced. That includes people." |
 | 3 | "You chose a trail and forgot to ask where it joined the other." | "Two paths can serve one purpose." |
 | 4 | "The Bureau counted on you reading only what it left visible." | "Redaction does not destroy the truth. It only delays it." |
 | 5 | "You worked as individuals. This was designed for people who don't." | "No one was ever meant to hold this alone." ✎ |
@@ -72,12 +81,7 @@ below; the originals are logged in the "Cleaning log" section and preserved in
 | 13 | "You reached the platform too late — but not too late to understand it." ✎ | "You came this far chasing me. Ask what else you found on the way." ✎ |
 
 **✎ = cleaned from a lore-bearing original.** See the cleaning log.
-**⚑ = superseded.** This two-line summary predates Week 2's full four-outcome
-buildout in [`cities/week-02-detroit.md`](cities/week-02-detroit.md) /
-`seasonOne.ts`, which ships distinct Selena lines for all four outcomes
-(`trail_lost`, `pursuit_maintained`, `close_encounter`, `interception`), not
-just a fall-short/close pair. Kept here for planning-history continuity;
-treat the city pack as authoritative for shipped copy.
+*(The whole table is superseded planning history — see the banner above.)*
 
 ### Cleaning log (originals preserved in PARKED-LORE.md §3.2)
 
