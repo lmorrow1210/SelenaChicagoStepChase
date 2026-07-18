@@ -1,13 +1,22 @@
 # Week 12 — Los Angeles: The Moving Picture
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(12, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 12` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(12, ...)` stub is retired)  
 **Prerequisite:** Week 11 (Santa Fe) closes and hands off via the "forged survey photo traces to an L.A. film lab" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Moving
 > Picture"* / complication *"Edited Reality"* per
 > [`../season-one-route.md`](../season-one-route.md). The Composite Record is a
 > standalone media forgery — **no** Bureau-faction-fabricated-evidence conspiracy.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -67,8 +76,7 @@
 ## Field Ops — Intel landmarks (Los Angeles, 5 slots)
 
 The five most well-known Los Angeles landmarks. Fun facts are the decode reward —
-they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 12 is implemented.
+they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Hollywood Sign (1923, originally "HOLLYWOODLAND"); Griffith Observatory (free public telescopes since 1935); Santa Monica Pier (western end of Route 66, since 1909); TCL Chinese Theatre (forecourt prints since 1927); Getty Center (16,000 tons of travertine, tram access). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -179,34 +187,44 @@ fixture when Week 12 is implemented.
 
 ---
 
-## Bingo items (Los Angeles-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 12.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `losangeles_before_noon` | Morning Take: 1,000 steps before noon | movement |
-| `losangeles_full_scene` | Full Scene: hit 100% of daily target | movement |
-| `losangeles_boardwalk_run` | Boardwalk Run: 5,000 steps in a day | movement |
-| `losangeles_long_boulevard` | Long Boulevard: 10,000 steps in a day | movement |
-| `losangeles_second_take` | Second Take: steps two days running | streak |
-| `losangeles_partner_walk` | Walk the pier with someone — friend, family, or pet | social |
-| `losangeles_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `losangeles_night_shoot` | Night Shoot: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `losangeles_before_noon` | Morning Take: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `losangeles_full_scene` | Full Scene: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `losangeles_boardwalk_run` | Boardwalk Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `losangeles_long_boulevard` | Long Boulevard: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `losangeles_second_take` | Second Take: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `losangeles_partner_walk` | Walk the pier with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `losangeles_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `losangeles_night_shoot` | Night Shoot: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(12, "Los Angeles", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week12_composite_record` and `week12_uncut_frame` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Edited Reality" reuses the existing intel-reveal pattern (completing Field Ops
-  unlocks metadata that marks items authentic vs. staged). No new mechanic;
-  confirm against how intel tiles decode.
-- The San Francisco reference is flavor for Week 13. It resolves nothing.
-- The Composite Record is a standalone media forgery exposed by metadata. Do
-  **not** frame it as a Bureau faction fabricating evidence against Selena, and do
-  **not** reveal any earlier artifact as a Bureau-built decoy — that is parked
-  lore. Rule #6.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 12`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Edited Reality** — "contradictory clips, reveal metadata" is copy; no clip/metadata mechanic exists. Standard detectors + Platform Sweep.
+- **Platform Sweep flavor (ships):** "Every convincing clip is a lead the unit has to check. Bureau analysts need the metadata surfaced before the real footage is buried." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

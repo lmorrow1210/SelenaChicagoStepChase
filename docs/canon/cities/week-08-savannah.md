@@ -1,13 +1,22 @@
 # Week 8 — Savannah: The Garden of Shadows
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(8, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 8` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(8, ...)` stub is retired)  
 **Prerequisite:** Week 7 (Boston) closes and hands off via the "ask in Savannah, they don't write it down" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Garden of
 > Shadows"* / complication *"Unwritten Route"* per
 > [`../season-one-route.md`](../season-one-route.md). The Missing Square is a
 > standalone artifact — **no** off-the-record-network lore.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -67,15 +76,14 @@
 ## Field Ops — Intel landmarks (Savannah, 5 slots)
 
 The five most well-known Savannah landmarks. Fun facts are the decode reward —
-they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 8 is implemented.
+they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Forsyth Park fountain (installed 1858); Bonaventure Cemetery ("Midnight in the Garden of Good and Evil"); River Street ballast stones; Cathedral Basilica of St. John the Baptist (twin spires ~214 ft — corrected from an earlier "nearly 210"); Chippewa Square ("Forrest Gump" bench). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
 | 1 | Forsyth Park | Its two-tiered cast-iron fountain, installed in 1858, is one of the most photographed spots in the American South. |
 | 2 | Bonaventure Cemetery | The riverside cemetery's oak-shaded statuary drew fame from the book and film "Midnight in the Garden of Good and Evil." |
 | 3 | River Street | Paved with ballast stones from old sailing ships, the riverfront street runs below the bluff on Savannah's original cotton wharves. |
-| 4 | Cathedral Basilica of St. John the Baptist | Its twin spires rise nearly 210 feet above the historic district, and its interior murals date to the early 1900s. |
+| 4 | Cathedral Basilica of St. John the Baptist | Its twin spires rise about 214 feet above the historic district, and its interior murals date to the early 1900s. |
 | 5 | Chippewa Square | One of Savannah's original squares, it stood in for the bus-stop bench scenes in the film "Forrest Gump." |
 
 ---
@@ -179,34 +187,44 @@ fixture when Week 8 is implemented.
 
 ---
 
-## Bingo items (Savannah-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 8.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `savannah_before_noon` | Morning Stroll: 1,000 steps before noon | movement |
-| `savannah_full_square` | Full Square: hit 100% of daily target | movement |
-| `savannah_square_run` | Square Run: 5,000 steps in a day | movement |
-| `savannah_long_oak` | Long Oak: 10,000 steps in a day | movement |
-| `savannah_garden_path` | Garden Path: steps two days running | streak |
-| `savannah_partner_walk` | Walk a square with someone — friend, family, or pet | social |
-| `savannah_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `savannah_evening_walk` | Evening Walk: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `savannah_before_noon` | Morning Stroll: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `savannah_full_square` | Full Square: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `savannah_square_run` | Square Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `savannah_long_oak` | Long Oak: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `savannah_garden_path` | Garden Path: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `savannah_partner_walk` | Walk a square with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `savannah_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `savannah_evening_walk` | Evening Walk: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(8, "Savannah", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week08_missing_square` and `week08_spoken_directions` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Unwritten Route" should weight route-reveal toward Field Ops **category
-  diversity** using the existing category system, not raw step volume. Confirm
-  how Field Ops categories are tagged before wiring the reveal weighting.
-- The New Orleans reference is flavor for Week 9's "Changing Rhythm." It resolves
-  nothing.
-- The Missing Square is a standalone map curiosity (Savannah really did lose
-  squares from its original plan). Do **not** frame it as a node hidden from
-  official records — that is parked lore. Rule #6.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 8`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Unwritten Route** — "reveal the route through varied field work" is copy; no map-reveal or route-completion mechanic is built. Standard detectors.
+- **Platform Sweep flavor (ships):** "Selena's route runs through squares the surveyors left off the map. Bureau analysts need the unit to reveal each one through varied field work before she reaches the last." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.
