@@ -103,6 +103,52 @@ differ from the finalized packs for **every city 2–13**. Each needs an additiv
 
 ---
 
+## N6 — Finale copy delivers a season-long thematic payoff (scope check) ⚑ OWNER DECISION
+
+**What:** Week 13's evidence — both tiers — reads as a retrospective on the whole
+season, and the interception note lands an explicit reframe:
+
+- Standard (`THE FINAL RECORD`, enhanced): "A record of the whole pursuit —
+  thirteen cities, closed in one hand. Where the final entry should be, there is
+  only a note: 'Your move.'"
+- Intercept (`THE LAST NOTE`, enhanced): "You were never chasing a thief. You were
+  training to notice. Until the next city. — S.C."
+
+Read with the connected teaser chain (N2), several intercept clues carry a
+premeditation undertone that this finale resolves — W3 "drawn before the trails
+were ever walked," W6 "an hour before the sightings it *triggered*," W12
+"timestamped after the record claims the chase ended," → W13 "you were never
+chasing a thief."
+
+**Why it's flagged:** `season-scope.md` (authoritative) bars "a season finale
+reveal," "any deepening… that pays off across weeks," and "one standalone
+artifact per week, no connective lore." The finale copy is a *thematic/character*
+payoff — it names **no** Meridian, conspiracy, or network, and "Until the next
+city" is soft/open — so it does not touch the parked lore. But it is the single
+place the shipped copy most clearly delivers a cross-week payoff.
+
+**Internal-doc tension:** `selena-voice-guide.md` describes Selena as "secretly
+leading its operatives toward a truth they were never meant to discover," which
+*supports* the "training to notice" reframe. `season-scope.md` says it wins over
+other docs. So the two canon documents point different directions here, and the
+owner should reconcile which governs the finale.
+
+**Options — owner call:**
+- **(A)** Keep as-is: accept a thematic (non-lore) finale payoff as the intended
+  emotional beat. Defensible — it names no barred lore and is interception-gated.
+- **(B, strict scope)** Soften the two W13 enhanced bodies so the finale reads as
+  "chase complete, she got away clean, open-ended" without the retroactive
+  "you were being trained" reframe. Minimal change: drop "You were never chasing a
+  thief. You were training to notice." and "thirteen cities, closed in one hand /
+  'Your move.'" in favor of a flatter close. This is a one-pack + one-config edit
+  (`week-13-san-francisco.md` + the two `week13_*` evidence entries).
+
+**Not changed in this pass** — it's the finale's emotional payload and a
+deliberate authored choice (pack = code); rewriting it is an owner creative call,
+not a reconciliation fix.
+
+---
+
 ## N5 — Voice-guide compliance (pass)
 
 No violations found across 118 Selena strings:
@@ -125,3 +171,4 @@ No violations found across 118 Selena strings:
 | N3 | Route-doc closing-lines table superseded | Narrative fix on PR #7 branch |
 | N4 | Landmark facts verified; DB seeds differ | Codex: sync migrations Weeks 2–13 |
 | N5 | Voice-guide compliance | None — passes |
+| N6 | Finale delivers a season-long thematic payoff | **Owner decision** (keep vs. soften) |
