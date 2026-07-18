@@ -260,6 +260,51 @@ const WEEK_ONE_RITUALS: WeekRitualCopy = {
     "Bureau analysts have narrowed Selena's route to three elevated platforms. The unit must cover all exits before she changes lines.",
 };
 
+// Week 2 Detroit — implemented from docs/canon/cities/week-02-detroit.md.
+// Built like WEEK_ONE_RITUALS: defaults for the standard states, Detroit copy
+// for the strong-pace taunt and the story reveal.
+const WEEK_TWO_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Detroit"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nField Ops now place her in the freight corridor near the river.",
+      selena: "Halfway through the week and you are still reading the grid wrong. Try the one beneath it.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "FREIGHT CORRIDOR CONFIRMED",
+      body: "Selena moved from the plant district to the old freight line along the river—off the street grid the whole way.\n\nField teams recovered a routing diagram with hand-marked revisions.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You are close enough that I have started checking the platform twice.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "Your nemesis has the same idea you do. One of you is wrong about which route to take.",
+  },
+  specialOperationFiction:
+    "Bureau analysts have narrowed Selena's route to three freight gates on Detroit's east side. The unit must cover every gate before she changes lines.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -397,7 +442,81 @@ export const SEASON_ONE_CONFIG = {
     // stripped of parked Meridian lore. The 5th/6th args (evidence/intercept
     // titles) are currently unused by structuralWeek; kept as cleaned
     // placeholders. Each week is fully replaced when its content pack ships.
-    structuralWeek(2, "Detroit", "The Machine Restarted", "Assembly Line", "The Routing Diagram", "", "Pittsburgh"),
+    {
+      id: "season_one_week_02",
+      seasonId,
+      weekNumber: 2,
+      cityName: "Detroit",
+      chapterTitle: "The Machine Restarted",
+      complication: {
+        id: "assembly_line",
+        label: "Assembly Line",
+        summary:
+          "Selena is moving through Detroit's old manufacturing infrastructure — long corridors, loading bays, and freight routes the city grid doesn't show. The unit starts cold before the first field operative logs movement.",
+      },
+      rituals: WEEK_TWO_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 02: THE MACHINE RESTARTED",
+        body: [
+          "At 6:40 AM, a decommissioned stamping plant in the Milwaukee Junction district powered on without authorization. Security footage shows the facility operating under its own systems for eleven minutes before the grid cut out.",
+          "Selena was identified leaving the building via a service corridor that runs beneath Woodward Avenue. She was carrying something. The footage did not capture what.",
+          "Your unit has been assigned to track her through Detroit's industrial infrastructure before she reaches the Michigan Central corridor.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Complete operations to uncover Selena's route through Detroit's industrial grid." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        // Decision A (2026-07-17): reuse the shared 24 detector codes; the
+        // Detroit-flavored bingo labels in the pack are a later migration.
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit identifies which corridor Selena used to leave the plant.",
+        firstMovementPayoff: "Your route confirms Selena is moving along the old freight line, not the street grid.",
+      },
+      specialOperation: { ...platformSweep, id: "week_02_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week02_routing_diagram",
+        interceptClueId: "week02_pittsburgh_corridor",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit covered ground but not the right ground. Selena used the service tunnels beneath the Woodward corridor — routes that don't appear on the Bureau's maps — and was two hours ahead before the first field report came in.",
+          selena: "Detroit has an underground grid. Most people do not know it exists. Now you do.",
+          nextLead: "A worn routing diagram was recovered near the freight entrance of the Milwaukee Junction plant.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} tracked Selena through the industrial district and confirmed her departure route before she cleared the city. She was moving, but the unit kept pace.",
+          selena: "You read the freight lines. That is more than the Bureau managed.",
+          nextLead: "A worn routing diagram shows hand-marked revisions to Detroit's original industrial corridor layout.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} reached the Michigan Central corridor ninety minutes after Selena. A Bureau contact confirmed she had been in the main hall — watching the windows — before departing north.",
+          selena: "You found the station. I was watching from the upper level. Another few hours and that would have been a different kind of conversation.",
+          nextLead: "One corridor on the diagram is circled and dated in a different ink — three weeks before the plant powered on.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} reached the Michigan Central main hall as Selena was crossing the platform. She did not run. She waited just long enough to look at the diagram in the operative's hand, then stepped through a service door that shouldn't have opened.",
+          selena: "You found it. I expected that would take another week. Adjust your estimate of yourself accordingly.",
+          nextLead: "A second corridor is marked on the diagram — in Pittsburgh.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Pittsburgh",
+        header: "NEXT: PITTSBURGH",
+        body: "The corridor in the diagram leads to a freight bridge above the Monongahela. A rail contact in Pittsburgh confirmed activity at the south end — three days ago.",
+        selena: "Steel cities have long memories. The question is whether you know how to read them.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(3, "Pittsburgh", "Three Rivers, Two Trails", "Split Trail", "The Convergence Map", "", "Washington, D.C."),
     structuralWeek(4, "Washington, D.C.", "The Monument Cipher", "Redacted Orders", "The Redacted Charter", "", "Philadelphia"),
     structuralWeek(5, "Philadelphia", "The Liberty Exchange", "Shared Custody", "The Custodian Ledger", "", "New York City"),
@@ -434,11 +553,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "You are faster than they told me.",
       iconKey: "card",
     },
-    ...Array.from({ length: 12 }, (_, index) => {
-      const week = index + 2;
+    {
+      id: "week02_routing_diagram",
+      kind: "standard",
+      seasonId,
+      weekNumber: 2,
+      cityName: "Detroit",
+      title: "THE ROUTING DIAGRAM",
+      body: "A worn routing diagram showing hand-marked revisions to Detroit's original industrial corridor layout.",
+      basicBody: "A worn routing diagram recovered near the freight entrance of the Milwaukee Junction plant.",
+      enhancedBody: "A worn routing diagram with hand-marked revisions. One corridor is circled and dated in a different ink — three weeks before the plant powered on.",
+      highlightedFragment: "circled and dated in a different ink",
+      iconKey: "diagram",
+    },
+    {
+      id: "week02_pittsburgh_corridor",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 2,
+      cityName: "Detroit",
+      title: "SECOND CORRIDOR",
+      body: "A routing diagram with a second corridor marked in Pittsburgh — in different ink, added later.",
+      enhancedBody: "A routing diagram with a second corridor marked in Pittsburgh. The handwriting matches nothing in the Bureau's records.",
+      highlightedFragment: "The handwriting matches nothing in the Bureau's records.",
+      iconKey: "corridor",
+    },
+    // Weeks 3-13 remain structural stubs — generic sealed evidence until each
+    // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
+    ...Array.from({ length: 11 }, (_, index) => {
+      const week = index + 3;
       const config = structuralWeek(
         week,
-        ["Detroit", "Pittsburgh", "Washington, D.C.", "Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Pittsburgh", "Washington, D.C.", "Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",

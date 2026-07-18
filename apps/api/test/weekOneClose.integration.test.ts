@@ -260,7 +260,8 @@ describeDb("Week 1 case close integration", () => {
       [...WEEK_ONE_CHICAGO.fieldOps.fixedChallengeCodes].sort(),
     );
 
-    // A Detroit week (structural config, no fixed codes) uses the full pool.
+    // Detroit (week 2) is now a fully implemented week that reuses the shared
+    // 24 detector codes; its bingo card is still a full 25 tiles.
     const detroit = await pool.query(`SELECT id FROM cities WHERE route_order = 2`);
     const w2 = await pool.query(
       `INSERT INTO weeks (group_id, city_id, starts_on, ends_on, group_target_steps, status)
