@@ -694,6 +694,49 @@ const WEEK_ELEVEN_RITUALS: WeekRitualCopy = {
     "The markers only align when enough of the unit holds the same bearing. Bureau analysts need the whole team pulling one direction.",
 };
 
+// Week 12 Los Angeles — implemented from docs/canon/cities/week-12-los-angeles.md.
+const WEEK_TWELVE_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Los Angeles"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nThe unit's field work has thrown out two of the staged reports already.",
+      selena: "You stopped trusting your eyes and started reading the timestamps. That is the only way through this city.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "METADATA SURFACING",
+      body: "The footage still looks convincing. The data underneath it does not — and the unit has already discarded two of the staged reports.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You have nearly found the real footage. Do not let the pretty one distract you now.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival were handed the same edited reel. Today, one of you believed a fake.",
+  },
+  specialOperationFiction:
+    "Every convincing clip is a lead the unit has to check. Bureau analysts need the metadata surfaced before the real footage is buried.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -1563,7 +1606,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(12, "Los Angeles", "The Moving Picture", "Edited Reality", "The Composite Record", "", "San Francisco"),
+    {
+      id: "season_one_week_12",
+      seasonId,
+      weekNumber: 12,
+      cityName: "Los Angeles",
+      chapterTitle: "The Moving Picture",
+      complication: {
+        id: "edited_reality",
+        label: "Edited Reality",
+        summary:
+          "The reports coming out of Los Angeles contradict each other — clips, stills, and timestamps that can't all be true. Completing Field Ops surfaces the metadata that shows which evidence is authentic and which was staged.",
+      },
+      rituals: WEEK_TWELVE_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 12: THE MOVING PICTURE",
+        body: [
+          "The forged survey photograph from Santa Fe traced to a film lab in Los Angeles — a place that makes locations look real for a living. The reports arriving from the city now contradict each other: clips, stills, and timestamps that cannot all be true at once.",
+          "Someone here is very good at building a convincing account of something that never happened. The trick is not to believe the footage — it is to read what the footage can't fake: the metadata underneath it.",
+          "Your unit has been assigned to complete the field work that surfaces that metadata, and sort the real record from the edited one, before Selena leaves the city.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Complete operations to surface metadata and separate the authentic evidence from the staged." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit surfaces the first piece of metadata — one clip is dated wrong.",
+        firstMovementPayoff: "Your field work exposes a staged report; the authentic one moves up.",
+      },
+      specialOperation: { ...platformSweep, id: "week_12_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week12_composite_record",
+        interceptClueId: "week12_uncut_frame",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit chased the most convincing footage — sharp, well-lit, perfectly timed. It was the fake. The authentic record was a dull clip no one thought to check, and by the time the metadata surfaced, Selena had walked off the set entirely.",
+          selena: "You watched the version they edited for you.",
+          nextLead: "A film reel and a stack of stills were recovered from a Los Angeles lab — all showing the same event.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} read the metadata instead of the footage and threw out the staged reports one by one. Selena stayed ahead, but the unit never committed to a fake.",
+          selena: "You checked the seams. Most people never look past a clean image.",
+          nextLead: "A record assembled from many sources tells one convincing account of something that never happened.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} surfaced nearly all the metadata and reached the lab twenty minutes behind her. A film tech confirmed Selena had been through the same reels — and had left the one authentic frame face-up on the light table, as if she wanted it found.",
+          selena: "You found the real frame in a room full of forgeries. A convincing record is not the same as a true one — and you knew the difference.",
+          nextLead: "The seams in the composite only show in the metadata.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} sorted every fake from the real and reached the lab while Selena was still at the light table. She turned the one authentic frame toward the operative — a bridge in fog, timestamped wrong — and said the interesting thing was not that the record was faked, but which ending it was faked to hide. Then the room went dark between two frames and she was gone.",
+          selena: "You read a whole city of forgeries and still found the one true frame. The Bureau would have believed the pretty one. You did not. Note it.",
+          nextLead: "One frame in the composite was never edited — a bridge in fog, San Francisco, timestamped after the record claims the chase ended.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "San Francisco",
+        header: "NEXT: SAN FRANCISCO",
+        body: "One frame in the composite was never touched. It shows a bridge in fog — San Francisco — stamped with a time after the record claims the chase was over.",
+        selena: "They edited an ending for you. The real one is in San Francisco, and it has not happened yet.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(13, "San Francisco", "One Step Ahead", "Final Convergence", "The Final Record", "", ""),
   ],
   evidence: [
@@ -1840,13 +1955,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "The forgery traces to a film lab in Los Angeles.",
       iconKey: "survey",
     },
-    // Weeks 12-13 remain structural stubs — generic sealed evidence until each
-    // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 2 }, (_, index) => {
-      const week = index + 12;
+    {
+      id: "week12_composite_record",
+      kind: "standard",
+      seasonId,
+      weekNumber: 12,
+      cityName: "Los Angeles",
+      title: "THE COMPOSITE RECORD",
+      body: "A record assembled from many sources — clips, timestamps, and stills combined into one convincing account of something that never happened.",
+      basicBody: "A film reel and a stack of stills recovered from a Los Angeles lab — all showing the same event.",
+      enhancedBody: "A composite record — images, timestamps, and logs stitched into a single false account. The seams only show in the metadata.",
+      highlightedFragment: "The seams only show in the metadata",
+      iconKey: "film",
+    },
+    {
+      id: "week12_uncut_frame",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 12,
+      cityName: "Los Angeles",
+      title: "THE UNCUT FRAME",
+      body: "One frame in the composite was never edited. It shows a bridge in fog — San Francisco.",
+      enhancedBody: "One frame was never edited: a bridge in fog, San Francisco, timestamped after the record claims the chase ended.",
+      highlightedFragment: "timestamped after the record claims the chase ended",
+      iconKey: "record",
+    },
+    // Week 13 remains a structural stub — generic sealed evidence until its
+    // content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
+    ...Array.from({ length: 1 }, (_, index) => {
+      const week = index + 13;
       const config = structuralWeek(
         week,
-        ["Los Angeles", "San Francisco"][index],
+        ["San Francisco"][index],
         "",
         "",
         "",
