@@ -563,6 +563,49 @@ const WEEK_EIGHT_RITUALS: WeekRitualCopy = {
     "Selena's route runs through squares the surveyors left off the map. Bureau analysts need the unit to reveal each one through varied field work before she reaches the last.",
 };
 
+// Week 9 New Orleans — implemented from docs/canon/cities/week-09-new-orleans.md.
+const WEEK_NINE_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("New Orleans"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nThe unit that kept a steady tempo is well into the route.",
+      selena: "You are keeping time. That is harder than going fast, and it is the only thing that reads here.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "TEMPO FOUND",
+      body: "The rhythm is reading where the unit kept a steady tempo. The days someone tried to make up the whole week at once barely moved it.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "Hold the tempo two more days and you are even with me. Do not rush the ending.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival both kept the rhythm all week. Today is the one measure where only volume counts.",
+  },
+  specialOperationFiction:
+    "The second line only holds if enough of the unit keeps the beat together. Bureau analysts need the group in step through the parade window.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -1213,7 +1256,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "The Rhythmic Key", "", "Austin"),
+    {
+      id: "season_one_week_09",
+      seasonId,
+      weekNumber: 9,
+      cityName: "New Orleans",
+      chapterTitle: "The Second Line",
+      complication: {
+        id: "changing_rhythm",
+        label: "Changing Rhythm",
+        summary:
+          "Selena's trail through New Orleans is kept as a rhythm, not a route. Daily targets shift slightly based on how the unit did the day before — steady participation and recovery matter more than one enormous day.",
+      },
+      rituals: WEEK_NINE_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 09: THE SECOND LINE",
+        body: [
+          "The route past Savannah's missing square was never written down — it was kept in a New Orleans song. Here, Selena's trail is carried the same way: as a rhythm passed along a second line, not a path drawn on a map.",
+          "A rhythm has to be kept. Rush it and it falls apart; drop out for a day and you lose the measure. The Bureau's usual approach — one operative walking enormous distances — does not read this trail at all.",
+          "Your unit has been assigned to keep time. Steady participation across the week, and recovery after a hard day, will surface the route. One giant push will not.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Keep a steady tempo — consistency across the week reveals the trail, not one huge day." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit finds the tempo — the trail reads only when you keep time.",
+        firstMovementPayoff: "Your steady day matters more than your biggest day this week.",
+      },
+      specialOperation: { ...platformSweep, id: "week_09_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week09_rhythmic_key",
+        interceptClueId: "week09_dead_interval",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit posted one enormous day and coasted the rest. A rhythm doesn't read that way — it fell apart between the big days, and Selena kept moving down a trail carried in a beat the unit never found.",
+          selena: "You counted the steps and missed the rhythm.",
+          nextLead: "A folded sheet of rhythmic notation was recovered near Jackson Square — intervals, no melody.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} kept a steady tempo through the week — recovering after the hard days instead of vanishing — and read most of the rhythm. Selena stayed ahead, but the unit never lost the measure.",
+          selena: "You held the tempo. New Orleans notices who can keep time.",
+          nextLead: "A key written as a rhythm reads only when kept in time.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} kept the rhythm almost perfectly and reached the parade route twenty minutes behind her. A musician confirmed Selena had walked the second line end to end, in step, before slipping off at a cross street.",
+          selena: "You kept the measure the whole way through. This city rewards participation, not obedience — and you participated.",
+          nextLead: "The key only resolves at the pace of a second line.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} kept perfect time all week and caught the second line at its turn — Selena among the dancers, in step, unhurried. She smiled at being found in a crowd that was all motion, tapped the rhythm on the operative's arm once, and let the parade close around her.",
+          selena: "You kept time with a whole city for a week and still found me inside it. That is not luck. Remember that.",
+          nextLead: "The last interval in the sequence points to a frequency in Austin that stopped transmitting.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Austin",
+        header: "NEXT: AUSTIN",
+        body: "The rhythm's final interval is an open rest — it points to a radio frequency in Austin that went silent mid-broadcast. No one has transmitted on it since.",
+        selena: "There is a frequency in Austin that stopped mid-sentence. I want to know who was talking, and why they stopped.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "The Override Frequency", "", "Santa Fe"),
     structuralWeek(11, "Santa Fe", "True North", "Alignment", "The Alignment Chart", "", "Los Angeles"),
     structuralWeek(12, "Los Angeles", "The Moving Picture", "Edited Reality", "The Composite Record", "", "San Francisco"),
@@ -1418,13 +1533,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "kept in a New Orleans song",
       iconKey: "square",
     },
-    // Weeks 9-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week09_rhythmic_key",
+      kind: "standard",
+      seasonId,
+      weekNumber: 9,
+      cityName: "New Orleans",
+      title: "THE RHYTHMIC KEY",
+      body: "A key written as a rhythm rather than a route: a sequence of intervals and rests that only reads correctly in time.",
+      basicBody: "A folded sheet of rhythmic notation recovered near Jackson Square — intervals, no melody.",
+      enhancedBody: "A key written entirely in rhythm. Played too fast or too slow it means nothing — it only resolves at the pace of a second line.",
+      highlightedFragment: "it only resolves at the pace of a second line",
+      iconKey: "rhythm",
+    },
+    {
+      id: "week09_dead_interval",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 9,
+      cityName: "New Orleans",
+      title: "THE DEAD INTERVAL",
+      body: "The sequence ends on a rest with no end — it points to a radio frequency in Austin.",
+      enhancedBody: "The last interval is a rest with no end — it points to a frequency in Austin that stopped transmitting.",
+      highlightedFragment: "a frequency in Austin that stopped transmitting",
+      iconKey: "key",
+    },
+    // Weeks 10-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 5 }, (_, index) => {
-      const week = index + 9;
+    ...Array.from({ length: 4 }, (_, index) => {
+      const week = index + 10;
       const config = structuralWeek(
         week,
-        ["New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
