@@ -434,6 +434,49 @@ const WEEK_FIVE_RITUALS: WeekRitualCopy = {
     "Bureau analysts need at least three operatives to hold the exchange hall's doors at once. No single custodian can cover it alone.",
 };
 
+// Week 6 New York City — implemented from docs/canon/cities/week-06-new-york-city.md.
+const WEEK_SIX_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("New York City"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nTwo of the five sightings have already collapsed under their own timing.",
+      selena: "You are throwing out the fakes faster than the Bureau expected. Keep discarding. The truth is what's left.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "DECOYS COLLAPSING",
+      body: "Two of the five borough sightings have fallen apart under their own timing. Three remain, and the unit's predictions are sharpening the field.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You found the real one. Now the only question is speed.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival each backed a different sighting. Today, one of you was watching a ghost.",
+  },
+  specialOperationFiction:
+    "Bureau analysts have narrowed the real Selena to three of the five boroughs. The unit must cover every candidate before the decoys reset.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -865,7 +908,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(6, "New York City", "Five Borough Decoy", "False Positives", "The Identity Cascade", "", "Boston"),
+    {
+      id: "season_one_week_06",
+      seasonId,
+      weekNumber: 6,
+      cityName: "New York City",
+      chapterTitle: "Five Borough Decoy",
+      complication: {
+        id: "false_positives",
+        label: "False Positives",
+        summary:
+          "Selena is reported in all five boroughs at once. Most of the sightings are decoys — relays and stand-ins timed to look real. The unit must sort the false leads from the one that isn't before committing the week.",
+      },
+      rituals: WEEK_SIX_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 06: FIVE BOROUGH DECOY",
+        body: [
+          "Overnight, Selena was reported in all five boroughs — the harbor, midtown, the Bronx, Brooklyn, and Queens — within the same hour. Every sighting checked out on its own. Together, they are impossible.",
+          "The Philadelphia ledger named five stewards at one New York address. The Bureau now believes the five sightings and the five names are the same trick: one person, made to look like many.",
+          "Your unit has been assigned to find the sighting that is real. Four of them want your attention. Only one deserves it.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Complete operations to rule out the staged sightings and narrow the real lead." },
+          { id: "prediction", title: "PREDICTION", body: "A sharper prediction improves the route estimate — accuracy matters this week." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit rules out its first decoy sighting.",
+        firstMovementPayoff: "Your route confirms one borough's lead was staged — the timing doesn't hold.",
+      },
+      specialOperation: { ...platformSweep, id: "week_06_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week06_identity_cascade",
+        interceptClueId: "week06_boston_feed",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit committed to the borough with the clearest footage. It was the best-made decoy — a relayed feed and a stand-in with a matching coat. The real Selena moved through a borough no one was watching.",
+          selena: "You chased the face that was chosen for you.",
+          nextLead: "A surveillance printout logs five simultaneous sightings across five boroughs.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} discarded the staged sightings one by one and kept pace with the lead that held up. Selena stayed ahead, but the unit never spent a day on a ghost.",
+          selena: "You stopped trusting the obvious feed. That is the whole lesson of this city.",
+          nextLead: "A surveillance record shows five sightings sharing one movement pattern.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} narrowed the five leads to one and reached the borough twenty-five minutes behind her. A transit contact confirmed only one set of footsteps had ever really been Selena's — the unit had been watching the right one for two days.",
+          selena: "You found the real sighting and stayed on it. A system that recognizes everyone can misidentify anyone — but you didn't.",
+          nextLead: "Of five sightings, only one gait was ever really hers.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} collapsed four decoys and caught the fifth in motion — Selena, crossing between platforms, no stand-in, no relay. She raised an eyebrow at being the one they picked, then stepped onto a train the board said wasn't running.",
+          selena: "Four decoys and you chose me. The Bureau has never once managed that on the first try. Note it.",
+          nextLead: "A sixth feed on the record came from Boston, an hour ahead of the New York clock.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Boston",
+        header: "NEXT: BOSTON",
+        body: "The sixth feed traces to a harbor camera in Boston, running an hour ahead of the New York clock. A contact there says a signal goes out from the harbor every night at the same minute.",
+        selena: "There is a signal in Boston that only transmits at night. I intend to be listening when it does.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(7, "Boston", "The Midnight Signal", "Signal Window", "The Continuity Protocol", "", "Savannah"),
     structuralWeek(8, "Savannah", "The Garden of Shadows", "Unwritten Route", "The Missing Square", "", "New Orleans"),
     structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "The Rhythmic Key", "", "Austin"),
@@ -998,13 +1113,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "none of the five names appears anywhere else in the ledger",
       iconKey: "column",
     },
-    // Weeks 6-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week06_identity_cascade",
+      kind: "standard",
+      seasonId,
+      weekNumber: 6,
+      cityName: "New York City",
+      title: "THE IDENTITY CASCADE",
+      body: "A surveillance record showing five borough sightings that share one movement pattern — the same gait, timed to look like five people.",
+      basicBody: "A surveillance printout logging five simultaneous sightings of Selena across five boroughs.",
+      enhancedBody: "A surveillance record: five sightings, five boroughs, one gait. Four were relays. Only one set of steps was ever really hers.",
+      highlightedFragment: "Only one set of steps was ever really hers",
+      iconKey: "record",
+    },
+    {
+      id: "week06_boston_feed",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 6,
+      cityName: "New York City",
+      title: "THE BOSTON FEED",
+      body: "A sixth feed on the record routes through a Boston harbor camera.",
+      enhancedBody: "A sixth feed came from Boston — an hour before the New York sightings it supposedly triggered.",
+      highlightedFragment: "an hour before the New York sightings it supposedly triggered",
+      iconKey: "feed",
+    },
+    // Weeks 7-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 8 }, (_, index) => {
-      const week = index + 6;
+    ...Array.from({ length: 7 }, (_, index) => {
+      const week = index + 7;
       const config = structuralWeek(
         week,
-        ["New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
