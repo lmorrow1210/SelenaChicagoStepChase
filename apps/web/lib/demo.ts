@@ -47,11 +47,11 @@ const CHICAGO_LANDMARKS = [
 ];
 
 const DETROIT_LANDMARKS = [
-  { id: 21, day: 1, name: "Michigan Central Station", fun_fact: "The restored station reopened as a mobility innovation hub after decades of silence." },
-  { id: 22, day: 2, name: "Guardian Building", fun_fact: "Its Art Deco tilework earned it the nickname Cathedral of Finance." },
-  { id: 23, day: 3, name: "RiverWalk", fun_fact: "The riverfront path traces old industrial edges now turned into public lookout points." },
-  { id: 24, day: 4, name: "Fisher Building", fun_fact: "Its lobby glows with marble, mosaics, and one of Detroit's grandest theatrical entrances." },
-  { id: 25, day: 5, name: "Belle Isle Conservatory", fun_fact: "The island greenhouse has watched over the Detroit River for more than a century." },
+  { id: 21, day: 1, name: "Michigan Central Station", fun_fact: "Abandoned for nearly thirty years, it reopened in 2024 after a landmark restoration led by Ford." },
+  { id: 22, day: 2, name: "Detroit Institute of Arts", fun_fact: "Diego Rivera's Detroit Industry Murals wrap an entire courtyard with scenes of the auto assembly line." },
+  { id: 23, day: 3, name: "Guardian Building", fun_fact: "Its Art Deco lobby, tiled in Pewabic pottery, earned it the nickname 'Cathedral of Finance.'" },
+  { id: 24, day: 4, name: "Motown Museum", fun_fact: "The Motown sound was recorded in the converted house that Berry Gordy called Hitsville U.S.A." },
+  { id: 25, day: 5, name: "Renaissance Center", fun_fact: "The riverfront towers of GM's headquarters are the tallest in Michigan and define Detroit's skyline." },
 ];
 
 const CHICAGO_LANDMARK_STATE = ["unlocked", "unlocked", "unlocked", "unlocked", "today", "locked", "locked"];
@@ -365,8 +365,8 @@ const FIXTURES: Record<string, unknown> = {
   "/api/fieldops/dossier": {
     owner: { id: "demo-me", display_name: "You" },
     cards: [
-      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 23, landmark_name: "RiverWalk", fun_fact: "The riverfront path traces old industrial edges now turned into public lookout points.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
-      { id: "ic-2", variant: "scouted", created_at: "2026-06-11T09:00:00Z", landmark_id: 22, landmark_name: "Guardian Building", fun_fact: "Its Art Deco tilework earned it the nickname Cathedral of Finance.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
+      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 23, landmark_name: "Guardian Building", fun_fact: "Its Art Deco lobby, tiled in Pewabic pottery, earned it the nickname 'Cathedral of Finance.'", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
+      { id: "ic-2", variant: "scouted", created_at: "2026-06-11T09:00:00Z", landmark_id: 22, landmark_name: "Detroit Institute of Arts", fun_fact: "Diego Rivera's Detroit Industry Murals wrap an entire courtyard with scenes of the auto assembly line.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
       { id: "ic-1", variant: "confirmed", created_at: "2026-05-28T20:00:00Z", landmark_id: 2, landmark_name: "Willis Tower Skydeck", fun_fact: "The Ledge's glass boxes extend 4.3 feet out on the 103rd floor.", image: null, city_id: 1, city_name: "Chicago", city_country: "USA" },
     ],
     cities: [

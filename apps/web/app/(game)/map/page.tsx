@@ -572,7 +572,7 @@ export default function MapPage() {
               title: `${season.chapter.city} evidence`,
               primary: season.evidencePreview.unlocked && season.evidencePreview.standardTitle
                 ? season.evidencePreview.standardTitle
-                : "Complete the case to recover the first Meridian artifact.",
+                : "Complete the case to recover the evidence.",
               secondary: season.evidencePreview.unlocked
                 ? season.evidencePreview.interceptUnlocked
                   ? "Intercept clue recovered — view on evidence board"

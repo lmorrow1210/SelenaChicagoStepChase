@@ -9,6 +9,24 @@
 
 ---
 
+> ## ⚠ SCOPE NOTICE — 2026-07-17
+>
+> **This document describes a deeper narrative vision that has been
+> intentionally scoped out. Do not use it as a build specification.**
+>
+> The Meridian network backstory, Bureau-insider conspiracy, escalating
+> evidence arc, and season finale described in this document **will not be
+> built**. That decision is final.
+>
+> Use this document as **background context only** — for understanding
+> the origin of design choices already in the codebase. Do not implement
+> anything in this document that is not already shipped.
+>
+> The authoritative scope definition is in `CODEX-HANDOFF.md §3` and
+> `AGENTS.md` hard rule #6.
+
+---
+
 ## 1. How to Use This Document
 
 This document is the current single source of truth for implementing the first seasonal narrative layer of **One Step Ahead**.

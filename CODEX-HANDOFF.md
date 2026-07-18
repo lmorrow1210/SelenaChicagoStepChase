@@ -101,21 +101,54 @@ deploys; physical-device QA. Also `RealFitbitClient.steps_by_hour` stays
 
 ## 3. Track B — the Narrative DNA (the owner's chosen direction)
 
+### Product scope decision — 2026-07-17 (BINDING)
+
+> **Authoritative source: [`docs/canon/`](docs/canon/README.md).** Start with
+> `docs/canon/season-scope.md` (scope), `docs/canon/season-one-route.md` (the
+> 13-week roadmap), and `docs/canon/selena-voice-guide.md` (voice). Parked lore
+> that must never reach shipped copy lives in `docs/canon/PARKED-LORE.md`. The
+> summary below is a pointer; the canon files win on any conflict.
+
+> **The game is a weekly step competition between friends. Selena Chicago
+> is a recurring villain framing device, not the centre of a deepening
+> mystery. The narrative layer adds atmosphere; it does not drive a
+> season-long plot.**
+
+**What is explicitly NOT being built — do not start, do not plan:**
+- A 13-chapter escalating mystery arc
+- The Meridian network backstory or lore expansion
+- A season finale or multi-tier finale reveal
+- Bureau-insider conspiracy payoff
+- City-specific evidence that builds toward a secret
+- The `finaleDepthTier` system (already coded; do not add to it)
+- Any intercept-clue lore beyond what Week 1 already ships
+
+**The scope ceiling for Weeks 2–13:**
+Each city gets: chapter title + complication flavor, briefing copy, Field
+Ops fixed challenges + 5 local intel landmarks, bingo items, ritual copy
+(Mon/midweek/final-push), four outcome stories. Beats repeat with the same
+engine already in place — they do not need to be city-tailored beyond what
+the beat template naturally provides. The evidence board shows one artifact
+per week; that artifact is a collectible, not a plot device.
+
+If a design idea requires adding a new story layer that escalates across
+weeks, that is out of scope. Stop and check with the owner.
+
 ### The directive
 
 > **Never show a number when you can show a story. The steps are real;
 > everything they touch should feel like fiction closing around Selena
 > Chicago.**
 
-The game's magic is that real-world effort feeds a manhunt. Five pillars,
-in priority order:
+The game's magic is that real-world effort feeds a weekly competition with
+friends. Five pillars, in priority order:
 
 1. **Selena is a character, not a scoreboard** — she reacts to the group's
    real data (taunts, calling cards, near-miss drama).
 2. **Cadence becomes ritual** — Monday briefing, mid-week twist, Saturday
    sudden death as an *event*, Sunday reveal + vanish clock.
 3. **The world is the reward** — dossiers/fun-facts already work this way;
-   extend toward seasons and an evidence board with a finale.
+   city-flavored bingo and intel keep each week feeling distinct.
 4. **Fully diegetic UI** — syncs are "field reports," badges stamp onto
    paper, optional CRT/teletype sound (muteable, respect
    `prefers-reduced-motion`).

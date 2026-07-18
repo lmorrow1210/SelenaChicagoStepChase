@@ -127,8 +127,8 @@ describe("demo current-week fixture", () => {
     expect(body!.reconCity.name).toBe("Detroit");
     expect(body!.intel.slice(0, 3).map((card) => card.name)).toEqual([
       "Michigan Central Station",
+      "Detroit Institute of Arts",
       "Guardian Building",
-      "RiverWalk",
     ]);
     expect(body!.intel.slice(0, 3).every((card) => card.unlocked && card.fun_fact)).toBe(true);
   });

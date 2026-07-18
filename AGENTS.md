@@ -65,6 +65,16 @@ later") — `gh run rerun <id> --failed`, no code change.
    `packages/design-system/tokens/` (+ `lib/brand.ts`, see above).
 5. **OAuth refresh tokens always encrypted** with `encryptToken()`
    (`apps/api/src/lib/crypto.ts`).
+6. **Do not build the season arc** — no escalating mystery, no Meridian
+   lore expansion, no season finale, no multi-week evidence conspiracy, no
+   Bureau-insider payoff. The game is a weekly step competition between
+   friends. Selena is a recurring villain framing device. Weeks 2–13 each
+   get city flavor (chapter title, complication, bingo items, intel
+   landmarks, briefing, ritual copy, outcome stories) and nothing more.
+   **Authoritative scope + narrative source of truth:
+   [`docs/canon/`](docs/canon/README.md)** — start with
+   `docs/canon/season-scope.md`. Parked lore that must never reach shipped
+   copy is quarantined in `docs/canon/PARKED-LORE.md`.
 
 ## Design system — "Field Terminal" (v4, July 2026)
 
