@@ -305,6 +305,49 @@ const WEEK_TWO_RITUALS: WeekRitualCopy = {
     "Bureau analysts have narrowed Selena's route to three freight gates on Detroit's east side. The unit must cover every gate before she changes lines.",
 };
 
+// Week 3 Pittsburgh — implemented from docs/canon/cities/week-03-pittsburgh.md.
+const WEEK_THREE_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Pittsburgh"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nField reports are starting to agree on which trail she walked.",
+      selena: "You committed to a trail. Brave. We will see whether it was the one I took.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "TRAIL CONFIRMED",
+      body: "The field reports agree: Selena took the river trail along the Monongahela, not the incline.\n\nBoth routes converge at the Point, where the three rivers meet.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You are close enough now that the two trails stop mattering.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival picked different trails. One of you has been right all week. Today you find out which.",
+  },
+  specialOperationFiction:
+    "Bureau analysts have narrowed Selena's crossing to three river bridges. The unit must cover every span before she reaches the far bank.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -517,7 +560,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(3, "Pittsburgh", "Three Rivers, Two Trails", "Split Trail", "The Convergence Map", "", "Washington, D.C."),
+    {
+      id: "season_one_week_03",
+      seasonId,
+      weekNumber: 3,
+      cityName: "Pittsburgh",
+      chapterTitle: "Three Rivers, Two Trails",
+      complication: {
+        id: "split_trail",
+        label: "Split Trail",
+        summary:
+          "Two routes lead from the river bridge into Pittsburgh — the trail along the Monongahela and the incline up Mount Washington. Both reach the same place. Selena took one; the unit works both until her route is confirmed.",
+      },
+      rituals: WEEK_THREE_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 03: THREE RIVERS, TWO TRAILS",
+        body: [
+          "At 5:12 AM, a freight signal on the Monongahela rail bridge switched from idle to active — no scheduled train, no operator on record. By the time a rail contact reached the control house, the switch had been reset by hand.",
+          "Selena was seen crossing to the south bank on foot. Two routes lead from that bridge into the city: the river trail along the Mon, and the incline up Mount Washington. Both reach the same place. She took one. The Bureau does not know which.",
+          "Your unit has been assigned to work both trails until her route is confirmed — before she reaches the Point, where the three rivers meet.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Complete operations to confirm which trail Selena walked into the city." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit confirms which of the two trails Selena actually walked.",
+        firstMovementPayoff: "Your route rules out the incline — she stayed low, along the water.",
+      },
+      specialOperation: { ...platformSweep, id: "week_03_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week03_convergence_map",
+        interceptClueId: "week03_eastern_line",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit committed to the incline and worked it hard. Selena had taken the river trail — the low one, along the Mon — and reached the Point before the field reports could correct course.",
+          selena: "Two trails join at the same place. You only needed to be on the right one when they did.",
+          nextLead: "A folded transit map was recovered near the Monongahela rail bridge.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} worked both trails until the reports agreed, then followed the right one to the river's edge. Selena was ahead, but the unit never lost the bank.",
+          selena: "You read the water before you read the map. That is the correct order.",
+          nextLead: "A layered map traces two trails to the same point where the rivers meet.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} reached the Point twenty minutes behind her. A park contact confirmed she had stood at the fountain where the rivers meet, watching the far bank, before crossing north.",
+          selena: "You made it to the confluence. I was still deciding which river to follow out. You nearly made the decision for me.",
+          nextLead: "Two trails on the map end at the same mark at the Point.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} reached the fountain at the Point as Selena was folding a map into her coat. She let the operative see it — two trails, one destination — then walked into the crowd along the north shore and did not reappear.",
+          selena: "You caught both trails at once. I did not think that was possible with the time you had. Note the feeling.",
+          nextLead: "A third line on the map continues east — toward Washington.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Washington, D.C.",
+        header: "NEXT: WASHINGTON, D.C.",
+        body: "The eastern line ends at a records archive off the National Mall. A contact there flagged a reading-room request filed under a researcher credential that was deactivated years ago.",
+        selena: "In Washington, the important documents are the ones with the most crossed out. I am going to read one anyway.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(4, "Washington, D.C.", "The Monument Cipher", "Redacted Orders", "The Redacted Charter", "", "Philadelphia"),
     structuralWeek(5, "Philadelphia", "The Liberty Exchange", "Shared Custody", "The Custodian Ledger", "", "New York City"),
     structuralWeek(6, "New York City", "Five Borough Decoy", "False Positives", "The Identity Cascade", "", "Boston"),
@@ -578,13 +693,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "The handwriting matches nothing in the Bureau's records.",
       iconKey: "corridor",
     },
-    // Weeks 3-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week03_convergence_map",
+      kind: "standard",
+      seasonId,
+      weekNumber: 3,
+      cityName: "Pittsburgh",
+      title: "THE CONVERGENCE MAP",
+      body: "A layered map of Pittsburgh's rivers, freight lines, and buried water channels, with two trails traced to the same point.",
+      basicBody: "A folded transit map recovered near the Monongahela rail bridge.",
+      enhancedBody: "A layered map of Pittsburgh's rivers, freight lines, and buried channels. Two separate trails are drawn in — and both end at the same mark at the Point.",
+      highlightedFragment: "both end at the same mark at the Point",
+      iconKey: "map",
+    },
+    {
+      id: "week03_eastern_line",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 3,
+      cityName: "Pittsburgh",
+      title: "THE EASTERN LINE",
+      body: "A line on the map continues east past the rivers, hand-drawn, ending at a point in Washington.",
+      enhancedBody: "A line continues east to Washington. It was drawn before the two Pittsburgh trails were ever walked.",
+      highlightedFragment: "It was drawn before the two Pittsburgh trails were ever walked.",
+      iconKey: "route",
+    },
+    // Weeks 4-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 11 }, (_, index) => {
-      const week = index + 3;
+    ...Array.from({ length: 10 }, (_, index) => {
+      const week = index + 4;
       const config = structuralWeek(
         week,
-        ["Pittsburgh", "Washington, D.C.", "Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Washington, D.C.", "Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
