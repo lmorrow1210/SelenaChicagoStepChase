@@ -151,38 +151,6 @@ const platformSweep: ParticipationThresholdOperationConfig = {
   ],
 };
 
-const defaultCloseCopy: Record<WeeklyOutcome, {
-  headline: string;
-  story: string;
-  selena: string;
-  nextLead: string;
-}> = {
-  trail_lost: {
-    headline: "TRAIL LOST",
-    story: "The unit lost contact before the case could be resolved.",
-    selena: "You followed the obvious route.",
-    nextLead: "The next signal has already appeared.",
-  },
-  pursuit_maintained: {
-    headline: "PURSUIT MAINTAINED",
-    story: "The unit kept Selena within operational range.",
-    selena: "Close enough to keep watching.",
-    nextLead: "The route continues to the next city.",
-  },
-  close_encounter: {
-    headline: "CLOSE ENCOUNTER",
-    story: "The unit arrived moments after Selena moved on.",
-    selena: "Another minute would have changed the file.",
-    nextLead: "The recovered evidence points to the next city.",
-  },
-  interception: {
-    headline: "SELENA INTERCEPTED",
-    story: "The unit reached Selena before she escaped through a contingency.",
-    selena: "Ask what opened before I arrived.",
-    nextLead: "The intercept clue points to the next city.",
-  },
-};
-
 const defaultRituals = (cityName: string): WeekRitualCopy => ({
   midweek: {
     strongPace: {
@@ -737,59 +705,53 @@ const WEEK_TWELVE_RITUALS: WeekRitualCopy = {
     "Every convincing clip is a lead the unit has to check. Bureau analysts need the metadata surfaced before the real footage is buried.",
 };
 
-const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
-  label: "BUREAU FIELD BRIEFING",
-  title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
-  body: [`The pursuit has reached ${cityName}.`, "Local briefing details remain sealed until this chapter opens."],
-  supportingCards: [
-    { id: "field_ops", title: "FIELD OPS", body: "Complete operations to improve the pursuit and uncover city intel." },
-    { id: "prediction", title: "PREDICTION", body: "Estimate how far the team will get before the case closes." },
-    { id: "nemesis", title: "NEMESIS", body: "Outwalk your assigned rival in a five-day duel." },
-  ],
-  primaryCta: "Begin the pursuit",
-  secondaryCta: "Review assignment",
-});
+// Week 13 San Francisco — implemented from docs/canon/cities/week-13-san-francisco.md.
+// Finale week, NOT a special build: same loop, larger combined target, no
+// depth tiers, no season-evidence input, no lore payoff.
+const WEEK_THIRTEEN_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("San Francisco"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nSteps, ops, predictions, the duel — all of it is feeding the same target now.",
+      selena: "You are using everything at once. That is what the whole season was for. I can feel it behind me.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "EVERYTHING CONVERGING",
+      body: "Every system the unit has counts now, and it is closing on the season's final target from every side.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "One more push and you are level with me at the water's edge. Thirteen weeks for this. Do not stop now.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. The season's last duel comes down to Saturday.",
+    selena: "The last day of the last city, and you and your rival are still tied. I could not have written it better.",
+  },
+  specialOperationFiction:
+    "The season's last target takes every system at once. Bureau analysts need the whole unit — steps, ops, predictions, and the duel — converging before Sunday.",
+};
 
-const structuralWeek = (
-  weekNumber: number,
-  cityName: string,
-  chapterTitle: string,
-  complicationLabel: string,
-  evidenceTitle: string,
-  interceptTitle: string,
-  nextCityName: string,
-): SeasonWeekConfig => ({
-  id: `season_one_week_${String(weekNumber).padStart(2, "0")}`,
-  seasonId,
-  weekNumber,
-  cityName,
-  chapterTitle,
-  complication: {
-    id: chapterTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""),
-    label: complicationLabel,
-    summary: `${cityName} chapter field complication.`,
-  },
-  rituals: defaultRituals(cityName),
-  briefing: structuralBriefing(weekNumber, cityName, chapterTitle),
-  fieldOps: {
-    fixedChallengeCodes: [],
-    firstLinePayoff: "The first local lead is confirmed.",
-    firstMovementPayoff: "The unit files its first verified movement report.",
-  },
-  specialOperation: { ...platformSweep, id: `week_${String(weekNumber).padStart(2, "0")}_operation`, label: "Special Operation" },
-  evidence: {
-    standardEvidenceId: `week${String(weekNumber).padStart(2, "0")}_standard_evidence`,
-    interceptClueId: `week${String(weekNumber).padStart(2, "0")}_intercept_clue`,
-  },
-  closeCopy: defaultCloseCopy,
-  nextCityTeaser: {
-    cityName: nextCityName,
-    header: nextCityName ? `NEXT: ${nextCityName.toUpperCase()}` : "SEASON FINALE",
-    body: nextCityName ? `The trail continues to ${nextCityName}.` : "The Season One file is ready for final review.",
-    selena: nextCityName ? "Bring what you found." : "Now you understand the shape of it.",
-    cta: nextCityName ? "Continue the pursuit" : "Review the season file",
-  },
-});
+// All 13 weeks are now fully implemented inline below. The `structuralWeek`
+// stub factory that previously scaffolded unimplemented weeks has been retired.
 
 export const SEASON_ONE_CONFIG = {
   id: seasonId,
@@ -869,11 +831,6 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    // Weeks 2-13 are structural stubs; chapter title + complication label are
-    // synced to docs/canon/season-one-route.md (the authoritative roadmap) and
-    // stripped of parked Meridian lore. The 5th/6th args (evidence/intercept
-    // titles) are currently unused by structuralWeek; kept as cleaned
-    // placeholders. Each week is fully replaced when its content pack ships.
     {
       id: "season_one_week_02",
       seasonId,
@@ -1679,7 +1636,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(13, "San Francisco", "One Step Ahead", "Final Convergence", "The Final Record", "", ""),
+    {
+      id: "season_one_week_13",
+      seasonId,
+      weekNumber: 13,
+      cityName: "San Francisco",
+      chapterTitle: "One Step Ahead",
+      complication: {
+        id: "final_convergence",
+        label: "Final Convergence",
+        summary:
+          "The season's last city. Everything the unit has learned converges on one larger target: steps, Field Ops, predictions, and nemesis results each contribute modestly to the week's combined goal. No new tricks — just the whole game at once.",
+      },
+      rituals: WEEK_THIRTEEN_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 13: ONE STEP AHEAD",
+        body: [
+          "The one frame the Los Angeles lab never edited showed a bridge in fog — San Francisco — stamped with a time after the record claimed the chase was over. Selena came here to walk into an ending someone else already tried to write for her.",
+          "This is the last city. There are no new tricks left, only everything you have learned since Chicago: steps, field work, predictions, and the daily duel, all converging on one target at once.",
+          "Your unit has been assigned to close the distance one final time. She has stayed one step ahead for thirteen weeks. Find out what happens when you stop chasing the version of her you were shown and chase the real one.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Every system counts this week — Field Ops feed the season's final combined target." },
+          { id: "prediction", title: "PREDICTION", body: "Your call contributes to the finale target. Make it count." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit's first contribution across all four systems lands on the combined target.",
+        firstMovementPayoff: "Your steps, ops, prediction, and nemesis result all count toward one goal now.",
+      },
+      specialOperation: { ...platformSweep, id: "week_13_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week13_final_record",
+        interceptClueId: "week13_last_note",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit brought everything to the last city and still came up short of the water. Selena crossed the bridge into the fog while the combined target sat unfinished — one step ahead at the end, the way she had been at the start.",
+          selena: "You reached the platform too late — but not too late to understand it.",
+          nextLead: "A slim case file was recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} brought every system to bear and closed most of the combined target, holding Selena in sight all the way to the coast. She reached the bridge first — but only just, and she knew it.",
+          selena: "You used the whole season at once and nearly caught me with it. Nearly.",
+          nextLead: "A record of the entire chase, city by city, closed out in a single hand.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} finished nearly all of the combined target and reached the bridge as the fog came in. A toll worker confirmed Selena had stood at the rail, looking back the way she'd come, until the unit was almost on her — then walked into the white and was gone.",
+          selena: "You came this far chasing me. Ask what else you found on the way.",
+          nextLead: "Where the final entry should be, there is only a note: Your move.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and said the chase was never the point; the noticing was. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.",
+          selena: "You caught me at the edge of the country, using everything you learned to get here. No one has ever done that. Whatever comes next, you are ready for it.",
+          nextLead: "A folded note left with the file: You were never chasing a thief. You were training to notice.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "",
+        header: "SEASON ONE COMPLETE",
+        body: "The pursuit reached the coast. Thirteen cities, one season, one villain who stayed a step ahead to the end. The file is closed — for now.",
+        selena: "You made it to the water. That is farther than anyone before you. Rest. The next city can wait.",
+        cta: "Review the season",
+      },
+    },
   ],
   evidence: [
     {
@@ -1980,40 +2009,31 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "timestamped after the record claims the chase ended",
       iconKey: "record",
     },
-    // Week 13 remains a structural stub — generic sealed evidence until its
-    // content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 1 }, (_, index) => {
-      const week = index + 13;
-      const config = structuralWeek(
-        week,
-        ["San Francisco"][index],
-        "",
-        "",
-        "",
-        "",
-        "",
-      );
-      return [
-        {
-          id: config.evidence.standardEvidenceId,
-          kind: "standard" as const,
-          seasonId,
-          weekNumber: week,
-          cityName: config.cityName,
-          title: `WEEK ${String(week).padStart(2, "0")} STANDARD EVIDENCE`,
-          body: "Evidence details remain sealed until this chapter is fully briefed.",
-        },
-        {
-          id: config.evidence.interceptClueId,
-          kind: "intercept" as const,
-          seasonId,
-          weekNumber: week,
-          cityName: config.cityName,
-          title: `WEEK ${String(week).padStart(2, "0")} INTERCEPT CLUE`,
-          body: "Intercept details remain sealed until this chapter is fully briefed.",
-        },
-      ];
-    }).flat(),
+    {
+      id: "week13_final_record",
+      kind: "standard",
+      seasonId,
+      weekNumber: 13,
+      cityName: "San Francisco",
+      title: "THE FINAL RECORD",
+      body: "A record of the entire chase, city by city, closed out in a single hand. The last line is left blank.",
+      basicBody: "A slim case file recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit.",
+      enhancedBody: "A record of the whole pursuit — thirteen cities, closed in one hand. Where the final entry should be, there is only a note: Your move.",
+      highlightedFragment: "Your move.",
+      iconKey: "file",
+    },
+    {
+      id: "week13_last_note",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 13,
+      cityName: "San Francisco",
+      title: "THE LAST NOTE",
+      body: "A folded note left with the file, addressed to the unit by its call sign.",
+      enhancedBody: "A folded note: You were never chasing a thief. You were training to notice. Until the next city. — S.C.",
+      highlightedFragment: "You were never chasing a thief. You were training to notice.",
+      iconKey: "note",
+    },
   ],
 } satisfies SeasonConfig;
 
