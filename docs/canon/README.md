@@ -19,24 +19,33 @@ see `HANDOFF.md` / `AGENTS.md`.)
 
 | Pack | Status |
 |---|---|
-| [`cities/week-01-chicago.md`](cities/week-01-chicago.md) | SHIPPED — reference implementation (copy in `seasonOne.ts`) |
-| [`cities/week-02-detroit.md`](cities/week-02-detroit.md) | DRAFT — copy complete, awaiting owner review |
-| [`cities/week-03-pittsburgh.md`](cities/week-03-pittsburgh.md) | DRAFT — copy complete |
-| [`cities/week-04-washington-dc.md`](cities/week-04-washington-dc.md) | DRAFT — copy complete |
-| [`cities/week-05-philadelphia.md`](cities/week-05-philadelphia.md) | DRAFT — copy complete |
-| [`cities/week-06-new-york-city.md`](cities/week-06-new-york-city.md) | DRAFT — copy complete |
-| [`cities/week-07-boston.md`](cities/week-07-boston.md) | DRAFT — copy complete |
-| [`cities/week-08-savannah.md`](cities/week-08-savannah.md) | DRAFT — copy complete |
-| [`cities/week-09-new-orleans.md`](cities/week-09-new-orleans.md) | DRAFT — copy complete |
-| [`cities/week-10-austin.md`](cities/week-10-austin.md) | DRAFT — copy complete |
-| [`cities/week-11-santa-fe.md`](cities/week-11-santa-fe.md) | DRAFT — copy complete (⚠️ simplified mechanic) |
-| [`cities/week-12-los-angeles.md`](cities/week-12-los-angeles.md) | DRAFT — copy complete |
-| [`cities/week-13-san-francisco.md`](cities/week-13-san-francisco.md) | DRAFT — copy complete (⚠️ finale, not a special build) |
+| [`cities/week-01-chicago.md`](cities/week-01-chicago.md) | ✅ IMPLEMENTED — reference implementation (copy in `seasonOne.ts`) |
+| [`cities/week-02-detroit.md`](cities/week-02-detroit.md) | ✅ IMPLEMENTED (PR #4) |
+| [`cities/week-03-pittsburgh.md`](cities/week-03-pittsburgh.md) | ✅ IMPLEMENTED |
+| [`cities/week-04-washington-dc.md`](cities/week-04-washington-dc.md) | ✅ IMPLEMENTED |
+| [`cities/week-05-philadelphia.md`](cities/week-05-philadelphia.md) | ✅ IMPLEMENTED |
+| [`cities/week-06-new-york-city.md`](cities/week-06-new-york-city.md) | ✅ IMPLEMENTED |
+| [`cities/week-07-boston.md`](cities/week-07-boston.md) | ✅ IMPLEMENTED |
+| [`cities/week-08-savannah.md`](cities/week-08-savannah.md) | ✅ IMPLEMENTED |
+| [`cities/week-09-new-orleans.md`](cities/week-09-new-orleans.md) | ✅ IMPLEMENTED |
+| [`cities/week-10-austin.md`](cities/week-10-austin.md) | ✅ IMPLEMENTED |
+| [`cities/week-11-santa-fe.md`](cities/week-11-santa-fe.md) | ✅ IMPLEMENTED (⚠️ simplified mechanic) |
+| [`cities/week-12-los-angeles.md`](cities/week-12-los-angeles.md) | ✅ IMPLEMENTED |
+| [`cities/week-13-san-francisco.md`](cities/week-13-san-francisco.md) | ✅ IMPLEMENTED (⚠️ finale, not a special build) |
 
-All 13 narrative packs are drafted (2026-07-17). Weeks 2–13 are still
-`structuralWeek(...)` stubs in `seasonOne.ts` — implementing a pack means
-replacing that week's stub with a full inline config + evidence entries + demo
-fixture, then verifying. Do it one bounded milestone at a time.
+**All 13 weeks are now fully implemented inline in `seasonOne.ts`** (Week 1 +
+Detroit merged to main; Weeks 3–13 in the cities-buildout PR). Every week uses the
+shared 24 detector codes for bingo (Decision A) — city-flavored bingo *labels*
+remain a later migration (see the packs' bingo tables + `IMPLEMENTING-A-CITY.md`
+Gotcha 2). The `structuralWeek` stub factory has been retired.
+
+### Remaining follow-ups (not blocking)
+- **City-flavored bingo labels** — the packs authored per-city labels; shipping
+  them needs an append-only `bingo_challenge_definitions` migration (Decision B).
+- **DB landmark seeds** — the real app reads landmarks from a migration; align
+  each city's DB landmarks with its pack when those weeks go live in production.
+- **Demo fixtures** — the demo shows Week 1 Chicago as the current week; a city
+  only needs a full demo season-state block if you switch the demo to show it live.
 
 ## Workflow
 
