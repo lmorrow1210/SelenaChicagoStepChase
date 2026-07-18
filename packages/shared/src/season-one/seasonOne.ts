@@ -606,6 +606,49 @@ const WEEK_NINE_RITUALS: WeekRitualCopy = {
     "The second line only holds if enough of the unit keeps the beat together. Bureau analysts need the group in step through the parade window.",
 };
 
+// Week 10 Austin — implemented from docs/canon/cities/week-10-austin.md.
+const WEEK_TEN_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Austin"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nThe unit's synced days are reading as verified pursuit; the un-synced ones are still static.",
+      selena: "You are learning the difference between a signal and the noise that resembles it. Most never do.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "SIGNAL CLEARING",
+      body: "The unit's verified pursuit is separating from the static. The real gap is smaller than the estimate — or larger. Confirm to find out.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "Your verified pursuit puts you right behind me. Do not let an estimate tell you otherwise.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it — on verified steps only.",
+    selena: "Static will not help either of you today. Only what your trackers can confirm counts.",
+  },
+  specialOperationFiction:
+    "Only verified steps cut through the interference. Bureau analysts need the unit synced and confirmed before the window closes.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -1329,7 +1372,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "The Override Frequency", "", "Santa Fe"),
+    {
+      id: "season_one_week_10",
+      seasonId,
+      weekNumber: 10,
+      cityName: "Austin",
+      chapterTitle: "Dead Air",
+      complication: {
+        id: "signal_interference",
+        label: "Signal Interference",
+        summary:
+          "The Austin frequency went silent mid-broadcast, and this week the unit's own pursuit reads uncertain until sync confidence is high. The game distinguishes verified pursuit from estimated pursuit, and only verified steps close the real gap.",
+      },
+      rituals: WEEK_TEN_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 10: DEAD AIR",
+        body: [
+          "The rhythm out of New Orleans ended on an open rest that pointed to a radio frequency in Austin — one that stopped mid-broadcast and has stayed silent since. Selena came to find out why.",
+          "This week the air is full of interference. Pursuit that hasn't synced reads as estimated, not confirmed, and an estimate can be wrong. Only verified steps close the real distance; the rest is static that looks like progress.",
+          "Your unit has been assigned to keep its signal clean — sync often, confirm everything — before Selena finds the source of the override.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Keep your trackers synced — only verified steps count against the real gap this week." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit confirms its first stretch of pursuit as verified, not estimated.",
+        firstMovementPayoff: "Your synced steps move from estimated to verified — the gap they close is real.",
+      },
+      specialOperation: { ...platformSweep, id: "week_10_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week10_override_frequency",
+        interceptClueId: "week10_desert_source",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit followed the loudest signal all week — and it was interference. When the estimated pursuit finally synced, the real distance was far worse than the static had shown. Selena had been broadcasting on a channel that wasn't hers.",
+          selena: "You followed a signal. You never asked who sent it.",
+          nextLead: "A printout of a single waveform was recovered near the silent Austin frequency — a signal, flatlined.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} kept its trackers synced and its pursuit verified, so the static never fooled it into chasing an estimate. Selena stayed ahead, but the unit always knew the real distance.",
+          selena: "You kept your signal clean in a week built for confusion. That is discipline.",
+          nextLead: "A waveform and a short access protocol read: do not trust the carrier.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} verified nearly everything and reached the frequency's source twenty minutes behind her. A radio tech confirmed Selena had traced the override to a single point — and that the dead frequency had not faded, it had been buried under a stronger signal.",
+          selena: "You didn't mistake the static for me. Not everything you receive is a true signal — you knew that.",
+          nextLead: "The signal didn't fade — it was overridden, cleanly, by a stronger one on the same channel.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} verified its entire week and traced the override to the source as Selena was reading the same waveform. She held up the printout — one clean signal burying another — and said the interesting part wasn't the dead frequency but where the stronger one came from. Then the lights on the rack went out and she was gone.",
+          selena: "You verified a whole week while the air lied to you. The Bureau cannot manage that. You did. Note it.",
+          nextLead: "The overriding signal came from a fixed point in the New Mexico desert — a surveyed marker, not a transmitter.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Santa Fe",
+        header: "NEXT: SANTA FE",
+        body: "The signal that overrode the Austin frequency came from a fixed point in the New Mexico desert — not a transmitter, but a surveyed marker on an old alignment line.",
+        selena: "Someone is broadcasting from a place that was only ever meant to be measured, not to speak. I want to stand on it.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(11, "Santa Fe", "True North", "Alignment", "The Alignment Chart", "", "Los Angeles"),
     structuralWeek(12, "Los Angeles", "The Moving Picture", "Edited Reality", "The Composite Record", "", "San Francisco"),
     structuralWeek(13, "San Francisco", "One Step Ahead", "Final Convergence", "The Final Record", "", ""),
@@ -1558,13 +1673,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "a frequency in Austin that stopped transmitting",
       iconKey: "key",
     },
-    // Weeks 10-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week10_override_frequency",
+      kind: "standard",
+      seasonId,
+      weekNumber: 10,
+      cityName: "Austin",
+      title: "THE OVERRIDE FREQUENCY",
+      body: "A waveform and a short access protocol for a frequency that stopped mid-broadcast. The last legible instruction reads: do not trust the carrier.",
+      basicBody: "A printout of a single waveform recovered near the silent Austin frequency — a signal, flatlined.",
+      enhancedBody: "A waveform and access protocol for the dead Austin frequency. The signal didn't fade — it was overridden, cleanly, by a stronger one on the same channel.",
+      highlightedFragment: "it was overridden, cleanly, by a stronger one on the same channel",
+      iconKey: "waveform",
+    },
+    {
+      id: "week10_desert_source",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 10,
+      cityName: "Austin",
+      title: "THE DESERT SOURCE",
+      body: "The overriding signal was traced to a fixed point in the New Mexico desert.",
+      enhancedBody: "The overriding signal came from a fixed point in the New Mexico desert — a surveyed marker, not a transmitter.",
+      highlightedFragment: "a surveyed marker, not a transmitter",
+      iconKey: "frequency",
+    },
+    // Weeks 11-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 4 }, (_, index) => {
-      const week = index + 10;
+    ...Array.from({ length: 3 }, (_, index) => {
+      const week = index + 11;
       const config = structuralWeek(
         week,
-        ["Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
