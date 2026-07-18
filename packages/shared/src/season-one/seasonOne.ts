@@ -649,6 +649,51 @@ const WEEK_TEN_RITUALS: WeekRitualCopy = {
     "Only verified steps cut through the interference. Bureau analysts need the unit synced and confirmed before the window closes.",
 };
 
+// Week 11 Santa Fe — implemented from docs/canon/cities/week-11-santa-fe.md.
+// Ships simplified: the "Alignment" bonus is the existing participation-threshold
+// bonus (no season-evidence dependency).
+const WEEK_ELEVEN_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Santa Fe"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nWhen the unit pulled together, the alignment bonus climbed.",
+      selena: "You are learning to hold a bearing as a group. That is rarer out here than water.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "ALIGNMENT HOLDING",
+      body: "The survey markers only mean something when the unit holds the same bearing. Where it did, the alignment bonus built; where it scattered, the markers stayed just points.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "One more aligned day and you have the whole figure. Hold the bearing.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "The alignment was the team's work. This last measure is just you and your rival, holding your own line.",
+  },
+  specialOperationFiction:
+    "The markers only align when enough of the unit holds the same bearing. Bureau analysts need the whole team pulling one direction.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -1445,7 +1490,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(11, "Santa Fe", "True North", "Alignment", "The Alignment Chart", "", "Los Angeles"),
+    {
+      id: "season_one_week_11",
+      seasonId,
+      weekNumber: 11,
+      cityName: "Santa Fe",
+      chapterTitle: "True North",
+      complication: {
+        id: "alignment",
+        label: "Alignment",
+        summary:
+          "The Austin override traced to a surveyed marker in the New Mexico desert. This week the unit's combined engagement — everyone pulling in the same direction — grants an alignment bonus. It is about the team lining up, not about decoding anything.",
+      },
+      rituals: WEEK_ELEVEN_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 11: TRUE NORTH",
+        body: [
+          "The signal that overrode the Austin frequency came from a surveyed marker in the New Mexico desert — a point placed to be measured from, not broadcast from. Selena went to stand on it.",
+          "Out here the trail isn't a route or a rhythm; it's an alignment. The old survey markers only mean something when they line up — and they only line up when enough people hold the same bearing at once.",
+          "Your unit has been assigned to align: pull in the same direction, all week, and the bonus builds. Scatter, and the markers stay just points in the sand.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Line up with the team — combined engagement builds the alignment bonus this week." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit's first aligned day registers — everyone pulling the same direction.",
+        firstMovementPayoff: "Your contribution lines up with the team's; the alignment bonus grows.",
+      },
+      specialOperation: { ...platformSweep, id: "week_11_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week11_alignment_chart",
+        interceptClueId: "week11_altered_plate",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "Everyone walked, and no two of them walked the same direction. The survey markers never aligned, the bonus never built, and Selena stood on the point she came for and was gone before the unit found its bearing.",
+          selena: "You were looking for an endpoint.",
+          nextLead: "A surveyor's chart was recovered from a desert marker outside Santa Fe, dense with measured points.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} held a shared bearing through most of the week, and the alignment bonus built with it. Selena kept ahead, but the unit moved as one line instead of scattered points.",
+          selena: "You held a direction together. That is the whole trick of this place.",
+          nextLead: "A survey chart plots thirteen fixed points and a single figure drawn to connect them.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} aligned almost perfectly and reached the desert marker twenty minutes behind her. A surveyor confirmed Selena had stood exactly on the point, checked it against the chart, and marked the last of the thirteen positions before walking west.",
+          selena: "You lined up. Thirteen cities, one line drawn between them — and you were nearly standing on the end of it.",
+          nextLead: "Twelve of the thirteen points are marked complete; the thirteenth is circled and left open.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} held its bearing all week and reached the marker while Selena was still on it, chart in hand. She let the operative see the figure — thirteen points, twelve closed, one open — and said the open one was the only part that still mattered. Then a dust rise crossed the sun and the point was empty.",
+          selena: "You aligned an entire unit for a week and stood on the same point I did. Almost no one keeps a bearing that long. Remember you did.",
+          nextLead: "One survey photograph in the set was altered — the forgery traces to a film lab in Los Angeles.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Los Angeles",
+        header: "NEXT: LOS ANGELES",
+        body: "One survey photograph in the set was forged — a marker that never stood where the picture claims. The doctoring traces to a film lab in Los Angeles.",
+        selena: "Someone in Los Angeles is very good at making a place look real. I am going to find out what they were hiding behind it.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(12, "Los Angeles", "The Moving Picture", "Edited Reality", "The Composite Record", "", "San Francisco"),
     structuralWeek(13, "San Francisco", "One Step Ahead", "Final Convergence", "The Final Record", "", ""),
   ],
@@ -1698,13 +1815,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "a surveyed marker, not a transmitter",
       iconKey: "frequency",
     },
-    // Weeks 11-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week11_alignment_chart",
+      kind: "standard",
+      seasonId,
+      weekNumber: 11,
+      cityName: "Santa Fe",
+      title: "THE ALIGNMENT CHART",
+      body: "A survey chart plotting thirteen fixed points across the country — and a single geometric figure drawn to connect them.",
+      basicBody: "A surveyor's chart recovered from a desert marker outside Santa Fe, dense with measured points.",
+      enhancedBody: "A survey chart of thirteen surveyed points forming one clean figure. Twelve are marked complete. The thirteenth is circled and left open.",
+      highlightedFragment: "The thirteenth is circled and left open",
+      iconKey: "chart",
+    },
+    {
+      id: "week11_altered_plate",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 11,
+      cityName: "Santa Fe",
+      title: "THE ALTERED PLATE",
+      body: "One survey photograph in the set was altered — the marker in it never existed.",
+      enhancedBody: "One survey photo was altered — the marker never stood there. The forgery traces to a film lab in Los Angeles.",
+      highlightedFragment: "The forgery traces to a film lab in Los Angeles.",
+      iconKey: "survey",
+    },
+    // Weeks 12-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 3 }, (_, index) => {
-      const week = index + 11;
+    ...Array.from({ length: 2 }, (_, index) => {
+      const week = index + 12;
       const config = structuralWeek(
         week,
-        ["Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
