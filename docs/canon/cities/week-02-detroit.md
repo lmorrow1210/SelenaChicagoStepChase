@@ -29,7 +29,7 @@ in `packages/shared/src/season-one/seasonOne.ts` (already shipped, not a
 | Chapter title | The Machine Restarted |
 | City | Detroit |
 | Complication | Assembly Line |
-| Complication summary | Selena is moving through Detroit's old manufacturing infrastructure — long corridors, loading bays, freight routes the city grid doesn't show. The unit starts cold before the first field operative logs movement. |
+| Complication summary | Selena is moving through Detroit's old manufacturing infrastructure — long corridors, loading bays, and freight routes the city grid doesn't show. The unit starts cold before the first field operative logs movement. |
 | Selena's signature move this week | She routes through industrial corridors that don't appear on standard maps |
 | Next city | Pittsburgh |
 
@@ -172,7 +172,7 @@ exactly — keep them in sync.
 ### Close Encounter (90–99%)
 
 **Headline:** CLOSE ENCOUNTER  
-**Story:** {{groupName}} reached the Michigan Central corridor ninety minutes after Selena. A bureau contact confirmed she had been in the main hall — watching the windows — before departing north.  
+**Story:** {{groupName}} reached the Michigan Central corridor ninety minutes after Selena. A Bureau contact confirmed she had been in the main hall — watching the windows — before departing north.  
 **Selena:** "You found the station. I was watching from the upper level. Another few hours and that would have been a different kind of conversation." — S.C.  
 **Evidence body (enhanced):** A worn routing diagram with hand-marked revisions. One corridor is circled and dated in a different ink — three weeks before the plant powered on.
 
