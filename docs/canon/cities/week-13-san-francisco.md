@@ -22,6 +22,15 @@ this pack; final gate is owner copy sign-off + Codex's infra/test pass
 > entries, Platform Sweep flavor, and the season-close card match verbatim.
 > Landmark fun facts fact-checked (see below). Added the mechanic scope
 > boundary, shared-default notes, and demo/limitation notes.
+>
+> ✅ **N6 resolved — finale softened (owner decision, 2026-07-18).** The owner
+> chose no dramatic season-payoff ending. This pack now carries the softened
+> copy: the "Your move." note and the "You were never chasing a thief. You were
+> training to notice. Until the next city." reframe are removed from the
+> close-encounter/interception evidence and the interception story. **This pack
+> is now ahead of `seasonOne.ts`** — Codex applies the matching string changes
+> on the `codex/cities-buildout` branch (exact old→new strings posted on PR #6).
+> Until then, the code carries the pre-decision copy.
 
 ---
 
@@ -154,16 +163,16 @@ The five most well-known San Francisco landmarks. Fun facts are the decode rewar
 **Headline:** CLOSE ENCOUNTER  
 **Story:** {{groupName}} finished nearly all of the combined target and reached the bridge as the fog came in. A toll worker confirmed Selena had stood at the rail, looking back the way she'd come, until the unit was almost on her — then walked into the white and was gone.  
 **Selena:** "You came this far chasing me. Ask what else you found on the way." — S.C.  
-**Evidence body (enhanced):** A record of the whole pursuit — thirteen cities, closed in one hand. Where the final entry should be, there is only a note: "Your move."
+**Evidence body (enhanced):** A record of the whole pursuit — thirteen cities, closed in one hand. The final entry is dated, initialed, and left otherwise blank.
 
 ---
 
 ### Interception (≥ 100%)
 
 **Headline:** SELENA INTERCEPTED  
-**Story:** {{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and said the chase was never the point; the noticing was. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.  
+**Story:** {{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and nodded once, the way one professional acknowledges another. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.  
 **Selena:** "You caught me at the edge of the country, using everything you learned to get here. No one has ever done that. Whatever comes next, you are ready for it." — S.C.  
-**Evidence body (intercept clue, enhanced):** A folded note left with the file: "You were never chasing a thief. You were training to notice. Until the next city. — S.C."
+**Evidence body (intercept clue, enhanced):** A folded note left with the file: "You kept pace with me for thirteen cities. No one else ever has. Rest well. — S.C."
 
 ---
 
@@ -177,8 +186,8 @@ The five most well-known San Francisco landmarks. Fun facts are the decode rewar
 | Title | THE FINAL RECORD | THE LAST NOTE |
 | Basic body | A slim case file recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit. | *(intercept clues only unlock on interception)* |
 | Standard body | A record of the entire chase, city by city, closed out in a single hand. The last line is left blank. | A folded note left with the file, addressed to the unit by its call sign. |
-| Enhanced body | A record of the whole pursuit — thirteen cities, closed in one hand. Where the final entry should be, there is only a note: "Your move." | A folded note: "You were never chasing a thief. You were training to notice. Until the next city. — S.C." |
-| Highlighted fragment | "Your move." | "You were never chasing a thief. You were training to notice." |
+| Enhanced body | A record of the whole pursuit — thirteen cities, closed in one hand. The final entry is dated, initialed, and left otherwise blank. | A folded note: "You kept pace with me for thirteen cities. No one else ever has. Rest well. — S.C." |
+| Highlighted fragment | "dated, initialed, and left otherwise blank" | "You kept pace with me for thirteen cities. No one else ever has." |
 | Icon key | file | note |
 
 ---

@@ -11,7 +11,18 @@ city. Ranked by priority.
 
 ---
 
-## N1 — Selena's `— S.C.` sign-off is specified but never rendered ⚑ OWNER DECISION
+> ✅ **Decisions received (owner, 2026-07-18):**
+> **N1 — resolved: render the sign-off.** Option (A) accepted — append `— S.C.`
+> in the `SelenaLine` component. **Codex implements** (small follow-up branch,
+> per the recommended plan; reconcile the component's existing leading `— ` at
+> the same time).
+> **N6 — resolved: soften the finale.** Owner: "we aren't doing a dramatic game
+> ending." Option (B) applied — the softened Week 13 copy now lives in
+> `cities/week-13-san-francisco.md` (pack updated 2026-07-18); **Codex applies**
+> the matching `seasonOne.ts` string changes on `codex/cities-buildout` (exact
+> old→new strings posted on PR #6). N2's connected-trail flavor stays as-is.
+
+## N1 — Selena's `— S.C.` sign-off is specified but never rendered ⚑ RESOLVED — render it (see decision note above)
 
 **What:** Every city pack and the `season-one-route.md` closing-lines table show
 Selena's lines with a trailing `— S.C.` sign-off, and `selena-voice-guide.md`
@@ -103,7 +114,7 @@ differ from the finalized packs for **every city 2–13**. Each needs an additiv
 
 ---
 
-## N6 — Finale copy delivers a season-long thematic payoff (scope check) ⚑ OWNER DECISION
+## N6 — Finale copy delivers a season-long thematic payoff ⚑ RESOLVED — softened (see decision note at top)
 
 **What:** Week 13's evidence — both tiers — reads as a retrospective on the whole
 season, and the interception note lands an explicit reframe:
@@ -164,11 +175,11 @@ No violations found across 118 Selena strings:
 
 ## Summary for the owner
 
-| # | Finding | Needs |
+| # | Finding | Status |
 |---|---|---|
-| N1 | `— S.C.` sign-off specified but not rendered | **Owner decision** → Codex implements |
-| N2 | Season reads as a connected trail | Owner awareness (recommend: leave as-is) |
-| N3 | Route-doc closing-lines table superseded | Narrative fix on PR #7 branch |
-| N4 | Landmark facts verified; DB seeds differ | Codex: sync migrations Weeks 2–13 |
-| N5 | Voice-guide compliance | None — passes |
-| N6 | Finale delivers a season-long thematic payoff | **Owner decision** (keep vs. soften) |
+| N1 | `— S.C.` sign-off specified but not rendered | ✅ Decided: render it → **Codex implements** |
+| N2 | Season reads as a connected trail | ✅ Owner aware — stays as-is |
+| N3 | Route-doc closing-lines table superseded | ✅ Fixed on PR #7 branch |
+| N4 | Landmark facts verified; DB seeds differ | ✅ Codex shipped migrations 010/011 (incl. 214-ft fix) |
+| N5 | Voice-guide compliance | ✅ Passes |
+| N6 | Finale delivers a season-long thematic payoff | ✅ Decided: softened — pack updated; **Codex syncs `seasonOne.ts`** |
