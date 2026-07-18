@@ -477,6 +477,49 @@ const WEEK_SIX_RITUALS: WeekRitualCopy = {
     "Bureau analysts have narrowed the real Selena to three of the five boroughs. The unit must cover every candidate before the decoys reset.",
 };
 
+// Week 7 Boston — implemented from docs/canon/cities/week-07-boston.md.
+const WEEK_SEVEN_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Boston"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nThe unit has answered the harbor signal on two nights now — enough hands, in time.",
+      selena: "You are learning to be in the right place at the right hour. Most operatives only manage the place.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "SIGNAL ANSWERED",
+      body: "The unit hit the evening window enough nights to answer the harbor signal. The nights it missed are just as visible.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "Answer one more signal and you are level with me. After dark. Don't be late.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival both know when the signal goes out. Tonight it comes down to who is standing in the window.",
+  },
+  specialOperationFiction:
+    "The harbor signal only answers after dark. Bureau analysts need enough of the unit in the field during the evening window before it closes.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -981,7 +1024,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(7, "Boston", "The Midnight Signal", "Signal Window", "The Continuity Protocol", "", "Savannah"),
+    {
+      id: "season_one_week_07",
+      seasonId,
+      weekNumber: 7,
+      cityName: "Boston",
+      chapterTitle: "The Midnight Signal",
+      complication: {
+        id: "signal_window",
+        label: "Signal Window",
+        summary:
+          "A signal leaves Boston harbor every night at the same minute, and it can only be answered during a narrow evening window. The unit doesn't need everyone at once — but enough operatives have to contribute before the window closes.",
+      },
+      rituals: WEEK_SEVEN_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 07: THE MIDNIGHT SIGNAL",
+        body: [
+          "The sixth feed from New York traced to a harbor camera in Boston. It runs an hour ahead of the New York clock for a reason: a signal leaves the harbor here every night at the same minute, and it has for longer than anyone can explain.",
+          "Selena arrived in Boston to answer it. The signal can only be received during a narrow window after dark — miss the window, and the night's message is gone until tomorrow.",
+          "Your unit has been assigned to be in the field, together, before the window closes. Not all at once — but enough of you, in time.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Contribute during the evening window — the signal only answers before it closes." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit confirms the signal only answers inside the evening window.",
+        firstMovementPayoff: "Your evening contribution lands inside the window — it counts.",
+      },
+      specialOperation: { ...platformSweep, id: "week_07_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week07_continuity_protocol",
+        interceptClueId: "week07_unwritten_leg",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit worked hard, but always at the wrong hour — the evening windows closed with too few operatives in the field. The signal went out each night, unanswered, and Selena read it alone.",
+          selena: "The signal was sent. Your unit was not listening.",
+          nextLead: "A set of old signal instructions was recovered near the Old North Church, written for use after dark.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} caught enough of the evening windows to stay in the conversation. The unit answered the signal on most nights and kept Selena within reach of the harbor.",
+          selena: "You made it into the window more nights than not. Timing is harder than distance.",
+          nextLead: "Historic instructions describe a chain of signals meant to run at night.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} answered the signal nearly every night and reached the harbor twenty minutes after the last transmission. A dockworker confirmed Selena had stood at the water's edge until the harbor lights went dark, then walked south.",
+          selena: "You were in the window when it mattered. Some messages are meant for the moment the lights go out — and you were there for it.",
+          nextLead: "The relay is timed to the exact minute the harbor lights go dark.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} answered every window and reached the harbor as the signal was still going out. Selena was there, reading it, and did not startle. She let the operative watch the lights fall dark on schedule, then stepped onto a pier boat that wasn't lit.",
+          selena: "You kept the whole week's schedule. I have met few units that could. Consider what that means about you.",
+          nextLead: "One leg of the relay has no address — only an instruction to ask in Savannah.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Savannah",
+        header: "NEXT: SAVANNAH",
+        body: "The relay's next leg has no address. The only instruction is to ask in Savannah — where, the protocol says, the route is never written down.",
+        selena: "Some cities keep their directions in people, not on paper. Savannah is one of them.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(8, "Savannah", "The Garden of Shadows", "Unwritten Route", "The Missing Square", "", "New Orleans"),
     structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "The Rhythmic Key", "", "Austin"),
     structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "The Override Frequency", "", "Santa Fe"),
@@ -1138,13 +1253,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "an hour before the New York sightings it supposedly triggered",
       iconKey: "feed",
     },
-    // Weeks 7-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week07_continuity_protocol",
+      kind: "standard",
+      seasonId,
+      weekNumber: 7,
+      cityName: "Boston",
+      title: "THE CONTINUITY PROTOCOL",
+      body: "Historic instructions for keeping a message readable as it passes through many hands — a chain of signals meant to run at night.",
+      basicBody: "A set of old signal instructions recovered near the Old North Church, written for use after dark.",
+      enhancedBody: "Historic instructions for a nighttime signal relay, timed to the exact minute the harbor lights go dark.",
+      highlightedFragment: "the exact minute the harbor lights go dark",
+      iconKey: "signal",
+    },
+    {
+      id: "week07_unwritten_leg",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 7,
+      cityName: "Boston",
+      title: "THE UNWRITTEN LEG",
+      body: "One leg of the relay has no written address — only an instruction to ask in Savannah.",
+      enhancedBody: "The relay's next leg has no address at all — only the instruction to ask in Savannah, where they do not write it down.",
+      highlightedFragment: "where they do not write it down",
+      iconKey: "lantern",
+    },
+    // Weeks 8-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 7 }, (_, index) => {
-      const week = index + 7;
+    ...Array.from({ length: 6 }, (_, index) => {
+      const week = index + 8;
       const config = structuralWeek(
         week,
-        ["Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
