@@ -37,6 +37,10 @@ const SUNDAY_CUTOFF = (23 * 60) + 59;
 export function calculateWeeklyPhase(input: WeeklyPhaseInput): WeeklyPhaseResult {
   const local = localDateTimeParts(input.now, input.timezone);
 
+  if (input.dataConfidence === "recalculating") {
+    return { phase: "case_closing", shouldShowModal: null };
+  }
+
   if (input.weekStatus === "closed" && input.finalOutcome) {
     return {
       phase: "case_closed",
@@ -44,7 +48,7 @@ export function calculateWeeklyPhase(input: WeeklyPhaseInput): WeeklyPhaseResult
     };
   }
 
-  if (isAfterSundayCutoff(local, input.endsOn) || input.dataConfidence === "recalculating") {
+  if (isAfterSundayCutoff(local, input.endsOn)) {
     return { phase: "case_closing", shouldShowModal: null };
   }
 

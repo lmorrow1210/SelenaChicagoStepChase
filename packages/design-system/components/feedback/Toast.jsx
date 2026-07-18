@@ -66,7 +66,7 @@ export function Toast({ type = 'social', title, message, icon, onClose, style })
         <button onClick={onClose} aria-label="Dismiss" style={{
           background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--phosphor-dim)',
           display: 'grid', placeItems: 'center', padding: 4, borderRadius: 'var(--r-tight)',
-          minWidth: 32, minHeight: 32, // comfortable thumb target (≥ WCAG 2.5.8 24px)
+          minWidth: 44, minHeight: 44,
           flex: 'none',
         }}>
           <Icon name="close" size={15} />

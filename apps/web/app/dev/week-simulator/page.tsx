@@ -65,6 +65,7 @@ export default function WeekSimulatorPage() {
 
   const season = state.seasonState;
   const weekConfig = state.weekConfig;
+  const showPrimaryBeat = !(season.phase === "final_push" && season.primaryBeat.id.startsWith("final_push"));
 
   return (
     <main className="simShell">
@@ -315,7 +316,7 @@ export default function WeekSimulatorPage() {
               onOpenBriefing={() => setBriefingOpen(true)}
               onOpenCaseResult={() => setCaseReportOpen(true)}
             />
-            <NarrativeBeatPanel beat={season.primaryBeat} />
+            {showPrimaryBeat && <NarrativeBeatPanel beat={season.primaryBeat} />}
           </div>
           {season.platformSweep.active && (
             <PlatformSweepCard
