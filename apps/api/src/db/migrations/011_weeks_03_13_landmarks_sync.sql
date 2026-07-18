@@ -40,7 +40,7 @@ FROM (VALUES
   ( 8, 1, 'Forsyth Park',                        'Its two-tiered cast-iron fountain, installed in 1858, is one of the most photographed spots in the American South.'),
   ( 8, 2, 'Bonaventure Cemetery',                'The riverside cemetery''s oak-shaded statuary drew fame from the book and film "Midnight in the Garden of Good and Evil."'),
   ( 8, 3, 'River Street',                        'Paved with ballast stones from old sailing ships, the riverfront street runs below the bluff on Savannah''s original cotton wharves.'),
-  ( 8, 4, 'Cathedral Basilica of St. John the Baptist', 'Its twin spires rise nearly 210 feet above the historic district, and its interior murals date to the early 1900s.'),
+  ( 8, 4, 'Cathedral Basilica of St. John the Baptist', 'Its twin spires rise about 214 feet above the historic district, and its interior murals date to the early 1900s.'),
   ( 8, 5, 'Chippewa Square',                     'One of Savannah''s original squares, it stood in for the bus-stop bench scenes in the film "Forrest Gump."'),
   ( 9, 1, 'St. Louis Cathedral',                 'Facing Jackson Square, it is the oldest continuously operating cathedral in the United States, rebuilt in its current form in 1850.'),
   ( 9, 2, 'Bourbon Street',                      'The French Quarter''s best-known street was laid out in 1721 and named for France''s ruling royal family, not the whiskey.'),
