@@ -2,7 +2,8 @@ import type { Pool, PoolClient } from "pg";
 import { closeWeekPredictions } from "./weekClose.js";
 import { closeDayForMatchup, pairAndPersist } from "./nemesisService.js";
 import { createOrGetBingoCard } from "./bingoService.js";
-import { evaluateRevealBeats, evaluateWeekBeats } from "./beats.js";
+import { evaluateRevealBeats, evaluateWeekBeats, fireBeatBySlug } from "./beats.js";
+import { finalizeWeekChase } from "./chaseState.js";
 
 type WeekStatus = "scheduled" | "active" | "closed";
 
@@ -105,6 +106,68 @@ export async function prepareNextWeekReveal(
 
     await client.query("COMMIT");
     return { nextWeekId: prepared.nextWeekId };
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Late-sync reconciliation (spec §14.6): after a device syncs late data into
+ * an already-finalized week, recompute the authoritative chase result. If
+ * the outcome materially changed, surface a `result_recalculating` trust
+ * beat and persist the corrected result. Deliberately narrow: it never
+ * re-scores predictions, badges, or nemesis matchups (so rewards cannot
+ * duplicate), and evidence unlocks only ever add (never revoke).
+ */
+export async function reconcileFinalizedWeek(
+  pool: Pool,
+  weekId: string,
+): Promise<{ outcomeChanged: boolean }> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const week = await client.query(
+      `SELECT group_id, finalized_at, to_char(ends_on, 'YYYY-MM-DD') AS ends_on
+       FROM weeks WHERE id = $1 AND status = 'closed' AND finalized_at IS NOT NULL
+       FOR UPDATE`,
+      [weekId],
+    );
+    if (!week.rowCount) {
+      await client.query("ROLLBACK");
+      return { outcomeChanged: false };
+    }
+
+    const { outcomeChanged } = await finalizeWeekChase(client, weekId, { now: new Date() });
+    if (outcomeChanged) {
+      // Keep the legacy total/target_hit columns consistent with the
+      // corrected result for trophy views and old clients.
+      await client.query(
+        `UPDATE weeks w
+         SET group_total_steps = totals.total,
+             target_hit = totals.total >= w.group_target_steps
+         FROM (
+           SELECT COALESCE(SUM(sl.steps), 0)::int AS total
+           FROM step_logs sl
+           JOIN users u ON u.id = sl.user_id
+           JOIN weeks iw ON iw.id = $1
+           WHERE u.group_id = iw.group_id
+             AND sl.log_date BETWEEN iw.starts_on AND iw.ends_on
+         ) totals
+         WHERE w.id = $1`,
+        [weekId],
+      );
+      await fireBeatBySlug(client, "result_recalculating", {
+        groupId: week.rows[0].group_id,
+        userId: null,
+        weekId,
+        date: week.rows[0].ends_on,
+      });
+    }
+    await client.query("COMMIT");
+    return { outcomeChanged };
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -318,6 +381,13 @@ export async function weekRollover(
         await awardBadge(client, r.id, "hot_pursuit", weekId, null, null);
       }
     }
+
+    // 7½. Season One case close: one authoritative chase result (base
+    // progress, capped bonuses, remaining lead, four-outcome classification,
+    // data confidence at finalization) persisted on the week, plus evidence
+    // unlocks. Runs after predictions/nemesis/bingo close so participation
+    // bonuses see final state. Idempotent on rerun.
+    await finalizeWeekChase(client, weekId, { now: new Date() });
 
     // 8. Create or activate next week: Sunday may already have created it as
     // scheduled so nemesis pairings could be revealed early.

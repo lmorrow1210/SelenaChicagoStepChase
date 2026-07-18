@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
+import { useSeasonWeek } from "../../../lib/narrative/useSeasonWeek";
 import { useState } from "react";
 
 const COLORWAYS: ColorwayId[] = ["chicago", "midnight", "emerald", "crimson", "desert", "violet"];
@@ -406,6 +407,7 @@ function WeekLedger({ days, nemesisName }: { days: LedgerDay[]; nemesisName: str
 export default function NemesisPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const seasonWeek = useSeasonWeek(Boolean(user?.group_id));
   const { data, isLoading, error } = useNemesisData(!!user?.group_id);
   const [rerollError, setRerollError] = useState<string | null>(null);
 
@@ -567,8 +569,8 @@ export default function NemesisPage() {
           }}
         >
           {data.state === "scheduled"
-            ? "Next week's opponent is on file. The duel opens Monday."
-            : "Best of 5, Monday to Friday. Most steps wins the day."}
+            ? "Rival assignment: Selena studies patterns. This week, so will you."
+            : "Five daily rounds, Monday to Friday. Most verified steps wins the day; first to three wins. Participation feeds up to 1% of the group chase — nobody has to lose for the unit to benefit."}
         </p>
         <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </div>
@@ -577,8 +579,8 @@ export default function NemesisPage() {
         <Banner
           tone="gold"
           icon="nemesis"
-          title="Next nemesis revealed"
-          body={`${nemesis.display_name} is waiting in Monday's file. Rest up; the board opens at midnight.`}
+          title="Rival assignment"
+          body={`You vs. ${nemesis.display_name}. "You know each other's habits. Let us see who understands them better." — S.C.`}
         />
       )}
       {matchup.status === "complete" && (
@@ -597,8 +599,8 @@ export default function NemesisPage() {
         <Banner
           tone="red"
           icon="flame"
-          title="Sudden death Saturday"
-          body="Five days, dead even. Saturday's steps decide it all."
+          title={seasonWeek?.rituals.suddenDeath.headline ?? "Sudden death"}
+          body={seasonWeek?.rituals.suddenDeath.body ?? "Today decides the matchup. Most verified steps by midnight wins."}
         />
       )}
 

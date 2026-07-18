@@ -5,6 +5,60 @@ export const GROUP_MAX_MEMBERS = 8;
 export const INVITE_CODE_CHARSET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 export const FREE_SPACE_INDEX = 12;
 
+// ---- Season One narrative state ----
+export const WEEKLY_OUTCOMES = [
+  "trail_lost",
+  "pursuit_maintained",
+  "close_encounter",
+  "interception",
+] as const;
+export const weeklyOutcomeSchema = z.enum(WEEKLY_OUTCOMES);
+
+export const WEEK_PHASES = [
+  "briefing",
+  "active",
+  "midweek_update",
+  "final_push",
+  "sudden_death",
+  "case_closing",
+  "case_closed",
+] as const;
+export const weekPhaseSchema = z.enum(WEEK_PHASES);
+
+export const DATA_CONFIDENCE_VALUES = [
+  "verified",
+  "estimated",
+  "incomplete",
+  "recalculating",
+] as const;
+export const dataConfidenceSchema = z.enum(DATA_CONFIDENCE_VALUES);
+
+export const RITUAL_IDS = [
+  "monday_briefing",
+  "midweek_update",
+  "final_push",
+  "case_closed",
+] as const;
+export const ritualIdSchema = z.enum(RITUAL_IDS);
+export const ritualViewSchema = z.object({
+  week_id: z.string().uuid(),
+  ritual_id: ritualIdSchema,
+});
+
+export const PRIMARY_ACTION_IDS = [
+  "fix_sync",
+  "view_briefing",
+  "view_case_result",
+  "sudden_death",
+  "special_operation",
+  "submit_prediction",
+  "field_ops_near_reward",
+  "nemesis_close",
+  "daily_target",
+  "continue_pursuit",
+] as const;
+export const primaryActionIdSchema = z.enum(PRIMARY_ACTION_IDS);
+
 // ---- user ----
 export const avatarConfigSchema = z.object({
   avatar_skin: z.number().int().min(1).max(6),
@@ -93,3 +147,8 @@ export const errorEnvelopeSchema = z.object({
 export type UpdateMe = z.infer<typeof updateMeSchema>;
 export type BingoTile = z.infer<typeof bingoTileSchema>;
 export type NemesisDayResult = z.infer<typeof nemesisDayResultSchema>;
+export type WeeklyOutcome = z.infer<typeof weeklyOutcomeSchema>;
+export type WeekPhase = z.infer<typeof weekPhaseSchema>;
+export type DataConfidence = z.infer<typeof dataConfidenceSchema>;
+export type PrimaryActionId = z.infer<typeof primaryActionIdSchema>;
+export type RitualId = z.infer<typeof ritualIdSchema>;

@@ -12,9 +12,11 @@ export default function PredictionPage() {
       <header>
         <p className="stamped">[ Intercept forecast ]</p>
         <h1>Prediction</h1>
+        <p className="predictionQuestion">How close will your unit get to Selena by Sunday night?</p>
         <p className="predictionPageSub">
-          Call how far the team gets this week. Every landmark the squad decodes in Intel
-          sharpens the read on her next move.
+          Predict the unit&apos;s total verified steps this week. Predictions remain sealed
+          until the configured reveal condition; the closest call earns Oracle, and full
+          participation adds up to 1% to the chase.
         </p>
         <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </header>
@@ -48,6 +50,13 @@ export default function PredictionPage() {
           text-transform: uppercase;
           letter-spacing: 0.03em;
           color: var(--phosphor);
+        }
+        .predictionQuestion {
+          margin: var(--sp-2) 0 0;
+          font-family: var(--font-body);
+          font-size: var(--fs-body-lg, var(--fs-body));
+          color: var(--phosphor);
+          max-width: 52ch;
         }
         .predictionPageSub {
           margin: var(--sp-1) 0 0;

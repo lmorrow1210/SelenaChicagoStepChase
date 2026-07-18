@@ -141,6 +141,31 @@ export interface DetectorContext {
   // per synced night this week: wake-up log_date (YYYY-MM-DD) + bedtime
   // instant (group-local expressed as Z, same convention as workout_before)
   week_bedtimes?: { date: string; bedtime: string | null }[];
+  // Week 1 reusable detector context (M14)
+  daily_target?: number; // weekly target / 7
+  week_step_days?: { date: string; steps: number }[]; // this week's synced days
+  week_steps_total?: number;
+  assists_sent?: number; // tile gifts sent this week
+  assists_received?: number; // tile gifts received this week
+  group_day_progress?: { steps: number; daily_target: number }[]; // every member, this date
+  group_sync_ages_hours?: (number | null)[]; // per member; null = never synced
+}
+
+/** Longest run of consecutive calendar days with steps >= minSteps. */
+function longestConsecutiveRun(days: { date: string; steps: number }[], minSteps: number): number {
+  const qualifying = days
+    .filter((d) => d.steps >= minSteps)
+    .map((d) => Date.parse(`${d.date}T00:00:00Z`) / 86_400_000)
+    .sort((a, b) => a - b);
+  let best = 0;
+  let run = 0;
+  let prev: number | null = null;
+  for (const day of qualifying) {
+    run = prev != null && day === prev + 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = day;
+  }
+  return best;
 }
 
 function cmp(op: string, a: number, b: number): boolean {
@@ -245,6 +270,60 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
         return bed.toISOString().slice(0, 10) === prevDay && hour >= 18 && hour < cutoff;
       }).length;
       return cmp(op, nights, detector.nights ?? 1);
+    }
+    case "percent_target_in_day": {
+      // Reach {pct} of the personal daily target (weekly target / 7).
+      const target = ctx.daily_target;
+      if (target == null || target <= 0) return false;
+      return ctx.steps >= target * Number(detector.pct ?? 1);
+    }
+    case "consecutive_days": {
+      // {days} consecutive calendar days with >= {min_steps} steps each.
+      if (!ctx.week_step_days) return false;
+      return longestConsecutiveRun(ctx.week_step_days, Number(detector.min_steps ?? 1))
+        >= Number(detector.days ?? 2);
+    }
+    case "active_days": {
+      // {days} days this week (not necessarily consecutive) with >= {min_steps}.
+      if (!ctx.week_step_days) return false;
+      const qualifying = ctx.week_step_days.filter(
+        (d) => d.steps >= Number(detector.min_steps ?? 1),
+      ).length;
+      return qualifying >= Number(detector.days ?? 1);
+    }
+    case "weekly_steps":
+      // Personal weekly step total >= {value}.
+      return ctx.week_steps_total != null && cmp(op, ctx.week_steps_total, value);
+    case "split_shift": {
+      // {value} steps before {morning_hour} AND {value} after {evening_hour}
+      // in one day. Needs intraday buckets — stays incomplete without them.
+      if (!ctx.steps_by_hour) return false;
+      const morningHour = Number(detector.morning_hour ?? 12);
+      const eveningHour = Number(detector.evening_hour ?? 18);
+      const need = Number(detector.value ?? 1000);
+      const morning = ctx.steps_by_hour.slice(0, morningHour).reduce((a, b) => a + b, 0);
+      const evening = ctx.steps_by_hour.slice(eveningHour).reduce((a, b) => a + b, 0);
+      return morning >= need && evening >= need;
+    }
+    case "assist_sent":
+      return ctx.assists_sent != null && cmp(op, ctx.assists_sent, value);
+    case "assist_received":
+      return ctx.assists_received != null && cmp(op, ctx.assists_received, value);
+    case "group_daily_target_ratio": {
+      // {min_members} group members reach {pct} of their daily target today.
+      if (!ctx.group_day_progress) return false;
+      const pct = Number(detector.pct ?? 0.5);
+      const reached = ctx.group_day_progress.filter(
+        (m) => m.daily_target > 0 && m.steps >= m.daily_target * pct,
+      ).length;
+      return reached >= Number(detector.min_members ?? 3);
+    }
+    case "group_sync_freshness": {
+      // Every member synced within {within_hours}. Trust rule: a missing
+      // tracker keeps the tile incomplete — it never reads as failure copy.
+      if (!ctx.group_sync_ages_hours || !ctx.group_sync_ages_hours.length) return false;
+      const within = Number(detector.within_hours ?? 24);
+      return ctx.group_sync_ages_hours.every((age) => age != null && age <= within);
     }
     case "honor":
       // Honor-system tiles never auto-complete — only the explicit

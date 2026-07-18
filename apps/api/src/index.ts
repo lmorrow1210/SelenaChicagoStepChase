@@ -13,6 +13,8 @@ import { fieldopsRouter } from "./routes/fieldops.js";
 import { nemesisRouter } from "./routes/nemesis.js";
 import { badgesRouter } from "./routes/badges.js";
 import { notificationsRouter } from "./routes/notifications.js";
+import { evidenceRouter } from "./routes/evidence.js";
+import { ritualsRouter } from "./routes/rituals.js";
 import { errorHandler } from "./middleware/errors.js";
 import { pool } from "./db/pool.js";
 import { startCron } from "./services/cron.js";
@@ -49,6 +51,8 @@ app.use("/api/fieldops", fieldopsRouter);
 app.use("/api/nemesis", nemesisRouter);
 app.use("/api/badges", badgesRouter);
 app.use("/api/notifications", notificationsRouter);
+app.use("/api/evidence", evidenceRouter);
+app.use("/api/rituals", ritualsRouter);
 
 app.use(errorHandler);
 

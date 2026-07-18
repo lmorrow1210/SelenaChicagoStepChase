@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
 import MapPin from "@one-step-ahead/design-system/components/game/MapPin";
@@ -8,14 +9,93 @@ import { getCityIcon } from "@one-step-ahead/design-system/components/game/CityB
 import SelenaMark from "@one-step-ahead/design-system/components/game/SelenaMark";
 import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyState";
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { DataConfidence, RitualId, WeekPhase, WeeklyOutcome } from "@one-step-ahead/shared";
+import { getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
+import type { PrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
+import type { PrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat";
+import type { ParticipationThresholdState } from "@one-step-ahead/shared/season-one/specialOperations";
 import { api } from "../../../lib/api";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 import { CallingCard } from "../../../lib/CallingCard";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
+import { MondayBriefing } from "../../../lib/narrative/MondayBriefing";
+import { CaseClosedReport } from "../../../lib/narrative/CaseClosedReport";
+import {
+  CaseClosingState,
+  FieldUpdateModal,
+  FinalPushAlert,
+  SuddenDeathAlert,
+} from "../../../lib/narrative/RitualSurfaces";
+import {
+  ChapterHeader,
+  DataConfidenceNotice,
+  NarrativeBeatPanel,
+  PlatformSweepCard,
+  PrimaryActionCard,
+  SystemCards,
+  TeamActivity,
+} from "../../../lib/narrative/ChaseCards";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
+
+interface SeasonState {
+  season: { id: string; title: string; weekNumber: number; totalWeeks: number };
+  chapter: { city: string; title: string; complication: string | null; nextCity: string | null };
+  phase: WeekPhase;
+  dataConfidence: DataConfidence;
+  chase: {
+    verifiedGroupSteps: number;
+    snapshottedTarget: number;
+    baseProgress: number;
+    fieldOpsBonus: number;
+    specialOperationBonus: number;
+    nemesisParticipationBonus: number;
+    predictionParticipationBonus: number;
+    totalNonStepBonus: number;
+    finalProgress: number;
+    remainingLead: number;
+    projectedOutcome: WeeklyOutcome | null;
+    finalOutcome: WeeklyOutcome | null;
+  };
+  primaryAction: PrimaryAction;
+  primaryBeat: PrimaryBeat | null;
+  platformSweep: ParticipationThresholdState;
+  evidencePreview: {
+    standardEvidenceId: string;
+    standardTitle: string | null;
+    unlocked: boolean;
+    interceptUnlocked: boolean;
+  };
+  ritualViews: {
+    mondayBriefing: boolean;
+    midweekUpdate: boolean;
+    finalPush: boolean;
+    caseClosed: boolean;
+  };
+  previousCase: {
+    weekId: string;
+    weekNumber: number;
+    cityName: string;
+    chapterTitle: string;
+    outcome: WeeklyOutcome;
+    baseProgress: number | null;
+    finalProgress: number | null;
+    remainingLead: number | null;
+    bonuses: Record<string, number> | null;
+    groupTotalSteps: number | null;
+    groupTargetSteps: number;
+    dataConfidence: string;
+    finalizedAt: string;
+    viewed: boolean;
+  } | null;
+  sync: {
+    lastUpdatedAt: string | null;
+    incompletePlayerCount: number;
+    stalePlayerCount: number;
+  };
+}
 
 interface City {
   id: number;
@@ -60,6 +140,7 @@ interface MapPayload {
   leaderboard: LeaderboardMember[];
   countdown: string | null;
   lastSyncedAt: string | null;
+  seasonState: SeasonState | null;
   state: MapState;
 }
 
@@ -144,6 +225,62 @@ function CityPostcard({ city, stamp }: { city: string; stamp: string }) {
 export default function MapPage() {
   const session = useSession();
   const map = useMapData(Boolean(session.user));
+  const queryClient = useQueryClient();
+
+  // Compact team activity: the three most recent notifications, not a feed.
+  const notifications = useQuery({
+    queryKey: ["map", "activity"],
+    queryFn: () => api<{ notifications: { id: number; message: string }[] }>("/api/notifications"),
+    enabled: Boolean(session.user),
+  });
+
+  const seasonState = map.data?.seasonState ?? null;
+  const weekId = map.data?.week?.id ?? null;
+
+  // Ritual overlays. The briefing auto-opens until viewed and stays
+  // reopenable; the case report auto-opens for an unviewed finalized case.
+  const [briefingOpen, setBriefingOpen] = useState<boolean | null>(null);
+  const [midweekOpen, setMidweekOpen] = useState<boolean | null>(null);
+  const [caseReportOpen, setCaseReportOpen] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!seasonState) return;
+    if (briefingOpen === null && seasonState.phase === "briefing" && !seasonState.ritualViews.mondayBriefing) {
+      setBriefingOpen(true);
+    }
+    if (midweekOpen === null && seasonState.phase === "midweek_update" && !seasonState.ritualViews.midweekUpdate) {
+      setMidweekOpen(true);
+    }
+    if (
+      caseReportOpen === null
+      && seasonState.previousCase
+      && !seasonState.previousCase.viewed
+      && seasonState.ritualViews.mondayBriefing
+    ) {
+      setCaseReportOpen(true);
+    }
+  }, [seasonState, briefingOpen, midweekOpen, caseReportOpen]);
+
+  // The Final Push surface is a persistent banner — record its first
+  // showing so the phase service knows the ritual reached the player.
+  useEffect(() => {
+    if (seasonState?.phase === "final_push" && !seasonState.ritualViews.finalPush && weekId) {
+      void recordRitual(weekId, "final_push");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seasonState?.phase, weekId]);
+
+  async function recordRitual(targetWeekId: string, ritualId: RitualId) {
+    try {
+      await api("/api/rituals/view", {
+        method: "POST",
+        body: JSON.stringify({ week_id: targetWeekId, ritual_id: ritualId }),
+      });
+      await queryClient.invalidateQueries({ queryKey: ["map", "current"] });
+    } catch {
+      // A failed view write must never block the dismissal itself.
+    }
+  }
 
   if (session.loading) return <LoadingMap />;
 
@@ -206,13 +343,120 @@ export default function MapPage() {
     leader: player.user_id === leaderId,
   }));
 
+  const season = data.seasonState;
+  const weekConfig = season ? getSeasonWeek(season.season.weekNumber) ?? null : null;
+  const previousCaseConfig = season?.previousCase
+    ? getSeasonWeek(season.previousCase.weekNumber) ?? null
+    : null;
+  const groupName = session.group?.name ?? "unit";
+  const activityEvents = (notifications.data?.notifications ?? [])
+    .slice(0, 3)
+    .map((entry) => entry.message);
+  const progressPercent = season ? Math.round(season.chase.finalProgress * 1000) / 10 : null;
+  const fieldOpsBonusRemaining = season ? Math.max(0, 0.05 - season.chase.fieldOpsBonus) : 0;
+  const sweepBonusRemaining = season
+    ? Math.max(0, season.platformSweep.maxBonus - season.platformSweep.earnedBonus)
+    : 0;
+  const daysRemaining = data.week
+    ? Math.max(0, Math.ceil((Date.parse(`${data.week.ends_on}T23:59:00Z`) - Date.now()) / 86_400_000))
+    : 0;
+
   return (
     <main className="mapPage">
+      {/* ── Ritual overlays ── */}
+      {weekConfig && season && briefingOpen && data.week && (
+        <MondayBriefing
+          weekConfig={weekConfig}
+          startingLead={season.chase.snapshottedTarget}
+          onDismiss={() => {
+            setBriefingOpen(false);
+            void recordRitual(data.week!.id, "monday_briefing");
+          }}
+        />
+      )}
+      {weekConfig && season && midweekOpen && data.week && (
+        <FieldUpdateModal
+          weekConfig={weekConfig}
+          dataConfidence={season.dataConfidence}
+          projectedOutcome={season.chase.projectedOutcome}
+          remainingLead={season.chase.remainingLead}
+          daysRemaining={daysRemaining}
+          fieldOpsBonusRemaining={fieldOpsBonusRemaining}
+          specialOperationBonusRemaining={sweepBonusRemaining}
+          firstLineComplete={season.chase.fieldOpsBonus > 0}
+          groupName={groupName}
+          gapClosedPercent={season.chase.finalProgress}
+          onDismiss={() => {
+            setMidweekOpen(false);
+            void recordRitual(data.week!.id, "midweek_update");
+          }}
+        />
+      )}
+      {previousCaseConfig && season?.previousCase && caseReportOpen && (
+        <CaseClosedReport
+          weekConfig={previousCaseConfig}
+          data={{
+            outcome: season.previousCase.outcome,
+            groupName,
+            groupTotalSteps: season.previousCase.groupTotalSteps,
+            groupTargetSteps: season.previousCase.groupTargetSteps,
+            finalProgress: season.previousCase.finalProgress,
+            bonuses: season.previousCase.bonuses,
+            interceptUnlocked: season.previousCase.outcome === "interception",
+            dataConfidence: season.previousCase.dataConfidence,
+          }}
+          onDismiss={() => {
+            setCaseReportOpen(false);
+            void recordRitual(season.previousCase!.weekId, "case_closed");
+          }}
+        />
+      )}
+
       {data.state === "arrival" && <ArrivalCelebration city={data.nextCity?.name ?? data.city?.name ?? "the next city"} />}
 
-      {/* Sunday reset — her calling card (shows once per fresh week) */}
-      {data.week && data.city && (
+      {/* Sunday reset calling card — legacy surface, superseded by the
+          Monday Briefing whenever Season One state is live. */}
+      {!season && data.week && data.city && (
         <CallingCard weekId={data.week.id} weekStartsOn={data.week.starts_on} lastSeen={data.city.name} />
+      )}
+
+      {/* ── Story-first chase hierarchy (Season One) ── */}
+      {season && (
+        <ChapterHeader
+          weekNumber={season.season.weekNumber}
+          totalWeeks={season.season.totalWeeks}
+          cityName={season.chapter.city}
+          chapterTitle={season.chapter.title}
+          complication={season.chapter.complication}
+          onReviewBriefing={weekConfig ? () => setBriefingOpen(true) : undefined}
+        />
+      )}
+      {season && (
+        <DataConfidenceNotice
+          dataConfidence={season.dataConfidence}
+          incompletePlayerCount={season.sync.incompletePlayerCount}
+        />
+      )}
+      {season?.phase === "case_closing" && weekConfig && (
+        <CaseClosingState
+          weekConfig={weekConfig}
+          trackerWarning={
+            season.sync.incompletePlayerCount > 0
+              ? `${season.sync.incompletePlayerCount} tracker${season.sync.incompletePlayerCount === 1 ? " has" : "s have"} not reported. Final results may change after synchronization.`
+              : null
+          }
+        />
+      )}
+      {season?.phase === "sudden_death" && weekConfig && <SuddenDeathAlert weekConfig={weekConfig} />}
+      {season?.phase === "final_push" && weekConfig && (
+        <FinalPushAlert
+          weekConfig={weekConfig}
+          dataConfidence={season.dataConfidence}
+          projectedOutcome={season.chase.projectedOutcome}
+          remainingLead={season.chase.remainingLead}
+          fieldOpsBonusRemaining={fieldOpsBonusRemaining}
+          specialOperationBonusRemaining={sweepBonusRemaining}
+        />
       )}
 
       {/* ── Tracking Vector Terminal — two-pane console (§9A) ── */}
@@ -247,6 +491,17 @@ export default function MapPage() {
             </p>
           )}
 
+          {/* Supporting transparency — the percentage stays available but
+              never leads the presentation. */}
+          {progressPercent != null && (
+            <p className="gapHint">
+              {progressPercent}% of the weekly pursuit completed
+              {season && season.chase.totalNonStepBonus > 0
+                ? ` (incl. +${Math.round(season.chase.totalNonStepBonus * 1000) / 10}% from field systems)`
+                : ""}
+            </p>
+          )}
+
           <div className="intelRow">
             <div className="telemetry">
               <span className="stamped">Group steps</span>
@@ -260,6 +515,77 @@ export default function MapPage() {
           <p className="syncCaption">Last sync {lastSyncedLabel(data.lastSyncedAt)}</p>
         </div>
       </section>
+
+      {/* ── One deterministic primary action + one primary beat ── */}
+      {season && (
+        <div className="chaseRow">
+          <PrimaryActionCard
+            action={season.primaryAction}
+            onOpenBriefing={weekConfig ? () => setBriefingOpen(true) : undefined}
+            onOpenCaseResult={
+              season.previousCase && previousCaseConfig ? () => setCaseReportOpen(true) : undefined
+            }
+          />
+          {season.primaryBeat && season.phase !== "case_closing" && (
+            <NarrativeBeatPanel beat={season.primaryBeat} />
+          )}
+        </div>
+      )}
+
+      {/* Platform Sweep — the weekly special operation */}
+      {season && weekConfig && season.platformSweep.active && (
+        <PlatformSweepCard
+          operation={season.platformSweep}
+          fiction={weekConfig.rituals.specialOperationFiction}
+        />
+      )}
+
+      {/* Secondary system cards + evidence preview */}
+      {season && (
+        <SystemCards
+          cards={[
+            {
+              id: "field_ops",
+              title: "Field Ops",
+              primary: season.chase.fieldOpsBonus > 0
+                ? `+${Math.round(season.chase.fieldOpsBonus * 1000) / 10}% chase bonus earned`
+                : "Complete operations to improve the pursuit",
+              secondary: weekConfig ? `Complication: ${weekConfig.complication.label}` : undefined,
+              href: "/fieldops",
+            },
+            {
+              id: "prediction",
+              title: "Prediction",
+              primary: "How close will your unit get by Sunday night?",
+              secondary: "Sealed until the reveal",
+              href: "/prediction",
+            },
+            {
+              id: "nemesis",
+              title: "Nemesis",
+              primary: "Five daily rounds. Most verified steps wins the day.",
+              secondary: season.phase === "sudden_death" ? "SUDDEN DEATH ACTIVE" : undefined,
+              href: "/nemesis",
+            },
+            {
+              id: "evidence",
+              title: `${season.chapter.city} evidence`,
+              primary: season.evidencePreview.unlocked && season.evidencePreview.standardTitle
+                ? season.evidencePreview.standardTitle
+                : "Complete the case to recover the first Meridian artifact.",
+              secondary: season.evidencePreview.unlocked
+                ? season.evidencePreview.interceptUnlocked
+                  ? "Intercept clue recovered — view on evidence board"
+                  : "View on evidence board"
+                : "Sealed until case close",
+              href: "/evidence",
+            },
+          ]}
+        />
+      )}
+
+      {/* Compact team activity — at most three recent events */}
+      {season && <TeamActivity events={activityEvents} />}
 
       {/* ── Route — dashed intel trail with city pins ── */}
       <section className="routeSection sc-corners" aria-label="Route cities">
@@ -496,6 +822,14 @@ function MapStyles() {
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
         color: var(--phosphor-dim);
+      }
+
+      /* Primary action + beat share a responsive row */
+      .chaseRow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-sm);
+        align-items: stretch;
       }
 
       /* ── Two-pane console ── */

@@ -4,7 +4,7 @@ import { syncUserDay } from "./sync.js";
 import { processScoutTokens } from "./scoutService.js";
 import { createOrGetBingoCard, updateBingoCard } from "./bingoService.js";
 import { closeElapsedDays } from "./nemesisService.js";
-import { prepareNextWeekReveal, weekRollover } from "./weekRollover.js";
+import { prepareNextWeekReveal, reconcileFinalizedWeek, weekRollover } from "./weekRollover.js";
 import { evaluateDailyBeats } from "./beats.js";
 import { InvalidGrantError, NotConnectedError } from "./realFitbitClient.js";
 
@@ -158,6 +158,26 @@ export async function runGroupSync(
         console.log(`cron: Sunday nemesis reveal prepared for group ${group.id}`);
       } catch (err) {
         console.error(`cron: Sunday nemesis reveal failed for group ${group.id}:`, err);
+      }
+    }
+  }
+
+  // Monday noon group-local: the noon tick re-pulled Sunday for late device
+  // syncs — reconcile the finalized week if late data materially changed the
+  // case result (spec §14.6). Never re-awards badges or predictions.
+  if (hour === 12 && weekday === 1) {
+    const finalized = await pool.query(
+      `SELECT id FROM weeks
+       WHERE group_id = $1 AND status = 'closed' AND finalized_at IS NOT NULL
+         AND ends_on = ($2::date - INTERVAL '1 day')::date
+       ORDER BY starts_on DESC LIMIT 1`,
+      [group.id, today],
+    );
+    if (finalized.rowCount) {
+      try {
+        await reconcileFinalizedWeek(pool, finalized.rows[0].id);
+      } catch (err) {
+        console.error(`cron: week reconciliation failed for group ${group.id}:`, err);
       }
     }
   }

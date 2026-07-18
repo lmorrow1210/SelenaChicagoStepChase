@@ -342,6 +342,9 @@ paths:
                     type: string
                     format: date-time
                     nullable: true
+                  seasonState:
+                    allOf: [{ $ref: "#/components/schemas/CurrentWeekSeasonState" }]
+                    nullable: true
                   state:
                     type: string
                     enum: [in_progress, closing_soon, arrival, no_group]
@@ -836,6 +839,94 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/Ok" }
 
+  # ---- Season One narrative (Week 1) ----
+  /api/evidence:
+    get:
+      summary: Group Season Evidence Board
+      description: >
+        The group's 13-slot Season One evidence board — locked/unlocked
+        state, weekly outcome markers, interception count, and finale depth
+        tier. Locked slots never leak evidence content.
+      tags: [evidence]
+      responses:
+        "200":
+          description: Evidence board.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [season, interceptionCount, finaleDepthTier, weeks]
+                properties:
+                  season:
+                    type: object
+                    required: [id, title, totalWeeks]
+                    properties:
+                      id: { type: string }
+                      title: { type: string }
+                      totalWeeks: { type: integer }
+                  interceptionCount: { type: integer }
+                  finaleDepthTier: { type: integer, minimum: 1, maximum: 4 }
+                  weeks:
+                    type: array
+                    items:
+                      type: object
+                      required: [weekNumber, cityName, chapterTitle, outcome, standardEvidence, interceptClue]
+                      properties:
+                        weekNumber: { type: integer }
+                        cityName: { type: string }
+                        chapterTitle: { type: string }
+                        outcome:
+                          allOf: [{ $ref: "#/components/schemas/WeeklyOutcome" }]
+                          nullable: true
+                        standardEvidence:
+                          $ref: "#/components/schemas/EvidenceSlot"
+                        interceptClue:
+                          $ref: "#/components/schemas/EvidenceSlot"
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404":
+          description: NOT_FOUND — the viewer has no group yet.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /api/rituals/view:
+    post:
+      summary: Record a weekly ritual view
+      description: >
+        Marks a ritual surface (Monday briefing, midweek update, final push,
+        case-closed report) as seen by the viewer for a week. Idempotent per
+        (week, user, ritual); the product requires persisted briefingViewedAt.
+      tags: [rituals]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [week_id, ritual_id]
+              properties:
+                week_id: { type: string, format: uuid }
+                ritual_id:
+                  type: string
+                  enum: [monday_briefing, midweek_update, final_push, case_closed]
+      responses:
+        "200":
+          description: Recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, viewed_at]
+                properties:
+                  ok: { type: boolean }
+                  viewed_at: { type: string, format: date-time }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404":
+          description: NOT_FOUND — week is not in the viewer's group.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
   # ---- Sync ----
   /api/sync/run:
     post:
@@ -953,6 +1044,218 @@ components:
         status: { type: string, enum: [scheduled, active, closed] }
         group_total_steps: { type: integer, nullable: true }
         target_hit: { type: boolean, nullable: true }
+
+    WeeklyOutcome:
+      type: string
+      enum: [trail_lost, pursuit_maintained, close_encounter, interception]
+
+    WeekPhase:
+      type: string
+      enum: [briefing, active, midweek_update, final_push, sudden_death, case_closing, case_closed]
+
+    DataConfidence:
+      type: string
+      enum: [verified, estimated, incomplete, recalculating]
+
+    PrimaryActionId:
+      type: string
+      enum:
+        - fix_sync
+        - view_briefing
+        - view_case_result
+        - sudden_death
+        - special_operation
+        - submit_prediction
+        - field_ops_near_reward
+        - nemesis_close
+        - daily_target
+        - continue_pursuit
+
+    CurrentWeekSeasonState:
+      type: object
+      required:
+        - season
+        - chapter
+        - phase
+        - dataConfidence
+        - chase
+        - primaryAction
+        - primaryBeat
+        - platformSweep
+        - evidencePreview
+        - ritualViews
+        - previousCase
+        - sync
+      properties:
+        season:
+          type: object
+          required: [id, title, weekNumber, totalWeeks]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            weekNumber: { type: integer }
+            totalWeeks: { type: integer }
+        chapter:
+          type: object
+          required: [city, title]
+          properties:
+            city: { type: string }
+            title: { type: string }
+            complication: { type: string, nullable: true }
+            nextCity: { type: string, nullable: true }
+        phase:
+          $ref: "#/components/schemas/WeekPhase"
+        dataConfidence:
+          $ref: "#/components/schemas/DataConfidence"
+        chase:
+          type: object
+          required:
+            - verifiedGroupSteps
+            - snapshottedTarget
+            - baseProgress
+            - fieldOpsBonus
+            - specialOperationBonus
+            - nemesisParticipationBonus
+            - predictionParticipationBonus
+            - totalNonStepBonus
+            - finalProgress
+            - remainingLead
+            - projectedOutcome
+            - finalOutcome
+          properties:
+            verifiedGroupSteps: { type: integer }
+            snapshottedTarget: { type: integer }
+            baseProgress: { type: number }
+            fieldOpsBonus: { type: number }
+            specialOperationBonus: { type: number }
+            nemesisParticipationBonus: { type: number }
+            predictionParticipationBonus: { type: number }
+            totalNonStepBonus: { type: number }
+            finalProgress: { type: number }
+            remainingLead: { type: integer }
+            projectedOutcome:
+              allOf: [{ $ref: "#/components/schemas/WeeklyOutcome" }]
+              nullable: true
+            finalOutcome:
+              allOf: [{ $ref: "#/components/schemas/WeeklyOutcome" }]
+              nullable: true
+        primaryAction:
+          type: object
+          required: [id, title, priority]
+          properties:
+            id:
+              $ref: "#/components/schemas/PrimaryActionId"
+            title: { type: string }
+            body: { type: string }
+            href: { type: string }
+            priority: { type: integer }
+        primaryBeat:
+          allOf: [{ $ref: "#/components/schemas/PrimaryBeat" }]
+          nullable: true
+        platformSweep:
+          $ref: "#/components/schemas/SpecialOperationState"
+        evidencePreview:
+          type: object
+          required: [standardEvidenceId, unlocked, interceptUnlocked]
+          properties:
+            standardEvidenceId: { type: string }
+            standardTitle: { type: string, nullable: true }
+            unlocked: { type: boolean }
+            interceptUnlocked: { type: boolean }
+        ritualViews:
+          type: object
+          required: [mondayBriefing, midweekUpdate, finalPush, caseClosed]
+          properties:
+            mondayBriefing: { type: boolean }
+            midweekUpdate: { type: boolean }
+            finalPush: { type: boolean }
+            caseClosed: { type: boolean }
+        previousCase:
+          allOf: [{ $ref: "#/components/schemas/PreviousCase" }]
+          nullable: true
+        sync:
+          type: object
+          required: [lastUpdatedAt, incompletePlayerCount, stalePlayerCount]
+          properties:
+            lastUpdatedAt:
+              type: string
+              format: date-time
+              nullable: true
+            incompletePlayerCount: { type: integer }
+            stalePlayerCount: { type: integer }
+
+    PrimaryBeat:
+      type: object
+      required: [id, category, headline, body, dataConfidence]
+      properties:
+        id: { type: string }
+        category: { type: string, enum: [trust, ritual, pursuit, field_ops, system] }
+        headline: { type: string }
+        body: { type: string }
+        selena: { type: string }
+        ctaLabel: { type: string }
+        ctaHref: { type: string }
+        dataConfidence:
+          $ref: "#/components/schemas/DataConfidence"
+
+    SpecialOperationState:
+      type: object
+      required:
+        - id
+        - label
+        - active
+        - contributors
+        - eligiblePlayers
+        - minimumVerifiedStepsPerPlayer
+        - earnedBonus
+        - maxBonus
+        - nextThresholdCount
+      properties:
+        id: { type: string }
+        label: { type: string }
+        active: { type: boolean }
+        contributors: { type: integer }
+        eligiblePlayers: { type: integer }
+        minimumVerifiedStepsPerPlayer: { type: integer }
+        earnedBonus: { type: number }
+        maxBonus: { type: number }
+        nextThresholdCount: { type: integer, nullable: true }
+
+    PreviousCase:
+      type: object
+      required: [weekId, weekNumber, cityName, chapterTitle, outcome, finalizedAt, viewed]
+      properties:
+        weekId: { type: string, format: uuid }
+        weekNumber: { type: integer }
+        cityName: { type: string }
+        chapterTitle: { type: string }
+        outcome:
+          $ref: "#/components/schemas/WeeklyOutcome"
+        baseProgress: { type: number, nullable: true }
+        finalProgress: { type: number, nullable: true }
+        remainingLead: { type: integer, nullable: true }
+        bonuses:
+          type: object
+          nullable: true
+          additionalProperties: { type: number }
+        groupTotalSteps: { type: integer, nullable: true }
+        groupTargetSteps: { type: integer }
+        dataConfidence: { type: string }
+        finalizedAt: { type: string, format: date-time }
+        viewed: { type: boolean }
+
+    EvidenceSlot:
+      type: object
+      required: [id, kind, title, body, highlightedFragment, iconKey, unlocked, unlockedAt]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [standard, intercept] }
+        title: { type: string }
+        body: { type: string, nullable: true }
+        highlightedFragment: { type: string, nullable: true }
+        iconKey: { type: string, nullable: true }
+        unlocked: { type: boolean }
+        unlockedAt: { type: string, format: date-time, nullable: true }
 
     City:
       type: object

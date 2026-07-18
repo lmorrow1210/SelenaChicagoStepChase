@@ -1,5 +1,9 @@
 import type { Pool, PoolClient } from "pg";
+import type { DataConfidence } from "@one-step-ahead/shared";
+import { calculateDataConfidence } from "@one-step-ahead/shared/season-one/dataConfidence";
 import { seededRand } from "./bingo.js";
+import { getSpecialOperationState } from "./specialOperations.js";
+import { seasonWeekForRouteOrder } from "./evidenceService.js";
 
 type Db = Pool | PoolClient;
 type BeatScope = "user" | "group";
@@ -35,6 +39,24 @@ interface BeatContext {
   weekGap?: number;
   weekTotal?: number;
   weekTarget?: number;
+  // Week 1 production subset (M14)
+  dataConfidence?: DataConfidence;
+  weekToDateSteps?: number;
+  elapsedDay?: number; // 1 = Monday … 7 = Sunday of the active week
+  groupLines?: number;
+  specialOperationActive?: boolean;
+  specialOperationEarnedBonus?: number;
+  specialOperationMaxBonus?: number;
+  firstLinePayoff?: string;
+  operationLabel?: string;
+}
+
+/** Week-to-date pace vs an even daily split of the weekly target. */
+function paceRatio(ctx: BeatContext): number | null {
+  if (!ctx.weekTarget || !ctx.elapsedDay || ctx.weekToDateSteps == null) return null;
+  const expected = ctx.weekTarget * (ctx.elapsedDay / 7);
+  if (expected <= 0) return null;
+  return ctx.weekToDateSteps / expected;
 }
 
 function addDays(date: string, days: number): string {
@@ -71,11 +93,53 @@ function beatParams(ctx: BeatContext): Record<string, string | number> {
       : 0),
     nemesis: ctx.nemesisName ?? "your nemesis",
     n: ctx.previousTargetStreak ?? 0,
+    first_line_payoff: ctx.firstLinePayoff ?? "The unit's first field lead is confirmed.",
+    operation_label: ctx.operationLabel ?? "The special operation",
   };
 }
 
 export function evaluateBeatTrigger(trigger: Record<string, any>, ctx: BeatContext): boolean {
+  // Trust gating: Selena performance commentary requires the confidence
+  // levels the definition names (e.g. ["verified"]). Trust beats carry no
+  // requirement and therefore always pass this check.
+  const required = trigger.required_confidence;
+  if (Array.isArray(required) && required.length) {
+    if (!ctx.dataConfidence || !required.includes(ctx.dataConfidence)) return false;
+  }
+
   switch (trigger.metric) {
+    case "group_data_incomplete":
+      return ctx.dataConfidence === "incomplete";
+    case "result_recalculating":
+      // Fired directly by the reconciliation path via fireBeatBySlug; it
+      // never matches during ordinary day evaluation.
+      return false;
+    case "first_field_ops_line":
+      return (ctx.groupLines ?? 0) >= 1;
+    case "platform_sweep_started":
+      return ctx.specialOperationActive === true;
+    case "platform_sweep_completed":
+      return (
+        (ctx.specialOperationMaxBonus ?? 0) > 0 &&
+        (ctx.specialOperationEarnedBonus ?? 0) >= (ctx.specialOperationMaxBonus ?? 0)
+      );
+    case "team_ahead_of_pace": {
+      const pace = paceRatio(ctx);
+      return pace != null && (ctx.elapsedDay ?? 0) >= 2 && pace >= Number(trigger.ratio ?? 1.15);
+    }
+    case "team_behind_pace": {
+      const pace = paceRatio(ctx);
+      return pace != null && (ctx.elapsedDay ?? 0) >= 3 && pace <= Number(trigger.ratio ?? 0.7);
+    }
+    case "group_comeback": {
+      const pace = paceRatio(ctx);
+      if (ctx.groupDaySteps == null || !ctx.trailingGroupDailyAvg) return false;
+      return (
+        pace != null &&
+        pace < 1 &&
+        ctx.groupDaySteps >= ctx.trailingGroupDailyAvg * Number(trigger.multiplier ?? 1.5)
+      );
+    }
     case "near_miss_week": {
       if (ctx.weekGap == null || ctx.weekTarget == null || ctx.weekTotal == null) return false;
       return ctx.weekGap > 0 && ctx.weekGap <= ctx.weekTarget * Number(trigger.pct ?? 0.05);
@@ -248,17 +312,53 @@ async function dailyGroupContext(db: Db, weekId: string, groupId: string, date: 
        GROUP BY sl.log_date
        ORDER BY sl.log_date DESC
        LIMIT 7
+     ),
+     week_to_date AS (
+       SELECT COALESCE(SUM(sl.steps), 0)::int AS steps
+       FROM step_logs sl JOIN users u3 ON u3.id = sl.user_id
+       JOIN weeks iw ON iw.id = $1
+       WHERE u3.group_id = $2 AND sl.log_date BETWEEN iw.starts_on AND $3::date
      )
      SELECT c.name AS city_name,
+            c.route_order,
+            w.group_target_steps,
+            to_char(w.starts_on, 'YYYY-MM-DD') AS starts_on,
             today.steps AS group_day_steps,
-            COALESCE((SELECT AVG(day_steps) FROM prior), 0)::numeric AS trailing_avg
+            week_to_date.steps AS week_to_date_steps,
+            COALESCE((SELECT AVG(day_steps) FROM prior), 0)::numeric AS trailing_avg,
+            (SELECT COALESCE(SUM(bingo_lines), 0)::int FROM bingo_cards WHERE week_id = $1) AS group_lines
      FROM weeks w
      JOIN cities c ON c.id = w.city_id
      CROSS JOIN today
+     CROSS JOIN week_to_date
      WHERE w.id = $1
      LIMIT 1`,
     [weekId, groupId, date],
   );
+  const trackers = await db.query(
+    `SELECT id, fitbit_connected, last_synced_at FROM users WHERE group_id = $1`,
+    [groupId],
+  );
+  const confidence = calculateDataConfidence({
+    now: new Date(`${date}T23:59:00Z`),
+    trackers: trackers.rows.map((tracker) => ({
+      userId: tracker.id as string,
+      fitbitConnected: Boolean(tracker.fitbit_connected),
+      lastSyncedAt: tracker.last_synced_at ?? null,
+    })),
+  });
+  const specialOperation = await getSpecialOperationState(db, weekId, date);
+  const seasonWeek = row.rowCount
+    ? seasonWeekForRouteOrder(Number(row.rows[0].route_order), row.rows[0].city_name)
+    : null;
+  const startsOn: string | null = row.rows[0]?.starts_on ?? null;
+  const elapsedDay = startsOn
+    ? Math.min(
+        7,
+        Math.max(1, Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86_400_000) + 1),
+      )
+    : undefined;
+
   return {
     groupId,
     userId: null,
@@ -269,7 +369,48 @@ async function dailyGroupContext(db: Db, weekId: string, groupId: string, date: 
     trailingGroupDailyAvg: Number(row.rows[0]?.trailing_avg ?? 0),
     hotPursuitToday: await groupHotPursuit(db, groupId, date),
     hotPursuitYesterday: await groupHotPursuit(db, groupId, addDays(date, -1)),
+    dataConfidence: confidence.dataConfidence,
+    weekTarget: Number(row.rows[0]?.group_target_steps ?? 0),
+    weekToDateSteps: Number(row.rows[0]?.week_to_date_steps ?? 0),
+    elapsedDay,
+    groupLines: Number(row.rows[0]?.group_lines ?? 0),
+    specialOperationActive: specialOperation.active,
+    specialOperationEarnedBonus: specialOperation.earnedBonus,
+    specialOperationMaxBonus: specialOperation.maxBonus,
+    firstLinePayoff: seasonWeek?.fieldOps.firstLinePayoff,
+    operationLabel: seasonWeek?.specialOperation.label,
   };
+}
+
+/**
+ * Fire one beat by slug outside ordinary day evaluation (e.g. the
+ * late-sync `result_recalculating` trust beat). Cooldown and idempotency
+ * rules still apply.
+ */
+export async function fireBeatBySlug(
+  db: Db,
+  slug: string,
+  ctx: Pick<BeatContext, "groupId" | "userId" | "weekId" | "date"> & Partial<BeatContext>,
+): Promise<boolean> {
+  const rows = await db.query<BeatDefinition>(
+    `SELECT id, slug, trigger, scope, variants, cooldown_days, priority
+     FROM beat_definitions WHERE slug = $1`,
+    [slug],
+  );
+  if (!rows.rowCount) return false;
+  const beat = {
+    ...rows.rows[0],
+    variants: Array.isArray(rows.rows[0].variants) ? rows.rows[0].variants : [],
+    cooldown_days: Number(rows.rows[0].cooldown_days),
+    priority: Number(rows.rows[0].priority),
+  };
+  const city = ctx.city
+    ?? (await db.query(
+      `SELECT c.name FROM weeks w JOIN cities c ON c.id = w.city_id WHERE w.id = $1`,
+      [ctx.weekId],
+    )).rows[0]?.name
+    ?? "the city";
+  return fireBeat(db, beat, { ...ctx, city } as BeatContext);
 }
 
 async function dailyUserContexts(db: Db, weekId: string, groupId: string, date: string): Promise<BeatContext[]> {
@@ -324,6 +465,9 @@ export async function evaluateDailyBeats(
   }
 
   for (const ctx of await dailyUserContexts(db, weekId, groupId, date)) {
+    // User-scope Selena commentary is gated on the same group-level data
+    // confidence: if the group's field reports are incomplete, she stays quiet.
+    ctx.dataConfidence = groupCtx.dataConfidence;
     for (const beat of userDefs) {
       if (evaluateBeatTrigger(beat.trigger, ctx) && await fireBeat(db, beat, ctx)) break;
     }
@@ -343,6 +487,18 @@ export async function evaluateWeekBeats(db: Db, weekId: string): Promise<void> {
   );
   if (!row.rowCount) return;
   const week = row.rows[0];
+  const trackers = await db.query(
+    `SELECT id, fitbit_connected, last_synced_at FROM users WHERE group_id = $1`,
+    [week.group_id],
+  );
+  const confidence = calculateDataConfidence({
+    now: new Date(),
+    trackers: trackers.rows.map((tracker) => ({
+      userId: tracker.id as string,
+      fitbitConnected: Boolean(tracker.fitbit_connected),
+      lastSyncedAt: tracker.last_synced_at ?? null,
+    })),
+  });
   const ctx: BeatContext = {
     groupId: week.group_id,
     userId: null,
@@ -352,6 +508,7 @@ export async function evaluateWeekBeats(db: Db, weekId: string): Promise<void> {
     weekTarget: Number(week.group_target_steps),
     weekTotal: Number(week.group_total_steps),
     weekGap: Number(week.group_target_steps) - Number(week.group_total_steps),
+    dataConfidence: confidence.dataConfidence,
   };
 
   for (const beat of defs) {
