@@ -520,6 +520,49 @@ const WEEK_SEVEN_RITUALS: WeekRitualCopy = {
     "The harbor signal only answers after dark. Bureau analysts need enough of the unit in the field during the evening window before it closes.",
 };
 
+// Week 8 Savannah — implemented from docs/canon/cities/week-08-savannah.md.
+const WEEK_EIGHT_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Savannah"),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nThe route is surfacing — but only where the unit did different kinds of field work.",
+      selena: "You are finding the turns the surveyors missed. That takes range, not mileage.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "ROUTE SURFACING",
+      body: "The unwritten route is coming into view where the unit varied its field work. The stretches it tried to brute-force are still blank.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "One more kind of effort and the whole route is yours. Not one more lap.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival both learned the city's real paths this week. Today, one of you walks them faster.",
+  },
+  specialOperationFiction:
+    "Selena's route runs through squares the surveyors left off the map. Bureau analysts need the unit to reveal each one through varied field work before she reaches the last.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -1097,7 +1140,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(8, "Savannah", "The Garden of Shadows", "Unwritten Route", "The Missing Square", "", "New Orleans"),
+    {
+      id: "season_one_week_08",
+      seasonId,
+      weekNumber: 8,
+      cityName: "Savannah",
+      chapterTitle: "The Garden of Shadows",
+      complication: {
+        id: "unwritten_route",
+        label: "Unwritten Route",
+        summary:
+          "Selena's route through Savannah isn't on any map. The city keeps its real directions in the people who live there, not on paper. The unit reveals the route through varied field work — raw distance alone won't uncover it.",
+      },
+      rituals: WEEK_EIGHT_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 08: THE GARDEN OF SHADOWS",
+        body: [
+          "The Boston relay's next leg had no address — only an instruction to ask in Savannah, where the route is never written down. The Bureau's maps of the city are complete except for one thing: they cannot tell you where Selena went.",
+          "Savannah keeps its directions in its people. The squares, the lanes behind the squares, the paths through the old cemetery gardens — the ones that matter are the ones locals know by heart and no surveyor ever logged.",
+          "Your unit has been assigned to reveal her route the way the city does: through varied field work, not raw distance. Walking farther will not help if you only walk the streets the map already shows.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Complete a variety of operations — the route only reveals itself to varied field work." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit uncovers the first stretch of route the map doesn't show.",
+        firstMovementPayoff: "Your varied field work reveals a turn no map records — not just more steps.",
+      },
+      specialOperation: { ...platformSweep, id: "week_08_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week08_missing_square",
+        interceptClueId: "week08_spoken_directions",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit walked hard and walked the map — and the map was never the point. Selena's route ran through squares and garden lanes the surveyors left off, and she was gone before the unit thought to ask a local.",
+          selena: "You trusted the map more than the people who lived there.",
+          nextLead: "A tourist map of Savannah's squares was recovered near Forsyth Park — with one square left blank.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} varied the field work enough to surface most of the unwritten route and kept Selena within the historic district. The unit stopped trusting the map and started reading the city.",
+          selena: "You learned to ask instead of assume. Savannah rewards that.",
+          nextLead: "A map of the historic squares leaves one location deliberately blank.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} revealed nearly the whole route and reached the blank square fifteen minutes behind her. A resident confirmed Selena had asked for directions no map carried — and had been given them without hesitation.",
+          selena: "You found the square the map refuses to draw. Not everything worth keeping leaves a paper trail.",
+          nextLead: "The people who live around the blank square can still give directions to it; the map simply refuses to.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} revealed the full unwritten route and reached the missing square while Selena was still there, under the oaks. She seemed pleased rather than caught, pointed to the blank spot on the map in the operative's hand, and walked into the shadow of the trees.",
+          selena: "You read a city that refuses to be written down. Almost no one manages that in a week. Remember you did.",
+          nextLead: "The route past the missing square was never written — a local said the next leg is kept in a New Orleans song.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "New Orleans",
+        header: "NEXT: NEW ORLEANS",
+        body: "The directions past the missing square were never written down. A Savannah local said the next leg is kept in a New Orleans song — a rhythm you follow, not a route you read.",
+        selena: "In New Orleans, some directions are carried in a beat. You will have to learn to keep time.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(9, "New Orleans", "The Second Line", "Changing Rhythm", "The Rhythmic Key", "", "Austin"),
     structuralWeek(10, "Austin", "Dead Air", "Signal Interference", "The Override Frequency", "", "Santa Fe"),
     structuralWeek(11, "Santa Fe", "True North", "Alignment", "The Alignment Chart", "", "Los Angeles"),
@@ -1278,13 +1393,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "where they do not write it down",
       iconKey: "lantern",
     },
-    // Weeks 8-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week08_missing_square",
+      kind: "standard",
+      seasonId,
+      weekNumber: 8,
+      cityName: "Savannah",
+      title: "THE MISSING SQUARE",
+      body: "A map of Savannah's historic squares with one location deliberately left blank, though the streets around it are drawn in full.",
+      basicBody: "A tourist map of Savannah's squares recovered near Forsyth Park — with one square left blank.",
+      enhancedBody: "A map of Savannah's squares with one square erased. The people who live around it can still give directions to it; the map simply refuses to.",
+      highlightedFragment: "the map simply refuses to",
+      iconKey: "map",
+    },
+    {
+      id: "week08_spoken_directions",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 8,
+      cityName: "Savannah",
+      title: "THE SPOKEN DIRECTIONS",
+      body: "The route past the blank square was never written down — only spoken.",
+      enhancedBody: "The route past the missing square was never written down — a local said the next leg is kept in a New Orleans song.",
+      highlightedFragment: "kept in a New Orleans song",
+      iconKey: "square",
+    },
+    // Weeks 9-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 6 }, (_, index) => {
-      const week = index + 8;
+    ...Array.from({ length: 5 }, (_, index) => {
+      const week = index + 9;
       const config = structuralWeek(
         week,
-        ["Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
