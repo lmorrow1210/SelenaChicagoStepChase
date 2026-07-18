@@ -348,6 +348,49 @@ const WEEK_THREE_RITUALS: WeekRitualCopy = {
     "Bureau analysts have narrowed Selena's crossing to three river bridges. The unit must cover every span before she reaches the far bank.",
 };
 
+// Week 4 Washington, D.C. — implemented from docs/canon/cities/week-04-washington-dc.md.
+const WEEK_FOUR_RITUALS: WeekRitualCopy = {
+  ...defaultRituals("Washington, D.C."),
+  midweek: {
+    strongPace: {
+      headline: "THE GAP IS CLOSING",
+      body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nEnough redactions are cleared to read the real assignment.",
+      selena: "You are learning to read the black bars instead of the words. Keep going. That is where they hide things.",
+      cta: "Review the new lead",
+    },
+    expectedPace: {
+      headline: "PURSUIT MAINTAINED",
+      body: "The unit remains on pace to keep Selena within reach.",
+      selena: "Adequate. The Bureau does enjoy an adequate performance.",
+    },
+    recoveryNeeded: {
+      headline: "THE TRAIL IS COOLING",
+      body: "The unit is currently projected to lose contact before Sunday.",
+      cta: "See the recovery plan",
+    },
+    incompleteData: {
+      headline: "FIELD REPORTS INCOMPLETE",
+      body: "The Bureau cannot calculate a reliable pursuit estimate until trackers respond.",
+      cta: "Review sync status",
+    },
+    storyReveal: {
+      headline: "REDACTIONS CLEARED",
+      body: "The unit has cleared enough of the archive's redactions to read the real objective. It is not the one issued Monday morning.\n\nSelena moved along the Mall, in the open, while the Bureau watched the government corridor.",
+    },
+  },
+  finalPush: {
+    label: "FINAL PUSH",
+    selena: "You are one page from what I already read. Hurry.",
+  },
+  suddenDeath: {
+    headline: "SUDDEN DEATH",
+    body: "Five days even. Saturday decides it.",
+    selena: "You and your rival were handed the same redacted orders. Today shows who read them better.",
+  },
+  specialOperationFiction:
+    "Bureau analysts have narrowed Selena's route to three archive exits along the Mall. The unit must cover every door before she reaches the reading room.",
+};
+
 const structuralBriefing = (weekNumber: number, cityName: string, chapterTitle: string) => ({
   label: "BUREAU FIELD BRIEFING",
   title: `CASE ${String(weekNumber).padStart(2, "0")}: ${chapterTitle.toUpperCase()}`,
@@ -633,7 +676,79 @@ export const SEASON_ONE_CONFIG = {
         cta: "Continue the pursuit",
       },
     },
-    structuralWeek(4, "Washington, D.C.", "The Monument Cipher", "Redacted Orders", "The Redacted Charter", "", "Philadelphia"),
+    {
+      id: "season_one_week_04",
+      seasonId,
+      weekNumber: 4,
+      cityName: "Washington, D.C.",
+      chapterTitle: "The Monument Cipher",
+      complication: {
+        id: "redacted_orders",
+        label: "Redacted Orders",
+        summary:
+          "Selena is after a document in a records archive off the National Mall — one whose restricted passages are still sealed. The unit's own field objectives arrive partly redacted, and must be decoded before the true assignment is legible.",
+      },
+      rituals: WEEK_FOUR_RITUALS,
+      briefing: {
+        label: "BUREAU FIELD BRIEFING",
+        title: "CASE 04: THE MONUMENT CIPHER",
+        body: [
+          "At 9:30 AM, a reading-room request at a records archive off the National Mall was filed under a researcher credential that had been deactivated years earlier. The document pulled: a founding-era charter, portions of which remain restricted.",
+          "Selena left before staff reached the desk. The request slip she left behind was itself redacted — someone had blacked out the one box that names the document.",
+          "Your unit has been assigned to reconstruct what she was reading before she leaves Washington. Expect your own orders to arrive incomplete.",
+        ],
+        supportingCards: [
+          { id: "field_ops", title: "FIELD OPS", body: "Decode your redacted objectives, then complete them to trace what Selena read." },
+          { id: "prediction", title: "PREDICTION", body: "Estimate how far the team moves before the case closes Sunday night." },
+          { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
+        ],
+        primaryCta: "Begin the pursuit",
+        secondaryCta: "Review assignment",
+      },
+      fieldOps: {
+        fixedChallengeCodes: [...fieldOpsCodes],
+        firstLinePayoff: "The unit clears the first redaction and reads its true objective.",
+        firstMovementPayoff: "Your route confirms she moved along the Mall, in the open, not the government corridor.",
+      },
+      specialOperation: { ...platformSweep, id: "week_04_platform_sweep", label: "Platform Sweep" },
+      evidence: {
+        standardEvidenceId: "week04_redacted_charter",
+        interceptClueId: "week04_unredacted_line",
+      },
+      closeCopy: {
+        trail_lost: {
+          headline: "TRAIL LOST",
+          story: "The unit worked the objectives it was given — but the objectives were redacted, and the parts left visible led the wrong way. Selena read the charter and was gone before the real assignment came clear.",
+          selena: "The Bureau counted on you reading only what it left visible.",
+          nextLead: "A photostat of a founding-era charter, most of its text blacked out, was recovered from the reading room.",
+        },
+        pursuit_maintained: {
+          headline: "PURSUIT MAINTAINED",
+          story: "{{groupName}} cleared enough of the redactions to read the true objectives and follow Selena's path through the archive district. She stayed ahead, but the unit was reading the same document by the end.",
+          selena: "You got past the black bars. Most people stop at them.",
+          nextLead: "A founding-era charter under heavy redaction, its restricted passages sealed with red stamps.",
+        },
+        close_encounter: {
+          headline: "CLOSE ENCOUNTER",
+          story: "{{groupName}} reached the reading room forty minutes after Selena signed out. The charter was still on the desk, open to the restricted section — and one seal had been lifted, cleanly, by someone who had done it before.",
+          selena: "You reached the desk. You even saw which page. Redaction does not destroy the truth. It only delays it.",
+          nextLead: "The red seals on the charter are modern — applied long after it was written.",
+        },
+        interception: {
+          headline: "SELENA INTERCEPTED",
+          story: "{{groupName}} reached the reading room while Selena was still at the desk, the charter open in front of her. She turned it so the operative could see the one line she had uncovered, then walked out through the staff corridor as if her credential were still good.",
+          selena: "You read it with me. Now you know it is not the document that was redacted — it is the date. Decide what that is worth to you.",
+          nextLead: "One line survived the redaction, naming a signing hall in Philadelphia.",
+        },
+      },
+      nextCityTeaser: {
+        cityName: "Philadelphia",
+        header: "NEXT: PHILADELPHIA",
+        body: "The one line the redactors missed names a hall in Philadelphia — the room where the original charter was signed. The copy is in Washington. The original never left.",
+        selena: "They kept the copy and hid the original. I am going to read the original.",
+        cta: "Continue the pursuit",
+      },
+    },
     structuralWeek(5, "Philadelphia", "The Liberty Exchange", "Shared Custody", "The Custodian Ledger", "", "New York City"),
     structuralWeek(6, "New York City", "Five Borough Decoy", "False Positives", "The Identity Cascade", "", "Boston"),
     structuralWeek(7, "Boston", "The Midnight Signal", "Signal Window", "The Continuity Protocol", "", "Savannah"),
@@ -718,13 +833,38 @@ export const SEASON_ONE_CONFIG = {
       highlightedFragment: "It was drawn before the two Pittsburgh trails were ever walked.",
       iconKey: "route",
     },
-    // Weeks 4-13 remain structural stubs — generic sealed evidence until each
+    {
+      id: "week04_redacted_charter",
+      kind: "standard",
+      seasonId,
+      weekNumber: 4,
+      cityName: "Washington, D.C.",
+      title: "THE REDACTED CHARTER",
+      body: "A founding-era charter under heavy redaction, its restricted passages sealed with red archival stamps.",
+      basicBody: "A photostat of a founding-era charter, most of its text blacked out, recovered from the archive reading room.",
+      enhancedBody: "A founding-era charter under heavy redaction. The red seals are modern — applied long after the document itself was written.",
+      highlightedFragment: "The red seals are modern",
+      iconKey: "document",
+    },
+    {
+      id: "week04_unredacted_line",
+      kind: "intercept",
+      seasonId,
+      weekNumber: 4,
+      cityName: "Washington, D.C.",
+      title: "ONE UNREDACTED LINE",
+      body: "A single line escaped the redactor's pen, naming a signing hall in Philadelphia.",
+      enhancedBody: "One line survived the redaction, naming a hall in Philadelphia — beside a date that does not match the official record.",
+      highlightedFragment: "a date that does not match the official record",
+      iconKey: "seal",
+    },
+    // Weeks 5-13 remain structural stubs — generic sealed evidence until each
     // week's content pack is implemented (see docs/canon/IMPLEMENTING-A-CITY.md).
-    ...Array.from({ length: 10 }, (_, index) => {
-      const week = index + 4;
+    ...Array.from({ length: 9 }, (_, index) => {
+      const week = index + 5;
       const config = structuralWeek(
         week,
-        ["Washington, D.C.", "Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
+        ["Philadelphia", "New York City", "Boston", "Savannah", "New Orleans", "Austin", "Santa Fe", "Los Angeles", "San Francisco"][index],
         "",
         "",
         "",
