@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
-import { WEEK_ONE_CHICAGO } from "@one-step-ahead/shared/season-one/seasonOne";
+import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO } from "@one-step-ahead/shared/season-one/seasonOne";
 import type { app as expressApp } from "../src/index.js";
 import type { pool as appPool } from "../src/db/pool.js";
 import type { signSession as signSessionFn } from "../src/lib/session.js";
@@ -360,6 +360,45 @@ describeDb("Week 1 case close integration", () => {
     expect(boardBefore.weeks).toHaveLength(13);
     expect(boardBefore.interceptionCount).toBe(0);
     expect(boardBefore.finaleDepthTier).toBe(1);
+    expect(
+      boardBefore.weeks.map(
+        (week: {
+          weekNumber: number;
+          cityName: string;
+          chapterTitle: string;
+          standardEvidence: { id: string };
+          interceptClue: { id: string };
+        }) => ({
+          weekNumber: week.weekNumber,
+          cityName: week.cityName,
+          chapterTitle: week.chapterTitle,
+          standardEvidenceId: week.standardEvidence.id,
+          interceptClueId: week.interceptClue.id,
+        }),
+      ),
+    ).toEqual(
+      SEASON_ONE_CONFIG.route.map((week) => ({
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+        chapterTitle: week.chapterTitle,
+        standardEvidenceId: week.evidence.standardEvidenceId,
+        interceptClueId: week.evidence.interceptClueId,
+      })),
+    );
+    for (const week of boardBefore.weeks) {
+      expect(week.standardEvidence).toMatchObject({
+        kind: "standard",
+        title: "SEALED EVIDENCE",
+        body: null,
+        unlocked: false,
+      });
+      expect(week.interceptClue).toMatchObject({
+        kind: "intercept",
+        title: "INTERCEPT CLUE",
+        body: null,
+        unlocked: false,
+      });
+    }
     expect(boardBefore.weeks[0].standardEvidence).toMatchObject({
       unlocked: false,
       body: null,

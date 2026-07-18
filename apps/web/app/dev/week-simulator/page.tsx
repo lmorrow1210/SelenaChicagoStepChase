@@ -7,6 +7,7 @@ import {
   WEEK_SIMULATOR_CONFIDENCE,
   WEEK_SIMULATOR_OUTCOMES,
   WEEK_SIMULATOR_PHASES,
+  WEEK_SIMULATOR_WEEKS,
   buildWeekSimulatorState,
   progressForOutcome,
   type WeekSimulatorControls,
@@ -112,7 +113,7 @@ export default function WeekSimulatorPage() {
 
       <section className="header">
         <p className="eyebrow">DEV WEEK SIMULATOR</p>
-        <h1>Week 1: {season.chapter.title}</h1>
+        <h1>Week {season.season.weekNumber}: {season.chapter.title}</h1>
         <p>
           Renders the production narrative components with the real Season One config, chase
           calculator, phase service, and beat selector. This page writes no data and is not
@@ -122,6 +123,20 @@ export default function WeekSimulatorPage() {
 
       <section className="layout">
         <form className="controls terminalPanel sc-corners" aria-label="Week simulator controls">
+          <label>
+            Week
+            <select
+              value={controls.weekNumber}
+              onChange={(event) => update({ weekNumber: Number(event.target.value) })}
+            >
+              {WEEK_SIMULATOR_WEEKS.map((week) => (
+                <option key={week.weekNumber} value={week.weekNumber}>
+                  Week {week.weekNumber}: {week.cityName}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label>
             Phase
             <select
@@ -271,7 +286,7 @@ export default function WeekSimulatorPage() {
                 setCaseReportOpen(false);
               }}
             >
-              Reset Week 1
+              Reset controls
             </button>
           </div>
         </form>
