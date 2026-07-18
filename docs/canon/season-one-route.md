@@ -10,8 +10,12 @@ formal quarter.
 > of the parked Meridian/conspiracy lore. Where the original bible copy carried
 > lore, the cleaned version is what ships and the original is preserved in
 > [`PARKED-LORE.md`](PARKED-LORE.md). Copy here is the **target** — the full
-> narrative/copy audit finalizes exact wording. Week 1 is shipped; Week 2 has a
-> draft pack; Weeks 3–13 are stubs in `seasonOne.ts` awaiting content.
+> narrative/copy audit finalizes exact wording. Week 1 is shipped; Week 2
+> (Detroit) is fully implemented and ready for owner review — see
+> [`cities/week-02-detroit.md`](cities/week-02-detroit.md) for its complete,
+> finalized four-outcome copy (the two-line summary in this table's Wk 2 row
+> predates that buildout — treat the city pack as authoritative). Weeks 3–13
+> are stubs in `seasonOne.ts` awaiting content.
 
 ---
 
@@ -35,7 +39,7 @@ formal quarter.
 
 **Legend**
 - ⚠️ — the complication as originally written depended on cut systems; ship the simplified version noted.
-- † — **Week 2 naming is unresolved.** Shipped `seasonOne.ts` and the draft pack use chapter *"The Machine Restarted"* / complication *"Assembly Line"*. The older bible used chapter *"The Assembly Line"* / complication *"Moving Parts"* (defined as "complete three different Field Ops categories" — a concrete, buildable mechanic worth considering). **Audit item #1.**
+- † — **Week 2 naming resolved (2026-07-17, owner).** Shipped `seasonOne.ts` and the finalized pack use chapter *"The Machine Restarted"* / complication *"Assembly Line"*. The older bible's alternate — chapter *"The Assembly Line"* / complication *"Moving Parts"* — was considered and not chosen.
 - ‡ — chapter renamed **"The Missing Meridian" → "True North"** in the 2026-07-17 audit (the old title named the parked lore; "True North" keeps the Santa Fe survey/navigation theme, no lore collision). Synced to `seasonOne.ts`.
 
 ---
@@ -54,7 +58,7 @@ below; the originals are logged in the "Cleaning log" section and preserved in
 | Wk | Fall short | Close |
 |----|-----------|-------|
 | 1 | "You searched the streets. You should have searched beneath them." | "You found the route. Not the reason." |
-| 2 | "The machine did not stop. You did." | "Every part can be replaced. That includes people." |
+| 2 | "The machine did not stop. You did." ⚑ | "Every part can be replaced. That includes people." ⚑ |
 | 3 | "You chose a trail and forgot to ask where it joined the other." | "Two paths can serve one purpose." |
 | 4 | "The Bureau counted on you reading only what it left visible." | "Redaction does not destroy the truth. It only delays it." |
 | 5 | "You worked as individuals. This was designed for people who don't." | "No one was ever meant to hold this alone." ✎ |
@@ -68,6 +72,12 @@ below; the originals are logged in the "Cleaning log" section and preserved in
 | 13 | "You reached the platform too late — but not too late to understand it." ✎ | "You came this far chasing me. Ask what else you found on the way." ✎ |
 
 **✎ = cleaned from a lore-bearing original.** See the cleaning log.
+**⚑ = superseded.** This two-line summary predates Week 2's full four-outcome
+buildout in [`cities/week-02-detroit.md`](cities/week-02-detroit.md) /
+`seasonOne.ts`, which ships distinct Selena lines for all four outcomes
+(`trail_lost`, `pursuit_maintained`, `close_encounter`, `interception`), not
+just a fall-short/close pair. Kept here for planning-history continuity;
+treat the city pack as authoritative for shipped copy.
 
 ### Cleaning log (originals preserved in PARKED-LORE.md §3.2)
 

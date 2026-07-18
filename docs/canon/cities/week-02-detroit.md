@@ -1,13 +1,24 @@
 # Week 2 — Detroit: The Machine Restarted
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(2, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — content matches shipped code; final gate is
+owner sign-off on copy plus Codex's infra/test validation pass.  
+**Implements:** the full inline `SeasonWeekConfig` at `SEASON_ONE_CONFIG.route[1]`
+in `packages/shared/src/season-one/seasonOne.ts` (already shipped, not a
+`structuralWeek(2, ...)` stub).  
 **Prerequisite:** Week 1 (Chicago) closes and hands off via the "machine restarted" teaser.
 
 > ✅ **Naming resolved (2026-07-17):** chapter *"The Machine Restarted"* /
 > complication *"Assembly Line"* (matches shipped `seasonOne.ts` and the route
 > table). Landmarks resolved to the five most well-known Detroit sites, synced
 > with the demo fixture.
+>
+> ✅ **2026-07-18 narrative QA pass:** confirmed briefing, ritual copy, all
+> four Case Closed outcomes, and evidence text match `seasonOne.ts` verbatim.
+> Fixed a data bug where the production `landmarks` table (migration 009) still
+> had a placeholder Detroit set instead of the five approved here — see
+> migration `010_detroit_landmarks_sync.sql`. Synced `season-one-route.md`'s
+> stale "naming unresolved" footnote and two-line closing-quote table, which
+> both predated this pack's full four-outcome buildout.
 
 ---
 
@@ -86,6 +97,14 @@ exactly — keep them in sync.
 **Selena (shown if briefing not yet opened):** "You are already behind. That is not new."  
 **CTA:** Open the briefing
 
+> **Documented limitation.** `WeekRitualCopy` has no per-week Monday-briefing
+> Selena-line field, and the `monday_briefing` primary beat in
+> `primaryBeat.ts` never attaches a `selena` line — Chicago doesn't have one
+> either. The headline/body above ship (generated from `cityName` +
+> `chapterTitle`); the Selena quote is aspirational copy this pack drafted but
+> the system doesn't currently render anywhere. Adding a field for it would be
+> a new system, out of MVP scope — leaving as documented, not implemented.
+
 ---
 
 ### Midweek update
@@ -110,6 +129,23 @@ exactly — keep them in sync.
 **Headline:** SUDDEN DEATH  
 **Body:** Five days even. Saturday decides it.  
 **Selena:** "Your nemesis has the same idea you do. One of you is wrong about which route to take." — S.C.
+
+---
+
+### Case Closing (Sunday reconciliation window)
+
+**Headline:** CASE CLOSING  
+**Body:** Final field reports are being reconciled.  
+**Supporting:** This may update the group's pursuit result, nemesis matchups, and Oracle award.
+
+> **Intentional shared default.** Detroit uses the same generic Case Closing
+> copy as Chicago (`defaultRituals()` in `seasonOne.ts`) rather than a
+> Detroit-specific override. This matches the documented design principle in
+> `season-scope.md` ("Case Closed report — four outcomes, mostly generic copy
+> + one city closing line") — city flavor lives in the four outcome-specific
+> Selena lines below, not in the interim reconciliation screen. Chicago itself
+> has no city-specific Case Closing override either, so this is consistent
+> with the reference implementation, not a gap.
 
 ---
 
@@ -176,33 +212,79 @@ exactly — keep them in sync.
 
 ---
 
-## Bingo items (Detroit-flavored)
+## Bingo items (Detroit-flavored) — classification
 
-City-specific bingo card entries. These replace generic entries for Week 2.
+City-specific bingo concepts drafted for Week 2, each mapped to its nearest
+shared detector code and classified per `IMPLEMENTING-A-CITY.md` Gotcha 2.
+`bingo_challenge_definitions` stores one global `label` per `code` — there is
+no per-city label-override column in the schema (confirmed against migrations
+002–008), so none of these can render their Detroit-flavored label without a
+new migration + override mechanism. **Decision A is what's shipped:** Detroit
+reuses Chicago's 24 shared `fixedChallengeCodes` verbatim (see `seasonOne.ts`
+comment "Decision A (2026-07-17)"). All eight concepts below classify as
+**label-only reuse of an existing detector** — none require new detector
+logic, and none are blocked on anything but the not-yet-built label-override
+system:
 
-| Code | Label | Type |
-|---|---|---|
-| `detroit_before_noon` | Morning Shift: 1,000 steps before noon | movement |
-| `detroit_full_shift` | Full Shift: hit 100% of daily target | movement |
-| `detroit_assembly_run` | Assembly Run: 5,000 steps in a day | movement |
-| `detroit_long_haul` | Long Haul: 10,000 steps in a day | movement |
-| `detroit_freight_walk` | Freight Route: steps two days running | streak |
-| `detroit_partner_walk` | Walk the line with someone — friend, family, or pet | social |
-| `detroit_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `detroit_after_hours` | After-hours watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `detroit_before_noon` | Morning Shift: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `detroit_full_shift` | Full Shift: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `detroit_assembly_run` | Assembly Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `detroit_long_haul` | Long Haul: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `detroit_freight_walk` | Freight Route: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `detroit_partner_walk` | Walk the line with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `detroit_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `detroit_after_hours` | After-hours watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+None of the eight are safe self-reports beyond what their underlying detector
+already is, future-optional content, or unsuitable for MVP — they're all
+straightforward relabels. **Limitation, documented per instructions:** ship
+with the shared generic labels (already done); a per-city label-override
+migration is future polish, not required for Detroit to be launch-ready.
 
 ---
 
-## Implementation notes for Codex
+## Demo-state coverage (known limitation)
 
-- Replace `structuralWeek(2, "Detroit", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week02_routing_diagram` and `week02_pittsburgh_corridor` must
-  be added to the `evidence` array in `SEASON_ONE_CONFIG`.
+`apps/web/lib/demo.ts` builds a full "active week" fixture (`seasonState`,
+`chase`, `primaryAction`, `primaryBeat`, `platformSweep`, `evidencePreview`)
+only for **Chicago as week 1**. Detroit currently appears in the static demo
+only as: the `nextCity` on the Chicago `/api/weeks/current` fixture, the
+`reconCity` for Field Ops scouting intel (3 of 5 landmarks unlocked), and a
+locked slot on the evidence board. There is no static-demo path that shows
+Detroit as the *active* week, its midweek/final-push/sudden-death ritual
+states, or any of its four Case Closed outcomes — a visitor can only reach
+Detroit narrative content by scouting ahead from Chicago.
+
+This is an infra/fixture gap, not a content gap — the copy this pack needs
+already exists in full in `seasonOne.ts`. Building a second full demo
+"current week" block (modeled on the Chicago one, per
+`IMPLEMENTING-A-CITY.md`'s "Optional — demo fixture" section) plus the
+`/dev/week-simulator` city selector needed to preview it are left for a
+follow-up infra pass. Documented here rather than implemented in this pass.
+
+---
+
+## Implementation notes
+
+- ✅ Done (prior to this pass): `SEASON_ONE_CONFIG.route[1]` is the full
+  inline Detroit config (not a `structuralWeek(2, ...)` stub); evidence IDs
+  `week02_routing_diagram` and `week02_pittsburgh_corridor` are in the
+  `evidence` array; bingo uses Decision A (shared 24 codes).
+- ✅ Done (this pass): fixed the Detroit `landmarks` DB rows (migration 009
+  seeded a placeholder set that never got synced to the approved five) via
+  additive migration `010_detroit_landmarks_sync.sql`; synced the stale
+  "naming unresolved" footnote and the pre-buildout two-line closing-quote
+  table in `season-one-route.md`.
 - The intercept clue's Pittsburgh reference is flavor only — it does not
   obligate any lore in Week 3. Pittsburgh's chapter can reference steel and
   bridges without resolving the "second corridor" as a plot thread.
-- Bingo codes go into `fieldOpsCodes` equivalent for week 2 — confirm the
-  pattern against how Week 1 fixed challenge codes are wired.
 - Do not add Meridian references. Do not escalate the evidence into a
   cross-week mystery arc. See `AGENTS.md` hard rule #6.
+- Not done in this pass (left for Codex — infra/testing scope): a Detroit
+  "active week" demo fixture and week-simulator city selector (see
+  "Demo-state coverage" above); `weekOneClose.integration.test.ts` and other
+  suites were not modified — my edits (docs + the landmarks migration) don't
+  change any config shape or copy string those tests assert on, but a fresh
+  test run against the new migration hasn't been performed in this pass.
