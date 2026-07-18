@@ -88,7 +88,7 @@ export function ProgressStrip({
         textTransform: 'uppercase',
         borderBottom: '1px solid var(--hairline-paper)', paddingBottom: 7,
       }}>
-        [ Bureau vector: {from} → {to} ]
+        [ Team progress: {from} → {to} ]
       </div>
 
       {/* Track row */}
