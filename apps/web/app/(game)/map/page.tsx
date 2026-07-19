@@ -614,7 +614,7 @@ export default function MapPage() {
 
       {/* ── Route — dashed intel trail with city pins ── */}
       <section className="routeSection sc-corners" aria-label="Route cities">
-        <p className="stamped routeLabel">[ Season route — the chase so far ]</p>
+        <p className="stamped routeLabel">[ The chase so far ]</p>
         <div className="pinRoute">
           {/* Dashed phosphor intel vector behind the pins, pulsing dot at the leading edge */}
           <RouteVector
