@@ -475,7 +475,7 @@ export default function NemesisPage() {
       <div style={{ padding: "var(--sp-6)" }}>
         <EmptyState
           icon="nemesis"
-          title={data.state === "bye" ? "Selena's day off" : "Get your nemesis"}
+          title={data.state === "bye" ? "No duel this week" : "Get your nemesis"}
           body={
             data.state === "bye"
               ? "Odd one out this week — you sit out the duel. New pairings Monday."
