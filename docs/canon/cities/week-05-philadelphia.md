@@ -1,13 +1,22 @@
 # Week 5 — Philadelphia: The Liberty Exchange
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(5, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 5` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(5, ...)` stub is retired)  
 **Prerequisite:** Week 4 (Washington, D.C.) closes and hands off via the "read the original in the Philadelphia signing hall" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Liberty
 > Exchange"* / complication *"Shared Custody"* per
 > [`../season-one-route.md`](../season-one-route.md). The ledger is a standalone
 > artifact — **no** decentralized-Meridian-custody lore (that is parked).
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -67,8 +76,7 @@
 ## Field Ops — Intel landmarks (Philadelphia, 5 slots)
 
 The five most well-known Philadelphia landmarks. Fun facts are the decode reward
-— they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 5 is implemented.
+— they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Independence Hall (Declaration + Constitution signed there); Liberty Bell inscription + long-silent crack; PMA "Rocky Steps"; Reading Terminal Market opened 1893 (America's oldest continuously operating public market); Eastern State Penitentiary radial cell design. **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -179,34 +187,44 @@ fixture when Week 5 is implemented.
 
 ---
 
-## Bingo items (Philadelphia-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 5.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `philadelphia_before_noon` | Morning Bell: 1,000 steps before noon | movement |
-| `philadelphia_full_charter` | Full Charter: hit 100% of daily target | movement |
-| `philadelphia_market_run` | Market Run: 5,000 steps in a day | movement |
-| `philadelphia_long_mile` | Long Mile: 10,000 steps in a day | movement |
-| `philadelphia_shared_watch` | Shared Watch: steps two days running | streak |
-| `philadelphia_partner_walk` | Walk with someone — friend, family, or pet | social |
-| `philadelphia_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `philadelphia_after_hours` | After-hours watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `philadelphia_before_noon` | Morning Bell: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `philadelphia_full_charter` | Full Charter: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `philadelphia_market_run` | Market Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `philadelphia_long_mile` | Long Mile: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `philadelphia_shared_watch` | Shared Watch: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `philadelphia_partner_walk` | Walk with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `philadelphia_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `philadelphia_after_hours` | After-hours watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(5, "Philadelphia", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week05_custodian_ledger` and `week05_new_york_column` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Shared Custody" should reuse the existing participation-threshold operation
-  (the Platform Sweep engine) with a ≥3-contributor gate — do **not** build a new
-  mechanic. Confirm the threshold config shape against `platformSweep` in
-  `seasonOne.ts`.
-- The five-steward New York reference is flavor that sets up Week 6's "Five
-  Borough Decoy." It does **not** obligate any resolved conspiracy. Rule #6.
-- The ledger has "no single owner" as a design/theme note, not a lore hook — do
-  not tie it to any distributed-network backstory.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 5`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Shared Custody** — the "≥3-contributor artifact gate" is narrative; the participation theme rides on the standard Platform Sweep contributor tiers + copy. No separate artifact-gating mechanic is built.
+- **Platform Sweep flavor (ships):** "Bureau analysts need at least three operatives to hold the exchange hall's doors at once. No single custodian can cover it alone." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

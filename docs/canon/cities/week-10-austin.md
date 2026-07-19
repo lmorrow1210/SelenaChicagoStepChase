@@ -1,13 +1,22 @@
 # Week 10 — Austin: Dead Air
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(10, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 10` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(10, ...)` stub is retired)  
 **Prerequisite:** Week 9 (New Orleans) closes and hands off via the "silent Austin frequency" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"Dead Air"* /
 > complication *"Signal Interference"* per
 > [`../season-one-route.md`](../season-one-route.md). The Override Frequency is a
 > standalone artifact — **no** Bureau-faction remote-override conspiracy.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -180,35 +189,44 @@ when Week 10 is implemented.
 
 ---
 
-## Bingo items (Austin-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 10.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `austin_before_noon` | Morning Broadcast: 1,000 steps before noon | movement |
-| `austin_full_signal` | Full Signal: hit 100% of daily target | movement |
-| `austin_bridge_run` | Bridge Run: 5,000 steps in a day | movement |
-| `austin_long_trail` | Long Trail: 10,000 steps in a day | movement |
-| `austin_steady_carrier` | Steady Carrier: steps two days running | streak |
-| `austin_partner_walk` | Walk the trail with someone — friend, family, or pet | social |
-| `austin_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `austin_dusk_watch` | Dusk Watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `austin_before_noon` | Morning Broadcast: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `austin_full_signal` | Full Signal: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `austin_bridge_run` | Bridge Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `austin_long_trail` | Long Trail: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `austin_steady_carrier` | Steady Carrier: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `austin_partner_walk` | Walk the trail with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `austin_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `austin_dusk_watch` | Dusk Watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(10, "Austin", ...)` in `seasonOne.ts` with a full inline
-  config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week10_override_frequency` and `week10_desert_source` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Signal Interference" is pure flavor over the existing data-confidence system
-  (verified vs. estimated). Do **not** build new uncertainty math — surface the
-  confidence state the game already computes. Selena stays silent while
-  confidence is low (existing trust rule).
-- The Santa Fe / desert-marker reference is flavor for Week 11. It resolves
-  nothing.
-- The Override Frequency is a standalone radio artifact. Do **not** frame it as a
-  Bureau faction remotely overriding a network of physical nodes — that is parked
-  lore. Rule #6.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 10`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Signal Interference** — "verified vs. estimated pursuit" uses the EXISTING data-confidence system (already shipped); no new interference mechanic. Copy leans on that system.
+- **Platform Sweep flavor (ships):** "Only verified steps cut through the interference. Bureau analysts need the unit synced and confirmed before the window closes." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

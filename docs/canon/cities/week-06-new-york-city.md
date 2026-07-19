@@ -1,13 +1,22 @@
 # Week 6 — New York City: Five Borough Decoy
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(6, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 6` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(6, ...)` stub is retired)  
 **Prerequisite:** Week 5 (Philadelphia) closes and hands off via the "five stewards, one New York address" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"Five Borough
 > Decoy"* / complication *"False Positives"* per
 > [`../season-one-route.md`](../season-one-route.md). The "Identity Cascade" is a
 > standalone decoy record — **not** a network-authenticates-identity lore hook.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -179,34 +188,44 @@ when Week 6 is implemented.
 
 ---
 
-## Bingo items (New York City-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 6.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `nyc_before_noon` | Morning Rush: 1,000 steps before noon | movement |
-| `nyc_full_fare` | Full Fare: hit 100% of daily target | movement |
-| `nyc_borough_run` | Borough Run: 5,000 steps in a day | movement |
-| `nyc_long_avenue` | Long Avenue: 10,000 steps in a day | movement |
-| `nyc_express_line` | Express Line: steps two days running | streak |
-| `nyc_partner_walk` | Walk a block with someone — friend, family, or pet | social |
-| `nyc_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `nyc_after_hours` | After-hours watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `nyc_before_noon` | Morning Rush: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `nyc_full_fare` | Full Fare: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `nyc_borough_run` | Borough Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `nyc_long_avenue` | Long Avenue: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `nyc_express_line` | Express Line: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `nyc_partner_walk` | Walk a block with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `nyc_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `nyc_after_hours` | After-hours watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(6, "New York City", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week06_identity_cascade` and `week06_boston_feed` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "False Positives" narrows a route estimate via Field Ops + prediction accuracy;
-  it must not create a persistent branch or divergent state. It is estimate
-  quality only. Confirm against how the route estimate is computed.
-- The "Identity Cascade" is a decoy-resolution artifact (five sightings = one
-  person's relayed gait). Do **not** frame it as a network that authenticates
-  movement instead of identity — that is parked lore. Rule #6.
-- The Boston feed reference is flavor setting up Week 7's "Signal Window." It
-  resolves nothing.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 6`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **False Positives** — the "five decoys / pick the real borough" framing is copy only; no multi-candidate or decoy-resolution mechanic exists. Standard detectors + Platform Sweep.
+- **Platform Sweep flavor (ships):** "Bureau analysts have narrowed the real Selena to three of the five boroughs. The unit must cover every candidate before the decoys reset." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

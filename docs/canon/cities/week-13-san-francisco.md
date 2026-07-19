@@ -1,7 +1,9 @@
 # Week 13 — San Francisco: One Step Ahead
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(13, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 13` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(13, ...)` stub is retired)  
 **Prerequisite:** Week 12 (Los Angeles) closes and hands off via the "uncut frame — a bridge in fog" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"One Step
@@ -13,6 +15,22 @@
 > input, no depth tiers, no Bureau-takeover reveal, no Season Two lore.** Selena
 > escapes as she always does — that is the whole point of the title. See
 > `season-scope.md`.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the season-close card match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
+>
+> ✅ **N6 resolved — finale softened (owner decision, 2026-07-18).** The owner
+> chose no dramatic season-payoff ending. This pack now carries the softened
+> copy: the "Your move." note and the "You were never chasing a thief. You were
+> training to notice. Until the next city." reframe are removed from the
+> close-encounter/interception evidence and the interception story. **This pack
+> is now ahead of `seasonOne.ts`** — Codex applies the matching string changes
+> on the `codex/cities-buildout` branch (exact old→new strings posted on PR #6).
+> Until then, the code carries the pre-decision copy.
 
 ---
 
@@ -72,8 +90,7 @@
 ## Field Ops — Intel landmarks (San Francisco, 5 slots)
 
 The five most well-known San Francisco landmarks. Fun facts are the decode reward
-— they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 13 is implemented.
+— they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Golden Gate Bridge ("International Orange" for fog visibility); Alcatraz (former "inescapable" prison, now a ferry-access national park); Fisherman's Wharf (sea lions, sourdough, Pier 39); Lombard Street ("crookedest street," eight switchbacks); SF Cable Cars (last manually operated cable-car system in the world). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -146,16 +163,16 @@ fixture when Week 13 is implemented.
 **Headline:** CLOSE ENCOUNTER  
 **Story:** {{groupName}} finished nearly all of the combined target and reached the bridge as the fog came in. A toll worker confirmed Selena had stood at the rail, looking back the way she'd come, until the unit was almost on her — then walked into the white and was gone.  
 **Selena:** "You came this far chasing me. Ask what else you found on the way." — S.C.  
-**Evidence body (enhanced):** A record of the whole pursuit — thirteen cities, closed in one hand. Where the final entry should be, there is only a note: "Your move."
+**Evidence body (enhanced):** A record of the whole pursuit — thirteen cities, closed in one hand. The final entry is dated, initialed, and left otherwise blank.
 
 ---
 
 ### Interception (≥ 100%)
 
 **Headline:** SELENA INTERCEPTED  
-**Story:** {{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and said the chase was never the point; the noticing was. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.  
+**Story:** {{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and nodded once, the way one professional acknowledges another. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.  
 **Selena:** "You caught me at the edge of the country, using everything you learned to get here. No one has ever done that. Whatever comes next, you are ready for it." — S.C.  
-**Evidence body (intercept clue, enhanced):** A folded note left with the file: "You were never chasing a thief. You were training to notice. Until the next city. — S.C."
+**Evidence body (intercept clue, enhanced):** A folded note left with the file: "You kept pace with me for thirteen cities. No one else ever has. Rest well. — S.C."
 
 ---
 
@@ -169,8 +186,8 @@ fixture when Week 13 is implemented.
 | Title | THE FINAL RECORD | THE LAST NOTE |
 | Basic body | A slim case file recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit. | *(intercept clues only unlock on interception)* |
 | Standard body | A record of the entire chase, city by city, closed out in a single hand. The last line is left blank. | A folded note left with the file, addressed to the unit by its call sign. |
-| Enhanced body | A record of the whole pursuit — thirteen cities, closed in one hand. Where the final entry should be, there is only a note: "Your move." | A folded note: "You were never chasing a thief. You were training to notice. Until the next city. — S.C." |
-| Highlighted fragment | "Your move." | "You were never chasing a thief. You were training to notice." |
+| Enhanced body | A record of the whole pursuit — thirteen cities, closed in one hand. The final entry is dated, initialed, and left otherwise blank. | A folded note: "You kept pace with me for thirteen cities. No one else ever has. Rest well. — S.C." |
+| Highlighted fragment | "dated, initialed, and left otherwise blank" | "You kept pace with me for thirteen cities. No one else ever has." |
 | Icon key | file | note |
 
 ---
@@ -192,35 +209,44 @@ season-close card.
 
 ---
 
-## Bingo items (San Francisco-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 13.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `sanfrancisco_before_noon` | Morning Fog: 1,000 steps before noon | movement |
-| `sanfrancisco_full_crossing` | Full Crossing: hit 100% of daily target | movement |
-| `sanfrancisco_hill_run` | Hill Run: 5,000 steps in a day | movement |
-| `sanfrancisco_long_bridge` | Long Bridge: 10,000 steps in a day | movement |
-| `sanfrancisco_cable_line` | Cable Line: steps two days running | streak |
-| `sanfrancisco_partner_walk` | Cross the bridge with someone — friend, family, or pet | social |
-| `sanfrancisco_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `sanfrancisco_evening_fog` | Evening Fog: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `sanfrancisco_before_noon` | Morning Fog: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `sanfrancisco_full_crossing` | Full Crossing: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `sanfrancisco_hill_run` | Hill Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `sanfrancisco_long_bridge` | Long Bridge: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `sanfrancisco_cable_line` | Cable Line: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `sanfrancisco_partner_walk` | Cross the bridge with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `sanfrancisco_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `sanfrancisco_evening_fog` | Evening Fog: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(13, "San Francisco", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block. `nextCityName` is
-  empty — use the season-close card copy above, not the structural default.
-- Evidence IDs `week13_final_record` and `week13_last_note` go into the `evidence`
-  array in `SEASON_ONE_CONFIG`.
-- **Finale is not a special build.** "Final Convergence" reuses the existing chase
-  calculator with a larger combined target and all inputs active. **No
-  season-evidence input, no `finaleDepthTier` dependency, no new endgame system.**
-  Rule #6 / `season-scope.md`.
-- The season close and the last note must not open a Season Two mystery, decrypt a
-  location, or resolve any Bureau conspiracy. Keep it an open, optional beat.
-- Selena escapes on every outcome, including interception — the "one step ahead"
-  ending is intentional and in scope.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 13`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Final Convergence** (⚠️ simplified) — ships as Platform Sweep flavor that thematically references every system; there is **no** combined-target engine, no depth tiers, and no season-evidence input. Standard weekly loop.
+- **Platform Sweep flavor (ships):** "The season's last target takes every system at once. Bureau analysts need the whole unit — steps, ops, predictions, and the duel — converging before Sunday." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- This is the **season finale** — `nextCityTeaser` is empty (no next city). The recovered file / closing note is standalone flavor; it does **not** resolve a cross-week arc (rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

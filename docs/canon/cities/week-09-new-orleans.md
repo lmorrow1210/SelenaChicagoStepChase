@@ -1,13 +1,22 @@
 # Week 9 — New Orleans: The Second Line
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(9, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 9` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(9, ...)` stub is retired)  
 **Prerequisite:** Week 8 (Savannah) closes and hands off via the "kept in a New Orleans song" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Second
 > Line"* / complication *"Changing Rhythm"* per
 > [`../season-one-route.md`](../season-one-route.md). The Rhythmic Key is a
 > standalone artifact — **no** encoded-in-living-practice network lore.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -67,8 +76,7 @@
 ## Field Ops — Intel landmarks (New Orleans, 5 slots)
 
 The five most well-known New Orleans landmarks. Fun facts are the decode reward —
-they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 9 is implemented.
+they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — St. Louis Cathedral (oldest continuously operating cathedral in the US; current form 1850); Bourbon Street (laid out 1721, named for the House of Bourbon); Café du Monde (since 1862); Preservation Hall (nightly trad jazz since 1961); St. Charles Streetcar (oldest continuously operating streetcar line in the world, since 1835). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -179,35 +187,44 @@ fixture when Week 9 is implemented.
 
 ---
 
-## Bingo items (New Orleans-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 9.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `neworleans_before_noon` | Morning Second Line: 1,000 steps before noon | movement |
-| `neworleans_full_measure` | Full Measure: hit 100% of daily target | movement |
-| `neworleans_parade_run` | Parade Run: 5,000 steps in a day | movement |
-| `neworleans_long_avenue` | Long Avenue: 10,000 steps in a day | movement |
-| `neworleans_keep_time` | Keep Time: steps two days running | streak |
-| `neworleans_partner_walk` | Second-line with someone — friend, family, or pet | social |
-| `neworleans_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `neworleans_night_set` | Night Set: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `neworleans_before_noon` | Morning Second Line: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `neworleans_full_measure` | Full Measure: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `neworleans_parade_run` | Parade Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `neworleans_long_avenue` | Long Avenue: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `neworleans_keep_time` | Keep Time: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `neworleans_partner_walk` | Second-line with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `neworleans_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `neworleans_night_set` | Night Set: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(9, "New Orleans", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week09_rhythmic_key` and `week09_dead_interval` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Changing Rhythm" adjusts daily targets slightly by prior-day performance using
-  existing daily-target/streak systems. **Keep the adjustment small and always
-  show the player the current target** (trust rule — no hidden math). Confirm the
-  daily-target pipeline supports a per-day modifier before wiring.
-- The Austin frequency reference is flavor for Week 10's "Dead Air." It resolves
-  nothing.
-- The Rhythmic Key is a standalone rhythm cipher. Do **not** frame it as a node
-  encoded in living cultural practice to evade a database — that is parked lore.
-  Rule #6.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 9`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Changing Rhythm** — "daily targets vary by prior performance" is **not** implemented; targets are unchanged. Ships as copy about consistency and recovery only.
+- **Platform Sweep flavor (ships):** "The second line only holds if enough of the unit keeps the beat together. Bureau analysts need the group in step through the parade window." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.
