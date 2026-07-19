@@ -271,7 +271,7 @@ const FIXTURES: Record<string, unknown> = {
         id: "final_push_close_encounter",
         category: "ritual",
         headline: "FINAL PUSH",
-        body: "Selena is close enough to become inconvenient. Field Ops and the Platform Sweep can still close the last gap.",
+        body: "Two days remain before the Sunday cutoff. Field Ops and the Platform Sweep can still close the last gap.",
         selena: "You are close enough to become inconvenient.",
         ctaLabel: "Review the pursuit",
         ctaHref: "/map",
