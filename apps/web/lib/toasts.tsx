@@ -98,7 +98,7 @@ function BeatToast({ message, onClose }: { message: string; onClose: () => void 
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           minWidth: 44,
-          minHeight: 32,
+          minHeight: 44,
         }}
       >
         File

@@ -28,7 +28,11 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
 
   // Per-screen tab titles — history and tab bars read like a real app.
   useEffect(() => {
-    const section = pathname.startsWith("/dossier") ? "The Dossier" : SECTION_TITLES[active];
+    const section = pathname.startsWith("/dossier")
+      ? "The Dossier"
+      : pathname.startsWith("/evidence")
+        ? "Evidence Board"
+        : SECTION_TITLES[active];
     if (section) document.title = `${section} · One Step Ahead`;
   }, [pathname, active]);
 

@@ -353,6 +353,19 @@ export default function MapPage() {
     .slice(0, 3)
     .map((entry) => entry.message);
   const progressPercent = season ? Math.round(season.chase.finalProgress * 1000) / 10 : null;
+  const viewerWeekSteps =
+    data.leaderboard.find((player) => player.user_id === session.user?.id)?.steps
+    ?? data.progressStrip.find((player) => player.user_id === session.user?.id)?.steps
+    ?? null;
+  const viewerContributionPercent =
+    season && viewerWeekSteps != null && season.chase.snapshottedTarget > 0
+      ? Math.round((viewerWeekSteps / season.chase.snapshottedTarget) * 1000) / 10
+      : null;
+  const showViewerContribution =
+    viewerWeekSteps != null
+    && viewerContributionPercent != null
+    && season?.dataConfidence !== "incomplete"
+    && season?.dataConfidence !== "recalculating";
   const fieldOpsBonusRemaining = season ? Math.max(0, 0.05 - season.chase.fieldOpsBonus) : 0;
   const sweepBonusRemaining = season
     ? Math.max(0, season.platformSweep.maxBonus - season.platformSweep.earnedBonus)
@@ -360,6 +373,10 @@ export default function MapPage() {
   const daysRemaining = data.week
     ? Math.max(0, Math.ceil((Date.parse(`${data.week.ends_on}T23:59:00Z`) - Date.now()) / 86_400_000))
     : 0;
+  const showPrimaryBeat = Boolean(
+    season?.primaryBeat
+    && !(season.phase === "final_push" && season.primaryBeat.id.startsWith("final_push")),
+  );
 
   return (
     <main className="mapPage">
@@ -491,13 +508,20 @@ export default function MapPage() {
             </p>
           )}
 
+          {showViewerContribution && (
+            <p className="gapHint">
+              Your {formatNumber(viewerWeekSteps)} verified steps closed{" "}
+              <b>{viewerContributionPercent}%</b> of Selena&apos;s starting lead.
+            </p>
+          )}
+
           {/* Supporting transparency — the percentage stays available but
               never leads the presentation. */}
           {progressPercent != null && (
             <p className="gapHint">
               {progressPercent}% of the weekly pursuit completed
               {season && season.chase.totalNonStepBonus > 0
-                ? ` (incl. +${Math.round(season.chase.totalNonStepBonus * 1000) / 10}% from field systems)`
+                ? ` (incl. +${Math.round(season.chase.totalNonStepBonus * 1000) / 10}% from Field Ops and bonuses)`
                 : ""}
             </p>
           )}
@@ -526,7 +550,7 @@ export default function MapPage() {
               season.previousCase && previousCaseConfig ? () => setCaseReportOpen(true) : undefined
             }
           />
-          {season.primaryBeat && season.phase !== "case_closing" && (
+          {showPrimaryBeat && season.primaryBeat && season.phase !== "case_closing" && (
             <NarrativeBeatPanel beat={season.primaryBeat} />
           )}
         </div>

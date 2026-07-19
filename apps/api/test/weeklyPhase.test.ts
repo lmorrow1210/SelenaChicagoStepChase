@@ -103,6 +103,18 @@ describe("calculateWeeklyPhase", () => {
     })).toEqual({ phase: "case_closed", shouldShowModal: "case_closed" });
   });
 
+  it("keeps the case closing while a finalized result is recalculating", () => {
+    expect(calculateWeeklyPhase({
+      ...baseInput(),
+      weekStatus: "closed",
+      finalOutcome: "close_encounter",
+      finalizedAt: new Date("2026-06-15T05:10:00Z"),
+      dataConfidence: "recalculating",
+      caseClosedViewed: false,
+      now: new Date("2026-06-15T06:00:00Z"),
+    })).toEqual({ phase: "case_closing", shouldShowModal: null });
+  });
+
   it("uses the group timezone for phase transitions", () => {
     const chicago = calculateWeeklyPhase({
       ...baseInput(),

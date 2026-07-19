@@ -47,6 +47,16 @@ export function CaseClosedReport({
   const standardEvidence = getEvidence(weekConfig.evidence.standardEvidenceId);
   const interceptClue = getEvidence(weekConfig.evidence.interceptClueId);
   const teaser = weekConfig.nextCityTeaser;
+  const showSelena = data.dataConfidence === "verified";
+  const unitProgress =
+    data.groupTotalSteps != null && data.finalProgress != null
+      ? `${data.groupName} logged ${numberFormat.format(data.groupTotalSteps)} verified steps and closed ${Math.round(data.finalProgress * 1000) / 10}% of Selena's starting lead.`
+      : "The Bureau is still reconciling the final unit totals.";
+  const trustNote = showSelena
+    ? null
+    : data.dataConfidence === "recalculating"
+      ? "Late field reports arrived. Selena's closing note is withheld while the Bureau reconciles the result."
+      : "Field reports are not fully verified. Selena's closing note is withheld until the record is trusted.";
   const evidenceBody = data.outcome === "trail_lost"
     ? standardEvidence?.basicBody ?? standardEvidence?.body
     : data.outcome === "close_encounter" || data.outcome === "interception"
@@ -63,7 +73,7 @@ export function CaseClosedReport({
       </h1>
 
       <p className="story">{fill(close.story, data.groupName)}</p>
-      <SelenaLine>{close.selena}</SelenaLine>
+      {showSelena ? <SelenaLine>{close.selena}</SelenaLine> : <p className="trustNote" role="status">{trustNote}</p>}
 
       <section className="reportSection" aria-label="Recovered evidence">
         <h2>Recovered evidence</h2>
@@ -84,6 +94,7 @@ export function CaseClosedReport({
 
       <section className="reportSection" aria-label="Group accomplishments">
         <h2>Unit report</h2>
+        <p className="achievement">{unitProgress}</p>
         <dl className="stats">
           <div>
             <dt>Verified steps</dt>
@@ -110,7 +121,7 @@ export function CaseClosedReport({
       <section className="reportSection teaser" aria-label="Next city">
         <h2>{teaser.header}</h2>
         <p className="teaserBody">{teaser.body}</p>
-        <SelenaLine>{teaser.selena}</SelenaLine>
+        {showSelena && <SelenaLine>{teaser.selena}</SelenaLine>}
         <button type="button" className="primary" onClick={onDismiss}>
           {teaser.cta}
         </button>
@@ -133,6 +144,18 @@ export function CaseClosedReport({
           font-size: var(--fs-body);
           color: var(--phosphor);
           white-space: pre-line;
+        }
+        .trustNote,
+        .achievement {
+          margin: 0;
+          font-family: var(--font-body);
+          font-size: var(--fs-body-sm);
+          color: var(--phosphor);
+        }
+        .trustNote {
+          border: 1px dashed var(--hairline);
+          padding: var(--sp-2) var(--sp-3);
+          color: var(--phosphor-dim);
         }
         .reportSection {
           display: flex;
