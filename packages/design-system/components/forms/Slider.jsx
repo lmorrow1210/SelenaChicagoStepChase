@@ -35,7 +35,7 @@ export function Slider({
           </span>
         </div>
       )}
-      <div style={{ position: 'relative', height: 28, display: 'flex', alignItems: 'center' }}>
+      <div style={{ position: 'relative', height: 'var(--touch-min)', display: 'flex', alignItems: 'center' }}>
         <div style={{
           position: 'absolute', left: 0, right: 0, height: 8,
           background: 'var(--screen-700)', boxShadow: 'var(--screen-inset-shadow)',
@@ -52,7 +52,7 @@ export function Slider({
           style={{
             position: 'absolute', left: 0, right: 0, width: '100%',
             margin: 0, appearance: 'none', WebkitAppearance: 'none',
-            background: 'transparent', height: 28, cursor: disabled ? 'not-allowed' : 'pointer',
+            background: 'transparent', height: 'var(--touch-min)', cursor: disabled ? 'not-allowed' : 'pointer',
           }}
           className="sc-slider"
         />
