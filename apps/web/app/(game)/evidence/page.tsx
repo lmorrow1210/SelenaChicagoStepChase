@@ -42,7 +42,7 @@ export default function EvidencePage() {
   if (board.isError || !board.data) {
     return (
       <main className="evidencePage">
-        <EmptyState icon="globe" title="Evidence locker unavailable" body="Join a group to open the season file." />
+        <EmptyState icon="globe" title="Evidence locker unavailable" body="Join a group to open the chase file." />
         <Styles />
       </main>
     );
@@ -52,7 +52,7 @@ export default function EvidencePage() {
     <main className="evidencePage">
       <header>
         <p className="kicker">[ Bureau evidence locker ]</p>
-        <h1>Season Evidence</h1>
+        <h1>Chase Evidence</h1>
       </header>
       <EvidenceBoard board={board.data} />
       <Styles />
