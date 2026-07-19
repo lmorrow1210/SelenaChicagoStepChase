@@ -219,8 +219,9 @@ export default function FieldOpsPage() {
           <p className="stamped">[ Field ops ]</p>
           <h1>Scouting ahead: {recon}</h1>
           <p className="opsSub">
-            Complete lines of step goals to scout {recon}, the next city on her trail — each line
-            unlocks a city landmark and adds to your team&apos;s chase bonus.
+            This is a bingo board — steps, workouts, and team challenges. Complete five tiles in a
+            row to scout {recon}, the next city on her trail: each line unlocks a city landmark and
+            adds to your team&apos;s chase bonus.
           </p>
           {seasonWeek && (
             <p className="opsComplication">

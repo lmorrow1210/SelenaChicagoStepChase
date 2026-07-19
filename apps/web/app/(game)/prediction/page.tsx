@@ -14,9 +14,9 @@ export default function PredictionPage() {
         <h1>Prediction</h1>
         <p className="predictionQuestion">How close will your unit get to Selena by Sunday night?</p>
         <p className="predictionPageSub">
-          Predict the unit&apos;s total verified steps this week. Predictions remain sealed
-          until the configured reveal condition; the closest call earns Oracle, and full
-          participation adds up to 1% to the chase.
+          Predict the unit&apos;s total verified steps this week. Predictions stay sealed until
+          Sunday 11:59 PM; the closest call earns Oracle, and everyone predicting adds up to 1%
+          to the chase.
         </p>
         <SundayCountdown style={{ marginTop: "var(--sp-2)" }} />
       </header>

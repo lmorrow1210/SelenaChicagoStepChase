@@ -55,7 +55,7 @@ export default function LoginPage() {
           <h1>Catch Selena</h1>
           <p className="brief">
             She&apos;s one step ahead — a new city every week. Connect your step
-            tracker, out-walk her with your squad, and decode the trail she
+            tracker, out-walk her with your team, and decode the trail she
             leaves behind.
           </p>
           {DEMO ? (
