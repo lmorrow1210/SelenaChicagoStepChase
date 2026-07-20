@@ -714,7 +714,7 @@ const WEEK_THIRTEEN_RITUALS: WeekRitualCopy = {
     strongPace: {
       headline: "THE GAP IS CLOSING",
       body: "{{groupName}} erased {{gapClosedPercent}}% of Selena's lead in the first two days.\n\nSteps, ops, predictions, the duel — all of it is feeding the same target now.",
-      selena: "You are using everything at once. That is what the whole season was for. I can feel it behind me.",
+      selena: "You are using everything at once. That is what the whole chase was for. I can feel it behind me.",
       cta: "Review the new lead",
     },
     expectedPace: {
@@ -734,7 +734,7 @@ const WEEK_THIRTEEN_RITUALS: WeekRitualCopy = {
     },
     storyReveal: {
       headline: "EVERYTHING CONVERGING",
-      body: "Every system the unit has counts now, and it is closing on the season's final target from every side.",
+      body: "Every system the unit has counts now, and it is closing on the final target from every side.",
     },
   },
   finalPush: {
@@ -743,11 +743,11 @@ const WEEK_THIRTEEN_RITUALS: WeekRitualCopy = {
   },
   suddenDeath: {
     headline: "SUDDEN DEATH",
-    body: "Five days even. The season's last duel comes down to Saturday.",
+    body: "Five days even. The last duel comes down to Saturday.",
     selena: "The last day of the last city, and you and your rival are still tied. I could not have written it better.",
   },
   specialOperationFiction:
-    "The season's last target takes every system at once. Bureau analysts need the whole unit — steps, ops, predictions, and the duel — converging before Sunday.",
+    "The final target takes every system at once. Bureau analysts need the whole unit — steps, ops, predictions, and the duel — converging before Sunday.",
 };
 
 // All 13 weeks are now fully implemented inline below. The `structuralWeek`
@@ -1646,7 +1646,7 @@ export const SEASON_ONE_CONFIG = {
         id: "final_convergence",
         label: "Final Convergence",
         summary:
-          "The season's last city. Everything the unit has learned converges on one larger target: steps, Field Ops, predictions, and nemesis results each contribute modestly to the week's combined goal. No new tricks — just the whole game at once.",
+          "The last city. Everything the unit has learned converges on one larger target: steps, Field Ops, predictions, and nemesis results each contribute modestly to the week's combined goal. No new tricks — just the whole game at once.",
       },
       rituals: WEEK_THIRTEEN_RITUALS,
       briefing: {
@@ -1658,7 +1658,7 @@ export const SEASON_ONE_CONFIG = {
           "Your unit has been assigned to close the distance one final time. She has stayed one step ahead for thirteen weeks. Find out what happens when you stop chasing the version of her you were shown and chase the real one.",
         ],
         supportingCards: [
-          { id: "field_ops", title: "FIELD OPS", body: "Every system counts this week — Field Ops feed the season's final combined target." },
+          { id: "field_ops", title: "FIELD OPS", body: "Every system counts this week — Field Ops feed the final combined target." },
           { id: "prediction", title: "PREDICTION", body: "Your call contributes to the finale target. Make it count." },
           { id: "nemesis", title: "NEMESIS", body: "Five daily rounds against your assigned rival. Most verified steps wins the day." },
         ],
@@ -1680,12 +1680,12 @@ export const SEASON_ONE_CONFIG = {
           headline: "TRAIL LOST",
           story: "The unit brought everything to the last city and still came up short of the water. Selena crossed the bridge into the fog while the combined target sat unfinished — one step ahead at the end, the way she had been at the start.",
           selena: "You reached the platform too late — but not too late to understand it.",
-          nextLead: "A slim case file was recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit.",
+          nextLead: "A slim case file was recovered at the north end of the Golden Gate Bridge — the last page of the chase.",
         },
         pursuit_maintained: {
           headline: "PURSUIT MAINTAINED",
           story: "{{groupName}} brought every system to bear and closed most of the combined target, holding Selena in sight all the way to the coast. She reached the bridge first — but only just, and she knew it.",
-          selena: "You used the whole season at once and nearly caught me with it. Nearly.",
+          selena: "You used the whole chase at once and nearly caught me with it. Nearly.",
           nextLead: "A record of the entire chase, city by city, closed out in a single hand.",
         },
         close_encounter: {
@@ -1703,10 +1703,10 @@ export const SEASON_ONE_CONFIG = {
       },
       nextCityTeaser: {
         cityName: "",
-        header: "SEASON ONE COMPLETE",
-        body: "The pursuit reached the coast. Thirteen cities, one season, one villain who stayed a step ahead to the end. The file is closed — for now.",
+        header: "THE CASE IS CLOSED",
+        body: "The pursuit reached the coast. Thirteen cities, one chase, one villain who stayed a step ahead to the end. The file is closed — for now.",
         selena: "You made it to the water. That is farther than anyone before you. Rest. The next city can wait.",
-        cta: "Review the season",
+        cta: "Review the chase",
       },
     },
   ],
@@ -2017,7 +2017,7 @@ export const SEASON_ONE_CONFIG = {
       cityName: "San Francisco",
       title: "THE FINAL RECORD",
       body: "A record of the entire chase, city by city, closed out in a single hand. The last line is left blank.",
-      basicBody: "A slim case file recovered at the north end of the Golden Gate Bridge — the last page of the season's pursuit.",
+      basicBody: "A slim case file recovered at the north end of the Golden Gate Bridge — the last page of the chase.",
       enhancedBody: "A record of the whole pursuit — thirteen cities, closed in one hand. The final entry is dated, initialed, and left otherwise blank.",
       highlightedFragment: "dated, initialed, and left otherwise blank",
       iconKey: "file",
