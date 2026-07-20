@@ -5,6 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
     "gen:api-types": "openapi-typescript ../api/openapi.yaml -o lib/api-types.d.ts"
   },
   "dependencies": {
@@ -18,7 +19,10 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
+    "@types/react-test-renderer": "^18.3.1",
     "openapi-typescript": "^7.13.0",
-    "typescript": "^5.5.0"
+    "react-test-renderer": "^18.3.1",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.9"
   }
 }

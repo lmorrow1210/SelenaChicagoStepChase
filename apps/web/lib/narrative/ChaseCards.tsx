@@ -386,37 +386,3 @@ export function SystemCards({ cards }: { cards: SystemCardData[] }) {
     </div>
   );
 }
-
-/** Compact team activity — at most three recent events, not a feed. */
-export function TeamActivity({ events }: { events: string[] }) {
-  if (!events.length) return null;
-  return (
-    <ChaseCard eyebrow="Unit activity" ariaLabel="Recent team activity">
-      <ul className="activity">
-        {events.slice(0, 3).map((event, index) => (
-          <li key={`${index}-${event.slice(0, 24)}`}>{event}</li>
-        ))}
-      </ul>
-      <style jsx>{`
-        .activity {
-          margin: 0;
-          padding: 0;
-          list-style: none;
-          display: grid;
-          gap: var(--sp-1);
-        }
-        .activity li {
-          font-family: var(--font-body);
-          font-size: var(--fs-body-sm);
-          color: var(--phosphor);
-          border-top: 1px solid var(--hairline);
-          padding-top: var(--sp-1);
-        }
-        .activity li:first-child {
-          border-top: 0;
-          padding-top: 0;
-        }
-      `}</style>
-    </ChaseCard>
-  );
-}

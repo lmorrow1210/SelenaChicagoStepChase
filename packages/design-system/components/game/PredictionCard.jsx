@@ -27,11 +27,13 @@ export function PredictionCard({
   onSubmit,
   submitted = false,
   prediction,           // formatted string shown once filed
+  disabled = false,
   stakeNote = 'Stake: the closest call takes Oracle honors when the board seals.',
   teammates,            // optional node — teammate preview strip
   style,
 }) {
   const clamp = (n) => Math.max(min, Math.min(max, n));
+  const controlsDisabled = disabled || submitted;
 
   function handleInput(e) {
     const digits = String(e.target.value).replace(/[^\d]/g, '');
@@ -95,6 +97,7 @@ export function PredictionCard({
               min={min}
               max={max}
               step={step}
+              disabled={controlsDisabled}
               onChange={(v) => onChange && onChange(v)}
             />
 
@@ -105,12 +108,20 @@ export function PredictionCard({
               inputMode="numeric"
               value={value ? fmt(value) : ''}
               onChange={handleInput}
+              disabled={controlsDisabled}
               inputStyle={{ fontSize: 26, color: 'var(--phosphor)' }}
             />
 
             {teammates}
 
-            <Button variant="primary" size="lg" fullWidth iconRight="chevronRight" onClick={onSubmit}>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              iconRight="chevronRight"
+              disabled={controlsDisabled}
+              onClick={onSubmit}
+            >
               File forecast
             </Button>
 
