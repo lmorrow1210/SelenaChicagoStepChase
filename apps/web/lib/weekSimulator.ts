@@ -44,6 +44,16 @@ export const WEEK_SIMULATOR_CONFIDENCE: DataConfidence[] = [
   "recalculating",
 ];
 
+export const WEEK_SIMULATOR_NEMESIS_MODES = [
+  "none",
+  "partial",
+  "complete",
+  "tiebreak",
+  "bye",
+] as const;
+
+export type WeekSimulatorNemesisMode = typeof WEEK_SIMULATOR_NEMESIS_MODES[number];
+
 export const WEEK_SIMULATOR_WEEKS = SEASON_ONE_CONFIG.route.map((week) => ({
   weekNumber: week.weekNumber,
   cityName: week.cityName,
@@ -59,7 +69,7 @@ export interface WeekSimulatorControls {
   fieldOpsAverageLines: 0 | 1 | 2 | 3;
   platformSweepContributors: 0 | 1 | 2 | 3 | 4;
   platformSweepActive: boolean;
-  nemesisMode: "none" | "partial" | "complete";
+  nemesisMode: WeekSimulatorNemesisMode;
   predictionSubmitted: boolean;
   briefingViewed: boolean;
   evidenceUnlocked: boolean;
@@ -106,6 +116,13 @@ export interface WeekSimulatorState {
     };
   };
   evidenceBoard: EvidenceBoardData;
+  nemesisPreview: {
+    mode: WeekSimulatorNemesisMode;
+    status: "none" | "active" | "resolved" | "tiebreak" | "bye";
+    label: string;
+    body: string;
+    bonusPreview: number;
+  };
   ritualFlags: {
     suddenDeathActive: boolean;
     predictionSubmitted: boolean;
@@ -146,6 +163,46 @@ export function progressForOutcome(outcome: WeeklyOutcome): number {
     case "interception":
       return 1.02;
   }
+}
+
+export function parseWeekSimulatorControls(input: string | URLSearchParams | { get(name: string): string | null }): WeekSimulatorControls {
+  const params = typeof input === "string" ? new URLSearchParams(input) : input;
+  const phase = parseEnumParam(params, "phase", WEEK_SIMULATOR_PHASES, DEFAULT_WEEK_SIMULATOR_CONTROLS.phase);
+  const outcome = parseEnumParam(params, "outcome", WEEK_SIMULATOR_OUTCOMES, DEFAULT_WEEK_SIMULATOR_CONTROLS.outcome);
+  const dataConfidence = parseEnumParam(
+    params,
+    "dataConfidence",
+    WEEK_SIMULATOR_CONFIDENCE,
+    parseEnumParam(params, "confidence", WEEK_SIMULATOR_CONFIDENCE, DEFAULT_WEEK_SIMULATOR_CONTROLS.dataConfidence),
+  );
+  const evidenceDefault = phase === "case_closed" ? true : DEFAULT_WEEK_SIMULATOR_CONTROLS.evidenceUnlocked;
+  const interceptDefault = phase === "case_closed" && outcome === "interception"
+    ? true
+    : DEFAULT_WEEK_SIMULATOR_CONTROLS.interceptUnlocked;
+  const evidenceUnlocked = parseBooleanParam(params, "evidence", evidenceDefault);
+  const interceptUnlocked = parseBooleanParam(params, "intercept", interceptDefault);
+  const parsedBaseProgress = parseNumberParam(params, "baseProgress", Number.NaN);
+
+  return {
+    weekNumber: parseIntegerOption(
+      params,
+      "week",
+      WEEK_SIMULATOR_WEEKS.map((week) => week.weekNumber),
+      DEFAULT_WEEK_SIMULATOR_CONTROLS.weekNumber,
+    ),
+    phase,
+    outcome,
+    dataConfidence,
+    baseProgress: Number.isFinite(parsedBaseProgress) ? parsedBaseProgress : progressForOutcome(outcome),
+    fieldOpsAverageLines: parseIntegerOption(params, "fieldOps", [0, 1, 2, 3], DEFAULT_WEEK_SIMULATOR_CONTROLS.fieldOpsAverageLines) as WeekSimulatorControls["fieldOpsAverageLines"],
+    platformSweepContributors: parseIntegerOption(params, "platformSweep", [0, 1, 2, 3, 4], DEFAULT_WEEK_SIMULATOR_CONTROLS.platformSweepContributors) as WeekSimulatorControls["platformSweepContributors"],
+    platformSweepActive: parseBooleanParam(params, "sweepActive", DEFAULT_WEEK_SIMULATOR_CONTROLS.platformSweepActive),
+    nemesisMode: parseEnumParam(params, "nemesis", WEEK_SIMULATOR_NEMESIS_MODES, DEFAULT_WEEK_SIMULATOR_CONTROLS.nemesisMode),
+    predictionSubmitted: parseBooleanParam(params, "prediction", DEFAULT_WEEK_SIMULATOR_CONTROLS.predictionSubmitted),
+    briefingViewed: parseBooleanParam(params, "briefing", DEFAULT_WEEK_SIMULATOR_CONTROLS.briefingViewed),
+    evidenceUnlocked,
+    interceptUnlocked: interceptUnlocked && outcome === "interception",
+  };
 }
 
 export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSimulatorState {
@@ -271,6 +328,7 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
       },
     },
     evidenceBoard: buildEvidenceBoard(controls, weekConfig),
+    nemesisPreview: nemesisPreviewForMode(controls.nemesisMode),
     ritualFlags: {
       suddenDeathActive: phaseFixture.suddenDeathActive,
       predictionSubmitted: controls.predictionSubmitted,
@@ -375,10 +433,55 @@ function nemesisForMode(mode: WeekSimulatorControls["nemesisMode"]) {
   if (mode === "complete") {
     return { activePlayerCount: ACTIVE_PLAYERS, participantsWithActivity: ACTIVE_PLAYERS, allMatchupsResolved: true };
   }
-  if (mode === "partial") {
+  if (mode === "partial" || mode === "tiebreak") {
     return { activePlayerCount: ACTIVE_PLAYERS, participantsWithActivity: 3, allMatchupsResolved: false };
   }
   return { activePlayerCount: ACTIVE_PLAYERS, participantsWithActivity: 0, allMatchupsResolved: false };
+}
+
+function nemesisPreviewForMode(mode: WeekSimulatorNemesisMode): WeekSimulatorState["nemesisPreview"] {
+  switch (mode) {
+    case "complete":
+      return {
+        mode,
+        status: "resolved",
+        label: "Resolved participation",
+        body: "Every qualifying duel has a stamped result.",
+        bonusPreview: 0.01,
+      };
+    case "partial":
+      return {
+        mode,
+        status: "active",
+        label: "70% activity",
+        body: "Most duel activity is logged, but one result is still open.",
+        bonusPreview: 0.005,
+      };
+    case "tiebreak":
+      return {
+        mode,
+        status: "tiebreak",
+        label: "Sudden death",
+        body: "The duel is tied and waiting on one more verified day.",
+        bonusPreview: 0.005,
+      };
+    case "bye":
+      return {
+        mode,
+        status: "bye",
+        label: "No duel this week",
+        body: "Odd one out this week. New pairings arrive Monday.",
+        bonusPreview: 0,
+      };
+    case "none":
+      return {
+        mode,
+        status: "none",
+        label: "No qualifying activity",
+        body: "No nemesis activity is counted toward the chase bonus.",
+        bonusPreview: 0,
+      };
+  }
 }
 
 function fixtureForPhase(phase: WeekPhase) {
@@ -398,6 +501,47 @@ function fixtureForPhase(phase: WeekPhase) {
     case "case_closed":
       return phaseFixture("2026-06-15T06:00:00.000Z", 1, "closed", true, true, true, false);
   }
+}
+
+function parseEnumParam<T extends string>(
+  params: { get(name: string): string | null },
+  name: string,
+  values: readonly T[],
+  fallback: T,
+): T {
+  const value = params.get(name);
+  return value && values.includes(value as T) ? value as T : fallback;
+}
+
+function parseIntegerOption(
+  params: { get(name: string): string | null },
+  name: string,
+  values: readonly number[],
+  fallback: number,
+): number {
+  const value = Number(params.get(name));
+  return Number.isInteger(value) && values.includes(value) ? value : fallback;
+}
+
+function parseNumberParam(
+  params: { get(name: string): string | null },
+  name: string,
+  fallback: number,
+): number {
+  const rawValue = params.get(name);
+  if (rawValue == null) return fallback;
+  const value = Number(rawValue);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function parseBooleanParam(
+  params: { get(name: string): string | null },
+  name: string,
+  fallback: boolean,
+): boolean {
+  const value = params.get(name);
+  if (value == null) return fallback;
+  return value === "1" || value === "true" || value === "yes";
 }
 
 function phaseFixture(

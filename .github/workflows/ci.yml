@@ -37,13 +37,6 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/one_step_ahead_test
       - name: Build web
         run: npm run build -w apps/web
-      - name: Build static demo export
-        run: npm run build -w apps/web
-        env:
-          NEXT_OUTPUT: export
-          NEXT_PUBLIC_DEMO: "1"
-          NEXT_PUBLIC_BASE_PATH: /SelenaChicagoStepChase
-          NEXT_PUBLIC_API_URL: https://example.invalid
       # Design-token adherence (plan §7 / hard rule 4): app code must use
       # tokens, never raw hex. (The design-system bundle itself holds the hex
       # constants, so only app code is gated. oxlint can't run the original
@@ -69,3 +62,25 @@ jobs:
           fi
       - name: WCAG contrast audit (v2 palette)
         run: node scripts/contrast-audit.mjs
+
+  static-demo-export:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        demo_week: [1, 2, 13]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build static demo export for Week ${{ matrix.demo_week }}
+        run: npm run build -w apps/web
+        env:
+          NEXT_OUTPUT: export
+          NEXT_PUBLIC_DEMO: "1"
+          NEXT_PUBLIC_DEMO_WEEK: ${{ matrix.demo_week }}
+          NEXT_PUBLIC_BASE_PATH: /SelenaChicagoStepChase
+          NEXT_PUBLIC_API_URL: https://example.invalid
