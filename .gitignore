@@ -6,3 +6,6 @@ out/
 .env.local
 .DS_Store
 *.tsbuildinfo
+test-results/
+playwright-report/
+.lighthouseci/

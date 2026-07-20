@@ -84,3 +84,21 @@ jobs:
           NEXT_PUBLIC_DEMO_WEEK: ${{ matrix.demo_week }}
           NEXT_PUBLIC_BASE_PATH: /SelenaChicagoStepChase
           NEXT_PUBLIC_API_URL: https://example.invalid
+
+  browser-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Build QA static demo
+        run: npm run qa:demo:build
+      - name: Browser smoke and axe accessibility
+        run: npm run qa:browser
+      - name: Lighthouse budgets
+        run: npm run qa:lighthouse
