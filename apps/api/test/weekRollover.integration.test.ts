@@ -1,6 +1,12 @@
+import type { Server } from "node:http";
+import type { AddressInfo } from "node:net";
 import { resetDatabase } from "./helpers/db.js";
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from "vitest";
+import type { WeeklyOutcome } from "@one-step-ahead/shared";
+import { SEASON_ONE_CONFIG } from "@one-step-ahead/shared/season-one/seasonOne";
+import type { app as expressApp } from "../src/index.js";
 import type { pool as appPool } from "../src/db/pool.js";
+import type { signSession as signSessionFn } from "../src/lib/session.js";
 import type { weekRollover as weekRolloverFn } from "../src/services/weekRollover.js";
 import type { prepareNextWeekReveal as prepareNextWeekRevealFn } from "../src/services/weekRollover.js";
 import type { pairAndPersist as pairAndPersistFn } from "../src/services/nemesisService.js";
@@ -13,13 +19,41 @@ const describeDb = TEST_DATABASE_URL ? describe : describe.skip;
 
 type Pool = typeof appPool;
 
+let app: typeof expressApp;
 let pool: Pool;
+let signSession: typeof signSessionFn;
 let weekRollover: typeof weekRolloverFn;
 let prepareNextWeekReveal: typeof prepareNextWeekRevealFn;
 let pairAndPersist: typeof pairAndPersistFn;
 let createOrGetBingoCard: typeof createCardFn;
 let runGroupSync: typeof runGroupSyncFn;
 let MockFitbitClient: typeof MockFitbitClientClass;
+let server: Server;
+let baseUrl: string;
+let seedCounter = 0;
+
+const OUTCOME_STEPS: Record<WeeklyOutcome, number> = {
+  trail_lost: 50_000,
+  pursuit_maintained: 100_000,
+  close_encounter: 126_000,
+  interception: 140_000,
+};
+
+const SOAK_OUTCOMES: WeeklyOutcome[] = [
+  "trail_lost",
+  "pursuit_maintained",
+  "close_encounter",
+  "interception",
+  "pursuit_maintained",
+  "trail_lost",
+  "close_encounter",
+  "interception",
+  "trail_lost",
+  "pursuit_maintained",
+  "close_encounter",
+  "trail_lost",
+  "interception",
+];
 
 function addDays(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -29,12 +63,24 @@ function addDays(date: string, days: number): string {
 
 async function createUser(label: string, groupId: string | null): Promise<string> {
   const r = await pool.query(
-    `INSERT INTO users (google_sub, email, display_name, group_id)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (google_sub, email, display_name, group_id, fitbit_connected, last_synced_at)
+     VALUES ($1, $2, $3, $4, TRUE, now())
      RETURNING id`,
     [`test-${label}`, `${label}@example.test`, `Player ${label}`, groupId],
   );
   return r.rows[0].id;
+}
+
+function cookieFor(userId: string): string {
+  return `sc_session=${signSession({ user_id: userId })}`;
+}
+
+async function getJson(userId: string, path: string): Promise<any> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    headers: { cookie: cookieFor(userId) },
+  });
+  expect(response.status).toBe(200);
+  return response.json();
 }
 
 async function seedGroupWeek(startsOn = "2026-06-01"): Promise<{
@@ -44,12 +90,14 @@ async function seedGroupWeek(startsOn = "2026-06-01"): Promise<{
   userB: string;
   startsOn: string;
 }> {
+  seedCounter += 1;
   const g = await pool.query(
-    `INSERT INTO groups (name, invite_code) VALUES ('Rollover Test', 'ABCDEF') RETURNING id`,
+    `INSERT INTO groups (name, invite_code) VALUES ('Rollover Test', $1) RETURNING id`,
+    [`RV${String(seedCounter).padStart(4, "0")}`],
   );
   const groupId = g.rows[0].id as string;
-  const userA = await createUser("alice", groupId);
-  const userB = await createUser("bob", groupId);
+  const userA = await createUser(`alice-${seedCounter}`, groupId);
+  const userB = await createUser(`bob-${seedCounter}`, groupId);
 
   const city = await pool.query(`SELECT id FROM cities WHERE route_order = 1`);
   const w = await pool.query(
@@ -75,12 +123,17 @@ describeDb("weekRollover integration", () => {
 
     await resetDatabase(TEST_DATABASE_URL!);
 
+    ({ app } = await import("../src/index.js"));
     ({ pool } = await import("../src/db/pool.js"));
+    ({ signSession } = await import("../src/lib/session.js"));
     ({ weekRollover, prepareNextWeekReveal } = await import("../src/services/weekRollover.js"));
     ({ pairAndPersist } = await import("../src/services/nemesisService.js"));
     ({ createOrGetBingoCard } = await import("../src/services/bingoService.js"));
     ({ runGroupSync } = await import("../src/services/cron.js"));
     ({ MockFitbitClient } = await import("../src/services/fitbitClient.js"));
+
+    server = app.listen(0);
+    baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
 
   beforeEach(async () => {
@@ -88,6 +141,9 @@ describeDb("weekRollover integration", () => {
   });
 
   afterAll(async () => {
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => (err ? reject(err) : resolve()));
+    });
     await pool.end();
   });
 
@@ -285,18 +341,169 @@ describeDb("weekRollover integration", () => {
     expect(Number(nextCards.rows[0].n)).toBe(2);
   });
 
-  it("wraps the city route after the last city", async () => {
+  it("does not prepare a scheduled reveal after the final city", async () => {
     const { groupId, weekId } = await seedGroupWeek();
     const lastCity = await pool.query(
       `SELECT id FROM cities ORDER BY route_order DESC LIMIT 1`,
     );
     await pool.query(`UPDATE weeks SET city_id = $2 WHERE id = $1`, [weekId, lastCity.rows[0].id]);
 
-    const { nextWeekId } = await weekRollover(pool, weekId);
-    const next = await pool.query(
-      `SELECT c.route_order FROM weeks w JOIN cities c ON c.id = w.city_id WHERE w.id = $1`,
-      [nextWeekId],
+    const reveal = await prepareNextWeekReveal(pool, weekId);
+    expect(reveal).toEqual({ nextWeekId: null, seasonComplete: true });
+
+    const weeks = await pool.query(
+      `SELECT COUNT(*)::int AS total,
+              COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled
+       FROM weeks WHERE group_id = $1`,
+      [groupId],
     );
-    expect(Number(next.rows[0].route_order)).toBe(1);
+    expect(Number(weeks.rows[0].total)).toBe(1);
+    expect(Number(weeks.rows[0].scheduled)).toBe(0);
+  });
+
+  it("closes all 13 Season One weeks in order without leaking future evidence or creating week 14", async () => {
+    const { groupId, weekId, userA } = await seedGroupWeek();
+    await pairAndPersist(pool, weekId, groupId);
+
+    let currentWeekId = weekId;
+
+    for (const [index, weekConfig] of SEASON_ONE_CONFIG.route.entries()) {
+      const expectedOutcome = SOAK_OUTCOMES[index];
+      const current = await pool.query(
+        `SELECT w.status, to_char(w.starts_on, 'YYYY-MM-DD') AS starts_on,
+                c.route_order, c.name AS city_name
+         FROM weeks w JOIN cities c ON c.id = w.city_id
+         WHERE w.id = $1`,
+        [currentWeekId],
+      );
+      expect(current.rows[0]).toMatchObject({
+        status: "active",
+        city_name: weekConfig.cityName,
+      });
+      expect(Number(current.rows[0].route_order)).toBe(weekConfig.weekNumber);
+
+      const boardBefore = await getJson(userA, "/api/evidence");
+      for (const futureSlot of boardBefore.weeks.slice(index)) {
+        expect(futureSlot.standardEvidence).toMatchObject({
+          title: "SEALED EVIDENCE",
+          body: null,
+          unlocked: false,
+        });
+        expect(futureSlot.interceptClue).toMatchObject({
+          title: "INTERCEPT CLUE",
+          body: null,
+          unlocked: false,
+        });
+      }
+
+      await pool.query(
+        `INSERT INTO step_logs (user_id, log_date, steps)
+         VALUES ($1, $2::date, $3)
+         ON CONFLICT (user_id, log_date) DO UPDATE SET steps = EXCLUDED.steps`,
+        [userA, current.rows[0].starts_on, OUTCOME_STEPS[expectedOutcome]],
+      );
+
+      const first = await weekRollover(pool, currentWeekId);
+      const second = await weekRollover(pool, currentWeekId);
+      expect(second).toEqual(first);
+
+      const closed = await pool.query(
+        `SELECT status, final_outcome, season_week_number
+         FROM weeks WHERE id = $1`,
+        [currentWeekId],
+      );
+      expect(closed.rows[0]).toMatchObject({
+        status: "closed",
+        final_outcome: expectedOutcome,
+      });
+      expect(Number(closed.rows[0].season_week_number)).toBe(weekConfig.weekNumber);
+
+      const unlocks = await pool.query(
+        `SELECT evidence_id, kind, outcome, COUNT(*)::int AS n
+         FROM group_evidence_unlocks
+         WHERE group_id = $1 AND season_week_number = $2
+         GROUP BY evidence_id, kind, outcome
+         ORDER BY kind DESC, evidence_id`,
+        [groupId, weekConfig.weekNumber],
+      );
+      const unlockedIds = unlocks.rows.map((row) => row.evidence_id);
+      expect(unlockedIds).toContain(weekConfig.evidence.standardEvidenceId);
+      expect(unlockedIds.includes(weekConfig.evidence.interceptClueId)).toBe(
+        expectedOutcome === "interception",
+      );
+      for (const row of unlocks.rows) {
+        expect(row.outcome).toBe(expectedOutcome);
+        expect(Number(row.n)).toBe(1);
+      }
+
+      const boardAfter = await getJson(userA, "/api/evidence");
+      const closedSlot = boardAfter.weeks[index];
+      expect(closedSlot).toMatchObject({
+        weekNumber: weekConfig.weekNumber,
+        cityName: weekConfig.cityName,
+        outcome: expectedOutcome,
+        standardEvidence: { unlocked: true, id: weekConfig.evidence.standardEvidenceId },
+      });
+      expect(closedSlot.standardEvidence.body).toEqual(expect.any(String));
+      if (expectedOutcome === "interception") {
+        expect(closedSlot.interceptClue).toMatchObject({
+          unlocked: true,
+          id: weekConfig.evidence.interceptClueId,
+        });
+        expect(closedSlot.interceptClue.body).toEqual(expect.any(String));
+      } else {
+        expect(closedSlot.interceptClue).toMatchObject({
+          title: "INTERCEPT CLUE",
+          body: null,
+          unlocked: false,
+        });
+      }
+      for (const futureSlot of boardAfter.weeks.slice(index + 1)) {
+        expect(futureSlot.standardEvidence).toMatchObject({ body: null, unlocked: false });
+        expect(futureSlot.interceptClue).toMatchObject({ body: null, unlocked: false });
+      }
+
+      if (index < SEASON_ONE_CONFIG.route.length - 1) {
+        const nextWeekConfig = SEASON_ONE_CONFIG.route[index + 1];
+        expect(first.seasonComplete).toBe(false);
+        expect(first.nextWeekId).toEqual(expect.any(String));
+
+        const currentPayload = await getJson(userA, "/api/weeks/current");
+        expect(currentPayload.seasonState.season.weekNumber).toBe(nextWeekConfig.weekNumber);
+        expect(currentPayload.seasonState.chapter).toMatchObject({
+          city: nextWeekConfig.cityName,
+          nextCity: nextWeekConfig.nextCityTeaser.cityName || null,
+        });
+        expect(currentPayload.seasonState.previousCase).toMatchObject({
+          weekNumber: weekConfig.weekNumber,
+          cityName: weekConfig.cityName,
+          chapterTitle: weekConfig.chapterTitle,
+          outcome: expectedOutcome,
+          viewed: false,
+        });
+
+        currentWeekId = first.nextWeekId!;
+      } else {
+        expect(first).toEqual({ nextWeekId: null, seasonComplete: true });
+
+        const weeks = await pool.query(
+          `SELECT COUNT(*)::int AS total,
+                  COUNT(*) FILTER (WHERE status = 'closed')::int AS closed,
+                  COUNT(*) FILTER (WHERE status = 'active')::int AS active,
+                  COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled,
+                  MAX(c.route_order)::int AS max_route_order
+           FROM weeks w JOIN cities c ON c.id = w.city_id
+           WHERE w.group_id = $1`,
+          [groupId],
+        );
+        expect(weeks.rows[0]).toMatchObject({
+          total: 13,
+          closed: 13,
+          active: 0,
+          scheduled: 0,
+          max_route_order: 13,
+        });
+      }
+    }
   });
 });
