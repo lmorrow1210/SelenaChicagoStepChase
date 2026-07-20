@@ -32,11 +32,9 @@ import {
   ChapterHeader,
   DataConfidenceNotice,
   NarrativeBeatPanel,
-  PlatformSweepCard,
-  PrimaryActionCard,
   SystemCards,
-  TeamActivity,
 } from "../../../lib/narrative/ChaseCards";
+import { PredictionSection } from "./PredictionSection";
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
@@ -227,12 +225,6 @@ export default function MapPage() {
   const map = useMapData(Boolean(session.user));
   const queryClient = useQueryClient();
 
-  // Compact team activity: the three most recent notifications, not a feed.
-  const notifications = useQuery({
-    queryKey: ["map", "activity"],
-    queryFn: () => api<{ notifications: { id: number; message: string }[] }>("/api/notifications"),
-    enabled: Boolean(session.user),
-  });
 
   const seasonState = map.data?.seasonState ?? null;
   const weekId = map.data?.week?.id ?? null;
@@ -349,10 +341,20 @@ export default function MapPage() {
     ? getSeasonWeek(season.previousCase.weekNumber) ?? null
     : null;
   const groupName = session.group?.name ?? "unit";
-  const activityEvents = (notifications.data?.notifications ?? [])
-    .slice(0, 3)
-    .map((entry) => entry.message);
   const progressPercent = season ? Math.round(season.chase.finalProgress * 1000) / 10 : null;
+  const viewerWeekSteps =
+    data.leaderboard.find((player) => player.user_id === session.user?.id)?.steps
+    ?? data.progressStrip.find((player) => player.user_id === session.user?.id)?.steps
+    ?? null;
+  const viewerContributionPercent =
+    season && viewerWeekSteps != null && season.chase.snapshottedTarget > 0
+      ? Math.round((viewerWeekSteps / season.chase.snapshottedTarget) * 1000) / 10
+      : null;
+  const showViewerContribution =
+    viewerWeekSteps != null
+    && viewerContributionPercent != null
+    && season?.dataConfidence !== "incomplete"
+    && season?.dataConfidence !== "recalculating";
   const fieldOpsBonusRemaining = season ? Math.max(0, 0.05 - season.chase.fieldOpsBonus) : 0;
   const sweepBonusRemaining = season
     ? Math.max(0, season.platformSweep.maxBonus - season.platformSweep.earnedBonus)
@@ -360,6 +362,10 @@ export default function MapPage() {
   const daysRemaining = data.week
     ? Math.max(0, Math.ceil((Date.parse(`${data.week.ends_on}T23:59:00Z`) - Date.now()) / 86_400_000))
     : 0;
+  const showPrimaryBeat = Boolean(
+    season?.primaryBeat
+    && !(season.phase === "final_push" && season.primaryBeat.id.startsWith("final_push")),
+  );
 
   return (
     <main className="mapPage">
@@ -491,13 +497,20 @@ export default function MapPage() {
             </p>
           )}
 
+          {showViewerContribution && (
+            <p className="gapHint">
+              Your {formatNumber(viewerWeekSteps)} verified steps closed{" "}
+              <b>{viewerContributionPercent}%</b> of Selena&apos;s starting lead.
+            </p>
+          )}
+
           {/* Supporting transparency — the percentage stays available but
               never leads the presentation. */}
           {progressPercent != null && (
             <p className="gapHint">
               {progressPercent}% of the weekly pursuit completed
               {season && season.chase.totalNonStepBonus > 0
-                ? ` (incl. +${Math.round(season.chase.totalNonStepBonus * 1000) / 10}% from field systems)`
+                ? ` (incl. +${Math.round(season.chase.totalNonStepBonus * 1000) / 10}% from Field Ops and bonuses)`
                 : ""}
             </p>
           )}
@@ -516,28 +529,50 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* ── One deterministic primary action + one primary beat ── */}
-      {season && (
-        <div className="chaseRow">
-          <PrimaryActionCard
-            action={season.primaryAction}
-            onOpenBriefing={weekConfig ? () => setBriefingOpen(true) : undefined}
-            onOpenCaseResult={
-              season.previousCase && previousCaseConfig ? () => setCaseReportOpen(true) : undefined
-            }
-          />
-          {season.primaryBeat && season.phase !== "case_closing" && (
-            <NarrativeBeatPanel beat={season.primaryBeat} />
-          )}
-        </div>
-      )}
+      {/* ── Team distance + standings — the chase is the page (owner
+          directive 2026-07-18: steps first, noise last) ── */}
+      <ProgressStrip
+        from={data.city?.name ?? "Start"}
+        to={data.nextCity?.name ?? "Finish"}
+        players={progressPlayers}
+        state={progressPlayers.length ? (progressPlayers.some((player) => player.pct >= 100) ? "end" : "default") : "empty"}
+      />
 
-      {/* Platform Sweep — the weekly special operation */}
-      {season && weekConfig && season.platformSweep.active && (
-        <PlatformSweepCard
-          operation={season.platformSweep}
-          fiction={weekConfig.rituals.specialOperationFiction}
-        />
+      <section className="leaderboard sc-corners" aria-label="Leaderboard">
+        <div className="leaderboardHeader">
+          <h2>[ Team leaderboard ]</h2>
+          <span className="stamped">This week</span>
+        </div>
+        <div className="leaderboardRows">
+          {data.leaderboard.map((player) => {
+            const isMe = player.user_id === session.user?.id;
+            const isLeader = player.user_id === leaderId;
+            return (
+              <div className="leaderboardRow" data-mine={isMe ? "true" : "false"} key={player.user_id}>
+                <span className="rank" data-first={isLeader ? "true" : "false"}>{player.rank}</span>
+                <Avatar
+                  size={30}
+                  colorway={colorwayFrom(player.avatar_colorway)}
+                  ring={isLeader ? "var(--phosphor-hot)" : undefined}
+                />
+                <span className="name">{player.display_name}</span>
+                <span className="steps">{formatNumber(player.steps)}</span>
+                <span className={player.deltaVsLastWeek > 0 ? "delta positive" : "delta"}>
+                  {formatDelta(player.deltaVsLastWeek)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── The weekly prediction — filed right from the main page ── */}
+      {season && <PredictionSection />}
+
+      {/* One narrative beat, full width — suppressed while the Final Push
+          banner already carries the same story. */}
+      {showPrimaryBeat && season?.primaryBeat && season.phase !== "case_closing" && (
+        <NarrativeBeatPanel beat={season.primaryBeat} />
       )}
 
       {/* Secondary system cards + evidence preview */}
@@ -552,13 +587,6 @@ export default function MapPage() {
                 : "Complete operations to improve the pursuit",
               secondary: weekConfig ? `Complication: ${weekConfig.complication.label}` : undefined,
               href: "/fieldops",
-            },
-            {
-              id: "prediction",
-              title: "Prediction",
-              primary: "How close will your unit get by Sunday night?",
-              secondary: "Sealed until the reveal",
-              href: "/prediction",
             },
             {
               id: "nemesis",
@@ -584,12 +612,9 @@ export default function MapPage() {
         />
       )}
 
-      {/* Compact team activity — at most three recent events */}
-      {season && <TeamActivity events={activityEvents} />}
-
       {/* ── Route — dashed intel trail with city pins ── */}
       <section className="routeSection sc-corners" aria-label="Route cities">
-        <p className="stamped routeLabel">[ Bureau vector active ]</p>
+        <p className="stamped routeLabel">[ The chase so far ]</p>
         <div className="pinRoute">
           {/* Dashed phosphor intel vector behind the pins, pulsing dot at the leading edge */}
           <RouteVector
@@ -632,41 +657,6 @@ export default function MapPage() {
           <span className="legendItem"><span className="legendSwatch legendCurrent" /> Current</span>
           <span className="legendItem"><span className="legendSwatch legendSelena" /> Selena</span>
           <span className="legendItem"><span className="legendSwatch legendFuture" /> Future</span>
-        </div>
-      </section>
-
-      <ProgressStrip
-        from={data.city?.name ?? "Start"}
-        to={data.nextCity?.name ?? "Finish"}
-        players={progressPlayers}
-        state={progressPlayers.length ? (progressPlayers.some((player) => player.pct >= 100) ? "end" : "default") : "empty"}
-      />
-
-      <section className="leaderboard sc-corners" aria-label="Leaderboard">
-        <div className="leaderboardHeader">
-          <h2>[ Bureau leaderboard ]</h2>
-          <span className="stamped">This week</span>
-        </div>
-        <div className="leaderboardRows">
-          {data.leaderboard.map((player) => {
-            const isMe = player.user_id === session.user?.id;
-            const isLeader = player.user_id === leaderId;
-            return (
-              <div className="leaderboardRow" data-mine={isMe ? "true" : "false"} key={player.user_id}>
-                <span className="rank" data-first={isLeader ? "true" : "false"}>{player.rank}</span>
-                <Avatar
-                  size={30}
-                  colorway={colorwayFrom(player.avatar_colorway)}
-                  ring={isLeader ? "var(--phosphor-hot)" : undefined}
-                />
-                <span className="name">{player.display_name}</span>
-                <span className="steps">{formatNumber(player.steps)}</span>
-                <span className={player.deltaVsLastWeek > 0 ? "delta positive" : "delta"}>
-                  {formatDelta(player.deltaVsLastWeek)}
-                </span>
-              </div>
-            );
-          })}
         </div>
       </section>
 
@@ -813,7 +803,7 @@ function MapStyles() {
         width: 100%;
       }
 
-      /* Stamped label role — [ BUREAU VECTOR ACTIVE ] headers */
+      /* Stamped label role — [ SEASON ROUTE ] style headers */
       .stamped {
         margin: 0;
         font-family: var(--font-display);
@@ -822,14 +812,6 @@ function MapStyles() {
         letter-spacing: var(--ls-label);
         text-transform: uppercase;
         color: var(--phosphor-dim);
-      }
-
-      /* Primary action + beat share a responsive row */
-      .chaseRow {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: var(--space-sm);
-        align-items: stretch;
       }
 
       /* ── Two-pane console ── */

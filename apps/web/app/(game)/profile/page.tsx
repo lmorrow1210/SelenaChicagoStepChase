@@ -468,7 +468,7 @@ export default function ProfilePage() {
           >
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--cream)" }}>
-                Fitbit
+                Google Health
               </span>
               <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--muted)" }}>
                 {user.fitbit_connected ? "Connected" : "Not connected"}
@@ -562,7 +562,7 @@ function AdminCategoryToggles() {
         letterSpacing: "var(--ls-label)", textTransform: "uppercase", color: "var(--phosphor-dim)",
         marginBottom: "var(--sp-2)",
       }}>
-        [ Squad categories — admin ]
+        [ Team categories — admin ]
       </div>
       <p style={{ margin: "0 0 10px", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--phosphor-dim)" }}>
         Toggle a category off to keep it off everyone&apos;s card from next week.

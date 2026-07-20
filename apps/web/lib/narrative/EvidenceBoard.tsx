@@ -40,9 +40,9 @@ const OUTCOME_MARKERS: Record<WeeklyOutcome, string> = {
  */
 export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
   return (
-    <section className="board" aria-label="Season evidence board">
+    <section className="board" aria-label="Chase evidence board">
       <header className="boardHeader">
-        <p className="seasonKicker">Season One · {board.season.title}</p>
+        <p className="seasonKicker">The Chase · {board.season.title}</p>
         <p className="tally" role="status">
           Interceptions: <span className="tallyNumber">{board.interceptionCount}</span> of {board.season.totalWeeks}
         </p>

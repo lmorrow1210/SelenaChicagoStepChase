@@ -10,8 +10,12 @@ formal quarter.
 > of the parked Meridian/conspiracy lore. Where the original bible copy carried
 > lore, the cleaned version is what ships and the original is preserved in
 > [`PARKED-LORE.md`](PARKED-LORE.md). Copy here is the **target** — the full
-> narrative/copy audit finalizes exact wording. Week 1 is shipped; Week 2 has a
-> draft pack; Weeks 3–13 are stubs in `seasonOne.ts` awaiting content.
+> narrative/copy audit finalizes exact wording. Week 1 is shipped; Week 2
+> (Detroit) is fully implemented and ready for owner review — see
+> [`cities/week-02-detroit.md`](cities/week-02-detroit.md) for its complete,
+> finalized four-outcome copy (the two-line summary in this table's Wk 2 row
+> predates that buildout — treat the city pack as authoritative). Weeks 3–13
+> are stubs in `seasonOne.ts` awaiting content.
 
 ---
 
@@ -35,21 +39,30 @@ formal quarter.
 
 **Legend**
 - ⚠️ — the complication as originally written depended on cut systems; ship the simplified version noted.
-- † — **Week 2 naming is unresolved.** Shipped `seasonOne.ts` and the draft pack use chapter *"The Machine Restarted"* / complication *"Assembly Line"*. The older bible used chapter *"The Assembly Line"* / complication *"Moving Parts"* (defined as "complete three different Field Ops categories" — a concrete, buildable mechanic worth considering). **Audit item #1.**
+- † — **Week 2 naming resolved (2026-07-17, owner).** Shipped `seasonOne.ts` and the finalized pack use chapter *"The Machine Restarted"* / complication *"Assembly Line"*. The older bible's alternate — chapter *"The Assembly Line"* / complication *"Moving Parts"* — was considered and not chosen.
 - ‡ — chapter renamed **"The Missing Meridian" → "True North"** in the 2026-07-17 audit (the old title named the parked lore; "True North" keeps the Santa Fe survey/navigation theme, no lore collision). Synced to `seasonOne.ts`.
 
 ---
 
 ## Selena's closing lines (Case Closed copy, per city)
 
+> ⚑ **SUPERSEDED — planning history only (2026-07-18).** This two-line-per-city
+> table (Fall short / Close) predates the full **four-outcome** buildout that now
+> ships. Every city's real Case Closed copy — four distinct Selena lines
+> (`trail_lost` / `pursuit_maintained` / `close_encounter` / `interception`) —
+> lives in its per-city pack (`cities/week-NN-*.md`) and in `seasonOne.ts`, which
+> are the **source of truth**. This table is kept only as planning history; do
+> not treat it as shippable copy or expand it (a parallel copy table would just
+> drift). Note also that the `— S.C.` sign-off referenced below is **not**
+> currently rendered by the product — see `narrative-qa-findings.md` finding N1.
+
 Two lines per city: **Fall short** (trail lost / pursuit maintained tier) and
 **Close** (close encounter / interception tier). These ship as city flavor on
 top of the mostly-generic Case Closed report.
 
-Lines that carried parked lore have been **replaced with cleaned versions**
-below; the originals are logged in the "Cleaning log" section and preserved in
-[`PARKED-LORE.md`](PARKED-LORE.md). All lines are sign-off `— S.C.` per the
-[voice guide](selena-voice-guide.md).
+Lines that carried parked lore were **replaced with cleaned versions** below; the
+originals are logged in the "Cleaning log" section and preserved in
+[`PARKED-LORE.md`](PARKED-LORE.md).
 
 | Wk | Fall short | Close |
 |----|-----------|-------|
@@ -68,6 +81,7 @@ below; the originals are logged in the "Cleaning log" section and preserved in
 | 13 | "You reached the platform too late — but not too late to understand it." ✎ | "You came this far chasing me. Ask what else you found on the way." ✎ |
 
 **✎ = cleaned from a lore-bearing original.** See the cleaning log.
+*(The whole table is superseded planning history — see the banner above.)*
 
 ### Cleaning log (originals preserved in PARKED-LORE.md §3.2)
 

@@ -1,13 +1,22 @@
 # Week 4 — Washington, D.C.: The Monument Cipher
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(4, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass.  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 4` in
+`seasonOne.ts` (authored in the Weeks 3–13 bulk buildout, draft PR #6, not yet
+merged; the old `structuralWeek(4, ...)` stub is retired).  
 **Prerequisite:** Week 3 (Pittsburgh) closes and hands off via the "eastern line to a D.C. archive" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Monument
 > Cipher"* / complication *"Redacted Orders"* per
 > [`../season-one-route.md`](../season-one-route.md). The redacted charter is a
 > standalone artifact — **no** Bureau-altered-history lore (that is parked).
+>
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped `seasonOne.ts`
+> config — briefing, complication summary, all four outcomes, evidence entries,
+> Platform Sweep flavor, and the Philadelphia teaser match verbatim. Landmark fun
+> facts fact-checked. Added the Redacted Orders scope boundary, shared-default
+> Case Closing, and demo/limitation notes below.
 
 ---
 
@@ -66,8 +75,14 @@
 ## Field Ops — Intel landmarks (Washington, D.C., 5 slots)
 
 The five most well-known D.C. landmarks. Fun facts are the decode reward — they
-ship `null` until unlocked (spoiler rule). Keep in sync with the demo fixture
-when Week 4 is implemented.
+ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked
+2026-07-18** (Lincoln Memorial 36 columns = 36 states at Lincoln's death; White
+House 132 rooms; Washington Monument 555 ft / 1884 / marble color-change from the
+construction pause; Capitol dome ~9M lb cast iron topped by the Statue of
+Freedom; National Archives displays the Charters of Freedom). **DB sync note:**
+migration 009 seeded a D.C. landmark set that differs from these — a landmark-sync
+migration is needed before Week 4 goes live (flagged for Codex, same fix class as
+Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -178,33 +193,48 @@ when Week 4 is implemented.
 
 ---
 
-## Bingo items (D.C.-flavored)
+## Bingo items (D.C.-flavored) — classification
 
-City-specific bingo card entries. These replace generic entries for Week 4.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` has one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+Week 4 reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts below
+are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `dc_before_noon` | Early Session: 1,000 steps before noon | movement |
-| `dc_full_shift` | Full Record: hit 100% of daily target | movement |
-| `dc_mall_walk` | Mall Walk: 5,000 steps in a day | movement |
-| `dc_long_archive` | Long Archive: 10,000 steps in a day | movement |
-| `dc_standing_order` | Standing Order: steps two days running | streak |
-| `dc_partner_walk` | Walk the Mall with someone — friend, family, or pet | social |
-| `dc_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `dc_after_hours` | After-hours watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `dc_before_noon` | Early Session: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `dc_full_shift` | Full Record: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `dc_mall_walk` | Mall Walk: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `dc_long_archive` | Long Archive: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `dc_standing_order` | Standing Order: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `dc_partner_walk` | Walk the Mall with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `dc_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `dc_after_hours` | After-hours watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(4, "Washington, D.C.", ...)` in `seasonOne.ts` with a
-  full inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week04_redacted_charter` and `week04_unredacted_line` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- The "Redacted Orders" mechanic is a presentation layer over existing Field Ops
-  objectives — obscured description text revealed by intel tokens. It must not
-  change which detectors fire or how they score. Confirm against how Field Ops
-  descriptions are rendered before wiring the reveal.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 4`;
+  evidence entries `week04_redacted_charter` / `week04_unredacted_line`; bingo
+  Decision A; `WEEK_FOUR_RITUALS` on the Chicago/Detroit pattern. Reconciled
+  against this pack 2026-07-18 — copy matches verbatim.
+- ⚠️ **"Redacted Orders" ships as copy flavor only.** The obscured-then-revealed
+  objective text is a *narrative* framing — the shipped config uses the standard
+  shared detectors and Platform Sweep. There is **no** description-redaction
+  feature and none should be built (bespoke mechanic, barred by `season-scope.md`).
+- **Platform Sweep flavor (ships):** "Bureau analysts have narrowed Selena's route
+  to three archive exits along the Mall. The unit must cover every door before she
+  reaches the reading room." Platform Sweep itself is the unchanged shared op.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line (the close-encounter one),
+  with the projected-outcome distinction conveyed by the beat's `<OUTCOME>
+  PROJECTED.` prefix.
+- ⚠️ **DB landmark sync + demo fixture** are infra follow-ups for Codex (see the
+  landmarks note above; demo shows Chicago-only as the active week).
 - The Philadelphia reference and the "date that does not match" are flavor only.
   Week 5 does **not** resolve them into a conspiracy. See `AGENTS.md` rule #6.
 - Do not connect the redacted charter to any network/Meridian backstory. It is a

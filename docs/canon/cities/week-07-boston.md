@@ -1,13 +1,22 @@
 # Week 7 — Boston: The Midnight Signal
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(7, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 7` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(7, ...)` stub is retired)  
 **Prerequisite:** Week 6 (New York City) closes and hands off via the "Boston harbor signal every night" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter *"The Midnight
 > Signal"* / complication *"Signal Window"* per
 > [`../season-one-route.md`](../season-one-route.md). The Continuity Protocol is a
 > standalone artifact — **no** institutions-failed / military-comms-origin lore.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -179,35 +188,44 @@ when Week 7 is implemented.
 
 ---
 
-## Bingo items (Boston-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 7.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `boston_before_noon` | Early Watch: 1,000 steps before noon | movement |
-| `boston_full_signal` | Full Signal: hit 100% of daily target | movement |
-| `boston_harbor_run` | Harbor Run: 5,000 steps in a day | movement |
-| `boston_long_trail` | Long Trail: 10,000 steps in a day | movement |
-| `boston_two_lanterns` | Two Lanterns: steps two days running | streak |
-| `boston_partner_walk` | Walk the Common with someone — friend, family, or pet | social |
-| `boston_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `boston_midnight_watch` | Midnight Watch: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `boston_before_noon` | Early Watch: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `boston_full_signal` | Full Signal: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `boston_harbor_run` | Harbor Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `boston_long_trail` | Long Trail: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `boston_two_lanterns` | Two Lanterns: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `boston_partner_walk` | Walk the Common with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `boston_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `boston_midnight_watch` | Midnight Watch: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(7, "Boston", ...)` in `seasonOne.ts` with a full inline
-  config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week07_continuity_protocol` and `week07_unwritten_leg` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- "Signal Window" reuses the participation-threshold operation with a within-day
-  evening window. Confirm the operation config supports an intra-day window (vs
-  the Platform Sweep's day-range window) before wiring; if not, ship it as a
-  day-range approximation and note the simplification in copy.
-- The Savannah reference is flavor for Week 8's "Unwritten Route." It resolves
-  nothing.
-- The Continuity Protocol is an old nighttime signal relay, nothing more. Do
-  **not** frame it as communication that survives institutional collapse, or as a
-  military-comms origin story — that is parked lore. Rule #6.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 7`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Signal Window** — the "evening window" is Platform Sweep flavor; the special op is the unchanged Friday–Saturday participation threshold, not a new time-gated mechanic.
+- **Platform Sweep flavor (ships):** "The harbor signal only answers after dark. Bureau analysts need enough of the unit in the field during the evening window before it closes." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

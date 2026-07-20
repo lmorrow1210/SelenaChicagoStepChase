@@ -1,7 +1,9 @@
 # Week 11 — Santa Fe: True North
 
-**Status:** DRAFT — awaiting owner review of copy  
-**Implements:** `structuralWeek(11, ...)` in `packages/shared/src/season-one/seasonOne.ts`  
+**Status:** READY FOR OWNER REVIEW — implemented in code and reconciled against
+this pack; final gate is owner copy sign-off + Codex's infra/test pass  
+**Implements:** the full inline `SeasonWeekConfig` for `weekNumber: 11` in
+`seasonOne.ts` (Weeks 3–13 bulk buildout, draft PR #6; the old `structuralWeek(11, ...)` stub is retired)  
 **Prerequisite:** Week 10 (Austin) closes and hands off via the "surveyed desert marker" teaser.
 
 > Authored 2026-07-17 from the route table + voice guide. Chapter **"True North"**
@@ -14,6 +16,13 @@
 > (`season-scope.md`). This week ships an **engagement-based bonus using existing
 > systems only** (Field Ops participation / the bonus systems already in the chase
 > calculator). No evidence-arc input.
+
+> ✅ **2026-07-18 narrative QA pass:** reconciled against the shipped
+> `seasonOne.ts` config (Weeks 3–13 buildout, draft PR #6, not yet merged) —
+> briefing, complication summary, all four Case Closed outcomes, evidence
+> entries, Platform Sweep flavor, and the next-city teaser match verbatim.
+> Landmark fun facts fact-checked (see below). Added the mechanic scope
+> boundary, shared-default notes, and demo/limitation notes.
 
 ---
 
@@ -73,8 +82,7 @@
 ## Field Ops — Intel landmarks (Santa Fe, 5 slots)
 
 The five most well-known Santa Fe landmarks. Fun facts are the decode reward —
-they ship `null` until unlocked (spoiler rule). Keep in sync with the demo
-fixture when Week 11 is implemented.
+they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Palace of the Governors (~1610, oldest continuously occupied public building in the US); Loretto Chapel spiral staircase; Cathedral Basilica of St. Francis (1886); Santa Fe Plaza (end of the Santa Fe Trail, heart of the city since the early 1600s); Georgia O'Keeffe Museum (world's largest collection of her work). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
@@ -185,35 +193,44 @@ fixture when Week 11 is implemented.
 
 ---
 
-## Bingo items (Santa Fe-flavored)
+## Bingo items — classification
 
-City-specific bingo card entries. These replace generic entries for Week 11.
+Per `IMPLEMENTING-A-CITY.md` Gotcha 2. `bingo_challenge_definitions` stores one
+global `label` per `code` (no per-city override column), so **Decision A ships**:
+this week reuses Chicago's 24 shared `fixedChallengeCodes`. All eight concepts
+below are **label-only reuse of an existing detector** — no new detector logic:
 
-| Code | Label | Type |
-|---|---|---|
-| `santafe_before_noon` | Morning Survey: 1,000 steps before noon | movement |
-| `santafe_full_alignment` | Full Alignment: hit 100% of daily target | movement |
-| `santafe_trail_run` | Trail Run: 5,000 steps in a day | movement |
-| `santafe_long_horizon` | Long Horizon: 10,000 steps in a day | movement |
-| `santafe_hold_the_line` | Hold the Line: steps two days running | streak |
-| `santafe_partner_walk` | Walk Canyon Road with someone — friend, family, or pet | social |
-| `santafe_eyes_up` | Notice something on your route you have not seen before | awareness |
-| `santafe_evening_walk` | Evening Walk: 1,000 steps after 6 PM | movement |
+| Code (proposed) | Label | Nearest existing detector | Classification |
+|---|---|---|---|
+| `santafe_before_noon` | Morning Survey: 1,000 steps before noon | `steps_1k_noon` | label-only reuse |
+| `santafe_full_alignment` | Full Alignment: hit 100% of daily target | `target_100pct_day` | label-only reuse |
+| `santafe_trail_run` | Trail Run: 5,000 steps in a day | `steps_5k_day` | label-only reuse |
+| `santafe_long_horizon` | Long Horizon: 10,000 steps in a day | `steps_10k_day` | label-only reuse |
+| `santafe_hold_the_line` | Hold the Line: steps two days running | `steps_2k_two_days` | label-only reuse |
+| `santafe_partner_walk` | Walk Canyon Road with someone — friend, family, or pet | `walk_with_someone` | label-only reuse |
+| `santafe_eyes_up` | Notice something on your route you have not seen before | `eyes_up` | label-only reuse |
+| `santafe_evening_walk` | Evening Walk: 1,000 steps after 6 PM | `steps_1k_after_6` | label-only reuse |
+
+Per-city label override is future polish, not required for launch.
 
 ---
 
-## Implementation notes for Codex
+## Implementation & shared-system notes
 
-- Replace `structuralWeek(11, "Santa Fe", ...)` in `seasonOne.ts` with a full
-  inline config object modeled on the Week 1 Chicago block.
-- Evidence IDs `week11_alignment_chart` and `week11_altered_plate` go into the
-  `evidence` array in `SEASON_ONE_CONFIG`.
-- **Simplified mechanic (important):** the "Alignment" bonus is an
-  engagement/participation bonus built on the EXISTING chase-calculator bonus
-  systems. It must **not** read from the season-evidence board or any decoded-clue
-  count — that dependency is cut. Rule #6 / `season-scope.md`.
-- The "thirteen points" = the 13-city route (in scope). Do **not** frame the chart
-  as one regional layer of a larger global network, and do **not** add a
-  fourteenth point/pulse — that is parked lore.
-- The Los Angeles forgery reference is flavor for Week 12's "Edited Reality." It
-  resolves nothing.
+- ✅ **Done in code (PR #6):** full inline `SeasonWeekConfig` for `weekNumber: 11`;
+  both evidence entries; bingo Decision A; rituals on the Chicago/Detroit pattern.
+  Reconciled against this pack 2026-07-18 — load-bearing copy (briefing, four
+  outcomes, evidence, teaser, complication summary) matches verbatim. The
+  `closeCopy.nextLead` fields are a distinct derived "next lead" line, lightly
+  condensed from the evidence bodies by design (not documented separately here).
+- ⚠️ **Mechanic ships as copy flavor:** **Alignment** (⚠️ simplified) — ships as engagement-based Platform Sweep flavor only; the evidence-arc "alignment" dependency from the old bible is **not** built.
+- **Platform Sweep flavor (ships):** "The markers only align when enough of the unit holds the same bearing. Bureau analysts need the whole team pulling one direction." Platform Sweep itself is the
+  unchanged shared participation-threshold operation.
+- **Intentional shared defaults:** Case Closing uses generic `defaultRituals()`
+  copy; the Monday-briefing Selena line is aspirational (no render field, same as
+  Chicago/Detroit); `finalPush` ships one Selena line, with the projected-outcome
+  distinction conveyed by the beat's `<OUTCOME> PROJECTED.` prefix.
+- ⚠️ **Infra follow-ups for Codex:** DB landmark-sync migration (see landmarks
+  note) and a demo "active week" fixture (the static demo shows Chicago only).
+- Next-city references in the teaser and intercept clue are **flavor only** — the following week does **not** resolve them into a conspiracy (`AGENTS.md` rule #6).
+- No Meridian / network / "same node" lore. The artifact is a standalone object.

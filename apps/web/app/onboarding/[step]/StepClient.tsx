@@ -28,8 +28,8 @@ type Step = (typeof STEPS)[number];
 const STEP_TITLES: Record<Step, string> = {
   connect: "Connect your steps",
   target: "Set your weekly target",
-  objectives: "Tune your objectives",
-  avatar: "Build your detective",
+  objectives: "Choose your goal types",
+  avatar: "Design your detective",
   group: "Find your crew",
 };
 
@@ -182,8 +182,8 @@ function ObjectivesStep({ onNext }: { onNext: () => void }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
       <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: 14, color: "var(--phosphor-dim)" }}>
-        Your weekly ops card mixes step goals with wider objectives. Turn off anything that
-        doesn&apos;t fit your equipment or routine — the card fills in around it.
+        Your weekly card mixes step goals with other fitness objectives. Turn off anything that
+        doesn&apos;t fit your gear or routine — the card fills in around it.
       </p>
       {OBJECTIVE_QUESTIONS.map((q) => (
         <button
@@ -324,6 +324,10 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
 
   return (
     <>
+      <p style={bodyText}>
+        This is you on the leaderboard, the map, and every case file. Make it yours — you can
+        change it later from your profile.
+      </p>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Avatar
           size={120}
@@ -346,7 +350,7 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
             marginBottom: "var(--sp-2)",
           }}
         >
-          Colorway
+          Coat color
         </div>
         <div style={{ display: "flex", gap: "var(--sp-2)", flexWrap: "wrap" }}>
           {COLORWAY_IDS.map((id, i) => (
