@@ -1,24 +1,38 @@
 import { describe, expect, it } from "vitest";
+import type { WeeklyOutcome } from "@one-step-ahead/shared";
 import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence, getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
+
+const ROUTE_CITY_NAMES = [
+  "Chicago",
+  "Detroit",
+  "Pittsburgh",
+  "Washington, D.C.",
+  "Philadelphia",
+  "New York City",
+  "Boston",
+  "Savannah",
+  "New Orleans",
+  "Austin",
+  "Santa Fe",
+  "Los Angeles",
+  "San Francisco",
+];
+
+const WEEKLY_OUTCOME_KEYS: WeeklyOutcome[] = [
+  "close_encounter",
+  "interception",
+  "pursuit_maintained",
+  "trail_lost",
+];
+
+function expectNonEmpty(value: string): void {
+  expect(value.trim().length).toBeGreaterThan(0);
+}
 
 describe("Season One config", () => {
   it("contains all 13 config entries in route order", () => {
     expect(SEASON_ONE_CONFIG.route.map((week) => week.weekNumber)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
-    expect(SEASON_ONE_CONFIG.route.map((week) => week.cityName)).toEqual([
-      "Chicago",
-      "Detroit",
-      "Pittsburgh",
-      "Washington, D.C.",
-      "Philadelphia",
-      "New York City",
-      "Boston",
-      "Savannah",
-      "New Orleans",
-      "Austin",
-      "Santa Fe",
-      "Los Angeles",
-      "San Francisco",
-    ]);
+    expect(SEASON_ONE_CONFIG.route.map((week) => week.cityName)).toEqual(ROUTE_CITY_NAMES);
   });
 
   it("uses unique week numbers, week IDs, and evidence IDs", () => {
@@ -33,9 +47,63 @@ describe("Season One config", () => {
 
   it("connects every weekly evidence reference to an evidence config entry", () => {
     for (const week of SEASON_ONE_CONFIG.route) {
-      expect(getEvidence(week.evidence.standardEvidenceId)?.weekNumber).toBe(week.weekNumber);
-      expect(getEvidence(week.evidence.interceptClueId)?.weekNumber).toBe(week.weekNumber);
+      const standardEvidence = getEvidence(week.evidence.standardEvidenceId);
+      const interceptClue = getEvidence(week.evidence.interceptClueId);
+
+      expect(standardEvidence).toMatchObject({
+        kind: "standard",
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+      });
+      expect(interceptClue).toMatchObject({
+        kind: "intercept",
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+      });
     }
+  });
+
+  it("uses unique evidence IDs across every route slot", () => {
+    const routeEvidenceIds = SEASON_ONE_CONFIG.route.flatMap((week) => [
+      week.evidence.standardEvidenceId,
+      week.evidence.interceptClueId,
+    ]);
+
+    expect(routeEvidenceIds).toHaveLength(26);
+    expect(new Set(routeEvidenceIds).size).toBe(routeEvidenceIds.length);
+  });
+
+  it("keeps every week fully filled out with all Case Closed outcomes", () => {
+    for (const week of SEASON_ONE_CONFIG.route) {
+      expectNonEmpty(week.chapterTitle);
+      expectNonEmpty(week.complication.id);
+      expectNonEmpty(week.complication.label);
+      expectNonEmpty(week.complication.summary);
+      expect(Object.keys(week.closeCopy).sort()).toEqual(WEEKLY_OUTCOME_KEYS);
+
+      for (const outcome of WEEKLY_OUTCOME_KEYS) {
+        expectNonEmpty(week.closeCopy[outcome].headline);
+        expectNonEmpty(week.closeCopy[outcome].story);
+        expectNonEmpty(week.closeCopy[outcome].selena);
+        expectNonEmpty(week.closeCopy[outcome].nextLead);
+      }
+    }
+  });
+
+  it("chains next-city teasers from Chicago through San Francisco without dangling cities", () => {
+    SEASON_ONE_CONFIG.route.slice(0, -1).forEach((week, index) => {
+      const nextWeek = SEASON_ONE_CONFIG.route[index + 1];
+      expect(week.nextCityTeaser.cityName).toBe(nextWeek.cityName);
+      expect(week.nextCityTeaser.header).toContain(nextWeek.cityName.toUpperCase());
+      expectNonEmpty(week.nextCityTeaser.body);
+      expectNonEmpty(week.nextCityTeaser.selena);
+      expectNonEmpty(week.nextCityTeaser.cta);
+    });
+
+    const finalWeek = SEASON_ONE_CONFIG.route.at(-1)!;
+    expect(finalWeek.cityName).toBe("San Francisco");
+    expect(finalWeek.nextCityTeaser.cityName).toBe("");
+    expect(finalWeek.nextCityTeaser.header).toBe("THE CASE IS CLOSED");
   });
 
   it("includes required polished Week 1 Chicago copy and config fields", () => {
@@ -80,12 +148,7 @@ describe("Season One config", () => {
   });
 
   it("includes all four Week 1 case closed outcomes", () => {
-    expect(Object.keys(WEEK_ONE_CHICAGO.closeCopy).sort()).toEqual([
-      "close_encounter",
-      "interception",
-      "pursuit_maintained",
-      "trail_lost",
-    ]);
+    expect(Object.keys(WEEK_ONE_CHICAGO.closeCopy).sort()).toEqual(WEEKLY_OUTCOME_KEYS);
     expect(WEEK_ONE_CHICAGO.closeCopy.interception.headline).toBe("SELENA INTERCEPTED");
   });
 

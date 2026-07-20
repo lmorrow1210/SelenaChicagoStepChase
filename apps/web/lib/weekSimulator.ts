@@ -3,6 +3,8 @@ import {
   SEASON_ONE_CONFIG,
   WEEK_ONE_CHICAGO,
   getEvidence,
+  getSeasonWeek,
+  type SeasonWeekConfig,
 } from "@one-step-ahead/shared/season-one/seasonOne";
 import { calculateChase, type ChaseCalculationResult } from "@one-step-ahead/shared/season-one/chase";
 import {
@@ -42,7 +44,14 @@ export const WEEK_SIMULATOR_CONFIDENCE: DataConfidence[] = [
   "recalculating",
 ];
 
+export const WEEK_SIMULATOR_WEEKS = SEASON_ONE_CONFIG.route.map((week) => ({
+  weekNumber: week.weekNumber,
+  cityName: week.cityName,
+  chapterTitle: week.chapterTitle,
+}));
+
 export interface WeekSimulatorControls {
+  weekNumber: number;
   phase: WeekPhase;
   outcome: WeeklyOutcome;
   dataConfidence: DataConfidence;
@@ -58,7 +67,7 @@ export interface WeekSimulatorControls {
 }
 
 export interface WeekSimulatorState {
-  weekConfig: typeof WEEK_ONE_CHICAGO;
+  weekConfig: SeasonWeekConfig;
   seasonState: {
     season: {
       id: string;
@@ -111,6 +120,7 @@ const WEEK_END = "2026-06-14";
 const TIMEZONE = "America/Chicago";
 
 export const DEFAULT_WEEK_SIMULATOR_CONTROLS: WeekSimulatorControls = {
+  weekNumber: WEEK_ONE_CHICAGO.weekNumber,
   phase: "briefing",
   outcome: "close_encounter",
   dataConfidence: "verified",
@@ -139,13 +149,14 @@ export function progressForOutcome(outcome: WeeklyOutcome): number {
 }
 
 export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSimulatorState {
+  const weekConfig = getSeasonWeek(controls.weekNumber) ?? WEEK_ONE_CHICAGO;
   const phaseFixture = fixtureForPhase(controls.phase);
   const trackerSync = trackerSyncForConfidence(controls.dataConfidence);
   const confidence = calculateDataConfidenceFromFreshness({
     trackerSync,
     recalculating: controls.dataConfidence === "recalculating",
   });
-  const platformSweep = calculateParticipationThreshold(WEEK_ONE_CHICAGO.specialOperation, {
+  const platformSweep = calculateParticipationThreshold(weekConfig.specialOperation, {
     contributors: controls.platformSweepContributors,
     eligiblePlayers: ACTIVE_PLAYERS,
     active: controls.platformSweepActive,
@@ -206,7 +217,7 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
     dailyTargetWithinReach: controls.baseProgress > 0.75 && controls.baseProgress < 1,
   });
   const primaryBeat = selectPrimaryBeat({
-    weekConfig: WEEK_ONE_CHICAGO,
+    weekConfig,
     phase: phaseResult.phase,
     dataConfidence: confidence.dataConfidence,
     projectedOutcome: chase.projectedOutcome,
@@ -219,19 +230,19 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
   });
 
   return {
-    weekConfig: WEEK_ONE_CHICAGO,
+    weekConfig,
     seasonState: {
       season: {
         id: SEASON_ONE_CONFIG.id,
         title: SEASON_ONE_CONFIG.title,
-        weekNumber: WEEK_ONE_CHICAGO.weekNumber,
+        weekNumber: weekConfig.weekNumber,
         totalWeeks: SEASON_ONE_CONFIG.route.length,
       },
       chapter: {
-        city: WEEK_ONE_CHICAGO.cityName,
-        title: WEEK_ONE_CHICAGO.chapterTitle,
-        complication: WEEK_ONE_CHICAGO.complication.label,
-        nextCity: WEEK_ONE_CHICAGO.nextCityTeaser.cityName,
+        city: weekConfig.cityName,
+        title: weekConfig.chapterTitle,
+        complication: weekConfig.complication.label,
+        nextCity: weekConfig.nextCityTeaser.cityName,
       },
       phase: phaseResult.phase,
       dataConfidence: confidence.dataConfidence,
@@ -240,9 +251,9 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
       primaryBeat,
       platformSweep,
       evidencePreview: {
-        standardEvidenceId: WEEK_ONE_CHICAGO.evidence.standardEvidenceId,
+        standardEvidenceId: weekConfig.evidence.standardEvidenceId,
         standardTitle: controls.evidenceUnlocked
-          ? getEvidence(WEEK_ONE_CHICAGO.evidence.standardEvidenceId)?.title ?? null
+          ? getEvidence(weekConfig.evidence.standardEvidenceId)?.title ?? null
           : null,
         unlocked: controls.evidenceUnlocked,
         interceptUnlocked: controls.interceptUnlocked,
@@ -259,7 +270,7 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
         stalePlayerCount: confidence.counts.stale,
       },
     },
-    evidenceBoard: buildEvidenceBoard(controls),
+    evidenceBoard: buildEvidenceBoard(controls, weekConfig),
     ritualFlags: {
       suddenDeathActive: phaseFixture.suddenDeathActive,
       predictionSubmitted: controls.predictionSubmitted,
@@ -268,7 +279,7 @@ export function buildWeekSimulatorState(controls: WeekSimulatorControls): WeekSi
   };
 }
 
-function buildEvidenceBoard(controls: WeekSimulatorControls): EvidenceBoardData {
+function buildEvidenceBoard(controls: WeekSimulatorControls, selectedWeek: SeasonWeekConfig): EvidenceBoardData {
   const lockedSlot = (id: string, kind: "standard" | "intercept"): EvidenceSlot => ({
     id,
     kind,
@@ -303,18 +314,21 @@ function buildEvidenceBoard(controls: WeekSimulatorControls): EvidenceBoardData 
     },
     interceptionCount: controls.interceptUnlocked ? 1 : 0,
     finaleDepthTier: 1,
-    weeks: SEASON_ONE_CONFIG.route.map((week) => ({
-      weekNumber: week.weekNumber,
-      cityName: week.cityName,
-      chapterTitle: week.chapterTitle,
-      outcome: week.weekNumber === 1 && controls.evidenceUnlocked ? controls.outcome : null,
-      standardEvidence: week.weekNumber === 1 && controls.evidenceUnlocked
-        ? unlockedSlot(week.evidence.standardEvidenceId, "standard")
-        : lockedSlot(week.evidence.standardEvidenceId, "standard"),
-      interceptClue: week.weekNumber === 1 && controls.interceptUnlocked
-        ? unlockedSlot(week.evidence.interceptClueId, "intercept")
-        : lockedSlot(week.evidence.interceptClueId, "intercept"),
-    })),
+    weeks: SEASON_ONE_CONFIG.route.map((week) => {
+      const selected = week.weekNumber === selectedWeek.weekNumber;
+      return {
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+        chapterTitle: week.chapterTitle,
+        outcome: selected && controls.evidenceUnlocked ? controls.outcome : null,
+        standardEvidence: selected && controls.evidenceUnlocked
+          ? unlockedSlot(week.evidence.standardEvidenceId, "standard")
+          : lockedSlot(week.evidence.standardEvidenceId, "standard"),
+        interceptClue: selected && controls.interceptUnlocked
+          ? unlockedSlot(week.evidence.interceptClueId, "intercept")
+          : lockedSlot(week.evidence.interceptClueId, "intercept"),
+      };
+    }),
   };
 }
 
