@@ -96,7 +96,7 @@ export class RealFitbitClient implements FitbitClient {
 
   constructor(
     private pool: Pool,
-    private fetchImpl: typeof fetch = fetch,
+    protected fetchImpl: typeof fetch = fetch,
   ) {}
 
   private oauth(): OAuth2Client {
@@ -108,7 +108,8 @@ export class RealFitbitClient implements FitbitClient {
     return new OAuth2Client(clientId, clientSecret);
   }
 
-  private async accessToken(userId: string): Promise<string> {
+  /** protected (not private) so scripts/health-smoke.ts can inject a token. */
+  protected async accessToken(userId: string): Promise<string> {
     const cached = this.accessTokens.get(userId);
     if (cached && cached.expiresAt > Date.now() + 60_000) return cached.token;
 
