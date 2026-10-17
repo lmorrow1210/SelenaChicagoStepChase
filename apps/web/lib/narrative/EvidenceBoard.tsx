@@ -145,12 +145,15 @@ export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
         }
         .slot.compact {
           flex-direction: row;
+          flex-wrap: wrap;
           align-items: baseline;
           justify-content: space-between;
           gap: var(--sp-2);
           padding: var(--sp-2) var(--sp-3);
         }
         .slot.compact .slotTitle {
+          flex: none;
+          white-space: nowrap;
           font-size: var(--fs-label);
           letter-spacing: var(--ls-label);
         }
@@ -181,8 +184,9 @@ export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
           text-transform: uppercase;
           color: var(--phosphor-dim);
         }
+        /* City names are routine labels, not threats — red stays rare. */
         .slotCity {
-          color: var(--signal-red);
+          color: var(--phosphor-hot);
         }
         .slotTitle {
           margin: 0;

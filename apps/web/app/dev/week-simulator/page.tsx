@@ -125,10 +125,15 @@ function WeekSimulatorClient() {
             interceptUnlocked: controls.outcome === "interception",
             dataConfidence: season.dataConfidence,
           }}
-          onDismiss={() => {
-            setCaseReportOpen(false);
-            if (weekConfig.weekNumber === FINALE_WEEK_NUMBER) setFinaleOpen(true);
-          }}
+          onDismiss={() => setCaseReportOpen(false)}
+          onTeaserCta={
+            weekConfig.weekNumber === FINALE_WEEK_NUMBER
+              ? () => {
+                  setCaseReportOpen(false);
+                  setFinaleOpen(true);
+                }
+              : undefined
+          }
         />
       )}
       {finaleOpen && (

@@ -13,6 +13,7 @@ const ROUTES = [
   { label: "onboarding target", path: "/onboarding/target" },
   { label: "onboarding objectives", path: "/onboarding/objectives" },
   { label: "onboarding avatar", path: "/onboarding/avatar" },
+  { label: "week 13 send-off", path: "/finale" },
   { label: "week simulator briefing", path: "/dev/week-simulator?week=1&phase=briefing" },
   { label: "week simulator midweek", path: "/dev/week-simulator?week=2&phase=midweek_update&confidence=incomplete" },
   { label: "week simulator final push", path: "/dev/week-simulator?week=7&phase=final_push&nemesis=bye" },

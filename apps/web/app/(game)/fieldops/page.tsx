@@ -448,8 +448,9 @@ function OpsStyles() {
         margin: var(--space-2xs) 0 0;
         font-family: var(--font-display);
         font-weight: var(--fw-bold);
-        font-size: clamp(28px, 4.5vw, 40px);
-        line-height: var(--lh-display);
+        font-size: var(--fs-h1);
+        line-height: var(--lh-heading);
+        letter-spacing: 0.03em;
         text-transform: uppercase;
         color: var(--phosphor);
       }
@@ -514,6 +515,10 @@ function OpsStyles() {
         text-align: right;
       }
       .dossierLink {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-height: var(--touch-min);
         font-family: var(--font-display);
         font-weight: var(--fw-semibold);
         font-size: var(--fs-label);

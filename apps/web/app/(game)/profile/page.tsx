@@ -579,7 +579,7 @@ function AdminCategoryToggles() {
               onClick={() => toggle(c.key)}
               aria-pressed={!off}
               style={{
-                padding: "6px 10px", borderRadius: "var(--r-tight)",
+                padding: "0 var(--sp-3)", minHeight: "var(--touch-min)", borderRadius: "var(--r-tight)",
                 border: `1px solid ${off ? "var(--hairline)" : "var(--phosphor-40)"}`,
                 background: off ? "var(--screen-700)" : "var(--phosphor-08)",
                 color: off ? "var(--phosphor-dim)" : "var(--phosphor)",

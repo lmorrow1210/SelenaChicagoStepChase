@@ -39,7 +39,8 @@ const VARIANTS = {
 };
 
 const SIZES = {
-  sm: { height: 34, padding: '0 14px', fontSize: 13, gap: 6 },
+  /* 44px = --touch-min; a 34px "small" button misses the mobile tap target. */
+  sm: { height: 44, padding: '0 14px', fontSize: 13, gap: 6 },
   md: { height: 44, padding: '0 20px', fontSize: 15, gap: 8 },
   lg: { height: 54, padding: '0 28px', fontSize: 17, gap: 10 },
 };

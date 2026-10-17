@@ -38,10 +38,13 @@ export function CaseClosedReport({
   weekConfig,
   data,
   onDismiss,
+  onTeaserCta,
 }: {
   weekConfig: SeasonWeekConfig;
   data: CaseClosedData;
   onDismiss: () => void;
+  /** Overrides what the closing card's CTA does (default: dismiss). */
+  onTeaserCta?: () => void;
 }) {
   const close = weekConfig.closeCopy[data.outcome];
   const standardEvidence = getEvidence(weekConfig.evidence.standardEvidenceId);
@@ -127,7 +130,7 @@ export function CaseClosedReport({
         <h2>{teaser.header}</h2>
         <p className="teaserBody">{teaser.body}</p>
         {showSelena && <SelenaLine>{teaser.selena}</SelenaLine>}
-        <button type="button" className="primary" onClick={onDismiss}>
+        <button type="button" className="primary" onClick={onTeaserCta ?? onDismiss}>
           {teaser.cta}
         </button>
       </section>

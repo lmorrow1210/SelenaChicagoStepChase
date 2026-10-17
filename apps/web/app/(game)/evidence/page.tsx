@@ -99,9 +99,11 @@ function Styles() {
       .evidencePage h1 {
         margin: var(--sp-1) 0 0;
         font-family: var(--font-display);
-        font-size: var(--fs-h2);
+        font-size: var(--fs-h1);
+        line-height: var(--lh-heading);
+        letter-spacing: 0.03em;
         text-transform: uppercase;
-        color: var(--phosphor-hot);
+        color: var(--phosphor);
       }
       .evidencePage .replay {
         display: flex;
