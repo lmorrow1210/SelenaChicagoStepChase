@@ -7,6 +7,7 @@ import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
 import { withBase } from "../../../lib/links";
 import { EvidenceBoard, type EvidenceBoardData } from "../../../lib/narrative/EvidenceBoard";
+import { isFinaleUnlocked } from "../../../lib/finale/access";
 
 export default function EvidencePage() {
   const session = useSession();
@@ -55,6 +56,12 @@ export default function EvidencePage() {
         <h1>Chase Evidence</h1>
       </header>
       <EvidenceBoard board={board.data} />
+      {isFinaleUnlocked(board.data) && (
+        <aside className="replay" aria-label="Season send-off">
+          <p>She left one more thing at the coast.</p>
+          <a className="replayLink" href={withBase("/finale")}>Replay the send-off</a>
+        </aside>
+      )}
       <Styles />
     </main>
   );
@@ -85,6 +92,33 @@ function Styles() {
         font-family: var(--font-display);
         font-size: var(--fs-h2);
         text-transform: uppercase;
+        color: var(--phosphor-hot);
+      }
+      .evidencePage .replay {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-3);
+        border: 1px solid var(--hairline);
+        padding: var(--sp-3);
+      }
+      .evidencePage .replay p {
+        margin: 0;
+        font-family: var(--font-body);
+        color: var(--phosphor);
+      }
+      .replayLink {
+        min-height: var(--touch-min);
+        display: inline-flex;
+        align-items: center;
+        padding: var(--sp-2) var(--sp-4);
+        border: 1px solid var(--phosphor);
+        color: var(--phosphor);
+      }
+      .replayLink:hover,
+      .replayLink:focus-visible {
+        background: var(--phosphor-12);
         color: var(--phosphor-hot);
       }
       .evidenceAction {

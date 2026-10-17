@@ -24,6 +24,24 @@ export function shouldAutoOpenFinale(previousCase: FinaleCaseSlice | null | unde
   );
 }
 
+/**
+ * When should the map open the send-off *now*? Only once (finaleOpen still
+ * unset), only for an unseen Week 13 case, and only after the case-closed
+ * report is out of the way: already viewed on a previous visit, or just
+ * dismissed this visit.
+ */
+export function shouldOpenFinaleNow(
+  previousCase: (FinaleCaseSlice & { viewed?: boolean }) | null | undefined,
+  finaleOpen: boolean | null,
+  caseReportOpen: boolean | null,
+): boolean {
+  return (
+    finaleOpen === null
+    && shouldAutoOpenFinale(previousCase)
+    && (Boolean(previousCase?.viewed) || caseReportOpen === false)
+  );
+}
+
 export function avatarChoiceFromUser(
   user: Pick<SessionUser, "avatar_skin" | "avatar_hair" | "avatar_colorway"> | null | undefined,
 ): AvatarChoice {

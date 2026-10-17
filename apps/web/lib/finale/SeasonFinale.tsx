@@ -300,7 +300,7 @@ export function SeasonFinale({ avatar, variant = "overlay", onComplete, onContin
             {reduced ? (
               <>
                 {FINALE_LINES.map((text) => (
-                  <p key={text} className="said">{text}</p>
+                  <p key={text} className="said static">{text}</p>
                 ))}
                 <p className="sign">{FINALE_SIGNOFF}</p>
               </>
@@ -445,6 +445,9 @@ export function SeasonFinale({ avatar, variant = "overlay", onComplete, onContin
           font-style: italic;
           color: var(--case-900);
           min-height: 3.2em;
+        }
+        .said.static {
+          min-height: 0;
         }
         .sign {
           margin: 0;

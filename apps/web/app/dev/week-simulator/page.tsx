@@ -32,8 +32,16 @@ import {
   PrimaryActionCard,
 } from "@/lib/narrative/ChaseCards";
 import { EvidenceBoard } from "@/lib/narrative/EvidenceBoard";
+import { SeasonFinale } from "@/lib/finale/SeasonFinale";
+import { FINALE_WEEK_NUMBER } from "@/lib/finale/trigger";
+import type { AvatarChoice } from "@/lib/finale/sprites";
 
-const enabled = process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_ENABLE_WEEK_SIMULATOR === "1";
+// The backend-free GitHub Pages demo (NEXT_PUBLIC_DEMO=1) also exposes the
+// simulator: it writes no data and is how the Week 13 finale is shown there.
+const enabled =
+  process.env.NODE_ENV === "development"
+  || process.env.NEXT_PUBLIC_ENABLE_WEEK_SIMULATOR === "1"
+  || process.env.NEXT_PUBLIC_DEMO === "1";
 
 const fieldOpsOptions = [
   { value: 0, label: "No lines" },
@@ -65,6 +73,8 @@ function WeekSimulatorClient() {
   const [briefingOpen, setBriefingOpen] = useState(false);
   const [midweekOpen, setMidweekOpen] = useState(false);
   const [caseReportOpen, setCaseReportOpen] = useState(false);
+  const [finaleOpen, setFinaleOpen] = useState(false);
+  const [avatar, setAvatar] = useState<AvatarChoice>({ skin: 5, hair: 5, colorway: 1 });
   const state = useMemo(() => buildWeekSimulatorState(controls), [controls]);
 
   if (!enabled) {
@@ -115,8 +125,14 @@ function WeekSimulatorClient() {
             interceptUnlocked: controls.outcome === "interception",
             dataConfidence: season.dataConfidence,
           }}
-          onDismiss={() => setCaseReportOpen(false)}
+          onDismiss={() => {
+            setCaseReportOpen(false);
+            if (weekConfig.weekNumber === FINALE_WEEK_NUMBER) setFinaleOpen(true);
+          }}
         />
+      )}
+      {finaleOpen && (
+        <SeasonFinale variant="overlay" avatar={avatar} onContinue={() => setFinaleOpen(false)} />
       )}
 
       <section className="header">
@@ -283,10 +299,32 @@ function WeekSimulatorClient() {
             Intercept Clue unlocked
           </label>
 
+          <fieldset className="avatarPick">
+            <legend>Send-off avatar</legend>
+            {([
+              ["skin", "Skin", 5],
+              ["hair", "Hair", 5],
+              ["colorway", "Coat", 6],
+            ] as const).map(([key, label, count]) => (
+              <label key={key}>
+                {label}
+                <select
+                  value={avatar[key]}
+                  onChange={(event) => setAvatar({ ...avatar, [key]: Number(event.target.value) })}
+                >
+                  {Array.from({ length: count }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </label>
+            ))}
+          </fieldset>
+
           <div className="triggerRow">
             <button type="button" onClick={() => setBriefingOpen(true)}>Trigger briefing</button>
             <button type="button" onClick={() => setMidweekOpen(true)}>Trigger midweek update</button>
             <button type="button" onClick={() => setCaseReportOpen(true)}>Trigger case closed</button>
+            <button type="button" onClick={() => setFinaleOpen(true)}>Play the Week 13 send-off</button>
             <button
               type="button"
               onClick={() => {
@@ -568,6 +606,21 @@ const styles = `
   .checkbox input {
     width: 1rem;
     height: 1rem;
+  }
+
+  .avatarPick {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    border: 1px solid var(--grid-line);
+    padding: 0.6rem;
+    margin: 0;
+  }
+
+  .avatarPick legend {
+    color: var(--phosphor-dim);
+    padding: 0 0.3rem;
+    font-size: 0.92rem;
   }
 
   .triggerRow {
