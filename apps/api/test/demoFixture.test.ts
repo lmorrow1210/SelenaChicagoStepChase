@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoResponse, demoResponseForWeek } from "../../web/lib/demo.js";
+import { buildDemoFixtures, demoResponse, demoResponseForWeek } from "../../web/lib/demo.js";
 import { SEASON_ONE_CONFIG } from "@one-step-ahead/shared/season-one/seasonOne";
 
 describe("demo current-week fixture", () => {
@@ -239,6 +239,25 @@ describe("demo current-week fixture", () => {
       today: "2026-06-20",
       outcome: "tiebreak",
       matchup: { status: "tiebreak", score_a: 2, score_b: 2, tiebreaker_date: "2026-06-20" },
+    });
+  });
+});
+
+describe("demo Week 13 send-off fixture", () => {
+  it("is off by default and, when on, reports an unseen Week 13 interception as the previous case", () => {
+    const off = buildDemoFixtures(1, { finale: false })["/api/weeks/current"] as { seasonState: { previousCase: unknown } };
+    expect(off.seasonState.previousCase).toBeNull();
+
+    const on = buildDemoFixtures(1, { finale: true })["/api/weeks/current"] as {
+      seasonState: { season: { weekNumber: number }; previousCase: Record<string, unknown> };
+    };
+    expect(on.seasonState.season.weekNumber).toBe(1);
+    expect(on.seasonState.previousCase).toMatchObject({
+      weekNumber: 13,
+      cityName: "San Francisco",
+      outcome: "interception",
+      viewed: false,
+      finaleViewed: false,
     });
   });
 });

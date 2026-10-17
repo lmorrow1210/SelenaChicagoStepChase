@@ -4,7 +4,7 @@ import { IconName } from '../icons/Icon';
 export interface ButtonProps {
   children?: React.ReactNode;
   /** Visual style. Default 'primary'. */
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'dangerOutline' | 'ghost';
   /** Size. Default 'md'. */
   size?: 'sm' | 'md' | 'lg';
   /** Optional leading icon name. */

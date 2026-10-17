@@ -10,7 +10,7 @@ export default function GameTemplate({ children }: { children: React.ReactNode }
       {children}
       <style jsx>{`
         .sc-screenSettle {
-          animation: sc-settle var(--dur-base) var(--ease-out) both;
+          animation: sc-settle var(--dur-base) var(--ease-out) backwards;
         }
         @keyframes sc-settle {
           from {

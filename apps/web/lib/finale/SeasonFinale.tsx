@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   FINALE_END,
   FINALE_KICKER,
@@ -266,7 +267,7 @@ export function SeasonFinale({ avatar, variant = "overlay", onComplete, onContin
 
   const Root = variant === "overlay" ? "div" : "main";
 
-  return (
+  const tree = (
     <Root
       ref={rootRef as never}
       className={`finale ${variant}`}
@@ -549,6 +550,10 @@ export function SeasonFinale({ avatar, variant = "overlay", onComplete, onContin
       `}</style>
     </Root>
   );
+
+  // The overlay is portaled to <body> so the game layout's stacking context
+  // can't paint the TabBar over it.
+  return variant === "overlay" && typeof document !== "undefined" ? createPortal(tree, document.body) : tree;
 }
 
 export default SeasonFinale;

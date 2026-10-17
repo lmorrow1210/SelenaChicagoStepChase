@@ -478,7 +478,7 @@ export default function ProfilePage() {
             </div>
             {user.fitbit_connected && (
               <Button
-                variant="danger"
+                variant="dangerOutline"
                 size="sm"
                 loading={disconnect.isPending}
                 onClick={() => disconnect.mutate()}

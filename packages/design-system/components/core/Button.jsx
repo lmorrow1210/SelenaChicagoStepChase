@@ -22,6 +22,14 @@ const VARIANTS = {
     border: '1.5px solid var(--blue)',
     fontWeight: 600,
   },
+  /* Outlined destructive — for rare, secondary destructive actions where a
+     solid red key would out-shout the screen (red stays rare). */
+  dangerOutline: {
+    background: 'transparent',
+    color: 'var(--red)',
+    border: '1.5px solid var(--red)',
+    fontWeight: 600,
+  },
   danger: {
     background: 'var(--red)',
     color: 'var(--text-on-red)',
@@ -68,6 +76,7 @@ export function Button({
     primary: 'var(--blue-hover)',
     secondary: 'var(--blue-12)',
     danger: 'var(--red-hover)',
+    dangerOutline: 'var(--red-12)',
     ghost: 'var(--cream-08)',
   }[variant];
 
