@@ -1,5 +1,6 @@
 "use client";
 
+import Button from "@one-step-ahead/design-system/components/core/Button";
 import { BingoTile } from "@one-step-ahead/design-system/components/game/BingoTile";
 import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
@@ -120,7 +121,7 @@ export default function FieldOpsPage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const seasonWeek = useSeasonWeek(!!user?.group_id);
-  const { data, isLoading, error } = useQuery<FieldOpsPayload>({
+  const { data, isLoading, error, refetch } = useQuery<FieldOpsPayload>({
     queryKey: ["fieldops"],
     queryFn: () => api<FieldOpsPayload>("/api/fieldops"),
     enabled: !!user?.group_id,
@@ -185,7 +186,12 @@ export default function FieldOpsPage() {
   if (error || !data) {
     return (
       <main className="opsPage">
-        <EmptyState icon="sync" title="Ops board unavailable" body="Try syncing your steps first." />
+        <EmptyState
+          icon="sync"
+          title="Ops board unavailable"
+          body="Try syncing your steps first, then retry."
+          action={<Button onClick={() => void refetch()}>Retry</Button>}
+        />
         <OpsStyles />
       </main>
     );

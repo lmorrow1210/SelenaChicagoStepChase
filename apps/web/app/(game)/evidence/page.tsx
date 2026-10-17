@@ -43,7 +43,16 @@ export default function EvidencePage() {
   if (board.isError || !board.data) {
     return (
       <main className="evidencePage">
-        <EmptyState icon="globe" title="Evidence locker unavailable" body="Join a group to open the chase file." />
+        <EmptyState
+          icon="globe"
+          title="Evidence locker unavailable"
+          body="Join a group to open the chase file, or try again."
+          action={
+            <button type="button" className="evidenceAction" onClick={() => void board.refetch()}>
+              Retry
+            </button>
+          }
+        />
         <Styles />
       </main>
     );
@@ -122,6 +131,9 @@ function Styles() {
         color: var(--phosphor-hot);
       }
       .evidenceAction {
+        border: 0;
+        font: inherit;
+        cursor: pointer;
         min-height: var(--touch-min);
         display: inline-flex;
         align-items: center;

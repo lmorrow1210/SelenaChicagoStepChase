@@ -65,9 +65,14 @@ export function CaseClosedReport({
 
   return (
     <RitualOverlay labelledBy="case-closed-title" onDismiss={onDismiss} wide>
-      <RitualLabel>
-        Case {String(weekConfig.weekNumber).padStart(2, "0")} · {weekConfig.cityName} · {OUTCOME_MARKERS[data.outcome]}
-      </RitualLabel>
+      <div className="topRow">
+        <RitualLabel>
+          Case {String(weekConfig.weekNumber).padStart(2, "0")} · {weekConfig.cityName} · {OUTCOME_MARKERS[data.outcome]}
+        </RitualLabel>
+        <button type="button" className="closeBtn" onClick={onDismiss} aria-label="Close report">
+          Close
+        </button>
+      </div>
       <h1 id="case-closed-title" className={data.outcome === "interception" ? "headline intercepted" : "headline"}>
         {close.headline}
       </h1>
@@ -128,6 +133,58 @@ export function CaseClosedReport({
       </section>
 
       <style jsx>{`
+        .topRow {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: var(--sp-3);
+        }
+        .closeBtn {
+          flex: none;
+          min-height: var(--touch-min);
+          min-width: var(--touch-min);
+          padding: 0 var(--sp-3);
+          margin: calc(var(--sp-2) * -1) calc(var(--sp-1) * -1) 0 0;
+          background: transparent;
+          border: 1px solid var(--hairline);
+          color: var(--phosphor);
+          font-family: var(--font-display);
+          font-size: var(--fs-label);
+          letter-spacing: var(--ls-label);
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+        .closeBtn:hover,
+        .closeBtn:focus-visible {
+          border-color: var(--phosphor);
+          color: var(--phosphor-hot);
+        }
+        .closeBtn:focus-visible {
+          outline: 2px solid var(--phosphor-hot);
+          outline-offset: 2px;
+        }
+        /* The outcome stamps down, then the report sections decode in one by
+           one. Purposeful, ~1s total; the global reduced-motion rule kills it. */
+        .headline {
+          animation: stamp-in 420ms var(--ease-out) both;
+        }
+        .story,
+        .reportSection {
+          animation: decode-in 380ms var(--ease-out) both;
+        }
+        .story { animation-delay: 220ms; }
+        .reportSection:nth-of-type(1) { animation-delay: 340ms; }
+        .reportSection:nth-of-type(2) { animation-delay: 460ms; }
+        .reportSection:nth-of-type(3) { animation-delay: 580ms; }
+        @keyframes stamp-in {
+          0% { opacity: 0; transform: scale(1.14); letter-spacing: 0.08em; }
+          60% { opacity: 1; transform: scale(0.98); }
+          100% { opacity: 1; transform: none; }
+        }
+        @keyframes decode-in {
+          from { opacity: 0; transform: translateY(var(--sp-1)); }
+          to { opacity: 1; transform: none; }
+        }
         .headline {
           margin: 0;
           font-family: var(--font-display);

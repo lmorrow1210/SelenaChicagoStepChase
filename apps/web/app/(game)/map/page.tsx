@@ -314,7 +314,16 @@ export default function MapPage() {
   if (map.isError || !map.data) {
     return (
       <main className="mapPage">
-        <EmptyState icon="sync" title="Map unavailable" body="Try again in a minute." />
+        <EmptyState
+          icon="sync"
+          title="Map unavailable"
+          body="The signal dropped. Try again."
+          action={
+            <button type="button" className="mapAction" onClick={() => void map.refetch()}>
+              Retry
+            </button>
+          }
+        />
         <MapStyles />
       </main>
     );
@@ -1184,6 +1193,9 @@ function MapStyles() {
       }
 
       .mapAction {
+        border: 0;
+        font: inherit;
+        cursor: pointer;
         min-height: var(--touch-min);
         display: inline-flex;
         align-items: center;

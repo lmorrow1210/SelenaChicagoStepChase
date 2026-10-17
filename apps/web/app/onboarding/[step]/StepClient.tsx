@@ -307,10 +307,11 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
             key={color}
             type="button"
             aria-label={`${label} ${i + 1}`}
+            aria-pressed={selected === i + 1}
             onClick={() => onPick(i + 1)}
             style={{
-              width: 32,
-              height: 32,
+              width: "var(--touch-min)",
+              height: "var(--touch-min)",
               borderRadius: "var(--r-full)",
               background: color,
               border: selected === i + 1 ? "2.5px solid var(--blue)" : "2px solid var(--hairline)",
@@ -358,10 +359,11 @@ function AvatarStep({ onNext }: { onNext: () => void }) {
               key={id}
               type="button"
               aria-label={COLORWAYS[id].label}
+              aria-pressed={colorway === i + 1}
               onClick={() => setColorway(i + 1)}
               style={{
-                width: 32,
-                height: 32,
+                width: "var(--touch-min)",
+                height: "var(--touch-min)",
                 borderRadius: "var(--r-full)",
                 background: COLORWAYS[id].coat,
                 border:

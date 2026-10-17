@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { setCinematicOpen } from "../finale/openState";
 
 /**
  * Shared scaffolding for ritual overlays (Monday briefing, midweek update,
@@ -20,6 +21,12 @@ export function RitualOverlay({
   children: ReactNode;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Toasts pause while a ritual overlay is up so they never cover its content.
+  useEffect(() => {
+    setCinematicOpen(true);
+    return () => setCinematicOpen(false);
+  }, []);
 
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;

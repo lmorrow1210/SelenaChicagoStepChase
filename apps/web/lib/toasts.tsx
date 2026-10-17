@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { api } from "./api";
 import { useSession } from "./session";
+import { usePathname } from "next/navigation";
 import { useCinematicOpen } from "./finale/openState";
 
 // In-app notification toasts (M9): unread notifications surface as a stack
@@ -110,7 +111,11 @@ function BeatToast({ message, onClose }: { message: string; onClose: () => void 
 
 export function ToastShelf() {
   const { user } = useSession();
-  const paused = useCinematicOpen();
+  // Pause behind full-screen surfaces (finale, ritual overlays) and keep the
+  // shelf off sign-in / onboarding, where it would sit on top of the CTA.
+  const pathname = usePathname() ?? "";
+  const quietRoute = pathname.startsWith("/onboarding") || pathname.startsWith("/login") || pathname.startsWith("/finale");
+  const paused = useCinematicOpen() || quietRoute;
   const queryClient = useQueryClient();
 
   const { data } = useQuery<{ notifications: AppNotification[] }>({

@@ -39,19 +39,32 @@ const OUTCOME_MARKERS: Record<WeeklyOutcome, string> = {
  * slots show sealed placeholders only; no drag-and-drop, strings, or pins.
  */
 export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
+  const recovered = board.weeks.filter((week) => week.standardEvidence.unlocked).length;
+  // Only the next case to close gets the full "how to recover this" hint; the
+  // rest of the sealed slots collapse to a single line so recovered evidence
+  // is what the eye lands on, not a wall of identical padlocks.
+  const nextSealed = board.weeks.findIndex((week) => !week.standardEvidence.unlocked);
   return (
     <section className="board" aria-label="Chase evidence board">
       <header className="boardHeader">
         <p className="seasonKicker">The Chase · {board.season.title}</p>
         <p className="tally" role="status">
+          Recovered: <span className="tallyNumber">{recovered}</span> of {board.season.totalWeeks}
+          {" · "}
           Interceptions: <span className="tallyNumber">{board.interceptionCount}</span> of {board.season.totalWeeks}
         </p>
       </header>
 
       <ol className="slots">
-        {board.weeks.map((week) => (
+        {board.weeks.map((week, index) => (
           <li
-            className={week.standardEvidence.unlocked ? "slot unlocked sc-corners" : "slot sc-corners"}
+            className={
+              week.standardEvidence.unlocked
+                ? "slot unlocked sc-corners"
+                : index === nextSealed
+                  ? "slot next sc-corners"
+                  : "slot compact"
+            }
             key={week.weekNumber}
           >
             <p className="slotKicker">
@@ -76,7 +89,7 @@ export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
             ) : (
               <>
                 <p className="slotTitle sealed">SEALED</p>
-                <p className="slotBody dim">
+                <p className={index === nextSealed ? "slotBody dim" : "slotBody dim sr"}>
                   {week.chapterTitle
                     ? `Close the ${week.cityName} case to recover this evidence.`
                     : "Evidence pending."}
@@ -129,6 +142,32 @@ export function EvidenceBoard({ board }: { board: EvidenceBoardData }) {
           border: 1px dashed var(--hairline);
           background: var(--screen-700);
           min-width: 0;
+        }
+        .slot.compact {
+          flex-direction: row;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: var(--sp-2);
+          padding: var(--sp-2) var(--sp-3);
+        }
+        .slot.compact .slotTitle {
+          font-size: var(--fs-label);
+          letter-spacing: var(--ls-label);
+        }
+        .slot.next {
+          border-style: solid;
+          border-color: var(--phosphor-dim);
+        }
+        .slotBody.sr {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          white-space: nowrap;
+        }
+        .slot {
+          position: relative;
         }
         .slot.unlocked {
           border-style: solid;

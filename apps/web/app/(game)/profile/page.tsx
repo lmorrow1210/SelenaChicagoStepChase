@@ -170,10 +170,11 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
             key={color}
             type="button"
             aria-label={`${label} ${i + 1}`}
+            aria-pressed={selected === i + 1}
             onClick={() => onPick(i + 1)}
             style={{
-              width: 32,
-              height: 32,
+              width: "var(--touch-min)",
+              height: "var(--touch-min)",
               borderRadius: "var(--r-full)",
               background: color,
               border:
@@ -227,7 +228,8 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
                   key={id}
                   type="button"
                   aria-label={COLORWAYS[id].label}
-                  onClick={() => setColorway(i + 1)}
+                  aria-pressed={colorway === i + 1}
+              onClick={() => setColorway(i + 1)}
                   style={{
                     width: 32,
                     height: 32,
