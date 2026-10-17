@@ -120,7 +120,7 @@ describe("demo current-week fixture", () => {
     });
     expect(finale.nextCityTeaser).toMatchObject({
       cityName: "",
-      header: "THE CASE IS CLOSED",
+      header: "ONE LAP COMPLETE",
     });
   });
 

@@ -23,7 +23,7 @@ describeDb("full migration integrity", () => {
     await pool.end();
   });
 
-  it("builds the final schema and seed state from migrations 001 through 011", async () => {
+  it("builds the final schema and seed state from migrations 001 through 012", async () => {
     const tables = await pool.query<{ table_name: string }>(
       `SELECT table_name
        FROM information_schema.tables

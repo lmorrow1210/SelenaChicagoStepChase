@@ -1477,7 +1477,7 @@ export interface paths {
         put?: never;
         /**
          * Record a weekly ritual view
-         * @description Marks a ritual surface (Monday briefing, midweek update, final push, case-closed report) as seen by the viewer for a week. Idempotent per (week, user, ritual); the product requires persisted briefingViewedAt.
+         * @description Marks a ritual surface (Monday briefing, midweek update, final push, case-closed report, or the Week 13 season finale send-off) as seen by the viewer for a week. Idempotent per (week, user, ritual); the product requires persisted briefingViewedAt.
          */
         post: {
             parameters: {
@@ -1492,7 +1492,7 @@ export interface paths {
                         /** Format: uuid */
                         week_id: string;
                         /** @enum {string} */
-                        ritual_id: "monday_briefing" | "midweek_update" | "final_push" | "case_closed";
+                        ritual_id: "monday_briefing" | "midweek_update" | "final_push" | "case_closed" | "season_finale";
                     };
                 };
             };
@@ -1751,6 +1751,8 @@ export interface components {
             /** Format: date-time */
             finalizedAt: string;
             viewed: boolean;
+            /** @description True once the viewer has seen or skipped the Week 13 send-off (ritual `season_finale`). */
+            finaleViewed: boolean;
         };
         EvidenceSlot: {
             id: string;

@@ -38,6 +38,7 @@ export const RITUAL_IDS = [
   "midweek_update",
   "final_push",
   "case_closed",
+  "season_finale",
 ] as const;
 export const ritualIdSchema = z.enum(RITUAL_IDS);
 export const ritualViewSchema = z.object({
