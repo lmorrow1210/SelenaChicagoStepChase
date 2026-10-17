@@ -126,7 +126,15 @@ route changes (e.g. locked intel ships `fun_fact: null`).
 - Mobile: inputs ≥16px (iOS zoom), `--touch-min` 44px targets, safe-area on the
   TabBar, `viewport`/`themeColor`/manifest already wired in `apps/web/app/`.
 
-## Current state (July 2026)
+## Current state (Oct 17, 2026)
+
+Season One content is complete in six open PRs (#6, #15, #16, #17, #11, #13);
+`main` still has only Weeks 1–2. See **HANDOFF.md §M15** for merge order, the
+open review findings, and launch blockers, and `docs/LAUNCH-RUNBOOK.md` (on
+branch `launch-prep`) for the owner launch steps. The July 2026 notes below
+are history.
+
+## July 2026 state (history)
 
 `main` is green: CI + Pages deploy passing, 74/74 API tests, Lighthouse 100
 (a11y/BP/SEO) on all screens, WCAG audit 23/23. Live demo:

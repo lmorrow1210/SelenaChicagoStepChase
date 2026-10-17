@@ -522,29 +522,145 @@ human review/merge.**
   - Raw-hex frontend policy passed.
   - Contrast audit passed **23/23**.
 
+### M15 — Season One content-complete + launch prep (Oct 16–17, 2026)
+
+State at end of this session (nothing below was pushed to `main`; `main` is
+still `e1ea2eb`):
+
+- **Weeks 1–2 are on `main`; Weeks 3–13 are in open PRs.** Six PRs are open,
+  all green on CI, all mergeable:
+  - **#6** `codex/cities-buildout` — Weeks 3–13 fully implemented (inline
+    configs, 26 explicit evidence entries, migration `011` landmark sync).
+    Bingo uses option A (shared 24 codes) for every city.
+  - **#15** `codex/season-wide-test-depth` (base: #6) — 13-week rollover soak,
+    outcome matrix, canon-vs-DB landmark drift guard.
+  - **#16** `codex/demo-simulator-completeness` (base: #15) — demo fixtures
+    and `/dev/week-simulator` cover all 13 weeks.
+  - **#17** `codex/quality-gates-expansion` (base: #16) — Playwright smoke +
+    axe + Lighthouse CI job, static-export matrix (weeks 1/2/13).
+  - **#11** `codex/selena-signoff` — renders "— S.C." on Selena ritual lines.
+  - **#13** `codex/map-declutter-hardening` — prediction input/slider hardening.
+- **Merge-ability proven locally:** a throwaway `integration` branch (local
+  only, not pushed; HEAD `2c0449c`) merged all six with zero semantic
+  conflicts. Only conflict: `apps/web/package.json` + `package-lock.json`
+  between #13 and the others (union the devDeps `react-test-renderer`,
+  `@types/react-test-renderer`, `vitest`; regenerate the lockfile with
+  `npm install`, never hand-edit). Result: API 178/178, web vitest 9/9,
+  tsc/contrast/raw-hex/OpenAPI-sync/lore-grep all clean, static export
+  builds. The Playwright/Lighthouse job could not run in the sandbox (browser
+  download blocked) — rely on GitHub CI.
+- **Merge order + mechanics:** #6 → #15 → #16 → #17, then #11 and #13 in any
+  order. Use **merge commits, not squash**, for the stack; after each merge
+  retarget the next PR's base to `main` (or let GitHub auto-retarget when the
+  base branch is deleted). Squashing #6 forces
+  `git rebase --onto main <old-#6-tip> <branch>` + force-push for each
+  downstream PR.
+- **`launch-prep` branch** (pushed, no PR yet, commit `8e34031`): adds
+  `docs/LAUNCH-RUNBOOK.md` (Google Cloud setup, env vars, Railway/Vercel
+  steps, cross-domain cookie notes, device QA checklist, rollback),
+  `apps/api/scripts/health-smoke.ts` (`npm run smoke:health -w apps/api`;
+  prints status codes / key names / counts only, never values, tokens, or
+  email), and root `engines.node >=22.18`. `realFitbitClient.ts` had
+  `accessToken`/`fetchImpl` loosened from private to protected so the script
+  can inject a token — no behavior change.
+
+**Review findings still open (from the six-agent audit):**
+
+| Sev | Item | Where |
+|---|---|---|
+| Fix before merge | #17's `browser-quality` job uses Node 20; Lighthouse 13.4 needs Node >=22.19 — bump that job to Node 22 or pin lighthouse 12 | `.github/workflows/ci.yml` |
+| Medium | #17 static server returns HTTP 200 for its 404 fallback, so broken routes pass smoke tests | `scripts/serve-static-demo.mjs` |
+| Owner call | #15 changes production behavior: rollover after Week 13 no longer wraps to Chicago; group is left with no active week and `/api/weeks/current` falls back to the latest closed week. Confirm intent; add a post-finale `/api/weeks/current` assertion | `apps/api/src/services/weekRollover.ts` ~24–40, 403–410 |
+| Copy fix | Boston is not "an hour ahead of the New York clock" (same time zone) — reword to "an hour before the sightings" / "ahead of the New York sightings" | `seasonOne.ts` ~1190, 1196, 1218 + Week 6/7 packs |
+| Fact fix | Santa Monica Pier fun fact: "has carried its amusement park since 1909" — pier opened 1909, Pleasure Pier is 1916 → "has stood since 1909" | migration `011` + Week 12 pack |
+| Fact fix | Zilker Park: Barton Springs flows *into* Barton Creek, doesn't "feed" it | migration `011` + Week 10 pack |
+| Spoiler leak | `CaseClosedReport` shows `teaser.body` to every outcome; in Weeks 8–12 the teaser repeats the locked intercept-clue text, so players who miss the interception still read it | `CaseClosedReport.tsx` |
+| Scope (owner awareness) | Wk 11 "thirteen fixed points joined by one figure" and Wk 12 "the real one is in San Francisco, and it has not happened yet" are the most connective hooks; both match the packs and QA finding N2 accepted them, but they sit on the rule #6 line. Wk 13 "Whatever comes next, you are ready for it." works against N6 — suggest cutting | `seasonOne.ts` ~1543–1553, 1626, 1635, 1700 |
+| Nit | Wk 13 season-close card text in code ("THE CASE IS CLOSED"/"Review the chase") differs from pack ("SEASON ONE COMPLETE"/"Review the season"); a test pins the code header. Pick one source of truth. Pack's N6 banner is stale | `seasonOne.ts` 1704–1709, `week-13-san-francisco.md` |
+| Nit | #13 raises the shared Slider from 28px to `--touch-min` (44px); Profile and Onboarding sliders grow 16px — eyeball them | `Slider.jsx` |
+| Nit | No test pins migration `011` landmarks against `seasonOne.ts` (only vs packs) | tests |
+| Nit | Hard-coded row counts (65/72/16) in `migrations.integration.test.ts` will break on the next seeding migration | #15 |
+
+**Launch blockers found by the Health API / deploy review (see
+`docs/LAUNCH-RUNBOOK.md` on `launch-prep`):**
+
+1. **Cross-domain session cookie.** Cookie is host-only `SameSite=Lax`
+   (`apps/api/src/lib/session.ts:33-41`), CORS allows one origin
+   (`apps/api/src/index.ts:29-39`), web fetches with `credentials:"include"`.
+   On `*.vercel.app` + `*.railway.app` the cookie is never sent (login
+   "succeeds", next call 401s); `SameSite=None` doesn't fix iOS Safari. **Fix:
+   put both on one domain Lindsey owns (`app.` + `api.`) — no code change.**
+2. **OAuth app in Testing mode** expires refresh tokens after 7 days. Publish
+   the app before real players (unverified is OK up to 100 users, shows a
+   warning screen; a privacy-policy URL is likely required — unconfirmed).
+3. **`NODE_ENV=production` must be set by hand** — it gates the Secure cookie
+   flag and locks `/api/auth/dev-login` (`routes/auth.ts:171`); missing it
+   leaves dev-login open.
+4. **Production defaults to the REAL Health client** when `HEALTH_API_MODE` is
+   unset (`clientFactory.ts:14-15`). Set `mock` explicitly until the smoke
+   test passes.
+5. **Cron is an in-process timer** (`index.ts:62-64`, `cron.ts:221-236`): run
+   exactly one API instance, disable Railway sleeping, and don't deploy
+   around Monday 00:00 group-local (a missed tick is never replayed, so that
+   week's rollover is skipped).
+6. **Time-zone bug in real mode (code fix needed, not yet done):**
+   `workout_before` (`bingo.ts:~212`) and `bedtime_before` (`bingo.ts:~269`)
+   read `getUTCHours()` on real Health API timestamps, but `bingoService.ts`
+   passes them through unconverted (`:248-250`), so for Chicago players
+   "workout before 8 AM" and "in bed before 11 PM" tiles evaluate wrong. Mock
+   mode hides it. Fix with `startUtcOffset`/civil times from the sessions.
+7. `realFitbitClient.ts:224` uses `?? 0` for steps, so a parser mismatch
+   silently records 0 steps (runbook has a SQL sanity check); `sessions[0]`
+   can pick a nap as main sleep (`:277`); `CRON_TZ_STRATEGY` and `SENTRY_DSN`
+   in `.env.example` are never read.
+
+**Health API doc check (Oct 2026):** base URL, steps `dailyRollUp` path/body
+and `countSum` string handling, and exercise/sleep list filters match current
+docs (high confidence). Active-zone-minutes field names (`sumIn*HeartZone`)
+are guessed — Google doesn't publish them (low). Heart-rate zones are derived
+from AZM; Google's native types are `time-in-heart-rate-zone` /
+`calories-in-heart-rate-zone` (low). Hourly steps (`steps_by_hour`) remain
+unimplemented; the smoke script probes a `windowSize` 3600s rollUp. The
+`health_metrics_and_measurements` scope appears unused. Rate limit 300
+req/min/user. **No sandbox exists** — testing = OAuth Testing mode + test
+users + real accounts. Legacy Fitbit Web API shuts off **Oct 30, 2026**.
+
+**Sandbox notes for future sessions:** Google Fonts is blocked in the cloud
+sandbox, so `next build` fails at `next/font` — work around with
+`NEXT_FONT_GOOGLE_MOCKED_RESPONSES` pointing at a module (outside the repo)
+that returns a stub `@font-face` for any URL. Playwright browser downloads
+are blocked too. Postgres 16 can be started with
+`pg_ctlcluster 16 main start` (password `postgres`).
+
 ## What is NOT done — next tasks in priority order
 
-1. **Review PR #3 — Week 1 vertical slice.** Branch `codex/week-one` is pushed
-   and verified at `d714085`. Let CI finish, review the diff, and do not merge
-   unless Lindsey explicitly asks. The local branch should be clean and aligned
-   with `origin/codex/week-one`.
-2. **Manual Week 1 product smoke before merge.** In demo/export mode, click
-   through `/map`, `/fieldops`, `/prediction`, `/nemesis`, `/evidence`, and
-   `/dev/week-simulator`. Confirm the story reads correctly, all four outcome
-   states are understandable, and no Week 2+ sealed evidence leaks.
-3. **After approval, merge PR #3 and confirm Pages deploy.** The live demo on
-   `main` will not show Week 1 until the PR is merged and `.github/workflows/pages.yml`
-   completes.
-4. **Health API — docs verified, live smoke pending** (plan §5 flag, June 2026): the Google Health API launched at I/O May 2026 at `health.googleapis.com/v4` (legacy Fitbit Web API decommissions Sept 2026). `realFitbitClient.ts` was rewritten against the documented surface: `POST /users/me/dataTypes/{type}/dataPoints:dailyRollUp` for steps + active-zone-minutes, `GET …/dataPoints?filter=` for exercise/sleep sessions. OAuth scopes in `auth.ts` already match the consolidated `googlehealth.*` bundles. Parsing tolerates camelCase and snake_case (union-field casing unconfirmed in docs); 4 unit tests fake `fetch`. **Remaining:** one live smoke with the sandbox account, then flip `HEALTH_API_MODE=real`. Until then production runs `HEALTH_API_MODE=mock`.
-5. **Deploy**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
-6. **M9 manual QA**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026), re-verified July 2026 under the Field Terminal palette**: all screens back at **100** after the palette (fixes: `--phosphor-dim` #429A57→#4AAB61 so muted text clears AA even where axe blends the tan bevel edge into raised faces; Toast message text is primary `--phosphor`). Viewport sweep 390/768/1440: no horizontal overflow on any screen. Original June 2026 detail: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
-7. **Confirm with Lindsey before real users**: Saturday sudden-death is now
-   implemented as part of the Week 1 slice, but the final product call on the
-   exact tiebreak rule/treatment is still owner-owned.
-8. **Next agent-workable product milestone after Week 1 merges**: expand
-   Weeks 2-13 from structural config into polished content, one bounded week
-   or act at a time. Reuse the Week 1 shared architecture; do not create
-   custom per-city systems.
+1. **Land the open PRs** (owner approval required — do not merge unasked).
+   First apply the "fix before merge" items in the M15 table (Node 22 in the
+   `browser-quality` job; 404 status in the static server), get an owner
+   answer on the post-Week-13 behavior, then merge #6 → #15 → #16 → #17, then
+   #11 and #13, using merge commits and retargeting bases as described in
+   M15. Confirm the Pages deploy afterwards
+   (https://lmorrow1210.github.io/SelenaChicagoStepChase/ — until then the
+   live demo shows only Chicago + Detroit).
+2. **Copy/fact cleanup pass** from the M15 table (Boston time-zone line,
+   Santa Monica Pier, Zilker/Barton Springs, teaser spoiler leak, Week 13
+   hook + season-close card source of truth). Small, one PR.
+3. **Fix the bingo time-of-day time-zone bug** (M15 blocker 6) with tests,
+   ideally after the owner's smoke-test output confirms the real timestamp
+   shape.
+4. **Owner-only launch steps** — follow `docs/LAUNCH-RUNBOOK.md`: pick the
+   `app.`/`api.` domain; Google Cloud OAuth app (publish out of Testing,
+   privacy-policy URL); run `npm run smoke:health -w apps/api` with a real
+   token and share the shape-only output; flip `HEALTH_API_MODE=real`;
+   Railway (api, single instance, `NODE_ENV=production`) + Vercel (web)
+   deploy; physical-device QA on iOS Safari and Android Chrome.
+5. **Deploy env vars (reference)**: Railway (api) + Vercel (web) per locked decisions; env vars: `DATABASE_URL`, `JWT_SECRET`, `TOKEN_ENC_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL`.
+6. **M9 manual QA (history)**: responsive iOS Safari + Android Chrome on physical devices. ~~Lighthouse a11y ≥ 95~~ — **done (June 2026), re-verified July 2026 under the Field Terminal palette**: all screens back at **100** after the palette (fixes: `--phosphor-dim` #429A57→#4AAB61 so muted text clears AA even where axe blends the tan bevel edge into raised faces; Toast message text is primary `--phosphor`). Viewport sweep 390/768/1440: no horizontal overflow on any screen. Original June 2026 detail: all screens (login, map, city, city/[id], prediction, bingo, nemesis, profile, onboarding steps) audit at **100**. Fixes: `--muted` lightened `#4A6080` → `#8A9FBB` (was 2.5:1 on card, now ≥4.5:1 on every surface — **Lindsey should eyeball the lightened secondary text**, the palette was marked "locked"); Slider range input got an `aria-label`; City screen dims only the avatar (not the member name) for not-worked-out members; onboarding StepDots got `role="group"`. Reduced-motion is covered by the global kill rule in tokens/effects.css.
+7. **Owner product calls still open:** Saturday sudden-death final rule/
+   treatment; Selena's blue-fedora costume vs the green/red palette; whether
+   Season One ends or loops after Week 13 (see #15); optional per-city bingo
+   labels (IMPLEMENTING-A-CITY option B — needs an append-only migration and
+   owner sign-off).
 
 Already done, kept here so future agents do not chase ghosts:
 - ~~Plan §3 stragglers~~ — **all done**: `GET /api/predictions/history`;
@@ -651,9 +767,14 @@ In the matching `.d.ts`, add `export default ComponentName;` at the end.
 
 ## Recommended execution order for the next session
 
-Agent-workable next step: **Narrative DNA N2 ritual events** — Monday briefing
-and Saturday sudden-death treatment, now building on A1 + N1. Owner-only work
-remains Health-API sandbox smoke, Railway/Vercel deploy, and physical-device QA.
+1. Read `AGENTS.md`, then the M15 section above.
+2. Ask Lindsey: OK to apply the pre-merge fixes and merge the PR stack?
+   What should happen after Week 13? Which domain for `app.`/`api.`?
+3. Apply fixes, merge in order, confirm CI + Pages.
+4. Copy/fact cleanup PR, then the bingo time-zone fix.
+5. Walk Lindsey through `docs/LAUNCH-RUNBOOK.md`. Narrative DNA N2
+   (Monday briefing / Saturday sudden-death treatment) is still the next
+   *feature* milestone, but launch readiness outranks it.
 
 ---
 
