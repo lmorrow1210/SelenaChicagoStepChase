@@ -16,6 +16,8 @@ export interface PredictionCardProps {
   submitted?: boolean;
   /** Formatted value echoed back in the submitted state. */
   prediction?: string | number;
+  /** Disables the open-state slider, input, and submit button. */
+  disabled?: boolean;
   /** Stake reminder copy under the FILE FORECAST button. */
   stakeNote?: string;
   /** Optional teammate-preview strip rendered above the button. */
