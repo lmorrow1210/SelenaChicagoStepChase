@@ -35,6 +35,8 @@ jobs:
         run: npm run test -w apps/api
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/one_step_ahead_test
+      - name: Test web
+        run: npm run test -w apps/web
       - name: Build web
         run: npm run build -w apps/web
       # Design-token adherence (plan §7 / hard rule 4): app code must use

@@ -160,8 +160,10 @@ export function RitualLabel({ children }: { children: ReactNode }) {
 export function SelenaLine({ children }: { children: ReactNode }) {
   return (
     <p className="selenaLine">
-      <span aria-hidden="true">— </span>
+      <span aria-hidden="true">&quot;</span>
       {children}
+      <span aria-hidden="true">&quot; — </span>
+      S.C.
       <style jsx>{`
         .selenaLine {
           margin: 0;
