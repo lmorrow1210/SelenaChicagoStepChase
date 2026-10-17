@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { api } from "./api";
 import { useSession } from "./session";
+import { useCinematicOpen } from "./finale/openState";
 
 // In-app notification toasts (M9): unread notifications surface as a stack
 // of Toast bars (achievement / social / alert tones), auto-marked
@@ -109,6 +110,7 @@ function BeatToast({ message, onClose }: { message: string; onClose: () => void 
 
 export function ToastShelf() {
   const { user } = useSession();
+  const paused = useCinematicOpen();
   const queryClient = useQueryClient();
 
   const { data } = useQuery<{ notifications: AppNotification[] }>({
@@ -134,7 +136,7 @@ export function ToastShelf() {
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
   useEffect(() => {
     const live = timers.current;
-    for (const n of unread) {
+    for (const n of paused ? [] : unread) {
       if (!live.has(n.id)) {
         live.set(
           n.id,
@@ -150,9 +152,9 @@ export function ToastShelf() {
       live.clear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unread.map((n) => n.id).join(",")]);
+  }, [unread.map((n) => n.id).join(","), paused]);
 
-  if (!unread.length) return null;
+  if (!unread.length || paused) return null;
 
   // Fixed stack above the mobile TabBar. It reserves no layout space.
   return (

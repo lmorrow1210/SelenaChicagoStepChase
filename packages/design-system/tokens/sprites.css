@@ -1,0 +1,9 @@
+/* ============================================================
+   Sprite palette — colors that exist ONLY inside pixel art.
+   Selena's fedora is the one costume color that lives outside the
+   Field Terminal families (see SelenaMark.jsx). Everything else in
+   the finale scene reads the regular tokens via getComputedStyle.
+   ============================================================ */
+:root {
+  --sprite-selena-sky: #41B6E6; /* Selena's sky-blue fedora */
+}
