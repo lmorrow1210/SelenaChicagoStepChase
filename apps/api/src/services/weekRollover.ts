@@ -19,25 +19,20 @@ interface WeekSeed {
   ends_on: string;
 }
 
-type NextWeekResult =
-  | { nextWeekId: string; created: boolean; activated: boolean; seasonComplete: false }
-  | { nextWeekId: null; created: false; activated: false; seasonComplete: true };
-
 async function ensureNextWeek(
   client: PoolClient,
   week: WeekSeed,
   status: Exclude<WeekStatus, "closed">,
-): Promise<NextWeekResult> {
+): Promise<{ nextWeekId: string; created: boolean; activated: boolean }> {
   const nextCity = await client.query(
     `SELECT id FROM cities
      WHERE route_order > $1
      ORDER BY route_order ASC LIMIT 1`,
     [week.route_order],
   );
-  if (!nextCity.rowCount) {
-    return { nextWeekId: null, created: false, activated: false, seasonComplete: true };
-  }
-  const nextCityId: number = nextCity.rows[0].id;
+  const nextCityId: number = nextCity.rowCount
+    ? nextCity.rows[0].id
+    : (await client.query(`SELECT id FROM cities ORDER BY route_order ASC LIMIT 1`)).rows[0].id;
 
   const target = await client.query(
     `SELECT COALESCE(SUM(weekly_step_target), 0)::int AS total
@@ -69,7 +64,6 @@ async function ensureNextWeek(
       nextWeekId: current.id,
       created: false,
       activated: status === "active" && wasScheduled,
-      seasonComplete: false,
     };
   }
 
@@ -83,7 +77,6 @@ async function ensureNextWeek(
     nextWeekId: inserted.rows[0].id,
     created: true,
     activated: status === "active",
-    seasonComplete: false,
   };
 }
 
@@ -95,7 +88,7 @@ async function ensureNextWeek(
 export async function prepareNextWeekReveal(
   pool: Pool,
   weekId: string,
-): Promise<{ nextWeekId: string | null; seasonComplete: boolean }> {
+): Promise<{ nextWeekId: string }> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -108,15 +101,11 @@ export async function prepareNextWeekReveal(
     if (!weekRow.rowCount) throw new Error(`Week ${weekId} not found`);
 
     const prepared = await ensureNextWeek(client, weekRow.rows[0], "scheduled");
-    if (prepared.seasonComplete) {
-      await client.query("COMMIT");
-      return { nextWeekId: null, seasonComplete: true };
-    }
     await pairAndPersist(client, prepared.nextWeekId, weekRow.rows[0].group_id);
     await evaluateRevealBeats(client, prepared.nextWeekId, weekRow.rows[0].ends_on);
 
     await client.query("COMMIT");
-    return { nextWeekId: prepared.nextWeekId, seasonComplete: false };
+    return { nextWeekId: prepared.nextWeekId };
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -222,7 +211,7 @@ async function awardBadge(
 export async function weekRollover(
   pool: Pool,
   weekId: string,
-): Promise<{ nextWeekId: string | null; seasonComplete: boolean }> {
+): Promise<{ nextWeekId: string }> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -403,10 +392,6 @@ export async function weekRollover(
     // 8. Create or activate next week: Sunday may already have created it as
     // scheduled so nemesis pairings could be revealed early.
     const nextWeek = await ensureNextWeek(client, week, "active");
-    if (nextWeek.seasonComplete) {
-      await client.query("COMMIT");
-      return { nextWeekId: null, seasonComplete: true };
-    }
     const nextWeekId = nextWeek.nextWeekId;
 
     // 9. Fresh bingo cards + nemesis pairings; prediction window opens
@@ -439,7 +424,7 @@ export async function weekRollover(
     }
 
     await client.query("COMMIT");
-    return { nextWeekId, seasonComplete: false };
+    return { nextWeekId };
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;

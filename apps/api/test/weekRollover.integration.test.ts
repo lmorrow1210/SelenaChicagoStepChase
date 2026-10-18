@@ -341,27 +341,31 @@ describeDb("weekRollover integration", () => {
     expect(Number(nextCards.rows[0].n)).toBe(2);
   });
 
-  it("does not prepare a scheduled reveal after the final city", async () => {
+  it("prepares Chicago as the scheduled reveal after the final city (season loops)", async () => {
     const { groupId, weekId } = await seedGroupWeek();
     const lastCity = await pool.query(
       `SELECT id FROM cities ORDER BY route_order DESC LIMIT 1`,
     );
+    const firstCity = await pool.query(
+      `SELECT id FROM cities ORDER BY route_order ASC LIMIT 1`,
+    );
     await pool.query(`UPDATE weeks SET city_id = $2 WHERE id = $1`, [weekId, lastCity.rows[0].id]);
 
     const reveal = await prepareNextWeekReveal(pool, weekId);
-    expect(reveal).toEqual({ nextWeekId: null, seasonComplete: true });
+    expect(reveal.nextWeekId).toEqual(expect.any(String));
 
-    const weeks = await pool.query(
-      `SELECT COUNT(*)::int AS total,
-              COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled
-       FROM weeks WHERE group_id = $1`,
-      [groupId],
+    const next = await pool.query(
+      `SELECT city_id, status, group_id FROM weeks WHERE id = $1`,
+      [reveal.nextWeekId],
     );
-    expect(Number(weeks.rows[0].total)).toBe(1);
-    expect(Number(weeks.rows[0].scheduled)).toBe(0);
+    expect(next.rows[0]).toMatchObject({
+      city_id: firstCity.rows[0].id,
+      status: "scheduled",
+      group_id: groupId,
+    });
   });
 
-  it("closes all 13 Season One weeks in order without leaking future evidence or creating week 14", async () => {
+  it("closes all 13 Season One weeks in order without leaking future evidence, then loops to Week 1 Chicago keeping player data", async () => {
     const { groupId, weekId, userA } = await seedGroupWeek();
     await pairAndPersist(pool, weekId, groupId);
 
@@ -465,7 +469,6 @@ describeDb("weekRollover integration", () => {
 
       if (index < SEASON_ONE_CONFIG.route.length - 1) {
         const nextWeekConfig = SEASON_ONE_CONFIG.route[index + 1];
-        expect(first.seasonComplete).toBe(false);
         expect(first.nextWeekId).toEqual(expect.any(String));
 
         const currentPayload = await getJson(userA, "/api/weeks/current");
@@ -484,25 +487,55 @@ describeDb("weekRollover integration", () => {
 
         currentWeekId = first.nextWeekId!;
       } else {
-        expect(first).toEqual({ nextWeekId: null, seasonComplete: true });
+        // Week 13 closes and the chase loops back to Week 1 Chicago.
+        const loopWeekId = first.nextWeekId;
+        expect(loopWeekId).toEqual(expect.any(String));
+        const firstWeekConfig = SEASON_ONE_CONFIG.route[0];
 
         const weeks = await pool.query(
           `SELECT COUNT(*)::int AS total,
                   COUNT(*) FILTER (WHERE status = 'closed')::int AS closed,
                   COUNT(*) FILTER (WHERE status = 'active')::int AS active,
-                  COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled,
-                  MAX(c.route_order)::int AS max_route_order
-           FROM weeks w JOIN cities c ON c.id = w.city_id
-           WHERE w.group_id = $1`,
+                  COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled
+           FROM weeks WHERE group_id = $1`,
           [groupId],
         );
-        expect(weeks.rows[0]).toMatchObject({
-          total: 13,
-          closed: 13,
-          active: 0,
-          scheduled: 0,
-          max_route_order: 13,
+        expect(weeks.rows[0]).toMatchObject({ total: 14, closed: 13, active: 1, scheduled: 0 });
+
+        const loopWeek = await pool.query(
+          `SELECT c.route_order FROM weeks w JOIN cities c ON c.id = w.city_id WHERE w.id = $1`,
+          [loopWeekId],
+        );
+        expect(Number(loopWeek.rows[0].route_order)).toBe(1);
+
+        const currentPayload = await getJson(userA, "/api/weeks/current");
+        expect(currentPayload.seasonState.season.weekNumber).toBe(firstWeekConfig.weekNumber);
+        expect(currentPayload.seasonState.chapter).toMatchObject({ city: firstWeekConfig.cityName });
+        expect(currentPayload.seasonState.previousCase).toMatchObject({
+          weekNumber: weekConfig.weekNumber,
+          cityName: weekConfig.cityName,
+          outcome: expectedOutcome,
         });
+
+        // Player data survives the loop: every lap-one evidence unlock and badge stays.
+        const unlocksAfterLoop = await pool.query(
+          `SELECT COUNT(*)::int AS n FROM group_evidence_unlocks WHERE group_id = $1`,
+          [groupId],
+        );
+        expect(Number(unlocksAfterLoop.rows[0].n)).toBeGreaterThanOrEqual(13);
+        const boardAfterLoop = await getJson(userA, "/api/evidence");
+        for (const slot of boardAfterLoop.weeks) {
+          expect(slot.standardEvidence.unlocked).toBe(true);
+        }
+
+        // Closing lap-two Chicago still works and keeps the data.
+        const lapTwo = await weekRollover(pool, loopWeekId!);
+        expect(lapTwo.nextWeekId).toEqual(expect.any(String));
+        const unlocksLapTwo = await pool.query(
+          `SELECT COUNT(*)::int AS n FROM group_evidence_unlocks WHERE group_id = $1`,
+          [groupId],
+        );
+        expect(Number(unlocksLapTwo.rows[0].n)).toBe(Number(unlocksAfterLoop.rows[0].n));
       }
     }
   });
