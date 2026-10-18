@@ -27,14 +27,15 @@ export function createStaticDemoServer({
   const server = createServer(async (request, response) => {
     try {
       const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
-      const filePath = await resolveRequestPath(rootPath, requestUrl.pathname, basePath);
-      if (!filePath) {
+      const resolved = await resolveRequestPath(rootPath, requestUrl.pathname, basePath);
+      if (!resolved) {
         response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
         response.end("Not found");
         return;
       }
 
-      response.writeHead(200, {
+      const { filePath, status } = resolved;
+      response.writeHead(status, {
         "content-type": MIME_TYPES.get(extname(filePath)) ?? "application/octet-stream",
         "cache-control": "no-store",
       });
@@ -75,14 +76,19 @@ async function resolveRequestPath(rootPath, pathname, basePath) {
   const candidates = demoPath.endsWith("/")
     ? [`${demoPath}index.html`]
     : [demoPath, `${demoPath}/index.html`];
-  candidates.push("/404.html");
 
   for (const candidate of candidates) {
     const filePath = resolve(rootPath, `.${candidate}`);
     if (!filePath.startsWith(rootPath)) continue;
     const info = await stat(filePath).catch(() => null);
-    if (info?.isFile()) return filePath;
+    if (info?.isFile()) return { filePath, status: 200 };
   }
+
+  // Unknown route: serve the exported 404 page with a real 404 status so
+  // smoke tests and Lighthouse can't mistake a broken route for a working one.
+  const notFoundPath = resolve(rootPath, "./404.html");
+  const notFoundInfo = await stat(notFoundPath).catch(() => null);
+  if (notFoundInfo?.isFile()) return { filePath: notFoundPath, status: 404 };
   return null;
 }
 
