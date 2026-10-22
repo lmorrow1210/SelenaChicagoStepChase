@@ -91,6 +91,7 @@ export function PredictionSection() {
 
   const data = prediction.data;
   const submitted = Boolean(data.myPrediction);
+  const canSubmit = data.submissionOpen && !submitted;
   const max = sliderMax(data.liveGroupTotal);
   const value = steps ?? Math.max(data.liveGroupTotal, Math.round(max / 2 / 1000) * 1000);
   const revealedRows =
@@ -120,8 +121,9 @@ export function PredictionSection() {
             prediction={data.myPrediction ? formatNumber(data.myPrediction.predicted_steps) : formatNumber(value)}
             onChange={(next: number) => setSteps(next)}
             onSubmit={() => {
-              if (!submitting) void submitPrediction(value);
+              if (canSubmit && !submitting) void submitPrediction(value);
             }}
+            disabled={!canSubmit || submitting}
             stakeNote="Stake: the closest call takes Oracle honors when the board seals Sunday 11:59 PM."
             teammates={
               filedTeammates.length > 0 ? (
