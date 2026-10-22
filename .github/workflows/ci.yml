@@ -61,10 +61,10 @@ jobs:
             echo '::error::Raw hex color in app code — use a design-system token via var(--…) or lib/brand.ts'
             exit 1
           fi
-      - name: Lore scope guard (no Meridian in app code)
+      - name: Lore scope guard (no parked lore in app code)
         run: |
-          if grep -rniE '\bmeridian\b' packages/shared/src apps/web/lib apps/web/app; then
-            echo '::error::Parked Meridian lore found in shipped app/shared code'
+          if grep -rniE '\bmeridian\b|bureau conspiracy|same node' packages/shared/src apps/web/lib apps/web/app; then
+            echo '::error::Parked lore found in shipped app/shared code'
             exit 1
           fi
       - name: WCAG contrast audit (v2 palette)

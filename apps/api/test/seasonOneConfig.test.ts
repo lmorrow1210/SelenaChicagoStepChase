@@ -29,6 +29,15 @@ function expectNonEmpty(value: string): void {
   expect(value.trim().length).toBeGreaterThan(0);
 }
 
+function collectStrings(value: unknown, path: string[] = []): Array<{ path: string; value: string }> {
+  if (typeof value === "string") return [{ path: path.join("."), value }];
+  if (!value || typeof value !== "object") return [];
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => collectStrings(item, [...path, String(index)]));
+  }
+  return Object.entries(value).flatMap(([key, item]) => collectStrings(item, [...path, key]));
+}
+
 describe("Season One config", () => {
   it("contains all 13 config entries in route order", () => {
     expect(SEASON_ONE_CONFIG.route.map((week) => week.weekNumber)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
@@ -90,6 +99,49 @@ describe("Season One config", () => {
     }
   });
 
+  it("keeps the 13-week outcome matrix and Selena teaser lines complete and distinct", () => {
+    const outcomeAndTeaserSelenaLines: string[] = [];
+
+    for (const week of SEASON_ONE_CONFIG.route) {
+      for (const outcome of WEEKLY_OUTCOME_KEYS) {
+        const close = week.closeCopy[outcome];
+        expectNonEmpty(close.headline);
+        expectNonEmpty(close.story);
+        expectNonEmpty(close.selena);
+        expectNonEmpty(close.nextLead);
+        outcomeAndTeaserSelenaLines.push(close.selena);
+      }
+      expectNonEmpty(week.nextCityTeaser.selena);
+      outcomeAndTeaserSelenaLines.push(week.nextCityTeaser.selena);
+    }
+
+    expect(outcomeAndTeaserSelenaLines).toHaveLength(65);
+    expect(new Set(outcomeAndTeaserSelenaLines).size).toBe(outcomeAndTeaserSelenaLines.length);
+  });
+
+  it("keeps Selena lines free of exclamation marks", () => {
+    const selenaLines = SEASON_ONE_CONFIG.route.flatMap((week) =>
+      collectStrings(week).filter(({ path }) => path.endsWith(".selena")),
+    );
+
+    expect(selenaLines.length).toBeGreaterThan(65);
+    for (const line of selenaLines) {
+      expect(line.value, line.path).not.toContain("!");
+    }
+  });
+
+  it("keeps runtime placeholders only in renderer-substituted fields", () => {
+    const placeholders = SEASON_ONE_CONFIG.route.flatMap((week, index) =>
+      collectStrings(week, [`week${index + 1}`]).filter(({ value }) => value.includes("{{groupName}}")),
+    );
+
+    for (const placeholder of placeholders) {
+      expect(placeholder.path).toMatch(
+        /^week\d+\.(closeCopy\.(close_encounter|interception|pursuit_maintained)\.story|rituals\.midweek\.strongPace\.body)$/,
+      );
+    }
+  });
+
   it("chains next-city teasers from Chicago through San Francisco without dangling cities", () => {
     SEASON_ONE_CONFIG.route.slice(0, -1).forEach((week, index) => {
       const nextWeek = SEASON_ONE_CONFIG.route[index + 1];
@@ -104,6 +156,9 @@ describe("Season One config", () => {
     expect(finalWeek.cityName).toBe("San Francisco");
     expect(finalWeek.nextCityTeaser.cityName).toBe("");
     expect(finalWeek.nextCityTeaser.header).toBe("THE CASE IS CLOSED");
+    expectNonEmpty(finalWeek.nextCityTeaser.body);
+    expectNonEmpty(finalWeek.nextCityTeaser.selena);
+    expectNonEmpty(finalWeek.nextCityTeaser.cta);
   });
 
   it("includes required polished Week 1 Chicago copy and config fields", () => {
