@@ -3,7 +3,12 @@
 // provider auto-logs-in a demo detective. Used for the static GitHub Pages
 // build so friends can click through every screen. No real data, no tokens.
 
-import { SEASON_ONE_CONFIG, WEEK_ONE_CHICAGO, getEvidence } from "@one-step-ahead/shared/season-one/seasonOne";
+import {
+  SEASON_ONE_CONFIG,
+  WEEK_ONE_CHICAGO,
+  getEvidence,
+  type SeasonWeekConfig,
+} from "@one-step-ahead/shared/season-one/seasonOne";
 import { calculateChase } from "@one-step-ahead/shared/season-one/chase";
 import { calculateParticipationThreshold } from "@one-step-ahead/shared/season-one/specialOperations";
 import type { WeeklyOutcome } from "@one-step-ahead/shared";
@@ -29,9 +34,39 @@ const MEMBERS = [
   { user_id: "demo-jess", display_name: "Jess", avatar_skin: 4, avatar_hair: 6, avatar_colorway: 5 },
 ];
 
-const CHICAGO = { id: 1, name: "Chicago", country: "USA", route_order: 1, background_image: null, lat: 41.8781, lng: -87.6298 };
-const DETROIT = { id: 2, name: "Detroit", country: "USA", route_order: 2, background_image: null, lat: 42.3314, lng: -83.0458 };
-const PITTSBURGH = { id: 3, name: "Pittsburgh", country: "USA", route_order: 3, background_image: null, lat: 40.4406, lng: -79.9959 };
+const CITY_COORDS: Record<number, { lat: number; lng: number }> = {
+  1: { lat: 41.8781, lng: -87.6298 },
+  2: { lat: 42.3314, lng: -83.0458 },
+  3: { lat: 40.4406, lng: -79.9959 },
+  4: { lat: 38.9072, lng: -77.0369 },
+  5: { lat: 39.9526, lng: -75.1652 },
+  6: { lat: 40.7128, lng: -74.006 },
+  7: { lat: 42.3601, lng: -71.0589 },
+  8: { lat: 32.0809, lng: -81.0912 },
+  9: { lat: 29.9511, lng: -90.0715 },
+  10: { lat: 30.2672, lng: -97.7431 },
+  11: { lat: 35.687, lng: -105.9378 },
+  12: { lat: 34.0522, lng: -118.2437 },
+  13: { lat: 37.7749, lng: -122.4194 },
+};
+
+function cityFixture(week: SeasonWeekConfig) {
+  const coords = CITY_COORDS[week.weekNumber]!;
+  return {
+    id: week.weekNumber,
+    name: week.cityName,
+    country: "USA",
+    route_order: week.weekNumber,
+    background_image: null,
+    lat: coords.lat,
+    lng: coords.lng,
+  };
+}
+
+const ROUTE_CITIES = SEASON_ONE_CONFIG.route.map(cityFixture);
+const DEMO_ROUTE_CITIES = ROUTE_CITIES.slice(0, 4);
+const CHICAGO = ROUTE_CITIES[0]!;
+const DETROIT = ROUTE_CITIES[1]!;
 
 const MEMBER_WEEK_STEPS = [50058, 67845, 79062];
 const DEMO_GROUP_STEPS = MEMBER_WEEK_STEPS.reduce((sum, steps) => sum + steps, 0);
@@ -221,12 +256,7 @@ const FIXTURES: Record<string, unknown> = {
     city: CHICAGO,
     nextCity: DETROIT,
     selenaLeadSteps: DEMO_CHASE.remainingLead,
-    route: [
-      { city_id: 1, name: "Chicago", visited: false },
-      { city_id: 2, name: "Detroit", visited: false },
-      { city_id: 3, name: "Pittsburgh", visited: false },
-      { city_id: 4, name: "Washington, D.C.", visited: false },
-    ],
+    route: DEMO_ROUTE_CITIES.map((city) => ({ city_id: city.id, name: city.name, visited: false })),
     progressStrip: progressStrip(),
     leaderboard: leaderboard(),
     countdown: "2026-06-15T05:00:00Z",

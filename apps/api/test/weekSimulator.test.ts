@@ -4,6 +4,7 @@ import {
   WEEK_SIMULATOR_CONFIDENCE,
   WEEK_SIMULATOR_OUTCOMES,
   WEEK_SIMULATOR_PHASES,
+  WEEK_SIMULATOR_WEEKS,
   buildWeekSimulatorState,
   progressForOutcome,
 } from "../../web/lib/weekSimulator.js";
@@ -23,6 +24,33 @@ describe("Week Simulator", () => {
       title: "The Lakefront Job",
       nextCity: "Detroit",
     });
+  });
+
+  it("can preview every Season One week without hard-coded Week 1 evidence", () => {
+    for (const week of WEEK_SIMULATOR_WEEKS) {
+      const state = buildWeekSimulatorState({
+        ...DEFAULT_WEEK_SIMULATOR_CONTROLS,
+        weekNumber: week.weekNumber,
+        outcome: "interception",
+        evidenceUnlocked: true,
+        interceptUnlocked: true,
+      });
+      const selectedBoardWeek = state.evidenceBoard.weeks[week.weekNumber - 1];
+
+      expect(state.seasonState.season.weekNumber).toBe(week.weekNumber);
+      expect(state.seasonState.chapter).toMatchObject({
+        city: week.cityName,
+        title: week.chapterTitle,
+      });
+      expect(selectedBoardWeek).toMatchObject({
+        weekNumber: week.weekNumber,
+        cityName: week.cityName,
+        standardEvidence: { unlocked: true },
+        interceptClue: { unlocked: true },
+      });
+      expect(state.evidenceBoard.weeks.filter((boardWeek) => boardWeek.standardEvidence.unlocked)).toHaveLength(1);
+      expect(state.evidenceBoard.weeks.filter((boardWeek) => boardWeek.interceptClue.unlocked)).toHaveLength(1);
+    }
   });
 
   it("can switch through every Week 1 phase with the real phase calculator", () => {
