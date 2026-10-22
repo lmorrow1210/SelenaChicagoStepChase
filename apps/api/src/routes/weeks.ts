@@ -281,7 +281,11 @@ weeksRouter.get("/current", async (req, res, next) => {
                 EXISTS (
                   SELECT 1 FROM week_ritual_views v
                   WHERE v.week_id = w.id AND v.user_id = $2 AND v.ritual_id = 'case_closed'
-                ) AS case_closed_viewed
+                ) AS case_closed_viewed,
+                EXISTS (
+                  SELECT 1 FROM week_ritual_views v
+                  WHERE v.week_id = w.id AND v.user_id = $2 AND v.ritual_id = 'season_finale'
+                ) AS finale_viewed
          FROM weeks w JOIN cities c ON c.id = w.city_id
          WHERE w.group_id = $1 AND w.status = 'closed' AND w.finalized_at IS NOT NULL
          ORDER BY w.starts_on DESC
@@ -407,6 +411,7 @@ weeksRouter.get("/current", async (req, res, next) => {
             dataConfidence: (prevRow.data_confidence ?? "verified") as string,
             finalizedAt: new Date(prevRow.finalized_at).toISOString(),
             viewed: Boolean(prevRow.case_closed_viewed),
+            finaleViewed: Boolean(prevRow.finale_viewed),
           }
         : null;
 

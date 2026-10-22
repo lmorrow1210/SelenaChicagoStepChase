@@ -100,8 +100,12 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
               title={!expanded ? it.label : undefined}
               aria-current={on ? 'page' : undefined}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                height: 36, padding: '0 6px', width: '100%',
+                display: 'flex', alignItems: 'center', gap: expanded ? 8 : 0,
+                /* Collapsed rail: the inner well is only ~32px wide, so the
+                   cursor column and gap collapse and the icon centers —
+                   otherwise the glyph spills past the well and is clipped. */
+                height: 36, padding: expanded ? '0 6px' : '0', width: '100%',
+                justifyContent: expanded ? 'flex-start' : 'center',
                 border: 'none', cursor: 'pointer',
                 borderRadius: 'var(--r-tight)',
                 background: on ? 'var(--crt-row)' : 'transparent',
@@ -117,7 +121,7 @@ export function Sidebar({ active = 'map', onNavigate, avatar, items = NAV, force
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 12,
                 color: on ? 'var(--crt-hi)' : 'transparent',
-                flex: 'none', width: 10, lineHeight: 1,
+                flex: 'none', width: expanded ? 10 : 0, overflow: 'hidden', lineHeight: 1,
               }}>{'>'}</span>
               <span style={{ flex: 'none', display: 'grid', placeItems: 'center', width: 22 }}>
                 <Icon name={it.icon} size={19} strokeWidth={on ? 2.3 : 1.9} />

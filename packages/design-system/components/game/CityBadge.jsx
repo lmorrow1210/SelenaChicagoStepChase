@@ -554,6 +554,21 @@ const CITY_ICONS = {
     </svg>
   ),
 
+  savannah: ({ color }) => (
+    /* Forsyth Park fountain — stacked bowls, a finial, and arcing water */
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      <polygon points="23,4 25,4 26,10 22,10" fill={color} />
+      <polygon points="17,18 31,18 28,11 20,11" fill={color} />
+      <rect x="22" y="18" width="4" height="10" fill={color} />
+      <polygon points="12,28 36,28 32,34 16,34" fill={color} />
+      <rect x="20" y="34" width="8" height="3" fill={color} />
+      <rect x="6" y="37" width="36" height="3" fill={color} />
+      <path d="M17 18 Q12 20 12 26" stroke={color} strokeWidth="1.4" fill="none" />
+      <path d="M31 18 Q36 20 36 26" stroke={color} strokeWidth="1.4" fill="none" />
+      <rect x="4" y="42" width="40" height="2" fill={color} />
+    </svg>
+  ),
+
   santafe: ({ color }) => (
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       <rect x="4" y="30" width="40" height="12" fill={color} />

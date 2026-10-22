@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
 import MapPin from "@one-step-ahead/design-system/components/game/MapPin";
@@ -22,6 +23,7 @@ import { CallingCard } from "../../../lib/CallingCard";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
 import { MondayBriefing } from "../../../lib/narrative/MondayBriefing";
 import { CaseClosedReport } from "../../../lib/narrative/CaseClosedReport";
+import { avatarChoiceFromUser, shouldAutoOpenFinale, shouldOpenFinaleNow } from "../../../lib/finale/trigger";
 import {
   CaseClosingState,
   FieldUpdateModal,
@@ -35,6 +37,13 @@ import {
   SystemCards,
 } from "../../../lib/narrative/ChaseCards";
 import { PredictionSection } from "./PredictionSection";
+
+// The Week 13 send-off plays once a season, so it loads only when it opens
+// instead of shipping with every Map visit.
+const SeasonFinale = dynamic(
+  () => import("../../../lib/finale/SeasonFinale").then((m) => m.SeasonFinale),
+  { ssr: false },
+);
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
@@ -87,6 +96,7 @@ interface SeasonState {
     dataConfidence: string;
     finalizedAt: string;
     viewed: boolean;
+    finaleViewed: boolean;
   } | null;
   sync: {
     lastUpdatedAt: string | null;
@@ -234,10 +244,19 @@ export default function MapPage() {
   const [briefingOpen, setBriefingOpen] = useState<boolean | null>(null);
   const [midweekOpen, setMidweekOpen] = useState<boolean | null>(null);
   const [caseReportOpen, setCaseReportOpen] = useState<boolean | null>(null);
+  // The Week 13 send-off (animated finale). Opens once, right after the
+  // Week 13 case-closed report, before the looped Week 1 briefing.
+  const [finaleOpen, setFinaleOpen] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!seasonState) return;
-    if (briefingOpen === null && seasonState.phase === "briefing" && !seasonState.ritualViews.mondayBriefing) {
+    const finalePending = shouldAutoOpenFinale(seasonState.previousCase);
+    if (
+      briefingOpen === null
+      && seasonState.phase === "briefing"
+      && !seasonState.ritualViews.mondayBriefing
+      && !finalePending
+    ) {
       setBriefingOpen(true);
     }
     if (midweekOpen === null && seasonState.phase === "midweek_update" && !seasonState.ritualViews.midweekUpdate) {
@@ -247,11 +266,14 @@ export default function MapPage() {
       caseReportOpen === null
       && seasonState.previousCase
       && !seasonState.previousCase.viewed
-      && seasonState.ritualViews.mondayBriefing
+      && (seasonState.ritualViews.mondayBriefing || finalePending)
     ) {
       setCaseReportOpen(true);
     }
-  }, [seasonState, briefingOpen, midweekOpen, caseReportOpen]);
+    if (shouldOpenFinaleNow(seasonState.previousCase, finaleOpen, caseReportOpen)) {
+      setFinaleOpen(true);
+    }
+  }, [seasonState, briefingOpen, midweekOpen, caseReportOpen, finaleOpen]);
 
   // The Final Push surface is a persistent banner — record its first
   // showing so the phase service knows the ritual reached the player.
@@ -299,7 +321,16 @@ export default function MapPage() {
   if (map.isError || !map.data) {
     return (
       <main className="mapPage">
-        <EmptyState icon="sync" title="Map unavailable" body="Try again in a minute." />
+        <EmptyState
+          icon="sync"
+          title="Map unavailable"
+          body="The signal dropped. Try again."
+          action={
+            <button type="button" className="mapAction" onClick={() => void map.refetch()}>
+              Retry
+            </button>
+          }
+        />
         <MapStyles />
       </main>
     );
@@ -415,6 +446,15 @@ export default function MapPage() {
             setCaseReportOpen(false);
             void recordRitual(season.previousCase!.weekId, "case_closed");
           }}
+        />
+      )}
+
+      {finaleOpen && season?.previousCase && (
+        <SeasonFinale
+          variant="overlay"
+          avatar={avatarChoiceFromUser(session.user)}
+          onComplete={() => void recordRitual(season.previousCase!.weekId, "season_finale")}
+          onContinue={() => setFinaleOpen(false)}
         />
       )}
 
@@ -1160,6 +1200,9 @@ function MapStyles() {
       }
 
       .mapAction {
+        border: 0;
+        font: inherit;
+        cursor: pointer;
         min-height: var(--touch-min);
         display: inline-flex;
         align-items: center;

@@ -18,6 +18,10 @@ import type { WeeklyOutcome } from "@one-step-ahead/shared";
 
 export const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
 export const DEMO_WEEK_NUMBER = parseDemoWeekNumber(process.env.NEXT_PUBLIC_DEMO_WEEK);
+// NEXT_PUBLIC_DEMO_FINALE=1 → the demo map opens as the looped Week 1 with the
+// Week 13 case just closed, so the real flow plays: case report → send-off →
+// Chicago briefing. (The /finale and simulator routes work without it.)
+export const DEMO_FINALE = process.env.NEXT_PUBLIC_DEMO_FINALE === "1";
 
 const ME = {
   id: "demo-me",
@@ -322,7 +326,32 @@ function demoNemesisFixture(week: ReturnType<typeof activeWeekFixture>, state: s
   };
 }
 
-export function buildDemoFixtures(weekNumber = DEMO_WEEK_NUMBER): Record<string, unknown> {
+/** The just-finished Week 13 case, as `/api/weeks/current` reports it after the loop wraps. */
+export function demoFinalePreviousCase() {
+  const finale = getSeasonWeek(13)!;
+  return {
+    weekId: "demo-week-13",
+    weekNumber: finale.weekNumber,
+    cityName: finale.cityName,
+    chapterTitle: finale.chapterTitle,
+    outcome: "interception" as WeeklyOutcome,
+    baseProgress: 1.02,
+    finalProgress: 1.02,
+    remainingLead: 0,
+    bonuses: { fieldOps: 0.04, specialOperation: 0.02, nemesisParticipation: 0.01, predictionParticipation: 0.01, total: 0.08 },
+    groupTotalSteps: 214200,
+    groupTargetSteps: 210000,
+    dataConfidence: "verified",
+    finalizedAt: "2026-06-08T04:59:00.000Z",
+    viewed: false,
+    finaleViewed: false,
+  };
+}
+
+export function buildDemoFixtures(
+  weekNumber = DEMO_WEEK_NUMBER,
+  options: { finale?: boolean } = { finale: DEMO_FINALE },
+): Record<string, unknown> {
   const weekConfig = demoWeekConfig(weekNumber);
   const week = activeWeekFixture(weekConfig);
   const activeCity = cityFixture(weekConfig);
@@ -437,7 +466,7 @@ export function buildDemoFixtures(weekNumber = DEMO_WEEK_NUMBER): Record<string,
           finalPush: false,
           caseClosed: false,
         },
-        previousCase: null,
+        previousCase: options.finale ? demoFinalePreviousCase() : null,
         sync: {
           lastUpdatedAt: "2026-06-12T18:50:00Z",
           incompletePlayerCount: 0,
