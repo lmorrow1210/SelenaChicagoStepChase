@@ -1,16 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { DataConfidence, WeekPhase, WeeklyOutcome } from "@one-step-ahead/shared";
 import {
   DEFAULT_WEEK_SIMULATOR_CONTROLS,
   WEEK_SIMULATOR_CONFIDENCE,
+  WEEK_SIMULATOR_NEMESIS_MODES,
   WEEK_SIMULATOR_OUTCOMES,
   WEEK_SIMULATOR_PHASES,
   WEEK_SIMULATOR_WEEKS,
   buildWeekSimulatorState,
+  parseWeekSimulatorControls,
   progressForOutcome,
   type WeekSimulatorControls,
+  type WeekSimulatorNemesisMode,
 } from "@/lib/weekSimulator";
 import { MondayBriefing } from "@/lib/narrative/MondayBriefing";
 import { CaseClosedReport } from "@/lib/narrative/CaseClosedReport";
@@ -42,26 +46,29 @@ const nemesisOptions = [
   { value: "none", label: "No qualifying activity" },
   { value: "partial", label: "70% activity" },
   { value: "complete", label: "Resolved participation" },
-] as const;
+  { value: "tiebreak", label: "Sudden death" },
+  { value: "bye", label: "Bye week" },
+] satisfies Array<{ value: WeekSimulatorNemesisMode; label: string }>;
 
 export default function WeekSimulatorPage() {
-  const [controls, setControls] = useState<WeekSimulatorControls>(DEFAULT_WEEK_SIMULATOR_CONTROLS);
+  return (
+    <Suspense fallback={<WeekSimulatorShell loading />}>
+      <WeekSimulatorClient />
+    </Suspense>
+  );
+}
+
+function WeekSimulatorClient() {
+  const searchParams = useSearchParams();
+  const initialControls = useMemo(() => parseWeekSimulatorControls(searchParams), [searchParams]);
+  const [controls, setControls] = useState<WeekSimulatorControls>(() => initialControls);
   const [briefingOpen, setBriefingOpen] = useState(false);
   const [midweekOpen, setMidweekOpen] = useState(false);
   const [caseReportOpen, setCaseReportOpen] = useState(false);
   const state = useMemo(() => buildWeekSimulatorState(controls), [controls]);
 
   if (!enabled) {
-    return (
-      <main className="simShell disabled">
-        <section className="terminalPanel sc-corners">
-          <p className="eyebrow">DEV TOOL DISABLED</p>
-          <h1>Week Simulator</h1>
-          <p>This development-only tool is hidden unless the app runs in development or enables the simulator flag.</p>
-        </section>
-        <style jsx>{styles}</style>
-      </main>
-    );
+    return <WeekSimulatorShell disabled />;
   }
 
   const season = state.seasonState;
@@ -232,7 +239,9 @@ export default function WeekSimulatorPage() {
               value={controls.nemesisMode}
               onChange={(event) => update({ nemesisMode: event.target.value as WeekSimulatorControls["nemesisMode"] })}
             >
-              {nemesisOptions.map((option) => (
+              {nemesisOptions
+                .filter((option) => WEEK_SIMULATOR_NEMESIS_MODES.includes(option.value))
+                .map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
@@ -281,7 +290,7 @@ export default function WeekSimulatorPage() {
             <button
               type="button"
               onClick={() => {
-                setControls(DEFAULT_WEEK_SIMULATOR_CONTROLS);
+                setControls(initialControls);
                 setBriefingOpen(false);
                 setMidweekOpen(false);
                 setCaseReportOpen(false);
@@ -405,6 +414,21 @@ export default function WeekSimulatorPage() {
             </dl>
           </div>
 
+          <div className="terminalPanel sc-corners">
+            <h2>Nemesis Preview</h2>
+            <dl className="stats">
+              <div>
+                <dt>Status</dt>
+                <dd>{state.nemesisPreview.label}</dd>
+              </div>
+              <div>
+                <dt>Bonus preview</dt>
+                <dd>{percent(state.nemesisPreview.bonusPreview)}</dd>
+              </div>
+            </dl>
+            <p>{state.nemesisPreview.body}</p>
+          </div>
+
           {/* ── Evidence board (production component) ── */}
           <EvidenceBoard board={state.evidenceBoard} />
         </section>
@@ -417,6 +441,25 @@ export default function WeekSimulatorPage() {
   function update(patch: Partial<WeekSimulatorControls>) {
     setControls((current) => ({ ...current, ...patch }));
   }
+}
+
+function WeekSimulatorShell({ disabled = false, loading = false }: { disabled?: boolean; loading?: boolean }) {
+  return (
+    <main className="simShell disabled">
+      <section className="terminalPanel sc-corners">
+        <p className="eyebrow">{disabled ? "DEV TOOL DISABLED" : "DEV TOOL LOADING"}</p>
+        <h1>Week Simulator</h1>
+        <p>
+          {disabled
+            ? "This development-only tool is hidden unless the app runs in development or enables the simulator flag."
+            : loading
+              ? "Preparing simulator controls."
+              : ""}
+        </p>
+      </section>
+      <style jsx>{styles}</style>
+    </main>
+  );
 }
 
 function percent(value: number): string {

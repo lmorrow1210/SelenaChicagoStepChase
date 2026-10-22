@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoResponse } from "../../web/lib/demo.js";
+import { demoResponse, demoResponseForWeek } from "../../web/lib/demo.js";
 import { SEASON_ONE_CONFIG } from "@one-step-ahead/shared/season-one/seasonOne";
 
 describe("demo current-week fixture", () => {
@@ -36,12 +36,12 @@ describe("demo current-week fixture", () => {
     expect(body!.seasonState).toMatchObject({
       season: { id: "season_one", weekNumber: 1, totalWeeks: 13 },
       chapter: { city: "Chicago", title: "The Lakefront Job", nextCity: "Detroit" },
-      primaryAction: { id: "continue_pursuit", priority: 10 },
+      primaryAction: { id: "special_operation", priority: 5 },
     });
     expect(body!.seasonState.chase.remainingLead).toBe(body!.selenaLeadSteps);
     expect(body!.seasonState.chase.finalOutcome).toBeNull();
     expect(body!.seasonState.primaryBeat).toMatchObject({
-      id: "final_push_close_encounter",
+      id: "final_push",
       dataConfidence: "verified",
     });
     expect(body!.seasonState.platformSweep).toMatchObject({
@@ -70,6 +70,58 @@ describe("demo current-week fixture", () => {
       caseClosed: false,
     });
     expect(body!.seasonState.previousCase).toBeNull();
+  });
+
+  it("derives the active demo fixture for Week 2", () => {
+    const body = demoResponseForWeek<{
+      city: { name: string };
+      nextCity: { name: string } | null;
+      route: Array<{ name: string }>;
+      seasonState: {
+        season: { weekNumber: number; totalWeeks: number };
+        chapter: { city: string; title: string; nextCity: string | null };
+        evidencePreview: { standardEvidenceId: string };
+      };
+    }>("/api/weeks/current", 2);
+    const week = SEASON_ONE_CONFIG.route[1]!;
+
+    expect(body).not.toBeNull();
+    expect(body!.city.name).toBe("Detroit");
+    expect(body!.nextCity?.name).toBe("Pittsburgh");
+    expect(body!.route.map((city) => city.name)).toEqual(SEASON_ONE_CONFIG.route.slice(0, 5).map((routeWeek) => routeWeek.cityName));
+    expect(body!.seasonState).toMatchObject({
+      season: { weekNumber: 2, totalWeeks: 13 },
+      chapter: { city: week.cityName, title: week.chapterTitle, nextCity: week.nextCityTeaser.cityName },
+      evidencePreview: { standardEvidenceId: week.evidence.standardEvidenceId },
+    });
+  });
+
+  it("derives the active demo fixture for the Week 13 finale", () => {
+    const body = demoResponseForWeek<{
+      city: { name: string };
+      nextCity: { name: string } | null;
+      route: Array<{ name: string }>;
+      seasonState: {
+        season: { weekNumber: number; totalWeeks: number };
+        chapter: { city: string; title: string; nextCity: string | null };
+        evidencePreview: { standardEvidenceId: string };
+      };
+    }>("/api/weeks/current", 13);
+    const finale = SEASON_ONE_CONFIG.route[12]!;
+
+    expect(body).not.toBeNull();
+    expect(body!.city.name).toBe("San Francisco");
+    expect(body!.nextCity).toBeNull();
+    expect(body!.route.map((city) => city.name)).toEqual(SEASON_ONE_CONFIG.route.map((week) => week.cityName));
+    expect(body!.seasonState).toMatchObject({
+      season: { weekNumber: 13, totalWeeks: 13 },
+      chapter: { city: finale.cityName, title: finale.chapterTitle, nextCity: null },
+      evidencePreview: { standardEvidenceId: finale.evidence.standardEvidenceId },
+    });
+    expect(finale.nextCityTeaser).toMatchObject({
+      cityName: "",
+      header: "THE CASE IS CLOSED",
+    });
   });
 
   it("includes the full Season One evidence board", () => {
@@ -155,5 +207,38 @@ describe("demo current-week fixture", () => {
     ]);
     expect(body!.matchup).toMatchObject({ score_a: 2, score_b: 1 });
     expect(body!.weekMax).toBeGreaterThan(0);
+  });
+
+  it("exposes nemesis bye-week and tiebreak demo states", () => {
+    const bye = demoResponseForWeek<{
+      matchup: unknown | null;
+      you: unknown | null;
+      nemesis: unknown | null;
+      week: { starts_on: string };
+      state: string;
+    }>("/api/nemesis/current?state=bye", 2);
+    const tiebreak = demoResponseForWeek<{
+      matchup: { status: string; score_a: number; score_b: number; tiebreaker_date: string | null };
+      today: string;
+      outcome: string | null;
+      state: string;
+    }>("/api/nemesis/current?state=tiebreak", 2);
+
+    expect(bye).not.toBeNull();
+    expect(bye).toMatchObject({
+      matchup: null,
+      you: null,
+      nemesis: null,
+      state: "bye",
+      week: { starts_on: "2026-06-15" },
+    });
+
+    expect(tiebreak).not.toBeNull();
+    expect(tiebreak).toMatchObject({
+      state: "tiebreak",
+      today: "2026-06-20",
+      outcome: "tiebreak",
+      matchup: { status: "tiebreak", score_a: 2, score_b: 2, tiebreaker_date: "2026-06-20" },
+    });
   });
 });

@@ -7,13 +7,17 @@ import {
   SEASON_ONE_CONFIG,
   WEEK_ONE_CHICAGO,
   getEvidence,
+  getSeasonWeek,
   type SeasonWeekConfig,
 } from "@one-step-ahead/shared/season-one/seasonOne";
 import { calculateChase } from "@one-step-ahead/shared/season-one/chase";
+import { selectPrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
+import { selectPrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat";
 import { calculateParticipationThreshold } from "@one-step-ahead/shared/season-one/specialOperations";
 import type { WeeklyOutcome } from "@one-step-ahead/shared";
 
 export const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
+export const DEMO_WEEK_NUMBER = parseDemoWeekNumber(process.env.NEXT_PUBLIC_DEMO_WEEK);
 
 const ME = {
   id: "demo-me",
@@ -50,6 +54,27 @@ const CITY_COORDS: Record<number, { lat: number; lng: number }> = {
   13: { lat: 37.7749, lng: -122.4194 },
 };
 
+function parseDemoWeekNumber(value: string | undefined): number {
+  const parsed = Number(value ?? 1);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= SEASON_ONE_CONFIG.route.length
+    ? parsed
+    : 1;
+}
+
+function demoWeekConfig(weekNumber = DEMO_WEEK_NUMBER): SeasonWeekConfig {
+  return getSeasonWeek(weekNumber) ?? WEEK_ONE_CHICAGO;
+}
+
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function weekStartsOn(weekNumber: number): string {
+  return addDays("2026-06-08", (weekNumber - 1) * 7);
+}
+
 function cityFixture(week: SeasonWeekConfig) {
   const coords = CITY_COORDS[week.weekNumber]!;
   return {
@@ -64,7 +89,6 @@ function cityFixture(week: SeasonWeekConfig) {
 }
 
 const ROUTE_CITIES = SEASON_ONE_CONFIG.route.map(cityFixture);
-const DEMO_ROUTE_CITIES = ROUTE_CITIES.slice(0, 4);
 const CHICAGO = ROUTE_CITIES[0]!;
 const DETROIT = ROUTE_CITIES[1]!;
 
@@ -89,7 +113,20 @@ const DETROIT_LANDMARKS = [
   { id: 25, day: 5, name: "Renaissance Center", fun_fact: "The riverfront towers of GM's headquarters are the tallest in Michigan and define Detroit's skyline." },
 ];
 
-const CHICAGO_LANDMARK_STATE = ["unlocked", "unlocked", "unlocked", "unlocked", "today", "locked", "locked"];
+function genericLandmarks(city: { id: number; name: string }) {
+  return Array.from({ length: 5 }, (_, index) => ({
+    id: city.id * 10 + index + 1,
+    day: index + 1,
+    name: `${city.name} field point ${index + 1}`,
+    fun_fact: `Demo intel point ${index + 1} for ${city.name}.`,
+  }));
+}
+
+function landmarksForCity(city: { id: number; name: string }) {
+  if (city.id === CHICAGO.id) return CHICAGO_LANDMARKS;
+  if (city.id === DETROIT.id) return DETROIT_LANDMARKS;
+  return genericLandmarks(city);
+}
 
 // The fixed Week 1 Chicago board (migration 008 definitions): 24 configured
 // tiles + the free space, in the shared deterministic layout's spirit.
@@ -155,45 +192,6 @@ function progressStrip() {
   });
 }
 
-const WEEK = {
-  id: "demo-week-chicago",
-  starts_on: "2026-06-08",
-  ends_on: "2026-06-14",
-  group_target_steps: 210000,
-  status: "active" as const,
-};
-
-const DEMO_PLATFORM_SWEEP = calculateParticipationThreshold(WEEK_ONE_CHICAGO.specialOperation, {
-  contributors: 2,
-  eligiblePlayers: MEMBERS.length,
-  active: true,
-});
-
-const DEMO_CHASE = calculateChase({
-  activePlayers: MEMBERS.map((member, index) => ({
-    userId: member.user_id,
-    weeklyTarget: 70000,
-    stepsThisWeek: MEMBER_WEEK_STEPS[index],
-    lastSyncedAt: new Date(ME.last_synced_at),
-    fitbitConnected: true,
-  })),
-  fieldOps: { activePlayerCount: MEMBERS.length, totalQualifyingLines: 6 },
-  specialOperation: {
-    maxBonus: DEMO_PLATFORM_SWEEP.maxBonus,
-    earnedBonus: DEMO_PLATFORM_SWEEP.earnedBonus,
-    contributors: DEMO_PLATFORM_SWEEP.contributors,
-    eligiblePlayers: DEMO_PLATFORM_SWEEP.eligiblePlayers,
-  },
-  nemesis: { activePlayerCount: MEMBERS.length, participantsWithActivity: MEMBERS.length, allMatchupsResolved: false },
-  prediction: { activePlayerCount: MEMBERS.length, submittedCount: 1 },
-  trackerSync: MEMBERS.map((member) => ({ userId: member.user_id, freshness: "current" as const })),
-  elapsedFractionOfWeek: 1,
-  now: new Date("2026-06-12T18:50:00.000Z"),
-  groupWeeklyTargetSnapshot: WEEK.group_target_steps,
-  dataConfidence: "verified",
-  final: false,
-});
-
 const DEMO_OUTCOME: WeeklyOutcome | null = null;
 
 function evidenceSlot(evidenceId: string, kind: "standard" | "intercept", unlocked: boolean) {
@@ -233,219 +231,334 @@ function evidenceBoard() {
   };
 }
 
-const FIXTURES: Record<string, unknown> = {
-  "/api/auth/session": {
-    user: ME,
-    group: { id: "demo-group", name: "The Night Walkers", invite_code: "SELENA", admin_id: "demo-me" },
-    activeWeek: WEEK,
-  },
-  "/api/users/me": { user: ME },
-  "/api/users/me/stats": {
-    total_steps_alltime: 1284502,
-    total_steps_this_week: 50058,
-    city_wins: 2,
-    bingo_lines_alltime: 7,
-    current_streak: 2,
-  },
-  "/api/groups/me": {
-    group: { id: "demo-group", name: "The Night Walkers", invite_code: "SELENA", admin_id: "demo-me", timezone: "America/Chicago" },
-    members: MEMBERS.map((m) => ({ id: m.user_id, ...m })),
-  },
-  "/api/weeks/current": {
-    week: WEEK,
-    city: CHICAGO,
-    nextCity: DETROIT,
-    selenaLeadSteps: DEMO_CHASE.remainingLead,
-    route: DEMO_ROUTE_CITIES.map((city) => ({ city_id: city.id, name: city.name, visited: false })),
-    progressStrip: progressStrip(),
-    leaderboard: leaderboard(),
-    countdown: "2026-06-15T05:00:00Z",
-    lastSyncedAt: "2026-06-12T18:50:00Z",
-    seasonState: {
-      season: {
-        id: SEASON_ONE_CONFIG.id,
-        title: SEASON_ONE_CONFIG.title,
-        weekNumber: 1,
-        totalWeeks: SEASON_ONE_CONFIG.route.length,
-      },
-      chapter: {
-        city: WEEK_ONE_CHICAGO.cityName,
-        title: WEEK_ONE_CHICAGO.chapterTitle,
-        complication: WEEK_ONE_CHICAGO.complication.label,
-        nextCity: WEEK_ONE_CHICAGO.nextCityTeaser.cityName,
-      },
-      phase: "final_push",
-      dataConfidence: "verified",
-      chase: {
-        verifiedGroupSteps: DEMO_CHASE.verifiedGroupSteps,
-        snapshottedTarget: DEMO_CHASE.groupWeeklyTarget,
-        baseProgress: DEMO_CHASE.baseProgress,
-        fieldOpsBonus: DEMO_CHASE.bonuses.fieldOps,
-        specialOperationBonus: DEMO_CHASE.bonuses.specialOperation,
-        nemesisParticipationBonus: DEMO_CHASE.bonuses.nemesisParticipation,
-        predictionParticipationBonus: DEMO_CHASE.bonuses.predictionParticipation,
-        totalNonStepBonus: DEMO_CHASE.bonuses.total,
-        finalProgress: DEMO_CHASE.finalProgress,
-        remainingLead: DEMO_CHASE.remainingLead,
-        projectedOutcome: DEMO_CHASE.projectedOutcome,
-        finalOutcome: null,
-      },
-      primaryAction: {
-        id: "continue_pursuit",
-        title: "Continue the pursuit",
-        body: "Every verified step closes the distance.",
-        href: "/map",
-        priority: 10,
-      },
-      primaryBeat: {
-        id: "final_push_close_encounter",
-        category: "ritual",
-        headline: "FINAL PUSH",
-        body: "Two days remain before the Sunday cutoff. Field Ops and the Platform Sweep can still close the last gap.",
-        selena: "You are close enough to become inconvenient.",
-        ctaLabel: "Review the pursuit",
-        ctaHref: "/map",
-        dataConfidence: "verified",
-      },
-      platformSweep: {
-        ...DEMO_PLATFORM_SWEEP,
-      },
-      evidencePreview: {
-        standardEvidenceId: WEEK_ONE_CHICAGO.evidence.standardEvidenceId,
-        standardTitle: null,
-        unlocked: false,
-        interceptUnlocked: false,
-      },
-      ritualViews: {
-        mondayBriefing: true,
-        midweekUpdate: true,
-        finalPush: false,
-        caseClosed: false,
-      },
-      previousCase: null,
-      sync: {
-        lastUpdatedAt: "2026-06-12T18:50:00Z",
-        incompletePlayerCount: 0,
-        stalePlayerCount: 0,
-      },
+function activeWeekFixture(weekConfig: SeasonWeekConfig) {
+  const startsOn = weekStartsOn(weekConfig.weekNumber);
+  return {
+    id: `demo-week-${String(weekConfig.weekNumber).padStart(2, "0")}`,
+    starts_on: startsOn,
+    ends_on: addDays(startsOn, 6),
+    group_target_steps: 210000,
+    status: "active" as const,
+  };
+}
+
+function demoChase(weekConfig: SeasonWeekConfig, week: ReturnType<typeof activeWeekFixture>) {
+  const platformSweep = calculateParticipationThreshold(weekConfig.specialOperation, {
+    contributors: 2,
+    eligiblePlayers: MEMBERS.length,
+    active: true,
+  });
+  const chase = calculateChase({
+    activePlayers: MEMBERS.map((member, index) => ({
+      userId: member.user_id,
+      weeklyTarget: 70000,
+      stepsThisWeek: MEMBER_WEEK_STEPS[index],
+      lastSyncedAt: new Date(ME.last_synced_at),
+      fitbitConnected: true,
+    })),
+    fieldOps: { activePlayerCount: MEMBERS.length, totalQualifyingLines: 6 },
+    specialOperation: {
+      maxBonus: platformSweep.maxBonus,
+      earnedBonus: platformSweep.earnedBonus,
+      contributors: platformSweep.contributors,
+      eligiblePlayers: platformSweep.eligiblePlayers,
     },
-    state: "in_progress",
-  },
-  "/api/cities/current": {
-    city: CHICAGO,
-    landmarks: CHICAGO_LANDMARKS.map((l, i) => ({ ...l, image: null, state: CHICAGO_LANDMARK_STATE[i] })),
-    groupWorkout: {
-      total_members: 3,
-      worked_out_today: 2,
-      members: MEMBERS.map((m, i) => ({ ...m, worked_out: i !== 0 })),
-    },
-  },
-  // Historical trophy view retained for existing routes.
-  "/api/cities/1": {
-    city: CHICAGO,
-    week: { starts_on: "2026-06-01", ends_on: "2026-06-07", group_target_steps: 210000, group_total_steps: 234500, target_hit: true },
-    landmarks: CHICAGO_LANDMARKS.map((l, i) => ({ ...l, image: null, earned: i < 5 })),
-    unlocked_count: 5,
-    champion: { user_id: "demo-me", display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1, quality: "silver" },
-  },
-  "/api/predictions/current": {
-    week: WEEK,
-    city: { name: "Chicago" },
-    myPrediction: {
-      user_id: "demo-me", predicted_steps: 205000, submitted_at: "2026-06-08T14:00:00Z",
-      actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
-    },
-    others: "hidden",
-    allSubmitted: false,
-    liveGroupTotal: DEMO_GROUP_STEPS,
-    revealAt: "2026-06-15T04:59:00Z",
-    state: "partial",
-    submissionOpen: false,
-  },
-  "/api/bingo/current": {
-    card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
-    friends: [
-      { ...MEMBERS[1], bingo_lines: 1, blackout: false },
-      { ...MEMBERS[2], bingo_lines: 3, blackout: false },
-    ],
-  },
-  "/api/fieldops": {
-    card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
-    scout: {
-      reconCity: { id: 2, name: "Detroit", country: "USA" },
-      teamTokens: 6,
-      unlockedCount: 3,
-      overflowBonus: 1,
-      unlockedToday: true,
-    },
-    reconCity: { id: 2, name: "Detroit", country: "USA" },
-    intel: [
-      { ...DETROIT_LANDMARKS[0], image: null, unlocked: true, unlock_date: "2026-06-10", scouted_by_id: "demo-jess", scouted_by: "Jess" },
-      { ...DETROIT_LANDMARKS[1], image: null, unlocked: true, unlock_date: "2026-06-11", scouted_by_id: "demo-me", scouted_by: "You" },
-      { ...DETROIT_LANDMARKS[2], image: null, unlocked: true, unlock_date: "2026-06-12", scouted_by_id: "demo-maya", scouted_by: "Maya" },
-      { ...DETROIT_LANDMARKS[3], fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
-      { ...DETROIT_LANDMARKS[4], fun_fact: null, image: null, unlocked: false, unlock_date: null, scouted_by_id: null, scouted_by: null },
-    ],
-    assists: { remaining: 1 },
-    teammates: [
-      { ...MEMBERS[1], bingo_lines: 1, blackout: false },
-      { ...MEMBERS[2], bingo_lines: 3, blackout: false },
-    ],
-  },
-  "/api/fieldops/dossier": {
-    owner: { id: "demo-me", display_name: "You" },
-    cards: [
-      { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 23, landmark_name: "Guardian Building", fun_fact: "Its Art Deco lobby, tiled in Pewabic pottery, earned it the nickname 'Cathedral of Finance.'", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
-      { id: "ic-2", variant: "scouted", created_at: "2026-06-11T09:00:00Z", landmark_id: 22, landmark_name: "Detroit Institute of Arts", fun_fact: "Diego Rivera's Detroit Industry Murals wrap an entire courtyard with scenes of the auto assembly line.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
-      { id: "ic-1", variant: "confirmed", created_at: "2026-05-28T20:00:00Z", landmark_id: 2, landmark_name: "Willis Tower Skydeck", fun_fact: "The Ledge's glass boxes extend 4.3 feet out on the 103rd floor.", image: null, city_id: 1, city_name: "Chicago", city_country: "USA" },
-    ],
-    cities: [
-      ...CHICAGO_LANDMARKS.slice(0, 5).map((l) => ({ id: CHICAGO.id, name: CHICAGO.name, country: CHICAGO.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.fun_fact, image: null })),
-      ...DETROIT_LANDMARKS.map((l) => ({ id: DETROIT.id, name: DETROIT.name, country: DETROIT.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.day <= 3 ? l.fun_fact : null, image: null })),
-    ],
-  },
-  "/api/bingo/friends": {
-    friends: [
-      { ...MEMBERS[1], bingo_lines: 1, blackout: false },
-      { ...MEMBERS[2], bingo_lines: 3, blackout: false },
-    ],
-  },
-  "/api/nemesis/current": {
+    nemesis: { activePlayerCount: MEMBERS.length, participantsWithActivity: MEMBERS.length, allMatchupsResolved: false },
+    prediction: { activePlayerCount: MEMBERS.length, submittedCount: 1 },
+    trackerSync: MEMBERS.map((member) => ({ userId: member.user_id, freshness: "current" as const })),
+    elapsedFractionOfWeek: 1,
+    now: new Date("2026-06-12T18:50:00.000Z"),
+    groupWeeklyTargetSnapshot: week.group_target_steps,
+    dataConfidence: "verified",
+    final: false,
+  });
+  return { chase, platformSweep };
+}
+
+function demoNemesisFixture(week: ReturnType<typeof activeWeekFixture>, state: string | null) {
+  if (state === "bye") {
+    return {
+      matchup: null,
+      you: null,
+      nemesis: null,
+      week: { starts_on: week.starts_on, ends_on: week.ends_on },
+      today: addDays(week.starts_on, 4),
+      weekMax: 0,
+      outcome: null,
+      state: "bye",
+    };
+  }
+
+  const tiebreak = state === "tiebreak";
+  return {
     matchup: {
-      id: "demo-matchup", week_id: "demo-week-chicago", player_a: "demo-me", player_b: "demo-maya",
-      status: "active", score_a: 2, score_b: 1, tiebreaker_date: null,
-      rerolled: false, winner_id: null,
+      id: "demo-matchup",
+      week_id: week.id,
+      player_a: "demo-me",
+      player_b: "demo-maya",
+      status: tiebreak ? "tiebreak" : "active",
+      score_a: tiebreak ? 2 : 2,
+      score_b: tiebreak ? 2 : 1,
+      tiebreaker_date: tiebreak ? addDays(week.starts_on, 5) : null,
+      rerolled: false,
+      winner_id: null,
       daily_results: [
-        { date: "2026-06-08", a_steps: 9500, b_steps: 8100, winner: "a" },
-        { date: "2026-06-09", a_steps: 12000, b_steps: 13000, winner: "b" },
-        { date: "2026-06-10", a_steps: 7800, b_steps: 7800, winner: "tie" },
-        { date: "2026-06-11", a_steps: 11300, b_steps: 9700, winner: "a" },
+        { date: week.starts_on, a_steps: 9500, b_steps: 8100, winner: "a" },
+        { date: addDays(week.starts_on, 1), a_steps: 12000, b_steps: 13000, winner: "b" },
+        { date: addDays(week.starts_on, 2), a_steps: 7800, b_steps: 7800, winner: "tie" },
+        { date: addDays(week.starts_on, 3), a_steps: 11300, b_steps: 9700, winner: "a" },
+        ...(tiebreak ? [{ date: addDays(week.starts_on, 4), a_steps: 8600, b_steps: 9100, winner: "b" as const }] : []),
       ],
     },
     you: { ...MEMBERS[0], steps_today: 7200, steps_this_week: 47800 },
     nemesis: { ...MEMBERS[1], steps_today: 6800, steps_this_week: 45400 },
-    week: { starts_on: "2026-06-08", ends_on: "2026-06-14" },
-    today: "2026-06-12",
+    week: { starts_on: week.starts_on, ends_on: week.ends_on },
+    today: tiebreak ? addDays(week.starts_on, 5) : addDays(week.starts_on, 4),
     weekMax: 13000,
-    outcome: null,
-    state: "active",
-  },
-  "/api/badges": {
-    badges: [
-      { id: "b1", code: "city", label: "City Champion", description: "Top stepper when the team cleared a city.", quality: "silver", city_id: 1, city_name: "Chicago", earned_at: "2026-06-07T23:00:00Z" },
-      { id: "b2", code: "prediction_win", label: "Oracle", description: "Closest call on the weekly total.", quality: null, city_id: null, city_name: null, earned_at: "2026-06-07T23:00:00Z" },
-      { id: "b3", code: "bingo", label: "Bingo", description: "Completed a line on your card.", quality: "bronze", city_id: null, city_name: null, earned_at: "2026-05-31T23:00:00Z" },
-      { id: "b4", code: "nemesis_victor", label: "Nemesis Victor", description: "Won your weekly duel.", quality: "gold", city_id: null, city_name: null, earned_at: "2026-05-24T23:00:00Z" },
-    ],
-  },
-  "/api/notifications": { notifications: NOTIFICATIONS },
-  "/api/evidence": evidenceBoard(),
-};
+    outcome: tiebreak ? "tiebreak" : null,
+    state: tiebreak ? "tiebreak" : "active",
+  };
+}
+
+export function buildDemoFixtures(weekNumber = DEMO_WEEK_NUMBER): Record<string, unknown> {
+  const weekConfig = demoWeekConfig(weekNumber);
+  const week = activeWeekFixture(weekConfig);
+  const activeCity = cityFixture(weekConfig);
+  const nextWeek = getSeasonWeek(weekConfig.weekNumber + 1) ?? null;
+  const nextCity = nextWeek ? cityFixture(nextWeek) : null;
+  const routeLimit = Math.min(SEASON_ONE_CONFIG.route.length, Math.max(4, weekConfig.weekNumber + 3));
+  const route = ROUTE_CITIES.slice(0, routeLimit);
+  const currentLandmarks = landmarksForCity(activeCity);
+  const landmarkStates = currentLandmarks.map((_landmark, index) =>
+    index < 3 ? "unlocked" : index === 3 ? "today" : "locked",
+  );
+  const reconCity = nextCity ?? activeCity;
+  const reconLandmarks = landmarksForCity(reconCity).slice(0, 5);
+  const { chase, platformSweep } = demoChase(weekConfig, week);
+  const primaryAction = selectPrimaryAction({
+    dataConfidence: "verified",
+    incompletePlayerCount: 0,
+    briefingAvailable: false,
+    caseResultAvailable: false,
+    phase: "final_push",
+    suddenDeathActive: false,
+    specialOperationActive: platformSweep.active && platformSweep.earnedBonus < platformSweep.maxBonus,
+    predictionActionAvailable: false,
+    fieldOpsNearReward: false,
+    nemesisClose: false,
+    dailyTargetWithinReach: false,
+  });
+  const primaryBeat = selectPrimaryBeat({
+    weekConfig,
+    phase: "final_push",
+    dataConfidence: "verified",
+    projectedOutcome: chase.projectedOutcome,
+    finalOutcome: null,
+    remainingLead: chase.remainingLead,
+    firstLineComplete: true,
+    platformSweepActive: platformSweep.active,
+    platformSweepEarnedBonus: platformSweep.earnedBonus,
+    platformSweepMaxBonus: platformSweep.maxBonus,
+  });
+
+  return {
+    "/api/auth/session": {
+      user: ME,
+      group: { id: "demo-group", name: "The Night Walkers", invite_code: "SELENA", admin_id: "demo-me" },
+      activeWeek: week,
+    },
+    "/api/users/me": { user: ME },
+    "/api/users/me/stats": {
+      total_steps_alltime: 1284502,
+      total_steps_this_week: 50058,
+      city_wins: 2,
+      bingo_lines_alltime: 7,
+      current_streak: 2,
+    },
+    "/api/groups/me": {
+      group: { id: "demo-group", name: "The Night Walkers", invite_code: "SELENA", admin_id: "demo-me", timezone: "America/Chicago" },
+      members: MEMBERS.map((m) => ({ id: m.user_id, ...m })),
+    },
+    "/api/weeks/current": {
+      week,
+      city: activeCity,
+      nextCity,
+      selenaLeadSteps: chase.remainingLead,
+      route: route.map((city) => ({ city_id: city.id, name: city.name, visited: city.route_order < weekConfig.weekNumber })),
+      progressStrip: progressStrip(),
+      leaderboard: leaderboard(),
+      countdown: `${addDays(week.ends_on, 1)}T05:00:00Z`,
+      lastSyncedAt: "2026-06-12T18:50:00Z",
+      seasonState: {
+        season: {
+          id: SEASON_ONE_CONFIG.id,
+          title: SEASON_ONE_CONFIG.title,
+          weekNumber: weekConfig.weekNumber,
+          totalWeeks: SEASON_ONE_CONFIG.route.length,
+        },
+        chapter: {
+          city: weekConfig.cityName,
+          title: weekConfig.chapterTitle,
+          complication: weekConfig.complication.label,
+          nextCity: weekConfig.nextCityTeaser.cityName || null,
+        },
+        phase: "final_push",
+        dataConfidence: "verified",
+        chase: {
+          verifiedGroupSteps: chase.verifiedGroupSteps,
+          snapshottedTarget: chase.groupWeeklyTarget,
+          baseProgress: chase.baseProgress,
+          fieldOpsBonus: chase.bonuses.fieldOps,
+          specialOperationBonus: chase.bonuses.specialOperation,
+          nemesisParticipationBonus: chase.bonuses.nemesisParticipation,
+          predictionParticipationBonus: chase.bonuses.predictionParticipation,
+          totalNonStepBonus: chase.bonuses.total,
+          finalProgress: chase.finalProgress,
+          remainingLead: chase.remainingLead,
+          projectedOutcome: chase.projectedOutcome,
+          finalOutcome: null,
+        },
+        primaryAction,
+        primaryBeat,
+        platformSweep,
+        evidencePreview: {
+          standardEvidenceId: weekConfig.evidence.standardEvidenceId,
+          standardTitle: null,
+          unlocked: false,
+          interceptUnlocked: false,
+        },
+        ritualViews: {
+          mondayBriefing: true,
+          midweekUpdate: true,
+          finalPush: false,
+          caseClosed: false,
+        },
+        previousCase: null,
+        sync: {
+          lastUpdatedAt: "2026-06-12T18:50:00Z",
+          incompletePlayerCount: 0,
+          stalePlayerCount: 0,
+        },
+      },
+      state: "in_progress",
+    },
+    "/api/cities/current": {
+      city: activeCity,
+      landmarks: currentLandmarks.map((landmark, index) => ({ ...landmark, image: null, state: landmarkStates[index] })),
+      groupWorkout: {
+        total_members: 3,
+        worked_out_today: 2,
+        members: MEMBERS.map((m, i) => ({ ...m, worked_out: i !== 0 })),
+      },
+    },
+    "/api/predictions/current": {
+      week,
+      city: { name: activeCity.name },
+      myPrediction: {
+        user_id: "demo-me", predicted_steps: 205000, submitted_at: `${week.starts_on}T14:00:00Z`,
+        actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
+      },
+      others: "hidden",
+      allSubmitted: false,
+      liveGroupTotal: DEMO_GROUP_STEPS,
+      revealAt: `${addDays(week.ends_on, 1)}T04:59:00Z`,
+      state: "partial",
+      submissionOpen: false,
+    },
+    "/api/bingo/current": {
+      card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
+      friends: [
+        { ...MEMBERS[1], bingo_lines: 1, blackout: false },
+        { ...MEMBERS[2], bingo_lines: 3, blackout: false },
+      ],
+    },
+    "/api/fieldops": {
+      card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
+      scout: {
+        reconCity: { id: reconCity.id, name: reconCity.name, country: "USA" },
+        teamTokens: 6,
+        unlockedCount: 3,
+        overflowBonus: 1,
+        unlockedToday: true,
+      },
+      reconCity: { id: reconCity.id, name: reconCity.name, country: "USA" },
+      intel: reconLandmarks.map((landmark, index) => ({
+        ...landmark,
+        fun_fact: index < 3 ? landmark.fun_fact : null,
+        image: null,
+        unlocked: index < 3,
+        unlock_date: index < 3 ? addDays(week.starts_on, index + 2) : null,
+        scouted_by_id: index === 0 ? "demo-jess" : index === 1 ? "demo-me" : index === 2 ? "demo-maya" : null,
+        scouted_by: index === 0 ? "Jess" : index === 1 ? "You" : index === 2 ? "Maya" : null,
+      })),
+      assists: { remaining: 1 },
+      teammates: [
+        { ...MEMBERS[1], bingo_lines: 1, blackout: false },
+        { ...MEMBERS[2], bingo_lines: 3, blackout: false },
+      ],
+    },
+    "/api/fieldops/dossier": {
+      owner: { id: "demo-me", display_name: "You" },
+      cards: [
+        { id: "ic-3", variant: "scouted", created_at: "2026-06-12T14:00:00Z", landmark_id: 23, landmark_name: "Guardian Building", fun_fact: "Its Art Deco lobby, tiled in Pewabic pottery, earned it the nickname 'Cathedral of Finance.'", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
+        { id: "ic-2", variant: "scouted", created_at: "2026-06-11T09:00:00Z", landmark_id: 22, landmark_name: "Detroit Institute of Arts", fun_fact: "Diego Rivera's Detroit Industry Murals wrap an entire courtyard with scenes of the auto assembly line.", image: null, city_id: 2, city_name: "Detroit", city_country: "USA" },
+        { id: "ic-1", variant: "confirmed", created_at: "2026-05-28T20:00:00Z", landmark_id: 2, landmark_name: "Willis Tower Skydeck", fun_fact: "The Ledge's glass boxes extend 4.3 feet out on the 103rd floor.", image: null, city_id: 1, city_name: "Chicago", city_country: "USA" },
+      ],
+      cities: [
+        ...CHICAGO_LANDMARKS.slice(0, 5).map((l) => ({ id: CHICAGO.id, name: CHICAGO.name, country: CHICAGO.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.fun_fact, image: null })),
+        ...DETROIT_LANDMARKS.map((l) => ({ id: DETROIT.id, name: DETROIT.name, country: DETROIT.country, landmark_id: l.id, day: l.day, landmark_name: l.name, fun_fact: l.day <= 3 ? l.fun_fact : null, image: null })),
+      ],
+    },
+    "/api/bingo/friends": {
+      friends: [
+        { ...MEMBERS[1], bingo_lines: 1, blackout: false },
+        { ...MEMBERS[2], bingo_lines: 3, blackout: false },
+      ],
+    },
+    "/api/nemesis/current": demoNemesisFixture(week, null),
+    "/api/badges": {
+      badges: [
+        { id: "b1", code: "city", label: "City Champion", description: "Top stepper when the team cleared a city.", quality: "silver", city_id: 1, city_name: "Chicago", earned_at: "2026-06-07T23:00:00Z" },
+        { id: "b2", code: "prediction_win", label: "Oracle", description: "Closest call on the weekly total.", quality: null, city_id: null, city_name: null, earned_at: "2026-06-07T23:00:00Z" },
+        { id: "b3", code: "bingo", label: "Bingo", description: "Completed a line on your card.", quality: "bronze", city_id: null, city_name: null, earned_at: "2026-05-31T23:00:00Z" },
+        { id: "b4", code: "nemesis_victor", label: "Nemesis Victor", description: "Won your weekly duel.", quality: "gold", city_id: null, city_name: null, earned_at: "2026-05-24T23:00:00Z" },
+      ],
+    },
+    "/api/notifications": { notifications: NOTIFICATIONS },
+    "/api/evidence": evidenceBoard(),
+  };
+}
+
+function cityTrophyFixture(cityId: number) {
+  const city = ROUTE_CITIES.find((routeCity) => routeCity.id === cityId) ?? CHICAGO;
+  const landmarks = landmarksForCity(city);
+  return {
+    city,
+    week: { starts_on: "2026-06-01", ends_on: "2026-06-07", group_target_steps: 210000, group_total_steps: 234500, target_hit: true },
+    landmarks: landmarks.map((landmark, index) => ({ ...landmark, image: null, earned: index < 5 })),
+    unlocked_count: Math.min(5, landmarks.length),
+    champion: { user_id: "demo-me", display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1, quality: "silver" },
+  };
+}
 
 /** Resolve a fixture for a GET path, or null if none (caller falls through). */
 export function demoResponse<T>(path: string): T | null {
-  const clean = path.split("?")[0];
-  if (clean in FIXTURES) return FIXTURES[clean] as T;
+  return demoResponseForWeek(path, DEMO_WEEK_NUMBER);
+}
+
+export function demoResponseForWeek<T>(path: string, weekNumber: number): T | null {
+  const [clean, queryString = ""] = path.split("?");
+  if (clean === "/api/nemesis/current") {
+    const week = activeWeekFixture(demoWeekConfig(weekNumber));
+    const state = new URLSearchParams(queryString).get("state");
+    return demoNemesisFixture(week, state) as T;
+  }
+  if (clean.startsWith("/api/cities/")) {
+    const cityId = Number(clean.split("/").at(-1));
+    if (Number.isInteger(cityId)) return cityTrophyFixture(cityId) as T;
+  }
+  const fixtures = buildDemoFixtures(weekNumber);
+  if (clean in fixtures) return fixtures[clean] as T;
   // History endpoint, etc. — safe empty defaults.
   if (clean === "/api/predictions/history") return { history: [], wins: 2 } as T;
   return null;
