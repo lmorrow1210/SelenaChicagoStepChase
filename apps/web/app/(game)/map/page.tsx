@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import type { ColorwayId } from "@one-step-ahead/design-system/components/game/Avatar";
 import MapPin from "@one-step-ahead/design-system/components/game/MapPin";
@@ -22,7 +23,6 @@ import { CallingCard } from "../../../lib/CallingCard";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
 import { MondayBriefing } from "../../../lib/narrative/MondayBriefing";
 import { CaseClosedReport } from "../../../lib/narrative/CaseClosedReport";
-import { SeasonFinale } from "../../../lib/finale/SeasonFinale";
 import { avatarChoiceFromUser, shouldAutoOpenFinale, shouldOpenFinaleNow } from "../../../lib/finale/trigger";
 import {
   CaseClosingState,
@@ -37,6 +37,13 @@ import {
   SystemCards,
 } from "../../../lib/narrative/ChaseCards";
 import { PredictionSection } from "./PredictionSection";
+
+// The Week 13 send-off plays once a season, so it loads only when it opens
+// instead of shipping with every Map visit.
+const SeasonFinale = dynamic(
+  () => import("../../../lib/finale/SeasonFinale").then((m) => m.SeasonFinale),
+  { ssr: false },
+);
 
 type MapState = "in_progress" | "arrival" | "closing_soon" | "no_group";
 
