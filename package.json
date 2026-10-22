@@ -1,11 +1,23 @@
 {
   "name": "one-step-ahead",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "migrate": "npm run migrate -w apps/api"
+    "migrate": "npm run migrate -w apps/api",
+    "qa:demo:build": "NEXT_OUTPUT=export NEXT_PUBLIC_DEMO=1 NEXT_PUBLIC_DEMO_WEEK=1 NEXT_PUBLIC_DEMO_PREDICTION_STATE=open NEXT_PUBLIC_ENABLE_WEEK_SIMULATOR=1 NEXT_PUBLIC_BASE_PATH=/SelenaChicagoStepChase NEXT_PUBLIC_API_URL=https://example.invalid npm run build -w apps/web",
+    "qa:browser": "playwright test",
+    "qa:lighthouse": "node scripts/lighthouse-demo.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
+    "chrome-launcher": "^1.2.1",
+    "lighthouse": "^13.4.0"
   }
 }

@@ -27,6 +27,84 @@ const baseInput = (): ChaseCalculationInput => ({
   groupWeeklyTargetSnapshot: 200000,
 });
 
+function seededRandom(seed: number): () => number {
+  let value = seed;
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    return value / 0x100000000;
+  };
+}
+
+function randomInt(rand: () => number, min: number, max: number): number {
+  return Math.floor(rand() * (max - min + 1)) + min;
+}
+
+function fuzzInput(seed: number): ChaseCalculationInput {
+  const rand = seededRandom(seed);
+  const playerCount = randomInt(rand, 1, 12);
+  const activePlayers = Array.from({ length: playerCount }, (_, index) => ({
+    userId: `player-${index}`,
+    weeklyTarget: randomInt(rand, 35_000, 140_000),
+    stepsThisWeek: randomInt(rand, 0, 220_000),
+    lastSyncedAt: new Date("2026-06-10T12:00:00Z"),
+    fitbitConnected: true,
+  }));
+  const groupWeeklyTargetSnapshot = activePlayers.reduce((sum, player) => sum + player.weeklyTarget, 0);
+
+  return {
+    activePlayers,
+    fieldOps: {
+      activePlayerCount: playerCount,
+      totalQualifyingLines: randomInt(rand, 0, playerCount * 8),
+    },
+    specialOperation: {
+      maxBonus: rand() * 0.5,
+      earnedBonus: rand() * 0.5,
+      contributors: randomInt(rand, 0, playerCount),
+      eligiblePlayers: playerCount,
+    },
+    nemesis: {
+      activePlayerCount: playerCount,
+      participantsWithActivity: randomInt(rand, 0, playerCount * 2),
+      allMatchupsResolved: rand() > 0.5,
+    },
+    prediction: {
+      activePlayerCount: playerCount,
+      submittedCount: randomInt(rand, 0, playerCount * 2),
+    },
+    trackerSync: activePlayers.map((player) => ({ userId: player.userId, freshness: "current" })),
+    elapsedFractionOfWeek: rand(),
+    now: new Date("2026-06-10T12:00:00Z"),
+    groupWeeklyTargetSnapshot,
+    final: true,
+  };
+}
+
+function noBonusProgressInput(progress: number, dataConfidence = "verified" as const): ChaseCalculationInput {
+  const target = 100_000;
+  return {
+    activePlayers: [
+      {
+        userId: "a",
+        weeklyTarget: target,
+        stepsThisWeek: Math.round(target * progress),
+        lastSyncedAt: new Date("2026-06-10T12:00:00Z"),
+        fitbitConnected: true,
+      },
+    ],
+    fieldOps: { activePlayerCount: 1, totalQualifyingLines: 0 },
+    specialOperation: { maxBonus: 0.03, earnedBonus: 0, contributors: 0, eligiblePlayers: 1 },
+    nemesis: { activePlayerCount: 1, participantsWithActivity: 0, allMatchupsResolved: false },
+    prediction: { activePlayerCount: 1, submittedCount: 0 },
+    trackerSync: [{ userId: "a", freshness: "current" }],
+    elapsedFractionOfWeek: 1,
+    now: new Date("2026-06-10T12:00:00Z"),
+    groupWeeklyTargetSnapshot: target,
+    dataConfidence,
+    final: true,
+  };
+}
+
 describe("classifyWeeklyOutcome", () => {
   it("covers every weekly-outcome boundary", () => {
     expect(classifyWeeklyOutcome(0)).toBe("trail_lost");
@@ -134,5 +212,56 @@ describe("calculateChase", () => {
     calculateChase(input);
 
     expect(JSON.stringify(input)).toBe(before);
+  });
+
+  it("keeps final progress monotonic as verified steps increase", () => {
+    for (let seed = 1; seed <= 250; seed++) {
+      const input = fuzzInput(seed);
+      const before = calculateChase(input);
+      const boosted = {
+        ...input,
+        activePlayers: input.activePlayers.map((player, index) =>
+          index === 0
+            ? { ...player, stepsThisWeek: player.stepsThisWeek + 10_000 }
+            : player,
+        ),
+      };
+      const after = calculateChase(boosted);
+
+      expect(after.finalProgress).toBeGreaterThanOrEqual(before.finalProgress);
+    }
+  });
+
+  it("keeps randomized bonuses capped and remaining lead non-negative", () => {
+    for (let seed = 1; seed <= 250; seed++) {
+      const result = calculateChase(fuzzInput(seed));
+
+      expect(result.bonuses.fieldOps).toBeGreaterThanOrEqual(0);
+      expect(result.bonuses.fieldOps).toBeLessThanOrEqual(0.05);
+      expect(result.bonuses.specialOperation).toBeGreaterThanOrEqual(0);
+      expect(result.bonuses.specialOperation).toBeLessThanOrEqual(0.03);
+      expect(result.bonuses.nemesisParticipation).toBeGreaterThanOrEqual(0);
+      expect(result.bonuses.nemesisParticipation).toBeLessThanOrEqual(0.01);
+      expect(result.bonuses.predictionParticipation).toBeGreaterThanOrEqual(0);
+      expect(result.bonuses.predictionParticipation).toBeLessThanOrEqual(0.01);
+      expect(result.bonuses.total).toBeLessThanOrEqual(0.1);
+      expect(result.remainingLead).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("classifies exact calculateChase final boundaries at 70, 90, and 100 percent", () => {
+    expect(calculateChase(noBonusProgressInput(0.69999)).finalOutcome).toBe("trail_lost");
+    expect(calculateChase(noBonusProgressInput(0.7)).finalOutcome).toBe("pursuit_maintained");
+    expect(calculateChase(noBonusProgressInput(0.89999)).finalOutcome).toBe("pursuit_maintained");
+    expect(calculateChase(noBonusProgressInput(0.9)).finalOutcome).toBe("close_encounter");
+    expect(calculateChase(noBonusProgressInput(0.99999)).finalOutcome).toBe("close_encounter");
+    expect(calculateChase(noBonusProgressInput(1)).finalOutcome).toBe("interception");
+  });
+
+  it("withholds projections while data confidence is incomplete or recalculating", () => {
+    expect(calculateChase(noBonusProgressInput(1, "verified")).projectedOutcome).toBe("interception");
+    expect(calculateChase(noBonusProgressInput(1, "estimated")).projectedOutcome).toBe("interception");
+    expect(calculateChase(noBonusProgressInput(1, "incomplete")).projectedOutcome).toBeNull();
+    expect(calculateChase(noBonusProgressInput(1, "recalculating")).projectedOutcome).toBeNull();
   });
 });
