@@ -375,7 +375,7 @@ export default function ProfilePage() {
         <Skeleton preset="block" style={{ height: 88 }} />
       ) : stats.data ? (
         <div
-          style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--sp-2)" }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "var(--sp-2)" }}
         >
           <StatCard
             icon="step"

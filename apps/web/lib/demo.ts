@@ -177,6 +177,8 @@ const NOTIFICATIONS = [
   { id: 3, kind: "social", message: "Maya just passed you on the leaderboard.", read: false, created_at: "2026-06-12T15:30:00Z" },
 ];
 
+let submittedPrediction: number | null = null;
+
 function leaderboard() {
   return [
     { rank: 1, ...MEMBERS[2], steps: 79062, deltaVsLastWeek: 4120 },
@@ -335,6 +337,8 @@ export function buildDemoFixtures(weekNumber = DEMO_WEEK_NUMBER): Record<string,
   const reconCity = nextCity ?? activeCity;
   const reconLandmarks = landmarksForCity(reconCity).slice(0, 5);
   const { chase, platformSweep } = demoChase(weekConfig, week);
+  const predictionOpen = process.env.NEXT_PUBLIC_DEMO_PREDICTION_STATE === "open";
+  const myPrediction = submittedPrediction ?? (predictionOpen ? null : 205000);
   const primaryAction = selectPrimaryAction({
     dataConfidence: "verified",
     incompletePlayerCount: 0,
@@ -454,16 +458,18 @@ export function buildDemoFixtures(weekNumber = DEMO_WEEK_NUMBER): Record<string,
     "/api/predictions/current": {
       week,
       city: { name: activeCity.name },
-      myPrediction: {
-        user_id: "demo-me", predicted_steps: 205000, submitted_at: `${week.starts_on}T14:00:00Z`,
-        actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
-      },
+      myPrediction: myPrediction == null
+        ? null
+        : {
+            user_id: "demo-me", predicted_steps: myPrediction, submitted_at: `${week.starts_on}T14:00:00Z`,
+            actual_delta: null, is_winner: false, display_name: "You", avatar_skin: 5, avatar_hair: 5, avatar_colorway: 1,
+          },
       others: "hidden",
       allSubmitted: false,
       liveGroupTotal: DEMO_GROUP_STEPS,
       revealAt: `${addDays(week.ends_on, 1)}T04:59:00Z`,
-      state: "partial",
-      submissionOpen: false,
+      state: myPrediction == null ? "pending" : "partial",
+      submissionOpen: predictionOpen && myPrediction == null,
     },
     "/api/bingo/current": {
       card: { id: "demo-card", tiles: bingoTiles(), bingo_lines: 2, blackout: false, frozen: false },
@@ -574,6 +580,14 @@ export function demoMutation<T>(path?: string, body?: BodyInit | null): T {
     try {
       const ids: number[] = JSON.parse(body).ids ?? [];
       for (const n of NOTIFICATIONS) if (ids.includes(n.id)) n.read = true;
+    } catch {
+      // malformed body — demo mutations still succeed silently
+    }
+  }
+  if (path?.split("?")[0] === "/api/predictions" && typeof body === "string") {
+    try {
+      const predicted = Number(JSON.parse(body).predicted_steps);
+      if (Number.isFinite(predicted) && predicted > 0) submittedPrediction = Math.round(predicted);
     } catch {
       // malformed body — demo mutations still succeed silently
     }
