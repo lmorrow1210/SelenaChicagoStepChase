@@ -210,6 +210,10 @@ exactly — keep them in sync.
 **Selena:** "Steel cities have long memories. The question is whether you know how to read them." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The routing diagram is in evidence. Whatever else it marks, the Bureau has not read it yet. The subject was last placed heading east, toward Pittsburgh.  
+**Selena (no interception):** *(same line as above)*  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items (Detroit-flavored) — classification

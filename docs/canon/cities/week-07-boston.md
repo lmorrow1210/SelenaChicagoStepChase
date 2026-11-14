@@ -54,7 +54,7 @@ this pack; final gate is owner copy sign-off + Codex's infra/test pass
 
 **Body (3 paragraphs):**
 
-> The sixth feed from New York traced to a harbor camera in Boston. It runs an hour ahead of the New York clock for a reason: a signal leaves the harbor here every night at the same minute, and it has for longer than anyone can explain.
+> The sixth feed from New York traced to a harbor camera in Boston. It runs an hour ahead of the New York sightings for a reason: a signal leaves the harbor here every night at the same minute, and it has for longer than anyone can explain.
 >
 > Selena arrived in Boston to answer it. The signal can only be received during a narrow window after dark — miss the window, and the night's message is gone until tomorrow.
 >
@@ -185,6 +185,10 @@ when Week 7 is implemented.
 **Body:** The relay's next leg has no address. The only instruction is to ask in Savannah — where, the protocol says, the route is never written down.  
 **Selena:** "Some cities keep their directions in people, not on paper. Savannah is one of them." — S.C.  
 **CTA:** Continue the pursuit
+
+**Body (no interception):** The signal instructions were recovered. The signal itself went unheard. The Bureau's one confirmed heading is south, to Savannah.  
+**Selena (no interception):** "Savannah is slower than Boston. Do not mistake that for easier." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
 
 ---
 

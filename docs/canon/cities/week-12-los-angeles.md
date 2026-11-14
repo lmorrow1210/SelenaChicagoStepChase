@@ -76,13 +76,13 @@ this pack; final gate is owner copy sign-off + Codex's infra/test pass
 ## Field Ops — Intel landmarks (Los Angeles, 5 slots)
 
 The five most well-known Los Angeles landmarks. Fun facts are the decode reward —
-they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Hollywood Sign (1923, originally "HOLLYWOODLAND"); Griffith Observatory (free public telescopes since 1935); Santa Monica Pier (western end of Route 66, since 1909); TCL Chinese Theatre (forecourt prints since 1927); Getty Center (16,000 tons of travertine, tram access). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
+they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checked 2026-07-18** — Hollywood Sign (1923, originally "HOLLYWOODLAND"); Griffith Observatory (free public telescopes since 1935); Santa Monica Pier (western end of Route 66; opened 1909, amusement pier added 1916 — the fact claims only 1909); TCL Chinese Theatre (forecourt prints since 1927); Getty Center (16,000 tons of travertine, tram access). **DB sync note:** migration 009 seeded a different placeholder set for this city; a landmark-sync migration is needed before this week goes live (flagged for Codex, same fix class as Detroit's migration 010).
 
 | Day | Landmark name | Fun fact (shown after unlock) |
 |---|---|---|
 | 1 | The Hollywood Sign | Erected in 1923, it originally read "HOLLYWOODLAND" and advertised a real-estate development before becoming the city's icon. |
 | 2 | Griffith Observatory | Perched on Mount Hollywood, its free public telescopes have drawn visitors to the night sky since 1935. |
-| 3 | Santa Monica Pier | The pier marks the western end of Route 66 and has carried its amusement park over the Pacific since 1909. |
+| 3 | Santa Monica Pier | The pier marks the western end of Route 66 and has stood over the Pacific since 1909. |
 | 4 | TCL Chinese Theatre | Its forecourt has held the handprints and footprints of film stars set in concrete since 1927. |
 | 5 | The Getty Center | The hilltop museum is clad in 16,000 tons of travertine stone and reached by its own cable-drawn tram. |
 
@@ -184,6 +184,10 @@ they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checke
 **Body:** One frame in the composite was never touched. It shows a bridge in fog — San Francisco — stamped with a time after the record claims the chase was over.  
 **Selena:** "They edited an ending for you. The real one is in San Francisco, and it has not happened yet." — S.C.  
 **CTA:** Continue the pursuit
+
+**Body (no interception):** The reel is in evidence. The subject is not. One city remains on the route, north along the coast: San Francisco.  
+**Selena (no interception):** "One city left. I would say I will wait for you there. We both know better." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
 
 ---
 

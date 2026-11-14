@@ -91,6 +91,15 @@ export interface SeasonWeekConfig {
     header: string;
     body: string;
     selena: string;
+    /**
+     * Shown instead of `body` / `selena` when the week did NOT end in an
+     * interception. The full body restates what only the intercept clue
+     * should unlock, so non-intercept outcomes get a version that uses only
+     * what a trail-lost player has already seen plus the next city's name.
+     * Absent = the plain text is safe for every outcome.
+     */
+    bodyWithoutIntercept?: string;
+    selenaWithoutIntercept?: string;
     cta: string;
   };
 }
@@ -903,6 +912,7 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: PITTSBURGH",
         body: "The corridor in the diagram leads to a freight bridge above the Monongahela. A rail contact in Pittsburgh confirmed activity at the south end — three days ago.",
         selena: "Steel cities have long memories. The question is whether you know how to read them.",
+        bodyWithoutIntercept: "The routing diagram is in evidence. Whatever else it marks, the Bureau has not read it yet. The subject was last placed heading east, toward Pittsburgh.",
         cta: "Continue the pursuit",
       },
     },
@@ -976,6 +986,7 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: WASHINGTON, D.C.",
         body: "The eastern line ends at a records archive off the National Mall. A contact there flagged a reading-room request filed under a researcher credential that was deactivated years ago.",
         selena: "In Washington, the important documents are the ones with the most crossed out. I am going to read one anyway.",
+        bodyWithoutIntercept: "The transit map is logged, and its margins are still being examined. The subject left the rivers behind and went east. Next stop: Washington, D.C.",
         cta: "Continue the pursuit",
       },
     },
@@ -1049,6 +1060,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: PHILADELPHIA",
         body: "The one line the redactors missed names a hall in Philadelphia — the room where the original charter was signed. The copy is in Washington. The original never left.",
         selena: "They kept the copy and hid the original. I am going to read the original.",
+        bodyWithoutIntercept: "The charter stays mostly black ink. Whatever survives beneath it, the Bureau cannot yet say. The trail runs north to Philadelphia.",
+        selenaWithoutIntercept: "Philadelphia keeps better records than Washington. I intend to check.",
         cta: "Continue the pursuit",
       },
     },
@@ -1122,6 +1135,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: NEW YORK CITY",
         body: "The ledger's New York column lists five stewards at one address. A contact in the city says all five have been seen this week — in five different boroughs, at the same hour.",
         selena: "Five sightings, one person, five boroughs. Decide which one is real before the Bureau tells you which to believe.",
+        bodyWithoutIntercept: "The ledger is in evidence and only partly decoded. The Bureau has a heading, not a reason. Next stop: New York City.",
+        selenaWithoutIntercept: "New York is large enough to lose a person in. I am counting on it.",
         cta: "Continue the pursuit",
       },
     },
@@ -1187,14 +1202,15 @@ export const SEASON_ONE_CONFIG = {
           headline: "SELENA INTERCEPTED",
           story: "{{groupName}} collapsed four decoys and caught the fifth in motion — Selena, crossing between platforms, no stand-in, no relay. She raised an eyebrow at being the one they picked, then stepped onto a train the board said wasn't running.",
           selena: "Four decoys and you chose me. The Bureau has never once managed that on the first try. Note it.",
-          nextLead: "A sixth feed on the record came from Boston, an hour ahead of the New York clock.",
+          nextLead: "A sixth feed on the record came from Boston, an hour ahead of the New York sightings.",
         },
       },
       nextCityTeaser: {
         cityName: "Boston",
         header: "NEXT: BOSTON",
-        body: "The sixth feed traces to a harbor camera in Boston, running an hour ahead of the New York clock. A contact there says a signal goes out from the harbor every night at the same minute.",
+        body: "The sixth feed traces to a harbor camera in Boston, running an hour ahead of the New York sightings. A contact there says a signal goes out from the harbor every night at the same minute.",
         selena: "There is a signal in Boston that only transmits at night. I intend to be listening when it does.",
+        bodyWithoutIntercept: "Five sightings logged, none of them held. The Bureau has since placed the subject farther up the coast. Next stop: Boston.",
         cta: "Continue the pursuit",
       },
     },
@@ -1215,7 +1231,7 @@ export const SEASON_ONE_CONFIG = {
         label: "BUREAU FIELD BRIEFING",
         title: "CASE 07: THE MIDNIGHT SIGNAL",
         body: [
-          "The sixth feed from New York traced to a harbor camera in Boston. It runs an hour ahead of the New York clock for a reason: a signal leaves the harbor here every night at the same minute, and it has for longer than anyone can explain.",
+          "The sixth feed from New York traced to a harbor camera in Boston. It runs an hour ahead of the New York sightings for a reason: a signal leaves the harbor here every night at the same minute, and it has for longer than anyone can explain.",
           "Selena arrived in Boston to answer it. The signal can only be received during a narrow window after dark — miss the window, and the night's message is gone until tomorrow.",
           "Your unit has been assigned to be in the field, together, before the window closes. Not all at once — but enough of you, in time.",
         ],
@@ -1268,6 +1284,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: SAVANNAH",
         body: "The relay's next leg has no address. The only instruction is to ask in Savannah — where, the protocol says, the route is never written down.",
         selena: "Some cities keep their directions in people, not on paper. Savannah is one of them.",
+        bodyWithoutIntercept: "The signal instructions were recovered. The signal itself went unheard. The Bureau's one confirmed heading is south, to Savannah.",
+        selenaWithoutIntercept: "Savannah is slower than Boston. Do not mistake that for easier.",
         cta: "Continue the pursuit",
       },
     },
@@ -1341,6 +1359,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: NEW ORLEANS",
         body: "The directions past the missing square were never written down. A Savannah local said the next leg is kept in a New Orleans song — a rhythm you follow, not a route you read.",
         selena: "In New Orleans, some directions are carried in a beat. You will have to learn to keep time.",
+        bodyWithoutIntercept: "The blank square stayed blank. The Bureau has a single confirmed heading out of Savannah, and it runs west to New Orleans.",
+        selenaWithoutIntercept: "New Orleans is loud. I find that a useful place to be quiet in.",
         cta: "Continue the pursuit",
       },
     },
@@ -1414,6 +1434,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: AUSTIN",
         body: "The rhythm's final interval is an open rest — it points to a radio frequency in Austin that went silent mid-broadcast. No one has transmitted on it since.",
         selena: "There is a frequency in Austin that stopped mid-sentence. I want to know who was talking, and why they stopped.",
+        bodyWithoutIntercept: "The notation is logged. What it opens is not. The pursuit continues west, with the subject last placed on the road to Austin.",
+        selenaWithoutIntercept: "Austin is a long way from here. I am told your unit owns sensible shoes.",
         cta: "Continue the pursuit",
       },
     },
@@ -1487,6 +1509,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: SANTA FE",
         body: "The signal that overrode the Austin frequency came from a fixed point in the New Mexico desert — not a transmitter, but a surveyed marker on an old alignment line.",
         selena: "Someone is broadcasting from a place that was only ever meant to be measured, not to speak. I want to stand on it.",
+        bodyWithoutIntercept: "The frequency stayed silent and gave up nothing further. Field reports place the subject heading northwest into New Mexico. Next stop: Santa Fe.",
+        selenaWithoutIntercept: "Santa Fe sits seven thousand feet up. The view is better from ahead.",
         cta: "Continue the pursuit",
       },
     },
@@ -1560,6 +1584,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: LOS ANGELES",
         body: "One survey photograph in the set was forged — a marker that never stood where the picture claims. The doctoring traces to a film lab in Los Angeles.",
         selena: "Someone in Los Angeles is very good at making a place look real. I am going to find out what they were hiding behind it.",
+        bodyWithoutIntercept: "The chart is logged, and the desert has nothing more to say. The trail turns west to the coast. Next stop: Los Angeles.",
+        selenaWithoutIntercept: "Los Angeles. Everyone there is watching someone else. It makes leaving unnoticed almost too easy.",
         cta: "Continue the pursuit",
       },
     },
@@ -1633,6 +1659,8 @@ export const SEASON_ONE_CONFIG = {
         header: "NEXT: SAN FRANCISCO",
         body: "One frame in the composite was never touched. It shows a bridge in fog — San Francisco — stamped with a time after the record claims the chase was over.",
         selena: "They edited an ending for you. The real one is in San Francisco, and it has not happened yet.",
+        bodyWithoutIntercept: "The reel is in evidence. The subject is not. One city remains on the route, north along the coast: San Francisco.",
+        selenaWithoutIntercept: "One city left. I would say I will wait for you there. We both know better.",
         cta: "Continue the pursuit",
       },
     },

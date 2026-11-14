@@ -246,6 +246,10 @@ same class of fix as Detroit's migration 010).
 **Selena:** "In Washington, the important documents are the ones with the most crossed out. I am going to read one anyway." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The transit map is logged, and its margins are still being examined. The subject left the rivers behind and went east. Next stop: Washington, D.C.  
+**Selena (no interception):** *(same line as above)*  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items (Pittsburgh-flavored) — classification

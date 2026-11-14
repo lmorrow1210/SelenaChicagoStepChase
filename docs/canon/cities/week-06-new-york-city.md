@@ -182,9 +182,13 @@ when Week 6 is implemented.
 ## Next-city teaser (Boston)
 
 **Header:** NEXT: BOSTON  
-**Body:** The sixth feed traces to a harbor camera in Boston, running an hour ahead of the New York clock. A contact there says a signal goes out from the harbor every night at the same minute.  
+**Body:** The sixth feed traces to a harbor camera in Boston, running an hour ahead of the New York sightings. A contact there says a signal goes out from the harbor every night at the same minute.  
 **Selena:** "There is a signal in Boston that only transmits at night. I intend to be listening when it does." — S.C.  
 **CTA:** Continue the pursuit
+
+**Body (no interception):** Five sightings logged, none of them held. The Bureau has since placed the subject farther up the coast. Next stop: Boston.  
+**Selena (no interception):** *(same line as above)*  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
 
 ---
 

@@ -191,6 +191,10 @@ Detroit's migration 010).
 **Selena:** "They kept the copy and hid the original. I am going to read the original." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The charter stays mostly black ink. Whatever survives beneath it, the Bureau cannot yet say. The trail runs north to Philadelphia.  
+**Selena (no interception):** "Philadelphia keeps better records than Washington. I intend to check." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items (D.C.-flavored) — classification

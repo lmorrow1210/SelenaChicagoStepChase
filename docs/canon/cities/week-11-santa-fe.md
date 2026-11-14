@@ -191,6 +191,10 @@ they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checke
 **Selena:** "Someone in Los Angeles is very good at making a place look real. I am going to find out what they were hiding behind it." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The chart is logged, and the desert has nothing more to say. The trail turns west to the coast. Next stop: Los Angeles.  
+**Selena (no interception):** "Los Angeles. Everyone there is watching someone else. It makes leaving unnoticed almost too easy." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items — classification

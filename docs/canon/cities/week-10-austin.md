@@ -86,7 +86,7 @@ when Week 10 is implemented.
 | 2 | Congress Avenue Bridge | It shelters the largest urban bat colony in North America — about 1.5 million bats stream out at dusk on summer evenings. |
 | 3 | Barton Springs Pool | The three-acre spring-fed pool stays around 68–70 degrees year-round, cooled by underground springs. |
 | 4 | The University of Texas Tower | The 307-foot campus tower is lit burnt orange to mark major university victories. |
-| 5 | Zilker Park | The 350-acre park hosts the Austin City Limits festival and holds the springs that feed Barton Creek. |
+| 5 | Zilker Park | The 350-acre park hosts the Austin City Limits festival and surrounds Barton Springs, whose waters flow on into Barton Creek. |
 
 ---
 
@@ -186,6 +186,10 @@ when Week 10 is implemented.
 **Body:** The signal that overrode the Austin frequency came from a fixed point in the New Mexico desert — not a transmitter, but a surveyed marker on an old alignment line.  
 **Selena:** "Someone is broadcasting from a place that was only ever meant to be measured, not to speak. I want to stand on it." — S.C.  
 **CTA:** Continue the pursuit
+
+**Body (no interception):** The frequency stayed silent and gave up nothing further. Field reports place the subject heading northwest into New Mexico. Next stop: Santa Fe.  
+**Selena (no interception):** "Santa Fe sits seven thousand feet up. The view is better from ahead." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
 
 ---
 

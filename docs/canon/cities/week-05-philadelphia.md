@@ -185,6 +185,10 @@ The five most well-known Philadelphia landmarks. Fun facts are the decode reward
 **Selena:** "Five sightings, one person, five boroughs. Decide which one is real before the Bureau tells you which to believe." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The ledger is in evidence and only partly decoded. The Bureau has a heading, not a reason. Next stop: New York City.  
+**Selena (no interception):** "New York is large enough to lose a person in. I am counting on it." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items — classification
