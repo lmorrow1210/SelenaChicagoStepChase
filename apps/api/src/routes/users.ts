@@ -3,6 +3,10 @@ import { updateMeSchema } from "@one-step-ahead/shared";
 import { pool } from "../db/pool.js";
 import { requireAuth } from "../middleware/auth.js";
 import { errors } from "../middleware/errors.js";
+import { OAuth2Client } from "google-auth-library";
+import { decryptToken } from "../lib/crypto.js";
+import { clearSessionCookie } from "../lib/session.js";
+import { deleteAccount } from "../services/accountDeletion.js";
 
 export const usersRouter = Router();
 usersRouter.use(requireAuth);
@@ -99,6 +103,36 @@ usersRouter.patch("/me", async (req, res, next) => {
       [req.userId, ...keys.map((k) => patch[k])],
     );
     res.json({ user: r.rows[0] });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Best effort: the token is already gone from our database either way. */
+async function revokeAtGoogle(refreshTokenEnc: Buffer): Promise<void> {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return;
+  try {
+    await new OAuth2Client(clientId, clientSecret).revokeToken(decryptToken(refreshTokenEnc));
+  } catch {
+    // Google unreachable or token already invalid — deletion still stands.
+  }
+}
+
+// Permanently delete my account and everything recorded about me. Requires
+// an explicit confirmation string so a stray or replayed request cannot do it.
+usersRouter.delete("/me", async (req, res, next) => {
+  try {
+    if (req.body?.confirm !== "DELETE") {
+      throw errors.validation('Send { "confirm": "DELETE" } to permanently delete your account');
+    }
+    const result = await deleteAccount(pool, req.userId!);
+    clearSessionCookie(res);
+    if (!result.deleted) throw errors.unauthenticated();
+    if (result.refreshTokenEnc) await revokeAtGoogle(result.refreshTokenEnc);
+    console.log(`account deleted: user ${req.userId}`);
+    res.json({ ok: true });
   } catch (e) {
     next(e);
   }
