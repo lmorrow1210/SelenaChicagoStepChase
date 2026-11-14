@@ -52,7 +52,7 @@ Scope: a playful send-off only. No lore. The season loops to Week 1 Chicago and 
 - Map page length on mobile was not restructured.
 - Real fonts are not visible in the sandbox, so type tuning was limited.
 - No contrast pairs added to the audit, since no new colour pairs were introduced.
-- `weekRollover.ts` untouched (other session). The season loop rollover on the server has not landed yet.
+- `weekRollover.ts` untouched by this branch. The server-side season loop (Week 13 rolls over to Week 1 Chicago) landed on `main` separately in `d9cfc2d`, so the send-off's "After that, Chicago" is true end to end.
 - The `CaseClosedReport` teaser leaks `teaser.body` to all outcomes. Left as-is, as agreed.
 - Playwright only ran through a local config pointing at the sandbox chromium.
 
@@ -60,6 +60,6 @@ Scope: a playful send-off only. No lore. The season loops to Week 1 Chicago and 
 
 - Week 13 "One lap complete" copy and the same send-off for all four outcomes.
 - Selena's sky-blue fedora is kept as currently shown (new token `--sprite-selena-sky`).
-- Migration `012_season_finale_ritual.sql` may collide with another branch's migration number.
+- Migration `012_season_finale_ritual.sql`: no collision — `main` ends at `011`. Any later branch that needs a migration must start at `013`.
 - The finale triggers off `previousCase`, so it is offered only while Week 13 is the latest closed case. `/finale` is the permanent replay.
 - Added `@types/react-dom`, changed `template.tsx` animation fill-mode, and `Button` size `sm` is now 44px (was 34).
