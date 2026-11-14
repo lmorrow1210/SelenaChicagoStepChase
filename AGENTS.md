@@ -25,7 +25,7 @@ npx tsc --noEmit -p apps/api/tsconfig.json
 npx tsc --noEmit -p apps/web/tsconfig.json
 npm run test -w apps/api            # integration suites skip without a DB
 TEST_DATABASE_URL="postgres://localhost:5432/one_step_ahead_test" \
-  npm run test -w apps/api          # full suite: 67/67 (start postgresql@16 first)
+  npm run test -w apps/api          # full suite: 178/178 on main, Nov 2026 (start postgresql@16 first)
 npm run build -w apps/web           # needs network (next/font Google Fonts)
 node scripts/contrast-audit.mjs     # WCAG AA gate, 23/23
 ```
@@ -126,7 +126,31 @@ route changes (e.g. locked intel ships `fun_fact: null`).
 - Mobile: inputs ≥16px (iOS zoom), `--touch-min` 44px targets, safe-area on the
   TabBar, `viewport`/`themeColor`/manifest already wired in `apps/web/app/`.
 
-## Current state (July 2026)
+## Current state (Nov 14, 2026)
+
+`main` has all 13 Season One weeks, season-wide tests, the demo + week
+simulator, browser/axe/Lighthouse CI, and the Week 13 → Week 1 Chicago loop.
+Nothing is deployed yet and the real Google Health API has never been called.
+
+**Open PRs awaiting the owner's merge (never merge unasked):**
+
+| PR | What |
+|---|---|
+| #20 | Lighthouse scored as the median of 3 runs (CI flake fix) |
+| #19 | Pixel finale + UX sweep, migration `012` (reviewed; no blocking defects) |
+| #21 | Bingo time-of-day tiles judged on the group's clock (`lib/localTime.ts`) |
+| #22 | Missed Monday rollover recovers on every tick + at boot; prior-week days can't touch the new card |
+| #23 | Boot guard (`lib/env.ts`): refuses to start on an unsafe deploy config; join rate limit |
+| #24 | Real client never records a silent zero-step day (`HealthShapeError`); longest sleep = the night |
+| #25 | `DELETE /api/users/me` — permanent account + data deletion (API only; Profile button still to build) |
+
+**Where to look:** `HANDOFF.md` §M16 for this state in detail and the queued
+work; `docs/LAUNCH-RUNBOOK.md` for the owner's launch steps; the Project doc
+`claude/sonnet-handoff-plan.md` for workstreams and file ownership.
+
+**Next migration number: `013`** (`012` belongs to #19).
+
+## July 2026 state (history)
 
 `main` is green: CI + Pages deploy passing, 74/74 API tests, Lighthouse 100
 (a11y/BP/SEO) on all screens, WCAG audit 23/23. Live demo:
