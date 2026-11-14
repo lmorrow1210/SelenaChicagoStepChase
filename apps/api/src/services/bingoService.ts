@@ -10,6 +10,7 @@ import {
 } from "./bingo.js";
 import type { BingoTile } from "@one-step-ahead/shared";
 import { seasonWeekForRouteOrder } from "./evidenceService.js";
+import { toLocalAsZ } from "../lib/localTime.js";
 
 /**
  * Persist a new bingo card for a user+week if one doesn't already exist.
@@ -112,11 +113,14 @@ export async function updateBingoCard(
 
   // Week-scoped totals (for workouts_3_week and group_week_steps)
   const weekRows = await db.query(
-    `SELECT w.starts_on, w.ends_on, w.group_id
-     FROM weeks w WHERE w.id = $1`,
+    `SELECT w.starts_on, w.ends_on, w.group_id, g.timezone
+     FROM weeks w JOIN groups g ON g.id = w.group_id WHERE w.id = $1`,
     [weekId],
   );
   const { starts_on, ends_on, group_id } = weekRows.rows[0];
+  // Stored workout starts + bedtimes are UTC instants; the time-of-day
+  // detectors compare group-local wall-clock hours (see lib/localTime.ts).
+  const timezone: string = weekRows.rows[0].timezone;
 
   const weekWorkoutsRow = await db.query(
     `SELECT COALESCE(SUM(jsonb_array_length(workouts)), 0)::int AS total
@@ -229,7 +233,14 @@ export async function updateBingoCard(
   const log = logRow.rows[0];
   const ctx: DetectorContext = {
     steps: log ? Number(log.steps) : 0,
-    workouts: log ? (log.workouts ?? []) : [],
+    // an unparseable start ("" → NaN hour) can't satisfy a time-of-day tile,
+    // but the workout still counts for every count/duration detector
+    workouts: log
+      ? ((log.workouts ?? []) as { start: string; duration_min: number }[]).map((w) => ({
+          ...w,
+          start: toLocalAsZ(w.start, timezone) ?? "",
+        }))
+      : [],
     sleep_minutes: log?.sleep_minutes ?? null,
     active_zone_minutes: log?.active_zone_minutes ?? null,
     hr_zones: log?.hr_zones ?? null,
@@ -247,7 +258,7 @@ export async function updateBingoCard(
     ),
     week_bedtimes: weekSleepRows.rows.map((r) => ({
       date: r.log_date,
-      bedtime: r.bedtime == null ? null : new Date(r.bedtime).toISOString(),
+      bedtime: toLocalAsZ(r.bedtime, timezone),
     })),
     daily_target: targetRow.rows[0] ? Number(targetRow.rows[0].weekly_step_target) / 7 : undefined,
     week_step_days: weekSleepRows.rows.map((r) => ({ date: r.log_date, steps: Number(r.steps) })),
