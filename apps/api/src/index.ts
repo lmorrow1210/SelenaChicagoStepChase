@@ -19,8 +19,13 @@ import { errorHandler } from "./middleware/errors.js";
 import { pool } from "./db/pool.js";
 import { startCron } from "./services/cron.js";
 import { getFitbitClient } from "./services/clientFactory.js";
+import { assertSafeEnvironment } from "./lib/env.js";
 
 const app = express();
+
+// One reverse proxy (Railway) sits in front of the API in production; trust
+// its X-Forwarded-* headers so rate limiting and req.ip see the real client.
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
 app.use(helmet());
 app.use(express.json());
@@ -58,6 +63,8 @@ app.use(errorHandler);
 
 const port = Number(process.env.PORT ?? 4000);
 if (process.env.NODE_ENV !== "test") {
+  // Fail closed on a misconfigured deploy (see lib/env.ts).
+  assertSafeEnvironment();
   app.listen(port, () => console.log(`api listening on :${port}`));
   if (process.env.DISABLE_CRON !== "1") {
     startCron(pool, getFitbitClient(pool));

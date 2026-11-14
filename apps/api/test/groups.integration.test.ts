@@ -224,4 +224,25 @@ describeDb("groups routes integration", () => {
       [secondId, ownerId].sort(),
     );
   });
+  it("rate-limits invite-code guessing per account", async () => {
+    const guesser = await createUser("guesser");
+    const statuses: number[] = [];
+    for (let i = 0; i < 11; i++) {
+      const res = await request(guesser, "/api/groups/join", {
+        method: "POST",
+        json: { invite_code: "ZZZZZ9" },
+      });
+      statuses.push(res.status);
+    }
+    expect(statuses.slice(0, 10).every((s) => s === 404)).toBe(true);
+    expect(statuses[10]).toBe(429);
+
+    // the limit is per account: another player is unaffected
+    const other = await createUser("bystander");
+    const res = await request(other, "/api/groups/join", {
+      method: "POST",
+      json: { invite_code: "ZZZZZ9" },
+    });
+    expect(res.status).toBe(404);
+  });
 });
