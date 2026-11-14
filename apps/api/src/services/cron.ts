@@ -8,6 +8,15 @@ import { prepareNextWeekReveal, reconcileFinalizedWeek, weekRollover } from "./w
 import { evaluateDailyBeats } from "./beats.js";
 import { InvalidGrantError, NotConnectedError } from "./realFitbitClient.js";
 
+/**
+ * What cron logs about a failure: the message only. Whole error objects can
+ * carry Postgres `detail`/`where` text with row values (steps, tokens), which
+ * AGENTS.md forbids logging.
+ */
+export function describeError(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 // Sync schedule (plan §5): noon / 6pm / midnight group-local. Cron ticks
 // hourly; the midnight run doubles as day-close (sync → unlocks → bingo →
 // nemesis) and Monday midnight triggers the week rollover.
@@ -53,7 +62,7 @@ async function handleUserSyncError(pool: Pool, userId: string, err: unknown): Pr
     console.warn(`cron: invalid_grant for user ${userId}; marked disconnected`);
     return;
   }
-  console.error(`cron: sync failed for user ${userId}:`, err instanceof Error ? err.message : err);
+  console.error(`cron: sync failed for user ${userId}:`, describeError(err));
 }
 
 interface GroupRow {
@@ -125,7 +134,7 @@ export async function runGroupSync(
           await updateBingoCard(pool, weekId, userId, date);
           await processScoutTokens(pool, weekId, group.id, userId, date);
         } catch (err) {
-          console.error(`cron: bingo update failed for user ${userId}:`, err);
+          console.error(`cron: bingo update failed for user ${userId}:`, describeError(err));
         }
       }
     }
@@ -139,7 +148,7 @@ export async function runGroupSync(
       try {
         await closeElapsedDays(pool, m.id, today);
       } catch (err) {
-        console.error(`cron: nemesis day-close failed for matchup ${m.id}:`, err);
+        console.error(`cron: nemesis day-close failed for matchup ${m.id}:`, describeError(err));
       }
     }
 
@@ -147,7 +156,7 @@ export async function runGroupSync(
       try {
         await evaluateDailyBeats(pool, weekId, group.id, date);
       } catch (err) {
-        console.error(`cron: beat evaluation failed for group ${group.id}:`, err);
+        console.error(`cron: beat evaluation failed for group ${group.id}:`, describeError(err));
       }
     }
   }
@@ -166,7 +175,7 @@ export async function runGroupSync(
         await prepareNextWeekReveal(pool, ending.rows[0].id);
         console.log(`cron: Sunday nemesis reveal prepared for group ${group.id}`);
       } catch (err) {
-        console.error(`cron: Sunday nemesis reveal failed for group ${group.id}:`, err);
+        console.error(`cron: Sunday nemesis reveal failed for group ${group.id}:`, describeError(err));
       }
     }
   }
@@ -186,7 +195,7 @@ export async function runGroupSync(
       try {
         await reconcileFinalizedWeek(pool, finalized.rows[0].id);
       } catch (err) {
-        console.error(`cron: week reconciliation failed for group ${group.id}:`, err);
+        console.error(`cron: week reconciliation failed for group ${group.id}:`, describeError(err));
       }
     }
   }
@@ -204,7 +213,7 @@ export async function runGroupSync(
         await weekRollover(pool, ended.rows[0].id);
         console.log(`cron: week rollover complete for group ${group.id}`);
       } catch (err) {
-        console.error(`cron: week rollover failed for group ${group.id}:`, err);
+        console.error(`cron: week rollover failed for group ${group.id}:`, describeError(err));
       }
     }
   }
@@ -256,7 +265,7 @@ export async function catchUpRollover(
       await updateBingoCard(pool, weekId, userId, lastDay);
       await processScoutTokens(pool, weekId, group.id, userId, lastDay);
     } catch (err) {
-      console.error(`cron: catch-up bingo update failed for user ${userId}:`, err);
+      console.error(`cron: catch-up bingo update failed for user ${userId}:`, describeError(err));
     }
   }
 
@@ -282,7 +291,7 @@ export async function runRolloverCatchUp(
     } catch (err) {
       console.error(
         `cron: rollover catch-up failed for group ${group.id}:`,
-        err instanceof Error ? err.message : err,
+        describeError(err),
       );
     }
   }
@@ -302,7 +311,7 @@ export async function runCronTick(pool: Pool, client: FitbitClient, now = new Da
     try {
       await runGroupSync(pool, client, group, now);
     } catch (err) {
-      console.error(`cron: group sync failed for ${group.id}:`, err);
+      console.error(`cron: group sync failed for ${group.id}:`, describeError(err));
     }
   }
 }
@@ -320,7 +329,7 @@ export function startCron(pool: Pool, client: FitbitClient): () => void {
   let queue: Promise<void> = Promise.resolve();
   const enqueue = (label: string, job: () => Promise<void>): void => {
     queue = queue.then(job).catch((err) => {
-      console.error(`cron: ${label} failed:`, err instanceof Error ? err.message : err);
+      console.error(`cron: ${label} failed:`, describeError(err));
     });
   };
   const tick = () => enqueue("tick", () => runCronTick(pool, client));
