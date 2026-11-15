@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Pool } from "pg";
-import { InvalidGrantError, RealFitbitClient } from "../src/services/realFitbitClient.js";
+import { HealthShapeError, InvalidGrantError, RealFitbitClient } from "../src/services/realFitbitClient.js";
 
 // Never calls the real API: fetch is faked, and the private accessToken
 // step (DB + Google OAuth) is stubbed out at runtime.
@@ -170,5 +170,94 @@ describe("RealFitbitClient against the verified Google Health API surface", () =
     });
     await expect(client.fetchDay("u1", DATE)).rejects.toBeInstanceOf(InvalidGrantError);
     expect(attempts).toBe(2);
+  });
+  describe("steps: an unreadable response fails the sync instead of recording zero", () => {
+    const stepsOnly = (stepsBody: unknown) =>
+      makeClient((url) =>
+        url.includes("steps/dataPoints:dailyRollUp")
+          ? json(stepsBody)
+          : json({ error: { message: "n/a" } }, 500),
+      ).client;
+
+    it("a genuine zero is still zero", async () => {
+      expect((await stepsOnly({ rollupDataPoints: [{ value: { steps: { countSum: "0" } } }] }).fetchDay("u1", DATE)).steps).toBe(0);
+      expect((await stepsOnly({ rollupDataPoints: [{ steps: { countSum: 0 } }] }).fetchDay("u1", DATE)).steps).toBe(0);
+    });
+
+    it("no data for the day (empty list or empty body) is zero, not an error", async () => {
+      expect((await stepsOnly({ rollupDataPoints: [] }).fetchDay("u1", DATE)).steps).toBe(0);
+      expect((await stepsOnly({}).fetchDay("u1", DATE)).steps).toBe(0);
+    });
+
+    it("a point whose count field is missing or renamed throws", async () => {
+      await expect(
+        stepsOnly({ rollupDataPoints: [{ value: { steps: { total: "11432" } } }] }).fetchDay("u1", DATE),
+      ).rejects.toBeInstanceOf(HealthShapeError);
+      await expect(
+        stepsOnly({ rollupDataPoints: [{ value: { stepCount: { countSum: "11432" } } }] }).fetchDay("u1", DATE),
+      ).rejects.toBeInstanceOf(HealthShapeError);
+      await expect(
+        stepsOnly({ rollupDataPoints: [{ value: { steps: { countSum: "lots" } } }] }).fetchDay("u1", DATE),
+      ).rejects.toBeInstanceOf(HealthShapeError);
+    });
+
+    it("a non-empty body with a renamed list throws", async () => {
+      await expect(
+        stepsOnly({ rollUpPoints: [{ value: { steps: { countSum: "11432" } } }] }).fetchDay("u1", DATE),
+      ).rejects.toBeInstanceOf(HealthShapeError);
+    });
+
+    it("the error names fields, never the step value", async () => {
+      const err = await stepsOnly({ rollupDataPoints: [{ value: { steps: { total: "11432" } } }] })
+        .fetchDay("u1", DATE)
+        .catch((e: Error) => e);
+      expect((err as Error).message).toContain("countSum");
+      expect((err as Error).message).not.toContain("11432");
+    });
+  });
+
+  it("sleep: the longest session is the night, not whichever is listed first", async () => {
+    const { client } = makeClient((url) => {
+      if (url.includes("steps/dataPoints:dailyRollUp")) {
+        return json({ rollupDataPoints: [{ value: { steps: { countSum: "5000" } } }] });
+      }
+      if (url.includes("/dataTypes/sleep/dataPoints?")) {
+        return json({
+          dataPoints: [
+            // newest first: an early-morning doze, then the real night
+            {
+              sleep: {
+                interval: { startTime: `${DATE}T11:05:00Z`, endTime: `${DATE}T11:30:00Z` },
+                summary: { minutesAsleep: "22" },
+              },
+            },
+            {
+              sleep: {
+                interval: { startTime: "2026-06-10T03:40:00Z", endTime: `${DATE}T10:55:00Z` },
+                summary: { minutesAsleep: "401" },
+              },
+            },
+          ],
+        });
+      }
+      return json({ error: { message: "n/a" } }, 500);
+    });
+    const day = await client.fetchDay("u1", DATE);
+    expect(day.sleep_minutes).toBe(401);
+    expect(day.bedtime).toBe("2026-06-10T03:40:00Z");
+  });
+
+  it("sleep: falls back to the interval length when the summary is missing", async () => {
+    const { client } = makeClient((url) => {
+      if (url.includes("steps/dataPoints:dailyRollUp")) return json({ rollupDataPoints: [] });
+      if (url.includes("/dataTypes/sleep/dataPoints?")) {
+        return json({
+          dataPoints: [{ sleep: { interval: { startTime: "2026-06-10T04:00:00Z", endTime: "2026-06-10T11:00:00Z" } } }],
+        });
+      }
+      return json({ error: { message: "n/a" } }, 500);
+    });
+    const day = await client.fetchDay("u1", DATE);
+    expect(day.sleep_minutes).toBe(420);
   });
 });

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Barlow_Condensed, DM_Mono, DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { SCREEN_BASE } from "../lib/brand";
 import "@one-step-ahead/design-system/styles.css";
 import { Providers } from "./providers";
@@ -8,22 +8,39 @@ import { Providers } from "./providers";
 //   display / stamped labels → Barlow Condensed 700, UPPERCASE
 //   narrative / intel body   → DM Sans, sentence case
 //   telemetry / odometers    → DM Mono, tabular-nums
-const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["600", "700"],
+//
+// Self-hosted (app/fonts/, OFL-1.1) rather than next/font/google: a build
+// must not depend on reaching Google Fonts. When that fetch failed, CI either
+// broke outright or silently shipped fallback fonts and missed its budgets.
+const barlowCondensed = localFont({
+  src: [
+    { path: "./fonts/barlow-condensed-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/barlow-condensed-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-display",
+  display: "swap",
+  fallback: ["Arial Narrow", "Arial", "sans-serif"],
 });
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+const dmSans = localFont({
+  src: [
+    { path: "./fonts/dm-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/dm-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/dm-sans-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-body",
+  display: "swap",
+  fallback: ["Arial", "sans-serif"],
 });
 
-const dmMono = DM_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const dmMono = localFont({
+  src: [
+    { path: "./fonts/dm-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/dm-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
   variable: "--font-mono",
+  display: "swap",
+  fallback: ["ui-monospace", "Menlo", "Consolas", "monospace"],
 });
 
 export const metadata: Metadata = {
