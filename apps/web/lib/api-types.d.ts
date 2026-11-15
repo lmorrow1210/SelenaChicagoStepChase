@@ -261,7 +261,47 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Permanently delete my account and data
+         * @description Irreversible. Removes the user and everything recorded about them: step, sleep and workout logs, the stored Google token (also revoked at Google, best effort), predictions, bingo cards, badges, notifications and nemesis matchups. Group history that holds no personal data (closed-week totals, unlocked landmarks, evidence) is kept. Any open nemesis matchup is re-paired and the admin role passes to the oldest remaining member. Clears the session cookie.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        confirm: "DELETE";
+                    };
+                };
+            };
+            responses: {
+                /** @description Deleted. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok?: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["Unauthenticated"];
+                /** @description Missing or wrong confirmation string. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         /** Update my profile */

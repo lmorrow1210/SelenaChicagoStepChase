@@ -151,6 +151,40 @@ paths:
                   user: { $ref: "#/components/schemas/User" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
 
+    delete:
+      summary: Permanently delete my account and data
+      description: >
+        Irreversible. Removes the user and everything recorded about them:
+        step, sleep and workout logs, the stored Google token (also revoked at
+        Google, best effort), predictions, bingo cards, badges, notifications
+        and nemesis matchups. Group history that holds no personal data
+        (closed-week totals, unlocked landmarks, evidence) is kept. Any open
+        nemesis matchup is re-paired and the admin role passes to the oldest
+        remaining member. Clears the session cookie.
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirm]
+              properties:
+                confirm:
+                  type: string
+                  enum: [DELETE]
+      responses:
+        "200":
+          description: Deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "422":
+          description: Missing or wrong confirmation string.
   /api/users/me/stats:
     get:
       summary: Lifetime stats for the profile screen
