@@ -222,7 +222,8 @@ export async function weekRollover(
               to_char(w.ends_on, 'YYYY-MM-DD') AS ends_on,
               c.route_order
        FROM weeks w JOIN cities c ON c.id = w.city_id
-       WHERE w.id = $1`,
+       WHERE w.id = $1
+       FOR UPDATE OF w`,
       [weekId],
     );
     if (!weekRow.rowCount) throw new Error(`Week ${weekId} not found`);
