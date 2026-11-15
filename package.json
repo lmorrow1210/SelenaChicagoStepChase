@@ -14,6 +14,9 @@
     "qa:browser": "playwright test",
     "qa:lighthouse": "node scripts/lighthouse-demo.mjs"
   },
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.61.1",
