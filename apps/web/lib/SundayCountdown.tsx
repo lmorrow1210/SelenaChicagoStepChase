@@ -15,24 +15,33 @@ function nextSundayEnd(): Date {
   return d;
 }
 
-function label(): string {
-  const ms = nextSundayEnd().getTime() - Date.now();
-  const totalHours = Math.max(0, Math.floor(ms / 3_600_000));
+/** Under a day the readout adds minutes and pulses; under an hour it is minutes only. */
+export function formatCountdown(ms: number): { text: string; urgent: boolean } {
+  const totalMinutes = Math.max(0, Math.floor(ms / 60_000));
+  const totalHours = Math.floor(totalMinutes / 60);
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
-  return days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+  const minutes = totalMinutes % 60;
+  if (days > 0) return { text: `${days}d ${hours}h`, urgent: false };
+  if (totalHours > 0) return { text: `${hours}h ${String(minutes).padStart(2, "0")}m`, urgent: true };
+  return { text: `${minutes}m`, urgent: true };
+}
+
+function label(): { text: string; urgent: boolean } {
+  return formatCountdown(nextSundayEnd().getTime() - Date.now());
 }
 
 export function SundayCountdown({ style }: { style?: React.CSSProperties }) {
-  const [text, setText] = useState<string | null>(null);
+  const [state, setState] = useState<{ text: string; urgent: boolean } | null>(null);
 
   useEffect(() => {
-    setText(label()); // client-only to avoid hydration drift
-    const t = setInterval(() => setText(label()), 60_000);
+    setState(label()); // client-only to avoid hydration drift
+    const t = setInterval(() => setState(label()), 60_000);
     return () => clearInterval(t);
   }, []);
 
-  if (!text) return null;
+  if (!state) return null;
+  const { text, urgent } = state;
 
   return (
     <span
@@ -53,6 +62,8 @@ export function SundayCountdown({ style }: { style?: React.CSSProperties }) {
         boxShadow: "var(--screen-inset-shadow)",
         padding: "var(--sp-1) var(--sp-2)",
         whiteSpace: "nowrap",
+        // Final day: the timer breathes (red is Selena/threat/urgency only).
+        animation: urgent ? "sc-pulse-selena 2.4s var(--ease-in-out) infinite" : undefined,
         ...style,
       }}
     >

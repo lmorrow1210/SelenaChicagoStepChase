@@ -7,6 +7,7 @@ import { api } from "../../../lib/api";
 import { useSession } from "../../../lib/session";
 import { withBase } from "../../../lib/links";
 import { EvidenceBoard, type EvidenceBoardData } from "../../../lib/narrative/EvidenceBoard";
+import { isFinaleUnlocked } from "../../../lib/finale/access";
 
 export default function EvidencePage() {
   const session = useSession();
@@ -42,7 +43,16 @@ export default function EvidencePage() {
   if (board.isError || !board.data) {
     return (
       <main className="evidencePage">
-        <EmptyState icon="globe" title="Evidence locker unavailable" body="Join a group to open the chase file." />
+        <EmptyState
+          icon="globe"
+          title="Evidence locker unavailable"
+          body="Join a group to open the chase file, or try again."
+          action={
+            <button type="button" className="evidenceAction" onClick={() => void board.refetch()}>
+              Retry
+            </button>
+          }
+        />
         <Styles />
       </main>
     );
@@ -55,6 +65,12 @@ export default function EvidencePage() {
         <h1>Chase Evidence</h1>
       </header>
       <EvidenceBoard board={board.data} />
+      {isFinaleUnlocked(board.data) && (
+        <aside className="replay" aria-label="Season send-off">
+          <p>She left one more thing at the coast.</p>
+          <a className="replayLink" href={withBase("/finale")}>Replay the send-off</a>
+        </aside>
+      )}
       <Styles />
     </main>
   );
@@ -83,11 +99,43 @@ function Styles() {
       .evidencePage h1 {
         margin: var(--sp-1) 0 0;
         font-family: var(--font-display);
-        font-size: var(--fs-h2);
+        font-size: var(--fs-h1);
+        line-height: var(--lh-heading);
+        letter-spacing: 0.03em;
         text-transform: uppercase;
+        color: var(--phosphor);
+      }
+      .evidencePage .replay {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-3);
+        border: 1px solid var(--hairline);
+        padding: var(--sp-3);
+      }
+      .evidencePage .replay p {
+        margin: 0;
+        font-family: var(--font-body);
+        color: var(--phosphor);
+      }
+      .replayLink {
+        min-height: var(--touch-min);
+        display: inline-flex;
+        align-items: center;
+        padding: var(--sp-2) var(--sp-4);
+        border: 1px solid var(--phosphor);
+        color: var(--phosphor);
+      }
+      .replayLink:hover,
+      .replayLink:focus-visible {
+        background: var(--phosphor-12);
         color: var(--phosphor-hot);
       }
       .evidenceAction {
+        border: 0;
+        font: inherit;
+        cursor: pointer;
         min-height: var(--touch-min);
         display: inline-flex;
         align-items: center;

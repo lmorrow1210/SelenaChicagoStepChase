@@ -155,7 +155,7 @@ describe("Season One config", () => {
     const finalWeek = SEASON_ONE_CONFIG.route.at(-1)!;
     expect(finalWeek.cityName).toBe("San Francisco");
     expect(finalWeek.nextCityTeaser.cityName).toBe("");
-    expect(finalWeek.nextCityTeaser.header).toBe("THE CASE IS CLOSED");
+    expect(finalWeek.nextCityTeaser.header).toBe("ONE LAP COMPLETE");
     expectNonEmpty(finalWeek.nextCityTeaser.body);
     expectNonEmpty(finalWeek.nextCityTeaser.selena);
     expectNonEmpty(finalWeek.nextCityTeaser.cta);

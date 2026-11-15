@@ -50,6 +50,21 @@ export function BingoTile({
 
   const textColor = fg;
 
+  // Newly cleared tile: lock-in pop (only on the false → true edge, so the
+  // first paint of an already-complete board stays still).
+  const [popping, setPopping] = React.useState(false);
+  const wasComplete = React.useRef(complete);
+  React.useEffect(() => {
+    if (complete && !wasComplete.current) {
+      setPopping(true);
+      const t = setTimeout(() => setPopping(false), 650);
+      wasComplete.current = complete;
+      return () => clearTimeout(t);
+    }
+    wasComplete.current = complete;
+    return undefined;
+  }, [complete]);
+
   return (
     <div style={{
       position: 'relative', aspectRatio: '1',
@@ -65,7 +80,9 @@ export function BingoTile({
         : boxShadow,
       color: textColor,
       textShadow: lit ? 'none' : 'var(--text-glow)',
-      animation: highlight ? 'sc-pulse-amber 1.6s var(--ease-in-out) infinite' : 'none',
+      animation: popping
+        ? 'sc-tile-lock 600ms var(--ease-out)'
+        : highlight ? 'sc-pulse-amber 1.6s var(--ease-in-out) infinite' : 'none',
       transition: 'background var(--dur-base) var(--ease-out), box-shadow var(--dur-base)',
       ...style,
     }}>

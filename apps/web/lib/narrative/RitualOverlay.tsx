@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { setCinematicOpen } from "../finale/openState";
 
 /**
  * Shared scaffolding for ritual overlays (Monday briefing, midweek update,
@@ -20,6 +22,12 @@ export function RitualOverlay({
   children: ReactNode;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Toasts pause while a ritual overlay is up so they never cover its content.
+  useEffect(() => {
+    setCinematicOpen(true);
+    return () => setCinematicOpen(false);
+  }, []);
 
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -80,7 +88,12 @@ export function RitualOverlay({
     };
   }, [onDismiss]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  // Portaled to <body>: the game layout's page-transition wrapper creates a
+  // stacking context, which left the TabBar painting ABOVE the scrim and
+  // covering the bottom of long reports on phones.
+  return createPortal(
     <div className="ritualScrim" role="presentation" onClick={onDismiss}>
       <div
         className={wide ? "ritualPanel wide sc-corners" : "ritualPanel sc-corners"}
@@ -133,7 +146,8 @@ export function RitualOverlay({
           .ritualPanel { animation: none; }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

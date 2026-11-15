@@ -161,7 +161,8 @@ function DossierContent() {
           margin: var(--space-2xs) 0 0;
           font-family: var(--font-display);
           font-weight: var(--fw-bold);
-          font-size: 30px;
+          font-size: var(--fs-h1);
+          line-height: var(--lh-heading);
           text-transform: uppercase;
           letter-spacing: 0.03em;
           color: var(--phosphor);

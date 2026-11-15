@@ -894,7 +894,8 @@ paths:
       summary: Record a weekly ritual view
       description: >
         Marks a ritual surface (Monday briefing, midweek update, final push,
-        case-closed report) as seen by the viewer for a week. Idempotent per
+        case-closed report, or the Week 13 season finale send-off) as seen by
+        the viewer for a week. Idempotent per
         (week, user, ritual); the product requires persisted briefingViewedAt.
       tags: [rituals]
       requestBody:
@@ -908,7 +909,7 @@ paths:
                 week_id: { type: string, format: uuid }
                 ritual_id:
                   type: string
-                  enum: [monday_briefing, midweek_update, final_push, case_closed]
+                  enum: [monday_briefing, midweek_update, final_push, case_closed, season_finale]
       responses:
         "200":
           description: Recorded.
@@ -1223,7 +1224,7 @@ components:
 
     PreviousCase:
       type: object
-      required: [weekId, weekNumber, cityName, chapterTitle, outcome, finalizedAt, viewed]
+      required: [weekId, weekNumber, cityName, chapterTitle, outcome, finalizedAt, viewed, finaleViewed]
       properties:
         weekId: { type: string, format: uuid }
         weekNumber: { type: integer }
@@ -1243,6 +1244,9 @@ components:
         dataConfidence: { type: string }
         finalizedAt: { type: string, format: date-time }
         viewed: { type: boolean }
+        finaleViewed:
+          type: boolean
+          description: True once the viewer has seen or skipped the Week 13 send-off (ritual `season_finale`).
 
     EvidenceSlot:
       type: object

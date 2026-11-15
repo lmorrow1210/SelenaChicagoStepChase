@@ -170,7 +170,7 @@ describe("Week Simulator", () => {
       interceptUnlocked: true,
     });
     expect(state.seasonState.chase.finalOutcome).toBe("interception");
-    expect(state.weekConfig.nextCityTeaser.header).toBe("THE CASE IS CLOSED");
+    expect(state.weekConfig.nextCityTeaser.header).toBe("ONE LAP COMPLETE");
     expect(state.seasonState.chapter.nextCity).toBe("");
   });
 
@@ -235,7 +235,7 @@ describe("Week Simulator", () => {
           "outcome": "pursuit_maintained",
           "phase": "case_closed",
           "standardEvidenceId": "week13_final_record",
-          "teaserHeader": "THE CASE IS CLOSED",
+          "teaserHeader": "ONE LAP COMPLETE",
           "title": "One Step Ahead",
           "weekNumber": 13,
         },

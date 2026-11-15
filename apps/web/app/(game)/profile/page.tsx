@@ -170,10 +170,11 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
             key={color}
             type="button"
             aria-label={`${label} ${i + 1}`}
+            aria-pressed={selected === i + 1}
             onClick={() => onPick(i + 1)}
             style={{
-              width: 32,
-              height: 32,
+              width: "var(--touch-min)",
+              height: "var(--touch-min)",
               borderRadius: "var(--r-full)",
               background: color,
               border:
@@ -227,7 +228,8 @@ function AvatarEditor({ onClose }: { onClose: () => void }) {
                   key={id}
                   type="button"
                   aria-label={COLORWAYS[id].label}
-                  onClick={() => setColorway(i + 1)}
+                  aria-pressed={colorway === i + 1}
+              onClick={() => setColorway(i + 1)}
                   style={{
                     width: 32,
                     height: 32,
@@ -476,7 +478,7 @@ export default function ProfilePage() {
             </div>
             {user.fitbit_connected && (
               <Button
-                variant="danger"
+                variant="dangerOutline"
                 size="sm"
                 loading={disconnect.isPending}
                 onClick={() => disconnect.mutate()}
@@ -577,7 +579,7 @@ function AdminCategoryToggles() {
               onClick={() => toggle(c.key)}
               aria-pressed={!off}
               style={{
-                padding: "6px 10px", borderRadius: "var(--r-tight)",
+                padding: "0 var(--sp-3)", minHeight: "var(--touch-min)", borderRadius: "var(--r-tight)",
                 border: `1px solid ${off ? "var(--hairline)" : "var(--phosphor-40)"}`,
                 background: off ? "var(--screen-700)" : "var(--phosphor-08)",
                 color: off ? "var(--phosphor-dim)" : "var(--phosphor)",
