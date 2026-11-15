@@ -171,7 +171,7 @@ The five most well-known San Francisco landmarks. Fun facts are the decode rewar
 
 **Headline:** SELENA INTERCEPTED  
 **Story:** {{groupName}} completed the combined target and reached the middle of the bridge as Selena did. For a moment there was no distance left at all. She looked at the unit — really looked — set the case file on the rail, and nodded once, the way one professional acknowledges another. Then the fog closed between one step and the next, and the rail was empty. One step ahead. Always.  
-**Selena:** "You caught me at the edge of the country, using everything you learned to get here. No one has ever done that. Whatever comes next, you are ready for it." — S.C.  
+**Selena:** "You caught me at the edge of the country, using everything you learned to get here. No one has ever done that." — S.C.  
 **Evidence body (intercept clue, enhanced):** A folded note left with the file: "You kept pace with me for thirteen cities. No one else ever has. Rest well. — S.C."
 
 ---
@@ -194,18 +194,22 @@ The five most well-known San Francisco landmarks. Fun facts are the decode rewar
 
 ## Season close (no next-city teaser)
 
-Week 13 has no next city. Instead of a teaser, the case-closed hands off to a
-season-close card.
+Week 13 has no next city — the season **loops**: after San Francisco the chase
+returns to Week 1 Chicago and keeps every player's history, badges, dossier,
+streaks, and group. Instead of a teaser, the case-closed hands off to a
+season-close card, which hands off to the pixel send-off (see
+`season-scope.md`, 2026-10-17 owner exception). This section is the source of
+truth for the card; `seasonOne.ts` mirrors it.
 
-**Header:** SEASON ONE COMPLETE  
-**Body:** The pursuit reached the coast. Thirteen cities, one season, one villain who stayed a step ahead to the end. The file is closed — for now.  
-**Selena:** "You made it to the water. That is farther than anyone before you. Rest. The next city can wait." — S.C.  
-**CTA:** Review the season
+**Header:** ONE LAP COMPLETE  
+**Body:** The pursuit reached the coast. Thirteen cities, one chase, one villain who stayed a step ahead to the end. Your records stay with you — and so does she.  
+**Selena:** "You made it to the water. That is farther than anyone before you. One more thing before I go." — S.C.  
+**CTA:** Watch the send-off
 
 > **Scope note:** the season close must **not** promise a decrypted Season Two
-> location, a Meridian reveal, or a Bureau-conspiracy payoff. "The next city can
-> wait" is an open, optional flavor beat — not a plot hook that obligates future
-> lore. See `season-scope.md` and `PARKED-LORE.md`.
+> location, a Meridian reveal, or a Bureau-conspiracy payoff. The loop is a
+> playful restart of the same weekly game, not a plot hook. See
+> `season-scope.md` and `PARKED-LORE.md`.
 
 ---
 

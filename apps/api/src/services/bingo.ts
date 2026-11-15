@@ -209,7 +209,9 @@ export function evaluateDetector(detector: Record<string, any>, ctx: DetectorCon
       return ctx.hr_zones != null && cmp(op, ctx.hr_zones[detector.zone] ?? 0, value);
     case "workout_before":
       return ctx.workouts.some(
-        (w) => new Date(w.start).getUTCHours() < detector.hour, // caller passes group-local times
+        // group-local wall clock expressed as Z — bingoService converts the
+        // stored UTC instants via toLocalAsZ before they reach this detector
+        (w) => new Date(w.start).getUTCHours() < detector.hour,
       );
     case "daily_target_streak":
       return ctx.daily_target_streak != null && cmp(op, ctx.daily_target_streak, value);

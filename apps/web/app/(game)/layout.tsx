@@ -1,11 +1,11 @@
 "use client";
 
-import Avatar from "@one-step-ahead/design-system/components/game/Avatar";
 import Sidebar from "@one-step-ahead/design-system/components/navigation/Sidebar";
 import TabBar from "@one-step-ahead/design-system/components/navigation/TabBar";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { CaseStatusStrip } from "../../lib/CaseStatusStrip";
+import { UserAvatar } from "../../lib/UserAvatar";
 
 const GAME_SECTIONS = ["map", "fieldops", "prediction", "nemesis", "profile"] as const;
 
@@ -39,7 +39,7 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="sc-shell">
       <div className="sc-sidebarHost">
-        <Sidebar active={active} onNavigate={onNavigate} avatar={<Avatar size={40} ring />} />
+        <Sidebar active={active} onNavigate={onNavigate} avatar={<UserAvatar size={40} ring />} />
       </div>
       <main className="sc-main">
         {children}

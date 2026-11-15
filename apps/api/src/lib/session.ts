@@ -15,12 +15,12 @@ function secret(): string {
 }
 
 export function signSession(claims: SessionClaims): string {
-  return jwt.sign(claims, secret(), { expiresIn: SEVEN_DAYS_S });
+  return jwt.sign(claims, secret(), { algorithm: "HS256", expiresIn: SEVEN_DAYS_S });
 }
 
 export function verifySession(token: string): SessionClaims | null {
   try {
-    const payload = jwt.verify(token, secret());
+    const payload = jwt.verify(token, secret(), { algorithms: ["HS256"] });
     if (typeof payload === "object" && typeof payload.user_id === "string") {
       return { user_id: payload.user_id };
     }

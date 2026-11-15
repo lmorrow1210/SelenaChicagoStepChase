@@ -551,7 +551,8 @@ export default function NemesisPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 700,
-            fontSize: 30,
+            fontSize: "var(--fs-h1)",
+            lineHeight: "var(--lh-heading)",
             textTransform: "uppercase",
             letterSpacing: "0.03em",
             color: "var(--phosphor)",

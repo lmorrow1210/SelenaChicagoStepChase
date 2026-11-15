@@ -78,3 +78,33 @@ Selena steals a small brass object from a private Chicago collection. The
 Bureau calls it stolen property; her trail hints at something more. This
 justifies the chase and gives Selena voice material. **It does not escalate,
 resolve, or pay off in-game this season.**
+
+---
+
+## Owner exception — the Week 13 send-off (2026-10-17)
+
+**Decided by the owner, 2026-10-17.** The season now **loops**: after Week 13
+(San Francisco) the chase returns to Week 1 Chicago and all player data
+(history, badges, dossier, streaks, group) is kept.
+
+The owner approved **one** exception to the "no season finale" line: a short
+(~15 s), skippable, replayable pixel-art send-off shown once when a player first
+reaches the Week 13 case-closed moment (`apps/web/lib/finale/`, route `/finale`
+for replay). In it the player's pixel avatar catches up to Selena Chicago on the
+San Francisco waterfront; she says, in her voice, that she loved the chase,
+signs off "— S.C.", and escapes on a cable car; an end card says the chase
+begins again in Chicago.
+
+**Limits — this exception is exactly this and nothing more:**
+
+- ❌ No lore, no Meridian, no conspiracy or evidence payoff, no Bureau-insider
+  reveal, nothing from [`PARKED-LORE.md`](PARKED-LORE.md).
+- ❌ No new characters, no cliffhanger, no promise of a "next mystery".
+- ❌ No depth tiers or multi-outcome endgame; every Week 13 outcome gets the
+  same send-off, and Selena's lines make no claim about performance.
+- ✅ It is a playful goodbye + restart. Copy lives in
+  `apps/web/lib/finale/copy.ts` and must stay on-voice
+  (see [`selena-voice-guide.md`](selena-voice-guide.md)).
+- The Week 13 season-close card header is "ONE LAP COMPLETE" (replaces
+  "THE CASE IS CLOSED" / "SEASON ONE COMPLETE"); the line "Whatever comes next,
+  you are ready for it." was cut.

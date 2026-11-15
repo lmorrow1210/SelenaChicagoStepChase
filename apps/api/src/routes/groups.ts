@@ -1,4 +1,5 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { createGroupSchema, joinGroupSchema, updateGroupCategoriesSchema, GROUP_MAX_MEMBERS } from "@one-step-ahead/shared";
 import { pool } from "../db/pool.js";
 import { generateInviteCode } from "../lib/inviteCode.js";
@@ -73,7 +74,19 @@ groupsRouter.post("/", async (req, res, next) => {
   }
 });
 
-groupsRouter.post("/join", async (req, res, next) => {
+// Invite codes are 6 characters; without a limit a signed-in account could
+// walk the code space and land in a stranger's group (and see their steps).
+const joinLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  keyGenerator: (req) => req.userId ?? req.ip ?? "anon",
+  handler: (_req, res) =>
+    res.status(429).json({
+      error: { code: "RATE_LIMITED", message: "Too many join attempts. Try again in 15 minutes." },
+    }),
+});
+
+groupsRouter.post("/join", joinLimit, async (req, res, next) => {
   try {
     const { invite_code } = joinGroupSchema.parse(req.body);
     const me = await pool.query("SELECT group_id FROM users WHERE id = $1", [req.userId]);
