@@ -16,7 +16,8 @@ import { selectPrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat
 import { calculateParticipationThreshold } from "@one-step-ahead/shared/season-one/specialOperations";
 import type { WeeklyOutcome } from "@one-step-ahead/shared";
 
-export const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
+import { DEMO } from "./demoFlags";
+export { DEMO };
 export const DEMO_WEEK_NUMBER = parseDemoWeekNumber(process.env.NEXT_PUBLIC_DEMO_WEEK);
 // NEXT_PUBLIC_DEMO_FINALE=1 → the demo map opens as the looped Week 1 with the
 // Week 13 case just closed, so the real flow plays: case report → send-off →

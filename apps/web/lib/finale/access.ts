@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
-import { DEMO } from "../demo";
+import { DEMO } from "../demoFlags";
 import { useSession } from "../session";
 import type { EvidenceBoardData } from "../narrative/EvidenceBoard";
 import { FINALE_WEEK_NUMBER } from "./trigger";

@@ -12,7 +12,6 @@ import EmptyState from "@one-step-ahead/design-system/components/feedback/EmptyS
 import Skeleton from "@one-step-ahead/design-system/components/feedback/Skeleton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { DataConfidence, RitualId, WeekPhase, WeeklyOutcome } from "@one-step-ahead/shared";
-import { getSeasonWeek } from "@one-step-ahead/shared/season-one/seasonOne";
 import type { PrimaryAction } from "@one-step-ahead/shared/season-one/primaryAction";
 import type { PrimaryBeat } from "@one-step-ahead/shared/season-one/primaryBeat";
 import type { ParticipationThresholdState } from "@one-step-ahead/shared/season-one/specialOperations";
@@ -22,7 +21,7 @@ import { useSession } from "../../../lib/session";
 import { CallingCard } from "../../../lib/CallingCard";
 import { SundayCountdown } from "../../../lib/SundayCountdown";
 import { MondayBriefing } from "../../../lib/narrative/MondayBriefing";
-import { CaseClosedReport } from "../../../lib/narrative/CaseClosedReport";
+import { useSeasonWeekConfig } from "../../../lib/narrative/useSeasonConfig";
 import { avatarChoiceFromUser, shouldAutoOpenFinale, shouldOpenFinaleNow } from "../../../lib/finale/trigger";
 import {
   CaseClosingState,
@@ -42,6 +41,13 @@ import { PredictionSection } from "./PredictionSection";
 // instead of shipping with every Map visit.
 const SeasonFinale = dynamic(
   () => import("../../../lib/finale/SeasonFinale").then((m) => m.SeasonFinale),
+  { ssr: false },
+);
+
+// The closing report is only seen once a week, and it carries its own slice of
+// the season config, so it loads when it opens.
+const CaseClosedReport = dynamic(
+  () => import("../../../lib/narrative/CaseClosedReport").then((m) => m.CaseClosedReport),
   { ssr: false },
 );
 
@@ -238,6 +244,10 @@ export default function MapPage() {
 
   const seasonState = map.data?.seasonState ?? null;
   const weekId = map.data?.week?.id ?? null;
+  // Season One config loads after first paint (see useSeasonConfig); the
+  // surfaces that need it are modal overlays and banners.
+  const weekConfig = useSeasonWeekConfig(seasonState?.season.weekNumber);
+  const previousCaseConfig = useSeasonWeekConfig(seasonState?.previousCase?.weekNumber);
 
   // Ritual overlays. The briefing auto-opens until viewed and stays
   // reopenable; the case report auto-opens for an unviewed finalized case.
@@ -367,10 +377,6 @@ export default function MapPage() {
   }));
 
   const season = data.seasonState;
-  const weekConfig = season ? getSeasonWeek(season.season.weekNumber) ?? null : null;
-  const previousCaseConfig = season?.previousCase
-    ? getSeasonWeek(season.previousCase.weekNumber) ?? null
-    : null;
   const groupName = session.group?.name ?? "unit";
   const progressPercent = season ? Math.round(season.chase.finalProgress * 1000) / 10 : null;
   const viewerWeekSteps =

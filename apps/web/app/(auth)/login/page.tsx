@@ -4,7 +4,7 @@ import SelenaMark from "@one-step-ahead/design-system/components/game/SelenaMark
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "../../../lib/api";
-import { DEMO } from "../../../lib/demo";
+import { DEMO } from "../../../lib/demoFlags";
 import { withBase } from "../../../lib/links";
 import { useSession } from "../../../lib/session";
 
