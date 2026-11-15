@@ -1,7 +1,7 @@
 // Generated from apps/api/openapi.yaml — regenerate with `npm run gen:api-types -w apps/web`.
 export type { paths as ApiPaths, components as ApiComponents } from "./api-types";
 
-import { DEMO, demoResponse, demoMutation } from "./demo";
+import { DEMO } from "./demoFlags";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const BASE = API_BASE;
@@ -19,6 +19,9 @@ export class ApiError extends Error {
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   // Static demo build (GitHub Pages): no backend — resolve baked fixtures.
   if (DEMO) {
+    // Loaded on demand: the fixtures carry the whole Season One config, which
+    // the live build never needs and the demo needs only after first paint.
+    const { demoResponse, demoMutation } = await import("./demo");
     const method = (init?.method ?? "GET").toUpperCase();
     if (method !== "GET") return demoMutation<T>(path, init?.body);
     const fixture = demoResponse<T>(path);
