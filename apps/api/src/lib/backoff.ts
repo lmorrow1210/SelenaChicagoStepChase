@@ -8,7 +8,9 @@ export class RetryableError extends Error {
 export function isRetryable(err: unknown): boolean {
   if (err instanceof RetryableError) return true;
   const status = (err as { status?: number } | null)?.status;
-  return status === 429 || status === 503;
+  // 429 rate limit; 502/503/504 transient gateway errors (Google's Health
+  // API guidance names 429 and 504 as retryable).
+  return status === 429 || status === 502 || status === 503 || status === 504;
 }
 
 export interface BackoffOptions {
@@ -24,7 +26,7 @@ export interface BackoffOptions {
 const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /**
- * Run `fn`, retrying retryable failures (429/503) with exponential backoff
+ * Run `fn`, retrying retryable failures (429/502/503/504) with exponential backoff
  * and full jitter. Non-retryable errors rethrow immediately; the last
  * retryable error rethrows once tries are exhausted.
  */

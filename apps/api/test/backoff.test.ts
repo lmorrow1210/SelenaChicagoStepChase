@@ -61,6 +61,9 @@ describe("withBackoff (plan §5: 429 storm)", () => {
     expect(isRetryable(new RetryableError("x"))).toBe(true);
     expect(isRetryable(Object.assign(new Error("x"), { status: 429 }))).toBe(true);
     expect(isRetryable(Object.assign(new Error("x"), { status: 503 }))).toBe(true);
+    expect(isRetryable(Object.assign(new Error("x"), { status: 504 }))).toBe(true);
+    expect(isRetryable(Object.assign(new Error("x"), { status: 502 }))).toBe(true);
+    expect(isRetryable(Object.assign(new Error("x"), { status: 400 }))).toBe(false);
     expect(isRetryable(Object.assign(new Error("x"), { status: 500 }))).toBe(false);
     expect(isRetryable(new Error("x"))).toBe(false);
   });

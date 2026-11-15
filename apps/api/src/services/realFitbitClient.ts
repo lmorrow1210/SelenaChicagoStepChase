@@ -38,6 +38,18 @@ export class NotConnectedError extends Error {
   }
 }
 
+/**
+ * The API answered 200 but not in the shape this client parses. Thrown for
+ * the REQUIRED steps pull so a changed/misread response fails that user's
+ * sync (logged, retried next tick) instead of silently recording a zero-step
+ * day. The message names fields only — never values.
+ */
+export class HealthShapeError extends Error {
+  constructor(detail: string) {
+    super(`Health API response shape not recognized: ${detail}`);
+  }
+}
+
 class HttpError extends Error {
   constructor(
     public status: number,
@@ -192,6 +204,40 @@ export class RealFitbitClient implements FitbitClient {
     return { ...point, ...asRecord(point.value) };
   }
 
+  /**
+   * Required daily step total. Three cases, kept deliberately distinct:
+   *  - no rollup point for the day (empty list, or an empty `{}` body — JSON
+   *    omits empty repeated fields) → a real zero: nothing was recorded;
+   *  - a point with a parseable `steps.countSum` (including "0") → that value;
+   *  - anything else (a non-empty body without the list, or a point without a
+   *    numeric countSum) → HealthShapeError. Recording 0 there would quietly
+   *    corrupt totals, predictions and badges for every player.
+   */
+  private async dailySteps(userId: string, date: string): Promise<number> {
+    const res = await this.request(userId, `/users/me/dataTypes/steps/dataPoints:dailyRollUp`, {
+      range: { start: { date: civilDate(date) }, end: { date: civilDate(nextDate(date)) } },
+      windowSizeDays: 1,
+    });
+    const points = field(res, "rollupDataPoints");
+    if (points === undefined) {
+      const keys = Object.keys(res).filter((k) => k !== "nextPageToken" && k !== "next_page_token");
+      if (keys.length === 0) return 0;
+      throw new HealthShapeError(`steps roll-up has no rollupDataPoints (keys: ${keys.sort().join(", ")})`);
+    }
+    if (!Array.isArray(points)) throw new HealthShapeError("steps rollupDataPoints is not a list");
+    if (points.length === 0) return 0;
+
+    const point = asRecord(points[0]);
+    const merged = { ...point, ...asRecord(point.value) };
+    const count = asNumber(field(asRecord(field(merged, "steps")), "countSum"));
+    if (count === null || count < 0) {
+      throw new HealthShapeError(
+        `steps roll-up point has no numeric steps.countSum (keys: ${Object.keys(merged).sort().join(", ")})`,
+      );
+    }
+    return Math.round(count);
+  }
+
   /** GET …/dataPoints filtered to sessions whose civil time falls on `date`. */
   private async listSessions(
     userId: string,
@@ -219,8 +265,9 @@ export class RealFitbitClient implements FitbitClient {
    */
   async fetchDay(userId: string, date: string): Promise<DayMetrics> {
     // Steps are required — a failure here throws so the run retries next tick.
-    const stepsRoll = await this.dailyRollUp(userId, "steps", date);
-    const steps = asNumber(field(asRecord(field(stepsRoll, "steps")), "countSum")) ?? 0;
+    // A response we cannot read also throws (HealthShapeError) — never a
+    // silent zero.
+    const steps = await this.dailySteps(userId, date);
 
     // Active zone minutes double as the hr_zones source: the rollup reports
     // per-zone sums (fat burn / cardio / peak), the same zones the bingo
@@ -273,13 +320,27 @@ export class RealFitbitClient implements FitbitClient {
     try {
       // A night's sleep belongs to the day it ends on (wake-up morning).
       const sessions = await this.listSessions(userId, "sleep", "civil_end_time", date);
-      const main = asRecord(field(asRecord(sessions[0]), "sleep"));
-      const summary = asRecord(field(main, "summary"));
-      sleep_minutes =
-        asNumber(field(summary, "minutesAsleep")) ??
-        asNumber(field(summary, "minutesInSleepPeriod"));
-      const start = field(asRecord(field(main, "interval")), "startTime");
-      bedtime = typeof start === "string" ? start : null;
+      // Several sessions can end on one morning (the night plus a nap, and
+      // the API lists newest first). The main sleep is the LONGEST one —
+      // taking sessions[0] could report a 20-minute nap as the night and its
+      // start as "bedtime".
+      let best: { minutes: number; start: unknown } | null = null;
+      for (const session of sessions) {
+        const sleep = asRecord(field(session, "sleep"));
+        const summary = asRecord(field(sleep, "summary"));
+        const interval = asRecord(field(sleep, "interval"));
+        const start = field(interval, "startTime");
+        const minutes =
+          asNumber(field(summary, "minutesAsleep")) ??
+          asNumber(field(summary, "minutesInSleepPeriod")) ??
+          minutesBetween(start, field(interval, "endTime"));
+        if (minutes === null) continue;
+        if (!best || minutes > best.minutes) best = { minutes, start };
+      }
+      if (best) {
+        sleep_minutes = best.minutes;
+        bedtime = typeof best.start === "string" ? best.start : null;
+      }
     } catch (err) {
       if (err instanceof InvalidGrantError) throw err;
       // partial sync: missing sleep is fine
