@@ -51,6 +51,11 @@ export function CaseClosedReport({
   const interceptClue = getEvidence(weekConfig.evidence.interceptClueId);
   const teaser = weekConfig.nextCityTeaser;
   const showSelena = data.dataConfidence === "verified";
+  // Only an interception unlocks the intercept clue, so only an interception
+  // may see a teaser that restates it. Everyone else gets the fallback copy.
+  const intercepted = data.outcome === "interception";
+  const teaserBody = intercepted ? teaser.body : (teaser.bodyWithoutIntercept ?? teaser.body);
+  const teaserSelena = intercepted ? teaser.selena : (teaser.selenaWithoutIntercept ?? teaser.selena);
   const unitProgress =
     data.groupTotalSteps != null && data.finalProgress != null
       ? `${data.groupName} logged ${numberFormat.format(data.groupTotalSteps)} verified steps and closed ${Math.round(data.finalProgress * 1000) / 10}% of Selena's starting lead.`
@@ -128,8 +133,8 @@ export function CaseClosedReport({
 
       <section className="reportSection teaser" aria-label="Next city">
         <h2>{teaser.header}</h2>
-        <p className="teaserBody">{teaser.body}</p>
-        {showSelena && <SelenaLine>{teaser.selena}</SelenaLine>}
+        <p className="teaserBody">{teaserBody}</p>
+        {showSelena && <SelenaLine>{teaserSelena}</SelenaLine>}
         <button type="button" className="primary" onClick={onTeaserCta ?? onDismiss}>
           {teaser.cta}
         </button>

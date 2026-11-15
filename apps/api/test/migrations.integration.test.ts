@@ -23,7 +23,7 @@ describeDb("full migration integrity", () => {
     await pool.end();
   });
 
-  it("builds the final schema and seed state from migrations 001 through 012", async () => {
+  it("builds the final schema and seed state from migrations 001 through 013", async () => {
     const tables = await pool.query<{ table_name: string }>(
       `SELECT table_name
        FROM information_schema.tables
@@ -101,6 +101,9 @@ describeDb("full migration integrity", () => {
     const before = await landmarkSnapshot();
     await pool.query(await readFile(new URL("010_detroit_landmarks_sync.sql", MIGRATIONS_URL), "utf8"));
     await pool.query(await readFile(new URL("011_weeks_03_13_landmarks_sync.sql", MIGRATIONS_URL), "utf8"));
+    // 011 re-asserts the original wording of two facts that 013 corrects, so
+    // replaying the chain in order is the real "re-run" scenario.
+    await pool.query(await readFile(new URL("013_landmark_fact_fixes.sql", MIGRATIONS_URL), "utf8"));
     const after = await landmarkSnapshot();
 
     expect(after).toEqual(before);
@@ -113,6 +116,19 @@ describeDb("full migration integrity", () => {
       name: "San Francisco Cable Cars",
     });
     expect(after.find((row) => row.route_order === 13 && row.day === 5)?.fun_fact).toContain("moving national landmark");
+  });
+
+  it("013 corrects the Santa Monica Pier and Zilker Park fun facts", async () => {
+    const rows = await landmarkSnapshot();
+    const pier = rows.find((row) => row.route_order === 12 && row.day === 3);
+    const zilker = rows.find((row) => row.route_order === 10 && row.day === 5);
+
+    expect(pier).toMatchObject({ name: "Santa Monica Pier" });
+    expect(pier?.fun_fact).toContain("since 1909");
+    expect(pier?.fun_fact).not.toMatch(/amusement/i);
+    expect(zilker).toMatchObject({ name: "Zilker Park" });
+    expect(zilker?.fun_fact).toContain("flow on into Barton Creek");
+    expect(zilker?.fun_fact).not.toContain("feed");
   });
 });
 

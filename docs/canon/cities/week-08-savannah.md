@@ -185,6 +185,10 @@ they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checke
 **Selena:** "In New Orleans, some directions are carried in a beat. You will have to learn to keep time." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The blank square stayed blank. The Bureau has a single confirmed heading out of Savannah, and it runs west to New Orleans.  
+**Selena (no interception):** "New Orleans is loud. I find that a useful place to be quiet in." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items — classification

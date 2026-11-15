@@ -185,6 +185,10 @@ they ship `null` until unlocked (spoiler rule). **All five fun facts fact-checke
 **Selena:** "There is a frequency in Austin that stopped mid-sentence. I want to know who was talking, and why they stopped." — S.C.  
 **CTA:** Continue the pursuit
 
+**Body (no interception):** The notation is logged. What it opens is not. The pursuit continues west, with the subject last placed on the road to Austin.  
+**Selena (no interception):** "Austin is a long way from here. I am told your unit owns sensible shoes." — S.C.  
+*Shown to trail-lost, pursuit-maintained and close-encounter outcomes. Only an interception sees the full body above, which restates the intercept clue.*
+
 ---
 
 ## Bingo items — classification
